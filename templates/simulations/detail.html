@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ simulation.title }} - Simulyatsiya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="card-title fw-bold">{{ simulation.title }}</h1>
+                        <span class="type-badge {{ simulation.simulation_type }}">
+                            {{ simulation.get_simulation_type_display }}
+                        </span>
+                    </div>
+                    
+                    <p class="card-text">{{ simulation.description }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ simulation.created_at|date:"d M Y, H:i" }}
+                        </small>
+                        <div>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Orqaga
+                            </a>
+                            <a href="{% url 'run_simulation' simulation.pk %}" target="_blank" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play me-2"></i>Simulyatsiyani ishga tushirish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-code me-2"></i>Kod ko'rinishi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if simulation.html_code %}
+                    <div class="mb-3">
+                        <h6 class="text-danger">
+                            <i class="fab fa-html5 me-1"></i>HTML
+                        </h6>
+                        <pre class="code-preview"><code>{{ simulation.html_code|truncatewords:10 }}</code></pre>
+                    </div>
+                    {% endif %}
+                    
+                    {% if simulation.css_code %}
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fab fa-css3-alt me-1"></i>CSS
+                        </h6>
+                        <pre class="code-preview"><code>{{ simulation.css_code|truncatewords:10 }}</code></pre>
+                    </div>
+                    {% endif %}
+                    
+                    {% if simulation.js_code %}
+                    <div class="mb-3">
+                        <h6 class="text-warning">
+                            <i class="fab fa-js-square me-1"></i>JavaScript
+                        </h6>
+                        <pre class="code-preview"><code>{{ simulation.js_code|truncatewords:10 }}</code></pre>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.code-preview {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 0.8rem;
+    max-height: 100px;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
