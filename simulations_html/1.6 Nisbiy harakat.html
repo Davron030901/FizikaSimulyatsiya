@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nisbiy Harakat Simulyatsiyasi</title>
+    <style>
+        :root {
+            --main-bg: #f8fafc;
+            --panel-bg: #fff;
+            --accent: #2563eb;
+            --accent2: #22d3ee;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --text: #222;
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        html, body {
+            margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--main-bg); color: var(--text); height: 100%; min-height: 100vh;
+        }
+        .container {
+            max-width: 900px; margin: 0 auto; padding: 1rem; display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .sim-panel {
+            background: var(--panel-bg); border-radius: 1rem; box-shadow: var(--shadow); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .canvas-wrap {
+            width: 100%; aspect-ratio: 16/7; background: #e0e7ef; border-radius: 1rem; overflow: hidden; position: relative;
+        }
+        canvas {
+            width: 100%; height: 100%; display: block;
+        }
+        .controls {
+            display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;
+        }
+        .control-group {
+            display: flex; flex-direction: column; gap: 0.3rem; min-width: 120px;
+        }
+        .control-group label {
+            font-size: 0.95rem; color: var(--muted);
+        }
+        .control-group input[type=range] {
+            width: 100%;
+        }
+        .control-group input[type=number] {
+            width: 70px; border: 1px solid var(--border); border-radius: 0.4rem; padding: 0.2rem 0.5rem; font-size: 1rem;
+        }
+        .btns {
+            display: flex; gap: 0.7rem;
+        }
+        button {
+            background: var(--accent); color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem 1.2rem; font-size: 1rem; cursor: pointer; transition: background 0.2s;
+        }
+        button:active { background: var(--accent2); }
+        .info-panel {
+            background: #f1f5f9; border-radius: 0.7rem; padding: 1rem; font-size: 1.05rem; color: var(--muted);
+        }
+        .math {
+            font-family: 'Cambria Math', 'Times New Roman', serif; font-size: 1.1em; color: var(--accent);
+        }
+        .values {
+            display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 0.5rem;
+        }
+        .value {
+            background: #e0e7ef; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 1.05rem;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 0.2rem; }
+            .sim-panel { padding: 0.7rem; }
+            .canvas-wrap { aspect-ratio: 16/12; }
+            .controls { flex-direction: column; gap: 0.7rem; }
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Nisbiy Harakat Simulyatsiyasi</h2>
+    <div class="sim-panel">
+        <div class="canvas-wrap">
+            <canvas id="simCanvas"></canvas>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="trainSpeed">Poyezd tezligi (v<sub>p</sub>, m/s)</label>
+                <input type="range" id="trainSpeed" min="-30" max="30" step="0.1" value="-10">
+                <input type="number" id="trainSpeedNum" min="-30" max="30" step="0.1" value="-10">
+            </div>
+            <div class="control-group">
+                <label for="passengerSpeed">Yo'lovchi tezligi (v<sub>y</sub>, m/s, poyezdga nisbatan)</label>
+                <input type="range" id="passengerSpeed" min="-10" max="10" step="0.1" value="2">
+                <input type="number" id="passengerSpeedNum" min="-10" max="10" step="0.1" value="2">
+            </div>
+            <div class="control-group">
+                <label for="angle">Yo'lovchi yo'nalishi (&theta;, gradus)</label>
+                <input type="range" id="angle" min="-180" max="180" step="1" value="0">
+                <input type="number" id="angleNum" min="-180" max="180" step="1" value="0">
+            </div>
+            <div class="btns">
+                <button id="playBtn">▶</button>
+                <button id="pauseBtn">⏸</button>
+                <button id="resetBtn">🔄</button>
+            </div>
+            <div class="control-group">
+                <label for="speedCtrl">Animatsiya tezligi</label>
+                <input type="range" id="speedCtrl" min="0.1" max="5" step="0.1" value="1">
+                <input type="number" id="speedCtrlNum" min="0.1" max="5" step="0.1" value="1">
+            </div>
+        </div>
+        <div class="values" id="currentValues"></div>
+        <div class="info-panel">
+            <b>Nisbiy tezlik formulasi:</b><br>
+            <span class="math">v_{yo'lovchi, yerga} = v_{yo'lovchi, poyezdga} + v_{poyezd, yerga}</span><br>
+            <span class="math">\( \vec{v}_{ab} = \vec{v}_a - \vec{v}_b \)</span>
+        </div>
+    </div>
+    <div class="info-panel">
+        <b>Teoriya:</b> Nisbiy harakatda har bir jismning tezligi va koordinatasi tanlangan sanoq tizimiga bog'liq. Poyezd va yo'lovchi misolida, yo'lovchining yerga nisbatan tezligi poyezdga nisbatan tezligi va poyezdning yerga nisbatan tezligining vektorli yig'indisiga teng. <br>
+        <b>Formulalar:</b>
+        <ul>
+            <li><span class="math">\( \vec{v}_{yo'lovchi, yerga} = \vec{v}_{yo'lovchi, poyezdga} + \vec{v}_{poyezd, yerga} \)</span></li>
+            <li><span class="math">\( \vec{r}_{yo'lovchi, yerga} = \vec{r}_{yo'lovchi, poyezdga} + \vec{r}_{poyezd, yerga} \)</span></li>
+        </ul>
+        <b>Real misol:</b> Agar poyezd sharqqa 10 m/s tezlikda harakat qilsa va yo'lovchi poyezd ichida shimolga 2 m/s tezlikda yursa, yo'lovchining yerga nisbatan tezligi vektorlar yig'indisi orqali topiladi.
+    </div>
+</div>
+<script>
+// --- State ---
+const state = {
+    trainSpeed: -10, // m/s (negative for left movement)
+    passengerSpeed: 2, // m/s
+    angle: 0, // deg
+    animSpeed: 1, // 1x
+    running: false,
+    t: 0,
+    lastFrame: null,
+    trainX: 400, // start from center-right, visible
+    passengerRelX: 60,
+    passengerRelY: 40,
+    width: 0,
+    height: 0
+};
+
+// --- DOM ---
+const trainSpeed = document.getElementById('trainSpeed');
+const trainSpeedNum = document.getElementById('trainSpeedNum');
+const passengerSpeed = document.getElementById('passengerSpeed');
+const passengerSpeedNum = document.getElementById('passengerSpeedNum');
+const angle = document.getElementById('angle');
+const angleNum = document.getElementById('angleNum');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const speedCtrl = document.getElementById('speedCtrl');
+const speedCtrlNum = document.getElementById('speedCtrlNum');
+const currentValues = document.getElementById('currentValues');
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- Responsive Canvas ---
+function resizeCanvas() {
+    const wrap = canvas.parentElement;
+    state.width = wrap.clientWidth;
+    state.height = wrap.clientHeight;
+    canvas.width = state.width;
+    canvas.height = state.height;
+    // Update train position if needed
+    if (state.trainX === 400) {
+        state.trainX = state.width * 0.5;
+    }
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// --- Controls Sync ---
+function syncInputs(range, num) {
+    range.addEventListener('input', () => { num.value = range.value; updateState(); });
+    num.addEventListener('input', () => { range.value = num.value; updateState(); });
+}
+syncInputs(trainSpeed, trainSpeedNum);
+syncInputs(passengerSpeed, passengerSpeedNum);
+syncInputs(angle, angleNum);
+syncInputs(speedCtrl, speedCtrlNum);
+
+function updateState() {
+    state.trainSpeed = parseFloat(trainSpeed.value);
+    state.passengerSpeed = parseFloat(passengerSpeed.value);
+    state.angle = parseFloat(angle.value);
+    state.animSpeed = parseFloat(speedCtrl.value);
+    renderValues();
+}
+
+// --- Animation ---
+function play() { state.running = true; if (!state.lastFrame) requestAnimationFrame(loop); }
+function pause() { state.running = false; }
+function reset() { 
+    state.t = 0; 
+    state.trainX = state.width ? state.width * 0.5 : 400; // start from center
+    state.passengerRelX = 60; 
+    state.passengerRelY = 40; 
+    state.lastFrame = null; 
+    render(); 
+    renderValues(); 
+}
+playBtn.onclick = play;
+pauseBtn.onclick = pause;
+resetBtn.onclick = reset;
+
+// --- Main Loop ---
+function loop(ts) {
+    if (!state.running) { state.lastFrame = null; return; }
+    if (!state.lastFrame) state.lastFrame = ts;
+    const dt = (ts - state.lastFrame) / 1000 * state.animSpeed;
+    state.lastFrame = ts;
+    state.t += dt;
+    
+    // Update positions
+    state.trainX += state.trainSpeed * dt * 5; // scale for canvas
+    
+    // Wrap train position around screen edges
+    const trainW = 180;
+    if (state.trainSpeed > 0 && state.trainX > state.width + trainW) {
+        state.trainX = -trainW;
+    } else if (state.trainSpeed < 0 && state.trainX < -trainW) {
+        state.trainX = state.width + trainW;
+    }
+    
+    const rad = state.angle * Math.PI / 180;
+    state.passengerRelX += Math.cos(rad) * state.passengerSpeed * dt * 5;
+    state.passengerRelY -= Math.sin(rad) * state.passengerSpeed * dt * 5;
+    
+    // Keep passenger within reasonable bounds relative to train
+    state.passengerRelX = Math.max(-50, Math.min(230, state.passengerRelX));
+    state.passengerRelY = Math.max(-80, Math.min(80, state.passengerRelY));
+    
+    render();
+    renderValues();
+    requestAnimationFrame(loop);
+}
+
+// --- Drawing ---
+function render() {
+    ctx.clearRect(0, 0, state.width, state.height);
+    
+    // Draw ground
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(0, state.height - 30, state.width, 30);
+    
+    // Draw train
+    const trainW = 180, trainH = 40;
+    ctx.save();
+    ctx.translate(state.trainX, state.height - 60);
+    ctx.font = '32px Arial';
+    ctx.fillStyle = '#000';
+    
+    // Train direction based on speed
+    if (state.trainSpeed >= 0) {
+        // Moving right - normal orientation
+        ctx.fillText('🚃', 10, 30);
+        ctx.fillText('🚃', 70, 30);
+        ctx.fillText('🚂', 130, 30);
+    } else {
+        // Moving left - flip horizontally
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.fillText('🚂', -140, 30);
+        ctx.fillText('🚃', -80, 30);
+        ctx.fillText('🚃', -20, 30);
+        ctx.restore();
+    }
+    ctx.restore();
+    
+    // Draw passenger
+    ctx.save();
+    ctx.translate(state.trainX + state.passengerRelX, state.height - 60 + state.passengerRelY);
+    ctx.font = '24px Arial';
+    ctx.fillStyle = '#000';
+    
+    // Passenger direction based on movement
+    const rad = state.angle * Math.PI / 180;
+    const passengerVx = state.trainSpeed + Math.cos(rad) * state.passengerSpeed;
+    const passengerVy = -Math.sin(rad) * state.passengerSpeed;
+    
+    // Choose passenger emoji based on direction
+    if (Math.abs(passengerVx) > Math.abs(passengerVy)) {
+        if (passengerVx >= 0) {
+            // Moving right - normal orientation
+            ctx.fillText('🚶', -12, 8);
+        } else {
+            // Moving left - flip horizontally
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.fillText('🚶', 12, 8);
+            ctx.restore();
+        }
+    } else if (passengerVy > 0) {
+        ctx.fillText('🚶‍♂️', -12, 8);
+    } else {
+        ctx.fillText('🚶', -12, 8);
+    }
+    
+    // Draw direction vector (passenger rel train)
+    drawVector(0, 0, Math.cos(rad) * 40, -Math.sin(rad) * 40, '#22d3ee', 'v<sub>y,p</sub>');
+    ctx.restore();
+    
+    // Draw train velocity vector
+    ctx.save();
+    ctx.translate(state.trainX + trainW / 2, state.height - 60 + trainH / 2);
+    drawVector(0, 0, state.trainSpeed * 8, 0, '#2563eb', 'v<sub>p,y</sub>');
+    ctx.restore();
+    
+    // Draw passenger velocity (relative to ground)
+    ctx.save();
+    const vx = state.trainSpeed + Math.cos(rad) * state.passengerSpeed;
+    const vy = -Math.sin(rad) * state.passengerSpeed;
+    ctx.translate(state.trainX + state.passengerRelX, state.height - 60 + state.passengerRelY);
+    drawVector(0, 0, vx * 8, vy * 8, '#ef4444', 'v<sub>y,yer</sub>');
+    ctx.restore();
+}
+
+function drawVector(x, y, dx, dy, color, label) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + dx, y + dy);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Arrowhead
+    const len = Math.sqrt(dx*dx + dy*dy);
+    if (len > 0) {
+        const ah = 10, aw = 6;
+        const angle = Math.atan2(dy, dx);
+        ctx.beginPath();
+        ctx.moveTo(x + dx, y + dy);
+        ctx.lineTo(x + dx - ah * Math.cos(angle - 0.3), y + dy - ah * Math.sin(angle - 0.3));
+        ctx.lineTo(x + dx - ah * Math.cos(angle + 0.3), y + dy - ah * Math.sin(angle + 0.3));
+        ctx.lineTo(x + dx, y + dy);
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+    
+    // Label
+    if (label) {
+        ctx.font = 'bold 15px Segoe UI';
+        ctx.fillStyle = color;
+        ctx.fillText(label, x + dx + 5, y + dy + 5);
+    }
+    ctx.restore();
+}
+
+// --- Values Display ---
+function renderValues() {
+    const rad = state.angle * Math.PI / 180;
+    const vx = state.trainSpeed + Math.cos(rad) * state.passengerSpeed;
+    const vy = -Math.sin(rad) * state.passengerSpeed;
+    currentValues.innerHTML = `
+        <div class="value">Poyezd: <b>${state.trainSpeed.toFixed(2)}</b> m/s</div>
+        <div class="value">Yo'lovchi (poyezdga): <b>${state.passengerSpeed.toFixed(2)}</b> m/s, &theta; = <b>${state.angle}&deg;</b></div>
+        <div class="value">Yo'lovchi (yerga): <b>${Math.sqrt(vx*vx+vy*vy).toFixed(2)}</b> m/s</div>
+        <div class="value">v<sub>y,yer</sub> = <b>(${vx.toFixed(2)}, ${vy.toFixed(2)})</b> m/s</div>
+        <div class="value">t = <b>${state.t.toFixed(2)}</b> s</div>
+    `;
+}
+
+// --- Touch/Swipe Support ---
+let touchStartX = null, touchStartY = null;
+canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }
+});
+canvas.addEventListener('touchmove', e => {
+    if (e.touches.length === 1 && touchStartX !== null) {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        // Horizontal swipe: change train speed
+        if (Math.abs(dx) > Math.abs(dy)) {
+            state.trainSpeed += dx * 0.01;
+            state.trainSpeed = Math.max(-30, Math.min(30, state.trainSpeed));
+            trainSpeed.value = trainSpeedNum.value = state.trainSpeed.toFixed(2);
+        } else {
+            // Vertical swipe: change passenger speed
+            state.passengerSpeed += -dy * 0.01;
+            state.passengerSpeed = Math.max(-10, Math.min(10, state.passengerSpeed));
+            passengerSpeed.value = passengerSpeedNum.value = state.passengerSpeed.toFixed(2);
+        }
+        updateState();
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }
+});
+canvas.addEventListener('touchend', () => {
+    touchStartX = null;
+    touchStartY = null;
+});
+
+// --- Keyboard Shortcuts ---
+document.addEventListener('keydown', e => {
+    if (e.key === ' ') { state.running ? pause() : play(); }
+    if (e.key === 'r') { reset(); }
+    if (e.key === 'ArrowUp') { state.passengerSpeed = Math.min(10, state.passengerSpeed + 0.2); passengerSpeed.value = passengerSpeedNum.value = state.passengerSpeed.toFixed(2); updateState(); }
+    if (e.key === 'ArrowDown') { state.passengerSpeed = Math.max(-10, state.passengerSpeed - 0.2); passengerSpeed.value = passengerSpeedNum.value = state.passengerSpeed.toFixed(2); updateState(); }
+    if (e.key === 'ArrowLeft') { state.trainSpeed = Math.max(-30, state.trainSpeed - 0.5); trainSpeed.value = trainSpeedNum.value = state.trainSpeed.toFixed(2); updateState(); }
+    if (e.key === 'ArrowRight') { state.trainSpeed = Math.min(30, state.trainSpeed + 0.5); trainSpeed.value = trainSpeedNum.value = state.trainSpeed.toFixed(2); updateState(); }
+});
+
+// --- Initial Render ---
+render();
+renderValues();
+</script>
+</body>
+</html>
