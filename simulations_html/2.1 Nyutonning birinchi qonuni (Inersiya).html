@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.1 Nyutonning birinchi qonuni (Inersiya)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+
+        .simulation-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .control-group h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .control-item label {
+            display: block;
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #495057;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .status-display {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: #1976D2;
+        }
+
+        .theory-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .theory-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .theory-content {
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .scenario-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .help-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .object-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+        .vector-legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .vector-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .vector-color {
+            width: 12px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .simulation-container {
+                padding: 15px;
+            }
+
+            #simulationCanvas {
+                height: 300px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+
+            .slider-container {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .value-display {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .control-group {
+                padding: 10px;
+            }
+
+            .status-display {
+                padding: 10px;
+            }
+
+            .theory-section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2.1 Nyutonning birinchi qonuni (Inersiya)</h1>
+            <p>Jism o'zining tinchlik holatini yoki tekis to'g'ri chiziqli harakat holatini saqlaydi</p>
+        </div>
+
+        <div class="simulation-container">
+            <div class="scenario-buttons">
+                <button class="btn btn-primary" onclick="setScenario('uniform')">Tekis harakat</button>
+                <button class="btn btn-secondary" onclick="setScenario('rest')">Tinchlik holati</button>
+                <button class="btn btn-warning" onclick="setScenario('force')">Kuch ta'siri</button>
+                <button class="btn btn-danger" onclick="setScenario('friction')">Ishqalanish</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="simulationCanvas"></canvas>
+                <div class="object-display">
+                    <div><strong>Jism:</strong> <span id="objectType">Kub</span></div>
+                    <div><strong>Massa:</strong> <span id="objectMass">1.0</span> kg</div>
+                    <div><strong>Tezlik:</strong> <span id="objectVelocity">0.0</span> m/s</div>
+                </div>
+                <div class="vector-legend">
+                    <div class="vector-item">
+                        <div class="vector-color" style="background: #ff4444;"></div>
+                        <span>Kuch (F)</span>
+                    </div>
+                    <div class="vector-item">
+                        <div class="vector-color" style="background: #4444ff;"></div>
+                        <span>Tezlik (v)</span>
+                    </div>
+                    <div class="vector-item">
+                        <div class="vector-color" style="background: #ff8800;"></div>
+                        <span>Ishqalanish (f)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-display">
+                <div class="status-item">
+                    <span>Harakat holati:</span>
+                    <span class="status-value" id="motionState">Tinch</span>
+                </div>
+                <div class="status-item">
+                    <span>Natijaviy kuch:</span>
+                    <span class="status-value" id="netForce">0.0 N</span>
+                </div>
+                <div class="status-item">
+                    <span>Tezlanish:</span>
+                    <span class="status-value" id="acceleration">0.0 m/s²</span>
+                </div>
+                <div class="status-item">
+                    <span>Inersiya:</span>
+                    <span class="status-value" id="inertiaState">Maksimal</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <h3>
+                        🎮 Simulyatsiya boshqaruvi
+                        <div class="tooltip">
+                            <button class="help-button">?</button>
+                            <span class="tooltiptext">Simulyatsiyani boshlash, to'xtatish va qayta boshlash</span>
+                        </div>
+                    </h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="playBtn" onclick="toggleSimulation()">▶ Boshlash</button>
+                        <button class="btn btn-secondary" onclick="resetSimulation()">🔄 Qayta boshlash</button>
+                        <button class="btn btn-warning" onclick="stepSimulation()">⏭ Qadam</button>
+                    </div>
+                    <div class="control-item">
+                        <label>Tezlik (0.1x - 5x):</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                            <div class="value-display" id="speedValue">1.0x</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>
+                        ⚖️ Jism parametrlari
+                        <div class="tooltip">
+                            <button class="help-button">?</button>
+                            <span class="tooltiptext">Jismning massasi va boshqa xususiyatlari</span>
+                        </div>
+                    </h3>
+                    <div class="control-item">
+                        <label>Massa (0.1 - 10 kg):</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="massSlider" min="0.1" max="10" step="0.1" value="1">
+                            <div class="value-display" id="massValue">1.0 kg</div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <label>Boshlang'ich tezlik (0 - 20 m/s):</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="velocitySlider" min="0" max="20" step="0.5" value="0">
+                            <div class="value-display" id="velocityValue">0.0 m/s</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>
+                        🔧 Kuch parametrlari
+                        <div class="tooltip">
+                            <button class="help-button">?</button>
+                            <span class="tooltiptext">Jismga qo'llaniladigan kuchlar</span>
+                        </div>
+                    </h3>
+                    <div class="control-item">
+                        <label>Qo'llaniladigan kuch (-50 - 50 N):</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="forceSlider" min="-50" max="50" step="1" value="0">
+                            <div class="value-display" id="forceValue">0.0 N</div>
+                        </div>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="frictionEnabled" checked>
+                        <label for="frictionEnabled">Ishqalanish mavjud</label>
+                    </div>
+                    <div class="control-item">
+                        <label>Ishqalanish koeffitsienti (0 - 1):</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="frictionSlider" min="0" max="1" step="0.01" value="0.1">
+                            <div class="value-display" id="frictionValue">0.10</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>
+                        📊 Ko'rsatish parametrlari
+                        <div class="tooltip">
+                            <button class="help-button">?</button>
+                            <span class="tooltiptext">Qanday ma'lumotlar ko'rsatilishini sozlash</span>
+                        </div>
+                    </h3>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="showVectors" checked>
+                        <label for="showVectors">Vektorlarni ko'rsatish</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="showTrail" checked>
+                        <label for="showTrail">Harakat izini ko'rsatish</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="showGrid">
+                        <label for="showGrid">Koordinata to'rini ko'rsatish</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="showMeasurements">
+                        <label for="showMeasurements">O'lchovlarni ko'rsatish</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>🧠 Nazariy ma'lumotlar</h2>
+            <div class="theory-content">
+                <p><strong>Nyutonning birinchi qonuni (Inersiya qonuni):</strong></p>
+                <div class="formula-box">
+                    <p>Agar jismga ta'sir qiluvchi barcha kuchlarning natijaviy kuchi nolga teng bo'lsa, jism o'zining tinchlik holatini yoki tekis to'g'ri chiziqli harakat holatini saqlaydi.</p>
+                </div>
+                
+                <p><strong>Matematik ifoda:</strong></p>
+                <div class="formula-box">
+                    $$\sum \vec{F} = 0 \Rightarrow \vec{v} = \text{const}$$
+                </div>
+
+                <p><strong>Inersiya:</strong> Jismning o'zining harakat holatini o'zgartirishga qarshilik ko'rsatish xususiyati.</p>
+                
+                <p><strong>Asosiy tushunchalar:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Massa - jismning inertsiyalik o'lchovi</li>
+                    <li>Kuch - jismning harakat holatini o'zgartiradigan ta'sir</li>
+                    <li>Ishqalanish - harakatga qarshi yo'nalgan kuch</li>
+                    <li>Muvozanat - barcha kuchlar natijaviy kuchi nolga teng</li>
+                </ul>
+
+                <p><strong>Haqiqiy hayotdagi misollar:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Avtomobil to'satdan to'xtaganda yo'lovchilar oldinga siljiydi</li>
+                    <li>Kosmik kemalar kuchsiz fazoda tekis harakat qiladi</li>
+                    <li>Stol ustidagi kitob o'z holatini saqlaydi</li>
+                    <li>Har qanday transport vositasida inersiya kuchi seziladi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas va kontekst
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas o'lchamlarini sozlash
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Simulyatsiya parametrlari
+        let simulation = {
+            isRunning: false,
+            speed: 1.0,
+            time: 0,
+            object: {
+                x: 50,
+                y: 200,
+                width: 40,
+                height: 40,
+                mass: 1.0,
+                velocity: 0,
+                acceleration: 0,
+                color: '#4CAF50'
+            },
+            forces: {
+                applied: 0,
+                friction: 0,
+                net: 0
+            },
+            friction: {
+                enabled: true,
+                coefficient: 0.1,
+                normalForce: 9.8 // mg/m = g
+            },
+            trail: [],
+            maxTrailLength: 200,
+            showVectors: true,
+            showTrail: true,
+            showGrid: false,
+            showMeasurements: false
+        };
+
+        // Element referenslari
+        const elements = {
+            playBtn: document.getElementById('playBtn'),
+            speedSlider: document.getElementById('speedSlider'),
+            speedValue: document.getElementById('speedValue'),
+            massSlider: document.getElementById('massSlider'),
+            massValue: document.getElementById('massValue'),
+            velocitySlider: document.getElementById('velocitySlider'),
+            velocityValue: document.getElementById('velocityValue'),
+            forceSlider: document.getElementById('forceSlider'),
+            forceValue: document.getElementById('forceValue'),
+            frictionEnabled: document.getElementById('frictionEnabled'),
+            frictionSlider: document.getElementById('frictionSlider'),
+            frictionValue: document.getElementById('frictionValue'),
+            showVectors: document.getElementById('showVectors'),
+            showTrail: document.getElementById('showTrail'),
+            showGrid: document.getElementById('showGrid'),
+            showMeasurements: document.getElementById('showMeasurements'),
+            // Status elements
+            objectMass: document.getElementById('objectMass'),
+            objectVelocity: document.getElementById('objectVelocity'),
+            motionState: document.getElementById('motionState'),
+            netForce: document.getElementById('netForce'),
+            acceleration: document.getElementById('acceleration'),
+            inertiaState: document.getElementById('inertiaState')
+        };
+
+        // Event listeners
+        elements.speedSlider.addEventListener('input', (e) => {
+            simulation.speed = parseFloat(e.target.value);
+            elements.speedValue.textContent = simulation.speed.toFixed(1) + 'x';
+        });
+
+        elements.massSlider.addEventListener('input', (e) => {
+            simulation.object.mass = parseFloat(e.target.value);
+            elements.massValue.textContent = simulation.object.mass.toFixed(1) + ' kg';
+            updatePhysics();
+        });
+
+        elements.velocitySlider.addEventListener('input', (e) => {
+            simulation.object.velocity = parseFloat(e.target.value);
+            elements.velocityValue.textContent = simulation.object.velocity.toFixed(1) + ' m/s';
+        });
+
+        elements.forceSlider.addEventListener('input', (e) => {
+            simulation.forces.applied = parseFloat(e.target.value);
+            elements.forceValue.textContent = simulation.forces.applied.toFixed(1) + ' N';
+            updatePhysics();
+        });
+
+        elements.frictionEnabled.addEventListener('change', (e) => {
+            simulation.friction.enabled = e.target.checked;
+            updatePhysics();
+        });
+
+        elements.frictionSlider.addEventListener('input', (e) => {
+            simulation.friction.coefficient = parseFloat(e.target.value);
+            elements.frictionValue.textContent = simulation.friction.coefficient.toFixed(2);
+            updatePhysics();
+        });
+
+        elements.showVectors.addEventListener('change', (e) => {
+            simulation.showVectors = e.target.checked;
+        });
+
+        elements.showTrail.addEventListener('change', (e) => {
+            simulation.showTrail = e.target.checked;
+        });
+
+        elements.showGrid.addEventListener('change', (e) => {
+            simulation.showGrid = e.target.checked;
+        });
+
+        elements.showMeasurements.addEventListener('change', (e) => {
+            simulation.showMeasurements = e.target.checked;
+        });
+
+        // Touch events
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isDragging = false;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            touchStartX = touch.clientX - rect.left;
+            touchStartY = touch.clientY - rect.top;
+            
+            // Jismni tutish
+            const obj = simulation.object;
+            if (touchStartX >= obj.x && touchStartX <= obj.x + obj.width &&
+                touchStartY >= obj.y && touchStartY <= obj.y + obj.height) {
+                isDragging = true;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            // Jismni surish
+            simulation.object.x = Math.max(0, Math.min(canvas.width - simulation.object.width, simulation.object.x + deltaX));
+            simulation.object.y = Math.max(0, Math.min(canvas.height - simulation.object.height, simulation.object.y + deltaY));
+            
+            touchStartX = touchX;
+            touchStartY = touchY;
+        });
+
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Mouse events
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Jismni yangi joyga ko'chirish
+            simulation.object.x = mouseX - simulation.object.width / 2;
+            simulation.object.y = mouseY - simulation.object.height / 2;
+            
+            // Chegaralarni tekshirish
+            simulation.object.x = Math.max(0, Math.min(canvas.width - simulation.object.width, simulation.object.x));
+            simulation.object.y = Math.max(0, Math.min(canvas.height - simulation.object.height, simulation.object.y));
+        });
+
+        // Fizik hisoblar
+        function updatePhysics() {
+            // Ishqalanish kuchi
+            if (simulation.friction.enabled && Math.abs(simulation.object.velocity) > 0.001) {
+                const frictionDirection = simulation.object.velocity > 0 ? -1 : 1;
+                simulation.forces.friction = frictionDirection * simulation.friction.coefficient * 
+                                           simulation.object.mass * simulation.friction.normalForce;
+            } else {
+                simulation.forces.friction = 0;
+            }
+
+            // Natijaviy kuch
+            simulation.forces.net = simulation.forces.applied + simulation.forces.friction;
+
+            // Tezlanish (F = ma)
+            simulation.object.acceleration = simulation.forces.net / simulation.object.mass;
+
+            // Tezlik va pozitsiya yangilash
+            if (simulation.isRunning) {
+                const dt = 0.016 * simulation.speed; // 60 FPS
+                simulation.object.velocity += simulation.object.acceleration * dt;
+                simulation.object.x += simulation.object.velocity * dt * 10; // Scale factor
+
+                // Chegaralarni tekshirish
+                if (simulation.object.x <= 0) {
+                    simulation.object.x = 0;
+                    simulation.object.velocity = 0;
+                }
+                if (simulation.object.x >= canvas.width - simulation.object.width) {
+                    simulation.object.x = canvas.width - simulation.object.width;
+                    simulation.object.velocity = 0;
+                }
+
+                // Iz qo'shish
+                if (simulation.showTrail) {
+                    simulation.trail.push({
+                        x: simulation.object.x + simulation.object.width / 2,
+                        y: simulation.object.y + simulation.object.height / 2,
+                        time: simulation.time
+                    });
+                    
+                    if (simulation.trail.length > simulation.maxTrailLength) {
+                        simulation.trail.shift();
+                    }
+                }
+
+                simulation.time += dt;
+            }
+
+            updateStatusDisplay();
+        }
+
+        // Status ko'rsatish
+        function updateStatusDisplay() {
+            elements.objectMass.textContent = simulation.object.mass.toFixed(1);
+            elements.objectVelocity.textContent = simulation.object.velocity.toFixed(1);
+            elements.netForce.textContent = simulation.forces.net.toFixed(1) + ' N';
+            elements.acceleration.textContent = simulation.object.acceleration.toFixed(1) + ' m/s²';
+
+            // Harakat holati
+            if (Math.abs(simulation.object.velocity) < 0.01) {
+                elements.motionState.textContent = 'Tinch';
+            } else if (Math.abs(simulation.object.acceleration) < 0.01) {
+                elements.motionState.textContent = 'Tekis harakat';
+            } else {
+                elements.motionState.textContent = 'Tezlanuvchan harakat';
+            }
+
+            // Inersiya holati
+            if (Math.abs(simulation.forces.net) < 0.01) {
+                elements.inertiaState.textContent = 'Maksimal';
+            } else {
+                elements.inertiaState.textContent = 'Kamaygan';
+            }
+        }
+
+        // Chizish funksiyalari
+        function drawGrid() {
+            if (!simulation.showGrid) return;
+            
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 50;
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawTrail() {
+            if (!simulation.showTrail || simulation.trail.length < 2) return;
+            
+            ctx.strokeStyle = 'rgba(76, 175, 80, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < simulation.trail.length; i++) {
+                const point = simulation.trail[i];
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+
+        function drawObject() {
+            const obj = simulation.object;
+            
+            // Jismning rangi massaga qarab
+            const intensity = Math.min(255, 100 + obj.mass * 50);
+            ctx.fillStyle = `rgb(${intensity}, ${200 - intensity/2}, ${100})`;
+            
+            // Jismni chizish
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            
+            // Chegaralar
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+            
+            // Massa ko'rsatish
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(obj.mass.toFixed(1) + 'kg', obj.x + obj.width/2, obj.y + obj.height/2 + 4);
+        }
+
+        function drawVectors() {
+            if (!simulation.showVectors) return;
+            
+            const obj = simulation.object;
+            const centerX = obj.x + obj.width / 2;
+            const centerY = obj.y + obj.height / 2;
+            const scale = 2;
+            
+            // Qo'llaniladigan kuch vektori
+            if (Math.abs(simulation.forces.applied) > 0.1) {
+                drawVector(centerX, centerY, simulation.forces.applied * scale, 0, '#ff4444', 'F');
+            }
+            
+            // Tezlik vektori
+            if (Math.abs(simulation.object.velocity) > 0.1) {
+                drawVector(centerX, centerY - 30, simulation.object.velocity * scale, 0, '#4444ff', 'v');
+            }
+            
+            // Ishqalanish vektori
+            if (Math.abs(simulation.forces.friction) > 0.1) {
+                drawVector(centerX, centerY + 30, simulation.forces.friction * scale, 0, '#ff8800', 'f');
+            }
+        }
+
+        function drawVector(x, y, magnitude, angle, color, label) {
+            const length = Math.abs(magnitude);
+            const direction = magnitude >= 0 ? 1 : -1;
+            
+            if (length < 1) return;
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 3;
+            
+            const endX = x + direction * length;
+            const endY = y;
+            
+            // Chiziq
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            
+            // O'q
+            const arrowSize = 8;
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - direction * arrowSize, endY - arrowSize/2);
+            ctx.lineTo(endX - direction * arrowSize, endY + arrowSize/2);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Label
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, endX + direction * 15, endY - 5);
+            ctx.fillText(magnitude.toFixed(1), endX + direction * 15, endY + 10);
+        }
+
+        function drawMeasurements() {
+            if (!simulation.showMeasurements) return;
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            
+            const measurements = [
+                `Vaqt: ${simulation.time.toFixed(1)}s`,
+                `Pozitsiya: ${(simulation.object.x / 10).toFixed(1)}m`,
+                `Tezlik: ${simulation.object.velocity.toFixed(1)}m/s`,
+                `Tezlanish: ${simulation.object.acceleration.toFixed(1)}m/s²`,
+                `Natijaviy kuch: ${simulation.forces.net.toFixed(1)}N`
+            ];
+            
+            for (let i = 0; i < measurements.length; i++) {
+                ctx.fillText(measurements[i], 10, canvas.height - 100 + i * 20);
+            }
+        }
+
+        // Asosiy render funksiyasi
+        function render() {
+            // Ekranni tozalash
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#98FB98');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Chizish
+            drawGrid();
+            drawTrail();
+            drawObject();
+            drawVectors();
+            drawMeasurements();
+            
+            // Fizik hisoblar
+            updatePhysics();
+            
+            // Animatsiya davom ettirish
+            requestAnimationFrame(render);
+        }
+
+        // Boshqaruv funksiyalari
+        function toggleSimulation() {
+            simulation.isRunning = !simulation.isRunning;
+            elements.playBtn.textContent = simulation.isRunning ? '⏸ To\'xtatish' : '▶ Boshlash';
+        }
+
+        function resetSimulation() {
+            simulation.isRunning = false;
+            simulation.time = 0;
+            simulation.object.x = 50;
+            simulation.object.y = 200;
+            simulation.object.velocity = 0;
+            simulation.object.acceleration = 0;
+            simulation.trail = [];
+            elements.playBtn.textContent = '▶ Boshlash';
+            updatePhysics();
+        }
+
+        function stepSimulation() {
+            if (!simulation.isRunning) {
+                updatePhysics();
+                const dt = 0.016 * simulation.speed;
+                simulation.object.velocity += simulation.object.acceleration * dt;
+                simulation.object.x += simulation.object.velocity * dt * 10;
+                
+                if (simulation.object.x <= 0) {
+                    simulation.object.x = 0;
+                    simulation.object.velocity = 0;
+                }
+                if (simulation.object.x >= canvas.width - simulation.object.width) {
+                    simulation.object.x = canvas.width - simulation.object.width;
+                    simulation.object.velocity = 0;
+                }
+                
+                simulation.time += dt;
+            }
+        }
+
+        // Scenario funksiyalari
+        function setScenario(type) {
+            resetSimulation();
+            
+            switch(type) {
+                case 'uniform':
+                    simulation.object.velocity = 10;
+                    simulation.forces.applied = 0;
+                    simulation.friction.enabled = false;
+                    elements.velocitySlider.value = 10;
+                    elements.velocityValue.textContent = '10.0 m/s';
+                    elements.forceSlider.value = 0;
+                    elements.forceValue.textContent = '0.0 N';
+                    elements.frictionEnabled.checked = false;
+                    break;
+                    
+                case 'rest':
+                    simulation.object.velocity = 0;
+                    simulation.forces.applied = 0;
+                    simulation.friction.enabled = true;
+                    elements.velocitySlider.value = 0;
+                    elements.velocityValue.textContent = '0.0 m/s';
+                    elements.forceSlider.value = 0;
+                    elements.forceValue.textContent = '0.0 N';
+                    elements.frictionEnabled.checked = true;
+                    break;
+                    
+                case 'force':
+                    simulation.object.velocity = 0;
+                    simulation.forces.applied = 20;
+                    simulation.friction.enabled = false;
+                    elements.velocitySlider.value = 0;
+                    elements.velocityValue.textContent = '0.0 m/s';
+                    elements.forceSlider.value = 20;
+                    elements.forceValue.textContent = '20.0 N';
+                    elements.frictionEnabled.checked = false;
+                    break;
+                    
+                case 'friction':
+                    simulation.object.velocity = 15;
+                    simulation.forces.applied = 0;
+                    simulation.friction.enabled = true;
+                    simulation.friction.coefficient = 0.3;
+                    elements.velocitySlider.value = 15;
+                    elements.velocityValue.textContent = '15.0 m/s';
+                    elements.forceSlider.value = 0;
+                    elements.forceValue.textContent = '0.0 N';
+                    elements.frictionEnabled.checked = true;
+                    elements.frictionSlider.value = 0.3;
+                    elements.frictionValue.textContent = '0.30';
+                    break;
+            }
+            
+            updatePhysics();
+        }
+
+        // Klaviatura boshqaruvi
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    toggleSimulation();
+                    break;
+                case 'r':
+                    resetSimulation();
+                    break;
+                case 's':
+                    stepSimulation();
+                    break;
+                case 'ArrowLeft':
+                    simulation.forces.applied = Math.max(-50, simulation.forces.applied - 1);
+                    elements.forceSlider.value = simulation.forces.applied;
+                    elements.forceValue.textContent = simulation.forces.applied.toFixed(1) + ' N';
+                    updatePhysics();
+                    break;
+                case 'ArrowRight':
+                    simulation.forces.applied = Math.min(50, simulation.forces.applied + 1);
+                    elements.forceSlider.value = simulation.forces.applied;
+                    elements.forceValue.textContent = simulation.forces.applied.toFixed(1) + ' N';
+                    updatePhysics();
+                    break;
+            }
+        });
+
+        // Haptik feedback (mobil qurilmalar uchun)
+        function hapticFeedback() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Boshlang'ich sozlamalar
+        updatePhysics();
+        render();
+        
+        // MathJax ni qayta render qilish
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
