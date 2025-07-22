@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.2 Nyutonning ikkinchi qonuni (F = ma)</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .simulation-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simulation-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #764ba2, #667eea);
+        }
+
+        .canvas-container {
+            position: relative;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #simulationCanvas {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .control-group h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h3::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider-value {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+        }
+
+        .control-button.active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .preset-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .values-display {
+            background: linear-gradient(45deg, #495057, #343a40);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .value-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .value-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .value-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .value-unit {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .theory-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theory-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .theory-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .formula-display {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .help-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 20px;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-button:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .speed-display {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .simulation-panel, .controls-panel {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .control-button {
+                width: 100%;
+            }
+
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .help-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .simulation-panel, .controls-panel, .theory-section {
+                padding: 15px;
+            }
+
+            #simulationCanvas {
+                width: 100%;
+                height: 250px;
+            }
+        }
+
+        /* Touch-friendly styles */
+        @media (hover: none) {
+            .slider::-webkit-slider-thumb {
+                width: 25px;
+                height: 25px;
+            }
+
+            .control-button {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Animation classes */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>2.2 Nyutonning ikkinchi qonuni</h1>
+            <p>F = ma - Kuch, massa va tezlanish o'rtasidagi bog'lanish</p>
+        </header>
+
+        <div class="main-content">
+            <div class="simulation-panel">
+                <h2>Simulyatsiya</h2>
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas" width="500" height="400"></canvas>
+                </div>
+                
+                <div class="button-group">
+                    <button class="control-button" id="playButton">▶️ Boshlash</button>
+                    <button class="control-button" id="pauseButton">⏸️ To'xtatish</button>
+                    <button class="control-button" id="resetButton">🔄 Qayta boshlash</button>
+                    <button class="control-button" id="stepButton">⏭️ Qadam</button>
+                </div>
+
+                <div class="speed-control">
+                    <label>Tezlik:</label>
+                    <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1" class="slider">
+                    <span class="speed-display" id="speedDisplay">1.0x</span>
+                </div>
+
+                <div class="values-display">
+                    <div class="values-grid">
+                        <div class="value-item">
+                            <div class="value-label">Kuch (F)</div>
+                            <div class="value-number" id="forceValue">10</div>
+                            <div class="value-unit">N</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-label">Massa (m)</div>
+                            <div class="value-number" id="massValue">2</div>
+                            <div class="value-unit">kg</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-label">Tezlanish (a)</div>
+                            <div class="value-number" id="accelerationValue">5</div>
+                            <div class="value-unit">m/s²</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-label">Tezlik (v)</div>
+                            <div class="value-number" id="velocityValue">0</div>
+                            <div class="value-unit">m/s</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h2>Boshqaruv</h2>
+                
+                <div class="control-group">
+                    <h3>Kuch (F)</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Kuch miqdori</span>
+                            <span class="slider-value" id="forceSliderValue">10 N</span>
+                        </div>
+                        <input type="range" id="forceSlider" min="0" max="100" step="1" value="10" class="slider">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Kuch yo'nalishi</span>
+                            <span class="slider-value" id="forceAngleValue">0°</span>
+                        </div>
+                        <input type="range" id="forceAngleSlider" min="0" max="360" step="1" value="0" class="slider">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Massa (m)</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Massa miqdori</span>
+                            <span class="slider-value" id="massSliderValue">2 kg</span>
+                        </div>
+                        <input type="range" id="massSlider" min="0.1" max="10" step="0.1" value="2" class="slider">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Tayyor stsenariylar</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-button" data-force="10" data-mass="2">Engil jism</button>
+                        <button class="preset-button" data-force="50" data-mass="5">O'rtacha jism</button>
+                        <button class="preset-button" data-force="100" data-mass="10">Og'ir jism</button>
+                        <button class="preset-button" data-force="20" data-mass="1">Kichik kuch</button>
+                        <button class="preset-button" data-force="80" data-mass="4">Katta kuch</button>
+                        <button class="preset-button" data-force="0" data-mass="3">Kuchsiz</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Vizual parametrlar</h3>
+                    <label>
+                        <input type="checkbox" id="showVectors" checked> Vektorlarni ko'rsatish
+                    </label><br>
+                    <label>
+                        <input type="checkbox" id="showTrail" checked> Harakat izini ko'rsatish
+                    </label><br>
+                    <label>
+                        <input type="checkbox" id="showGrid" checked> Koordinata to'rini ko'rsatish
+                    </label><br>
+                    <label>
+                        <input type="checkbox" id="showFBD" checked> Free Body Diagram
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Nazariy ma'lumotlar</h2>
+            <div class="formula-display">
+                <h3>Nyutonning ikkinchi qonuni</h3>
+                <p>$$\vec{F} = m \vec{a}$$</p>
+                <p>Bu yerda:</p>
+                <ul>
+                    <li><strong>F</strong> - jismga ta'sir etuvchi kuch (N - Nyuton)</li>
+                    <li><strong>m</strong> - jismning massasi (kg - kilogram)</li>
+                    <li><strong>a</strong> - jismning tezlanishi (m/s² - metr/sekund²)</li>
+                </ul>
+            </div>
+
+            <div class="formula-display">
+                <h3>Bog'liq formulalar</h3>
+                <p>$$a = \frac{F}{m}$$</p>
+                <p>$$v = v_0 + at$$</p>
+                <p>$$s = v_0 t + \frac{1}{2}at^2$$</p>
+                <p>$$v^2 = v_0^2 + 2as$$</p>
+            </div>
+
+            <h3>Muhim xususiyatlar</h3>
+            <ul>
+                <li><strong>Kuch va tezlanish</strong> - bir xil yo'nalishda</li>
+                <li><strong>Massa</strong> - tezlanishga qarshilik ko'rsatadi</li>
+                <li><strong>Nol kuch</strong> - doimiy tezlik (birinchi qonun)</li>
+                <li><strong>Kuch yig'indisi</strong> - netto kuch muhim</li>
+                <li><strong>Vektor xususiyati</strong> - yo'nalish muhim</li>
+            </ul>
+
+            <h3>Amaliy misollar</h3>
+            <ul>
+                <li><strong>Avtomobil</strong> - dvigatel kuchi tezlanish beradi</li>
+                <li><strong>Liftda</strong> - og'irlik hissi o'zgaradi</li>
+                <li><strong>Raketa</strong> - yoqilg'i kuchi tezlanish beradi</li>
+                <li><strong>Ishqalanish</strong> - qarshi kuch sekinlashtiradi</li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="help-button" id="helpButton">?</button>
+
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <button class="close-button" onclick="closeHelp()">&times;</button>
+            <h2>Yordam</h2>
+            <h3>Boshqaruv</h3>
+            <ul>
+                <li><strong>Kuch slideri</strong> - kuch miqdorini o'zgartirish</li>
+                <li><strong>Yo'nalish slideri</strong> - kuch yo'nalishini o'zgartirish</li>
+                <li><strong>Massa slideri</strong> - jism massasini o'zgartirish</li>
+                <li><strong>Tezlik slideri</strong> - simulyatsiya tezligini sozlash</li>
+            </ul>
+            <h3>Tugmalar</h3>
+            <ul>
+                <li><strong>Boshlash</strong> - simulyatsiyani boshlash</li>
+                <li><strong>To'xtatish</strong> - simulyatsiyani to'xtatish</li>
+                <li><strong>Qayta boshlash</strong> - boshlang'ich holatga qaytarish</li>
+                <li><strong>Qadam</strong> - bir qadam oldinga</li>
+            </ul>
+            <h3>Klaviatura</h3>
+            <ul>
+                <li><strong>Probel</strong> - Boshlash/To'xtatish</li>
+                <li><strong>R</strong> - Qayta boshlash</li>
+                <li><strong>S</strong> - Qadam</li>
+                <li><strong>H</strong> - Yordam</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let canvas, ctx;
+        let animationId;
+        let isPlaying = false;
+        let time = 0;
+        let dt = 0.016; // 60 FPS
+        let speed = 1;
+        
+        // Physics variables
+        let object = {
+            x: 50,
+            y: 200,
+            vx: 0,
+            vy: 0,
+            mass: 2,
+            radius: 20
+        };
+        
+        let force = {
+            magnitude: 10,
+            angle: 0,
+            x: 0,
+            y: 0
+        };
+        
+        let trail = [];
+        let maxTrailLength = 200;
+        
+        // UI elements
+        let forceSlider, forceAngleSlider, massSlider, speedSlider;
+        let forceValue, massValue, accelerationValue, velocityValue;
+        let forceSliderValue, forceAngleValue, massSliderValue, speedDisplay;
+        let playButton, pauseButton, resetButton, stepButton;
+        let showVectors, showTrail, showGrid, showFBD;
+
+        // Initialize the simulation
+        function init() {
+            canvas = document.getElementById('simulationCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Get UI elements
+            forceSlider = document.getElementById('forceSlider');
+            forceAngleSlider = document.getElementById('forceAngleSlider');
+            massSlider = document.getElementById('massSlider');
+            speedSlider = document.getElementById('speedSlider');
+            
+            forceValue = document.getElementById('forceValue');
+            massValue = document.getElementById('massValue');
+            accelerationValue = document.getElementById('accelerationValue');
+            velocityValue = document.getElementById('velocityValue');
+            
+            forceSliderValue = document.getElementById('forceSliderValue');
+            forceAngleValue = document.getElementById('forceAngleValue');
+            massSliderValue = document.getElementById('massSliderValue');
+            speedDisplay = document.getElementById('speedDisplay');
+            
+            playButton = document.getElementById('playButton');
+            pauseButton = document.getElementById('pauseButton');
+            resetButton = document.getElementById('resetButton');
+            stepButton = document.getElementById('stepButton');
+            
+            showVectors = document.getElementById('showVectors');
+            showTrail = document.getElementById('showTrail');
+            showGrid = document.getElementById('showGrid');
+            showFBD = document.getElementById('showFBD');
+            
+            // Event listeners
+            forceSlider.addEventListener('input', updateForce);
+            forceAngleSlider.addEventListener('input', updateForceAngle);
+            massSlider.addEventListener('input', updateMass);
+            speedSlider.addEventListener('input', updateSpeed);
+            
+            playButton.addEventListener('click', play);
+            pauseButton.addEventListener('click', pause);
+            resetButton.addEventListener('click', reset);
+            stepButton.addEventListener('click', step);
+            
+            // Preset buttons
+            document.querySelectorAll('.preset-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const forceVal = parseFloat(button.dataset.force);
+                    const massVal = parseFloat(button.dataset.mass);
+                    
+                    forceSlider.value = forceVal;
+                    massSlider.value = massVal;
+                    
+                    updateForce();
+                    updateMass();
+                });
+            });
+            
+            // Help button
+            document.getElementById('helpButton').addEventListener('click', () => {
+                document.getElementById('helpModal').style.display = 'flex';
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                switch(e.key.toLowerCase()) {
+                    case ' ':
+                        e.preventDefault();
+                        isPlaying ? pause() : play();
+                        break;
+                    case 'r':
+                        reset();
+                        break;
+                    case 's':
+                        step();
+                        break;
+                    case 'h':
+                        document.getElementById('helpModal').style.display = 'flex';
+                        break;
+                }
+            });
+            
+            // Touch support
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isTouching = false;
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isTouching = true;
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                touchStartX = touch.clientX - rect.left;
+                touchStartY = touch.clientY - rect.top;
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isTouching) return;
+                
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const touchX = touch.clientX - rect.left;
+                const touchY = touch.clientY - rect.top;
+                
+                // Calculate force direction from touch
+                const dx = touchX - touchStartX;
+                const dy = touchY - touchStartY;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if (distance > 10) {
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    forceAngleSlider.value = (angle + 360) % 360;
+                    updateForceAngle();
+                }
+            });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                isTouching = false;
+            });
+            
+            // Resize canvas for mobile
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initialize values
+            updateForce();
+            updateForceAngle();
+            updateMass();
+            updateSpeed();
+            
+            // Start animation loop
+            draw();
+        }
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth - 40;
+            const aspectRatio = 500 / 400;
+            
+            if (containerWidth < 500) {
+                canvas.width = containerWidth;
+                canvas.height = containerWidth / aspectRatio;
+            } else {
+                canvas.width = 500;
+                canvas.height = 400;
+            }
+            
+            // Adjust object position to stay within bounds
+            object.x = Math.max(object.radius, Math.min(object.x, canvas.width - object.radius));
+            object.y = Math.max(object.radius, Math.min(object.y, canvas.height - object.radius));
+            
+            // Clear trail when resizing
+            trail = [];
+        }
+        
+        function updateForce() {
+            force.magnitude = parseFloat(forceSlider.value);
+            force.x = force.magnitude * Math.cos(force.angle * Math.PI / 180);
+            force.y = force.magnitude * Math.sin(force.angle * Math.PI / 180);
+            
+            forceSliderValue.textContent = force.magnitude + ' N';
+            forceValue.textContent = force.magnitude.toFixed(1);
+            
+            updatePhysics();
+        }
+        
+        function updateForceAngle() {
+            force.angle = parseFloat(forceAngleSlider.value);
+            force.x = force.magnitude * Math.cos(force.angle * Math.PI / 180);
+            force.y = force.magnitude * Math.sin(force.angle * Math.PI / 180);
+            
+            forceAngleValue.textContent = force.angle.toFixed(0) + '°';
+            
+            updatePhysics();
+        }
+        
+        function updateMass() {
+            object.mass = parseFloat(massSlider.value);
+            massSliderValue.textContent = object.mass.toFixed(1) + ' kg';
+            massValue.textContent = object.mass.toFixed(1);
+            
+            updatePhysics();
+        }
+        
+        function updateSpeed() {
+            speed = parseFloat(speedSlider.value);
+            speedDisplay.textContent = speed.toFixed(1) + 'x';
+        }
+        
+        function updatePhysics() {
+            // Prevent division by zero
+            if (object.mass <= 0) {
+                object.mass = 0.1;
+                massSlider.value = 0.1;
+                massSliderValue.textContent = '0.1 kg';
+                massValue.textContent = '0.1';
+            }
+            
+            // Calculate acceleration: a = F/m
+            const ax = force.x / object.mass;
+            const ay = force.y / object.mass;
+            const acceleration = Math.sqrt(ax*ax + ay*ay);
+            
+            accelerationValue.textContent = acceleration.toFixed(2);
+            
+            // Update velocity display
+            const velocity = Math.sqrt(object.vx*object.vx + object.vy*object.vy);
+            velocityValue.textContent = velocity.toFixed(2);
+        }
+        
+        function physics() {
+            // Calculate acceleration
+            const ax = force.x / object.mass;
+            const ay = force.y / object.mass;
+            
+            // Update velocity
+            object.vx += ax * dt * speed;
+            object.vy += ay * dt * speed;
+            
+            // Limit maximum velocity to prevent runaway motion
+            const maxVelocity = 500;
+            const currentVelocity = Math.sqrt(object.vx*object.vx + object.vy*object.vy);
+            if (currentVelocity > maxVelocity) {
+                object.vx = (object.vx / currentVelocity) * maxVelocity;
+                object.vy = (object.vy / currentVelocity) * maxVelocity;
+            }
+            
+            // Update position
+            object.x += object.vx * dt * speed;
+            object.y += object.vy * dt * speed;
+            
+            // Boundary conditions
+            if (object.x < object.radius) {
+                object.x = object.radius;
+                object.vx = -object.vx * 0.8; // Bounce with energy loss
+            }
+            if (object.x > canvas.width - object.radius) {
+                object.x = canvas.width - object.radius;
+                object.vx = -object.vx * 0.8;
+            }
+            if (object.y < object.radius) {
+                object.y = object.radius;
+                object.vy = -object.vy * 0.8;
+            }
+            if (object.y > canvas.height - object.radius) {
+                object.y = canvas.height - object.radius;
+                object.vy = -object.vy * 0.8;
+            }
+            
+            // Add to trail
+            if (showTrail && showTrail.checked) {
+                trail.push({x: object.x, y: object.y});
+                if (trail.length > maxTrailLength) {
+                    trail.shift();
+                }
+            }
+            
+            time += dt * speed;
+            updatePhysics();
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            if (showGrid && showGrid.checked) {
+                drawGrid();
+            }
+            
+            // Draw trail
+            if (showTrail && showTrail.checked && trail.length > 1) {
+                drawTrail();
+            }
+            
+            // Draw object
+            drawObject();
+            
+            // Draw vectors
+            if (showVectors && showVectors.checked) {
+                drawVectors();
+            }
+            
+            // Draw Free Body Diagram
+            if (showFBD && showFBD.checked) {
+                drawFBD();
+            }
+            
+            // Update physics if playing
+            if (isPlaying) {
+                physics();
+            }
+            
+            // Continue animation
+            animationId = requestAnimationFrame(draw);
+        }
+        
+        function drawGrid() {
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 20;
+            
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+        
+        function drawTrail() {
+            if (trail.length < 2) return;
+            
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(trail[0].x, trail[0].y);
+            
+            for (let i = 1; i < trail.length; i++) {
+                const alpha = i / trail.length;
+                ctx.globalAlpha = alpha * 0.7;
+                ctx.lineTo(trail[i].x, trail[i].y);
+            }
+            
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawObject() {
+            // Draw shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.arc(object.x + 3, object.y + 3, object.radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw object
+            const gradient = ctx.createRadialGradient(
+                object.x - 5, object.y - 5, 0,
+                object.x, object.y, object.radius
+            );
+            gradient.addColorStop(0, '#764ba2');
+            gradient.addColorStop(1, '#667eea');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(object.x, object.y, object.radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw mass label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(object.mass.toFixed(1) + ' kg', object.x, object.y + 4);
+        }
+        
+        function drawVectors() {
+            const scale = 2;
+            
+            // Draw force vector
+            if (force.magnitude > 0) {
+                drawVector(
+                    object.x, object.y,
+                    object.x + force.x * scale,
+                    object.y + force.y * scale,
+                    '#ff4757', 'F = ' + force.magnitude.toFixed(1) + ' N'
+                );
+            }
+            
+            // Draw velocity vector
+            const velocity = Math.sqrt(object.vx*object.vx + object.vy*object.vy);
+            if (velocity > 0.1) {
+                drawVector(
+                    object.x, object.y,
+                    object.x + object.vx * scale * 10,
+                    object.y + object.vy * scale * 10,
+                    '#2ed573', 'v = ' + velocity.toFixed(1) + ' m/s'
+                );
+            }
+            
+            // Draw acceleration vector
+            const ax = force.x / object.mass;
+            const ay = force.y / object.mass;
+            const acceleration = Math.sqrt(ax*ax + ay*ay);
+            if (acceleration > 0.1) {
+                drawVector(
+                    object.x, object.y,
+                    object.x + ax * scale * 5,
+                    object.y + ay * scale * 5,
+                    '#ffa502', 'a = ' + acceleration.toFixed(1) + ' m/s²'
+                );
+            }
+        }
+        
+        function drawVector(x1, y1, x2, y2, color, label) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const length = Math.sqrt(dx*dx + dy*dy);
+            
+            if (length < 1) return;
+            
+            // Ensure coordinates are within canvas bounds
+            x1 = Math.max(0, Math.min(canvas.width, x1));
+            y1 = Math.max(0, Math.min(canvas.height, y1));
+            x2 = Math.max(0, Math.min(canvas.width, x2));
+            y2 = Math.max(0, Math.min(canvas.height, y2));
+            
+            // Draw arrow
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 3;
+            
+            // Arrow line
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            // Arrow head
+            const headLength = Math.min(10, length * 0.3);
+            const headAngle = Math.PI / 6;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(
+                x2 - headLength * Math.cos(angle - headAngle),
+                y2 - headLength * Math.sin(angle - headAngle)
+            );
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(
+                x2 - headLength * Math.cos(angle + headAngle),
+                y2 - headLength * Math.sin(angle + headAngle)
+            );
+            ctx.stroke();
+            
+            // Label
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            
+            // Position label to avoid going off canvas
+            const labelX = Math.max(50, Math.min(canvas.width - 50, x2));
+            const labelY = Math.max(20, Math.min(canvas.height - 20, y2 - 15));
+            
+            ctx.fillText(label, labelX, labelY);
+        }
+        
+        function drawFBD() {
+            // Responsive FBD positioning
+            const fbdSize = Math.min(100, canvas.width * 0.25);
+            const fbdX = canvas.width - fbdSize - 20;
+            const fbdY = 20;
+            
+            // Don't draw FBD if canvas is too small
+            if (canvas.width < 300 || canvas.height < 200) return;
+            
+            // Draw FBD background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(fbdX - 10, fbdY - 10, fbdSize + 20, fbdSize + 20);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(fbdX - 10, fbdY - 10, fbdSize + 20, fbdSize + 20);
+            
+            // Draw object in FBD
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(fbdX + fbdSize/2, fbdY + fbdSize/2, Math.min(15, fbdSize * 0.15), 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw force vector in FBD
+            if (force.magnitude > 0) {
+                const scale = Math.min(0.5, fbdSize * 0.005);
+                drawVector(
+                    fbdX + fbdSize/2, fbdY + fbdSize/2,
+                    fbdX + fbdSize/2 + force.x * scale,
+                    fbdY + fbdSize/2 + force.y * scale,
+                    '#ff4757', 'F'
+                );
+            }
+            
+            // FBD title
+            ctx.fillStyle = '#333';
+            ctx.font = `bold ${Math.min(12, fbdSize * 0.12)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Free Body Diagram', fbdX + fbdSize/2, fbdY - 5);
+        }
+        
+        function play() {
+            isPlaying = true;
+            playButton.classList.add('active');
+            pauseButton.classList.remove('active');
+        }
+        
+        function pause() {
+            isPlaying = false;
+            playButton.classList.remove('active');
+            pauseButton.classList.add('active');
+        }
+        
+        function reset() {
+            isPlaying = false;
+            time = 0;
+            object.x = Math.max(object.radius, 50);
+            object.y = Math.max(object.radius, Math.min(canvas.height - object.radius, canvas.height / 2));
+            object.vx = 0;
+            object.vy = 0;
+            trail = [];
+            
+            playButton.classList.remove('active');
+            pauseButton.classList.remove('active');
+            
+            updatePhysics();
+        }
+        
+        function step() {
+            if (!isPlaying) {
+                physics();
+            }
+        }
+        
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('helpModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('helpModal')) {
+                closeHelp();
+            }
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Initialize MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+</body>
+</html>
