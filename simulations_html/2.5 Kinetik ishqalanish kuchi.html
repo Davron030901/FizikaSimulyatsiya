@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2.5 Kinetik ishqalanish kuchi</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .simulation-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #333;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 50%, #654321 50%, #654321 100%);
+            display: block;
+            margin: 0 auto;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="range"] {
+            width: 120px;
+            margin: 5px 0;
+        }
+        select, input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100px;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: #333;
+        }
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #2a5298;
+        }
+        .chart-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .surface-visual {
+            height: 50px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .ice { background: linear-gradient(45deg, #E6F3FF, #B8E6FF); color: #333; }
+        .wood { background: linear-gradient(45deg, #8B4513, #A0522D); }
+        .concrete { background: linear-gradient(45deg, #696969, #808080); }
+        .rubber { background: linear-gradient(45deg, #2F4F4F, #556B2F); }
+        .formula {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .comparison-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>2.5 Kinetik ishqalanish kuchi</h1>
+        
+        <div class="formula">
+            <h3>Kinetik ishqalanish formulasi:</h3>
+            <p><strong>fₖ = μₖ × N</strong></p>
+            <p>Bu yerda: fₖ - kinetik ishqalanish kuchi, μₖ - kinetik ishqalanish koeffitsienti, N - normal kuch</p>
+        </div>
+
+        <div class="simulation-container">
+            <div class="canvas-container">
+                <canvas id="simulationCanvas" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="mass">Massa (kg):</label>
+                    <input type="range" id="mass" min="1" max="20" value="5" step="0.5">
+                    <span id="massValue">5</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="initialVelocity">Boshlang'ich tezlik (m/s):</label>
+                    <input type="range" id="initialVelocity" min="1" max="30" value="15" step="0.5">
+                    <span id="velocityValue">15</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="surface">Sirt turi:</label>
+                    <select id="surface">
+                        <option value="ice">Muz (μₖ = 0.1)</option>
+                        <option value="wood" selected>Yog'och (μₖ = 0.3)</option>
+                        <option value="concrete">Beton (μₖ = 0.6)</option>
+                        <option value="rubber">Rezina (μₖ = 0.8)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="angle">Yuzaki burchak (°):</label>
+                    <input type="range" id="angle" min="0" max="30" value="0" step="1">
+                    <span id="angleValue">0</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <button onclick="startSimulation()">Simulyatsiyani boshlash</button>
+                <button onclick="pauseSimulation()">Pauza</button>
+                <button onclick="resetSimulation()">Qayta boshlash</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-box">
+                <h3>Joriy tezlik</h3>
+                <p id="currentVelocity">0 m/s</p>
+            </div>
+            <div class="info-box">
+                <h3>Ishqalanish kuchi</h3>
+                <p id="frictionForce">0 N</p>
+            </div>
+            <div class="info-box">
+                <h3>Tezlanish</h3>
+                <p id="acceleration">0 m/s²</p>
+            </div>
+            <div class="info-box">
+                <h3>Bosib o'tgan masofa</h3>
+                <p id="distance">0 m</p>
+            </div>
+            <div class="info-box">
+                <h3>To'xtash masofasi</h3>
+                <p id="stoppingDistance">0 m</p>
+            </div>
+            <div class="info-box">
+                <h3>Vaqt</h3>
+                <p id="time">0 s</p>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-item">
+                <h4>Statik ishqalanish</h4>
+                <p>μₛ = <span id="staticFriction">0.4</span></p>
+                <p>Harakat boshlanmasdan oldin</p>
+            </div>
+            <div class="comparison-item">
+                <h4>Kinetik ishqalanish</h4>
+                <p>μₖ = <span id="kineticFriction">0.3</span></p>
+                <p>Harakat davomida</p>
+            </div>
+            <div class="comparison-item">
+                <h4>Taqqoslash</h4>
+                <p>μₖ < μₛ</p>
+                <p>Kinetik kichikroq</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>Tezlik-Vaqt grafigi</h3>
+            <canvas id="chartCanvas" width="800" height="300"></canvas>
+        </div>
+
+        <div class="simulation-container">
+            <h3>Turli sirt turlari</h3>
+            <div class="surface-visual ice">Muz: μₖ = 0.1 (Eng silliq)</div>
+            <div class="surface-visual wood">Yog'och: μₖ = 0.3 (O'rtacha)</div>
+            <div class="surface-visual concrete">Beton: μₖ = 0.6 (Qo'pol)</div>
+            <div class="surface-visual rubber">Rezina: μₖ = 0.8 (Eng qo'pol)</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartCtx = chartCanvas.getContext('2d');
+        
+        let animationId;
+        let isRunning = false;
+        let startTime = 0;
+        let currentTime = 0;
+        
+        // Simulyatsiya o'zgaruvchilari
+        let mass = 5; // kg
+        let initialVelocity = 15; // m/s
+        let currentVelocity = 15; // m/s
+        let position = 50; // piksel
+        let distance = 0; // m
+        let time = 0; // s
+        let g = 9.81; // m/s²
+        let angle = 0; // gradus
+        
+        // Sirt koeffitsientlari
+        const surfaceCoefficients = {
+            ice: { kinetic: 0.1, static: 0.15 },
+            wood: { kinetic: 0.3, static: 0.4 },
+            concrete: { kinetic: 0.6, static: 0.8 },
+            rubber: { kinetic: 0.8, static: 1.0 }
+        };
+        
+        let currentSurface = 'wood';
+        let velocityData = [];
+        let timeData = [];
+        
+        // Event listeners
+        document.getElementById('mass').addEventListener('input', updateMass);
+        document.getElementById('initialVelocity').addEventListener('input', updateInitialVelocity);
+        document.getElementById('surface').addEventListener('change', updateSurface);
+        document.getElementById('angle').addEventListener('input', updateAngle);
+        
+        function updateMass() {
+            mass = parseFloat(document.getElementById('mass').value);
+            document.getElementById('massValue').textContent = mass;
+            resetSimulation();
+        }
+        
+        function updateInitialVelocity() {
+            initialVelocity = parseFloat(document.getElementById('initialVelocity').value);
+            document.getElementById('velocityValue').textContent = initialVelocity;
+            resetSimulation();
+        }
+        
+        function updateSurface() {
+            currentSurface = document.getElementById('surface').value;
+            document.getElementById('kineticFriction').textContent = surfaceCoefficients[currentSurface].kinetic;
+            document.getElementById('staticFriction').textContent = surfaceCoefficients[currentSurface].static;
+            resetSimulation();
+        }
+        
+        function updateAngle() {
+            angle = parseFloat(document.getElementById('angle').value);
+            document.getElementById('angleValue').textContent = angle;
+            resetSimulation();
+        }
+        
+        function startSimulation() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now();
+                animate();
+            }
+        }
+        
+        function pauseSimulation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+        
+        function resetSimulation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            currentVelocity = initialVelocity;
+            position = 50;
+            distance = 0;
+            time = 0;
+            velocityData = [];
+            timeData = [];
+            
+            updateDisplay();
+            drawBlock();
+            drawChart();
+        }
+        
+        function calculatePhysics() {
+            const angleRad = angle * Math.PI / 180;
+            const normalForce = mass * g * Math.cos(angleRad);
+            const frictionCoeff = surfaceCoefficients[currentSurface].kinetic;
+            const frictionForce = frictionCoeff * normalForce;
+            const gravityComponent = mass * g * Math.sin(angleRad);
+            
+            // Net kuch (ishqalanish va og'irlik komponenti)
+            const netForce = gravityComponent - frictionForce;
+            const acceleration = netForce / mass;
+            
+            return {
+                normalForce,
+                frictionForce,
+                acceleration,
+                frictionCoeff
+            };
+        }
+        
+        function animate() {
+            if (!isRunning) return;
+            
+            const dt = 0.016; // 60 FPS
+            time += dt;
+            
+            const physics = calculatePhysics();
+            
+            // Tezlik yangilanishi
+            currentVelocity += physics.acceleration * dt;
+            
+            // Agar tezlik manfiy bo'lsa, to'xtash
+            if (currentVelocity <= 0) {
+                currentVelocity = 0;
+                isRunning = false;
+            }
+            
+            // Pozitsiya yangilanishi
+            const deltaDistance = currentVelocity * dt;
+            distance += deltaDistance;
+            position += deltaDistance * 10; // Ekran uchun masshtab
+            
+            // Agar blok ekrandan chiqsa, qayta boshlash
+            if (position > canvas.width + 50) {
+                resetSimulation();
+                return;
+            }
+            
+            // Ma'lumotlarni saqlash
+            velocityData.push(currentVelocity);
+            timeData.push(time);
+            
+            // Ekranlarni yangilash
+            updateDisplay();
+            drawBlock();
+            drawChart();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function updateDisplay() {
+            const physics = calculatePhysics();
+            
+            document.getElementById('currentVelocity').textContent = currentVelocity.toFixed(2) + ' m/s';
+            document.getElementById('frictionForce').textContent = physics.frictionForce.toFixed(2) + ' N';
+            document.getElementById('acceleration').textContent = physics.acceleration.toFixed(2) + ' m/s²';
+            document.getElementById('distance').textContent = distance.toFixed(2) + ' m';
+            document.getElementById('time').textContent = time.toFixed(2) + ' s';
+            
+            // To'xtash masofasini hisoblash
+            const stoppingDistance = calculateStoppingDistance();
+            document.getElementById('stoppingDistance').textContent = stoppingDistance.toFixed(2) + ' m';
+        }
+        
+        function calculateStoppingDistance() {
+            const physics = calculatePhysics();
+            if (physics.acceleration >= 0) return Infinity;
+            
+            // v² = v₀² + 2as, v = 0 da: s = -v₀²/(2a)
+            return -(currentVelocity * currentVelocity) / (2 * physics.acceleration);
+        }
+        
+        function drawBlock() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Sirt chizish
+            drawSurface();
+            
+            // Blok chizish
+            const blockSize = 40;
+            const blockY = canvas.height - 100;
+            
+            // Blok soyasi
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(position + 3, blockY + 3, blockSize, blockSize);
+            
+            // Blok
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(position, blockY, blockSize, blockSize);
+            
+            // Blok chegarasi
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(position, blockY, blockSize, blockSize);
+            
+            // Tezlik vektori
+            if (currentVelocity > 0) {
+                const arrowLength = currentVelocity * 3;
+                const arrowX = position + blockSize / 2;
+                const arrowY = blockY - 10;
+                
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(arrowX, arrowY);
+                ctx.lineTo(arrowX + arrowLength, arrowY);
+                ctx.stroke();
+                
+                // O'q uchi
+                ctx.beginPath();
+                ctx.moveTo(arrowX + arrowLength, arrowY);
+                ctx.lineTo(arrowX + arrowLength - 10, arrowY - 5);
+                ctx.lineTo(arrowX + arrowLength - 10, arrowY + 5);
+                ctx.closePath();
+                ctx.fillStyle = '#4CAF50';
+                ctx.fill();
+                
+                // Tezlik belgisi
+                ctx.fillStyle = '#333';
+                ctx.font = '14px Arial';
+                ctx.fillText(`v = ${currentVelocity.toFixed(1)} m/s`, arrowX + arrowLength + 10, arrowY + 5);
+            }
+            
+            // Ishqalanish kuchi vektori
+            const physics = calculatePhysics();
+            if (physics.frictionForce > 0) {
+                const frictionLength = physics.frictionForce * 2;
+                const frictionX = position + blockSize / 2;
+                const frictionY = blockY + blockSize / 2;
+                
+                ctx.strokeStyle = '#FF5722';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(frictionX, frictionY);
+                ctx.lineTo(frictionX - frictionLength, frictionY);
+                ctx.stroke();
+                
+                // O'q uchi
+                ctx.beginPath();
+                ctx.moveTo(frictionX - frictionLength, frictionY);
+                ctx.lineTo(frictionX - frictionLength + 10, frictionY - 5);
+                ctx.lineTo(frictionX - frictionLength + 10, frictionY + 5);
+                ctx.closePath();
+                ctx.fillStyle = '#FF5722';
+                ctx.fill();
+                
+                // Ishqalanish belgisi
+                ctx.fillStyle = '#333';
+                ctx.font = '14px Arial';
+                ctx.fillText(`fₖ = ${physics.frictionForce.toFixed(1)} N`, frictionX - frictionLength - 80, frictionY - 10);
+            }
+            
+            // Masofa ko'rsatgichi
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Masofa: ${distance.toFixed(2)} m`, 10, 30);
+        }
+        
+        function drawSurface() {
+            const groundY = canvas.height - 60;
+            
+            // Sirt rangi
+            let surfaceColor;
+            switch (currentSurface) {
+                case 'ice': surfaceColor = '#E6F3FF'; break;
+                case 'wood': surfaceColor = '#8B4513'; break;
+                case 'concrete': surfaceColor = '#696969'; break;
+                case 'rubber': surfaceColor = '#2F4F4F'; break;
+            }
+            
+            ctx.fillStyle = surfaceColor;
+            ctx.fillRect(0, groundY, canvas.width, 60);
+            
+            // Sirt teksturasi
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.fillRect(i, groundY, 1, 60);
+            }
+        }
+        
+        function drawChart() {
+            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+            
+            if (velocityData.length < 2) return;
+            
+            // Grafik chegaralari
+            const margin = 40;
+            const chartWidth = chartCanvas.width - 2 * margin;
+            const chartHeight = chartCanvas.height - 2 * margin;
+            
+            // O'qlar
+            chartCtx.strokeStyle = '#333';
+            chartCtx.lineWidth = 2;
+            chartCtx.beginPath();
+            chartCtx.moveTo(margin, margin);
+            chartCtx.lineTo(margin, chartCanvas.height - margin);
+            chartCtx.lineTo(chartCanvas.width - margin, chartCanvas.height - margin);
+            chartCtx.stroke();
+            
+            // Belgiler
+            chartCtx.fillStyle = '#333';
+            chartCtx.font = '14px Arial';
+            chartCtx.fillText('Tezlik (m/s)', margin, 20);
+            chartCtx.fillText('Vaqt (s)', chartCanvas.width - 80, chartCanvas.height - 10);
+            
+            // Ma'lumotlarni normalizatsiya qilish
+            const maxVelocity = Math.max(...velocityData);
+            const maxTime = Math.max(...timeData);
+            
+            // Grafik chizish
+            chartCtx.strokeStyle = '#4CAF50';
+            chartCtx.lineWidth = 3;
+            chartCtx.beginPath();
+            
+            for (let i = 0; i < velocityData.length; i++) {
+                const x = margin + (timeData[i] / maxTime) * chartWidth;
+                const y = chartCanvas.height - margin - (velocityData[i] / maxVelocity) * chartHeight;
+                
+                if (i === 0) {
+                    chartCtx.moveTo(x, y);
+                } else {
+                    chartCtx.lineTo(x, y);
+                }
+            }
+            chartCtx.stroke();
+            
+            // Nuqtalar
+            chartCtx.fillStyle = '#4CAF50';
+            for (let i = 0; i < velocityData.length; i += 10) {
+                const x = margin + (timeData[i] / maxTime) * chartWidth;
+                const y = chartCanvas.height - margin - (velocityData[i] / maxVelocity) * chartHeight;
+                chartCtx.beginPath();
+                chartCtx.arc(x, y, 3, 0, 2 * Math.PI);
+                chartCtx.fill();
+            }
+        }
+        
+        // Dastlabki holatni o'rnatish
+        updateSurface();
+        resetSimulation();
+    </script>
+</body>
+</html>
