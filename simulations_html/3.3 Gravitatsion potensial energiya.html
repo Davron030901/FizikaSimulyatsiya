@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.3 Gravitatsion Potensial Energiya - Interaktiv Simulyatsiya</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .simulation-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border: 2px solid #3498db;
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #8FBC8F 100%);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 13px;
+            cursor: crosshair;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
+        }
+
+        .control-group h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h3::before {
+            content: "⚙️";
+            margin-right: 8px;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        .control-item input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            margin-bottom: 5px;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-item input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .current-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .values-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .value-item {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            text-align: center;
+        }
+
+        .value-item .label {
+            color: #34495e;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .value-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 3px;
+        }
+
+        .value-item .unit {
+            color: #7f8c8d;
+            font-size: 0.8em;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .theory-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .formula-display {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .planet-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .planet-btn {
+            padding: 8px 12px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .planet-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .planet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .reference-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .help-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .help-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .help-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls-panel {
+                order: -1;
+            }
+            
+            .canvas-container {
+                height: 400px;
+            }
+            
+            .values-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .canvas-container {
+                height: 300px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation classes */
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            }
+            
+            .header, .simulation-area, .controls-panel, .values-display, .chart-container, .theory-section {
+                background: rgba(52, 73, 94, 0.95);
+                color: #ecf0f1;
+            }
+            
+            .control-group {
+                background: rgba(52, 152, 219, 0.2);
+            }
+            
+            .value-item {
+                background: rgba(52, 152, 219, 0.2);
+            }
+            
+            .formula-display {
+                background: rgba(52, 152, 219, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header animate-in">
+            <h1>🌍 Gravitatsion Potensial Energiya</h1>
+            <p class="subtitle">Interaktiv Simulyatsiya - Ep = mgh</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Simulation Area -->
+            <div class="simulation-area animate-in">
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas"></canvas>
+                    <div class="reference-lines">
+                        <svg width="100%" height="100%">
+                            <defs>
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ddd" stroke-width="1" opacity="0.3"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)" />
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="startSimulation()">▶️ Boshlash</button>
+                    <button class="btn btn-warning" onclick="pauseSimulation()">⏸️ Pauza</button>
+                    <button class="btn btn-secondary" onclick="resetSimulation()">🔄 Qayta boshlash</button>
+                    <button class="btn btn-success" onclick="stepSimulation()">⏭️ Qadam</button>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="controls-panel animate-in">
+                <div class="control-group">
+                    <h3>Sayyora tanlash</h3>
+                    <div class="planet-selector">
+                        <button class="planet-btn active" onclick="setPlanet('earth')">🌍 Yer</button>
+                        <button class="planet-btn" onclick="setPlanet('moon')">🌙 Oy</button>
+                        <button class="planet-btn" onclick="setPlanet('mars')">🔴 Mars</button>
+                        <button class="planet-btn" onclick="setPlanet('jupiter')">🪐 Yupiter</button>
+                        <button class="planet-btn" onclick="setPlanet('custom')">⚙️ Boshqa</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Parametrlar</h3>
+                    
+                    <div class="control-item">
+                        <label>Massa (kg)
+                            <div class="help-tooltip">
+                                <button class="help-btn">?</button>
+                                <span class="tooltip-text">Jismning massasi - potensial energiya massaga to'g'ri proporsional</span>
+                            </div>
+                        </label>
+                        <div class="value-display">
+                            <span>0.1</span>
+                            <span class="current-value" id="massValue">10</span>
+                            <span>100</span>
+                        </div>
+                        <input type="range" id="massSlider" min="0.1" max="100" value="10" step="0.1">
+                    </div>
+
+                    <div class="control-item">
+                        <label>Balandlik (m)
+                            <div class="help-tooltip">
+                                <button class="help-btn">?</button>
+                                <span class="tooltip-text">Yer sirtidan balandlik - potensial energiya balandlikka to'g'ri proporsional</span>
+                            </div>
+                        </label>
+                        <div class="value-display">
+                            <span>0</span>
+                            <span class="current-value" id="heightValue">50</span>
+                            <span>200</span>
+                        </div>
+                        <input type="range" id="heightSlider" min="0" max="200" value="50" step="1">
+                    </div>
+
+                    <div class="control-item">
+                        <label>Gravitatsiya tezlanishi (m/s²)
+                            <div class="help-tooltip">
+                                <button class="help-btn">?</button>
+                                <span class="tooltip-text">Har bir sayyorada g qiymati turlicha bo'ladi</span>
+                            </div>
+                        </label>
+                        <div class="value-display">
+                            <span>0.1</span>
+                            <span class="current-value" id="gravityValue">9.81</span>
+                            <span>25</span>
+                        </div>
+                        <input type="range" id="gravitySlider" min="0.1" max="25" value="9.81" step="0.01">
+                    </div>
+
+                    <div class="control-item">
+                        <label>Nol sath (m)
+                            <div class="help-tooltip">
+                                <button class="help-btn">?</button>
+                                <span class="tooltip-text">Potensial energiya hisoblanadigan sanoq nuqtasi</span>
+                            </div>
+                        </label>
+                        <div class="value-display">
+                            <span>-50</span>
+                            <span class="current-value" id="referenceValue">0</span>
+                            <span>50</span>
+                        </div>
+                        <input type="range" id="referenceSlider" min="-50" max="50" value="0" step="1">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Tezlik sozlamalari</h3>
+                    <div class="control-item">
+                        <label>Animatsiya tezligi</label>
+                        <div class="value-display">
+                            <span>0.1x</span>
+                            <span class="current-value" id="speedValue">1.0x</span>
+                            <span>5.0x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="0.1" max="5" value="1" step="0.1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Values Display -->
+        <div class="values-display animate-in">
+            <h3>🔢 Hozirgi qiymatlar</h3>
+            <div class="values-grid">
+                <div class="value-item">
+                    <div class="label">Potensial energiya</div>
+                    <div class="value" id="potentialEnergyDisplay">0</div>
+                    <div class="unit">J (Joul)</div>
+                </div>
+                <div class="value-item">
+                    <div class="label">Massa</div>
+                    <div class="value" id="massDisplay">10</div>
+                    <div class="unit">kg</div>
+                </div>
+                <div class="value-item">
+                    <div class="label">Balandlik</div>
+                    <div class="value" id="heightDisplay">50</div>
+                    <div class="unit">m</div>
+                </div>
+                <div class="value-item">
+                    <div class="label">Gravitatsiya</div>
+                    <div class="value" id="gravityDisplay">9.81</div>
+                    <div class="unit">m/s²</div>
+                </div>
+                <div class="value-item">
+                    <div class="label">Solishtirma energiya</div>
+                    <div class="value" id="specificEnergyDisplay">0</div>
+                    <div class="unit">J/kg</div>
+                </div>
+                <div class="value-item">
+                    <div class="label">Nol sathdan balandlik</div>
+                    <div class="value" id="relativeHeightDisplay">50</div>
+                    <div class="unit">m</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container animate-in">
+            <h3>📊 Energiya-Balandlik grafigi</h3>
+            <canvas id="chartCanvas" class="chart-canvas"></canvas>
+        </div>
+
+        <!-- Theory Section -->
+        <div class="theory-section animate-in">
+            <h3>📚 Nazariy ma'lumotlar</h3>
+            
+            <div class="formula-display">
+                <h4>Asosiy formula:</h4>
+                <div style="font-size: 1.5em; margin: 10px 0;">
+                    $$E_p = mgh$$
+                </div>
+                <p>Bu yerda:</p>
+                <ul style="text-align: left; margin: 10px 0;">
+                    <li><strong>Ep</strong> - gravitatsion potensial energiya (J)</li>
+                    <li><strong>m</strong> - jismning massasi (kg)</li>
+                    <li><strong>g</strong> - gravitatsiya tezlanishi (m/s²)</li>
+                    <li><strong>h</strong> - balandlik (m)</li>
+                </ul>
+            </div>
+
+            <div class="formula-display">
+                <h4>Sayyoralar bo'yicha g qiymatlari:</h4>
+                <div style="text-align: left; margin: 10px 0;">
+                    <ul>
+                        <li>🌍 <strong>Yer:</strong> 9.81 m/s²</li>
+                        <li>🌙 <strong>Oy:</strong> 1.62 m/s²</li>
+                        <li>🔴 <strong>Mars:</strong> 3.71 m/s²</li>
+                        <li>🪐 <strong>Yupiter:</strong> 24.79 m/s²</li>
+                        <li>☀️ <strong>Quyosh:</strong> 274.0 m/s²</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="formula-display">
+                <h4>Muhim xususiyatlar:</h4>
+                <ul style="text-align: left; margin: 10px 0;">
+                    <li>Potensial energiya massaga to'g'ri proporsional</li>
+                    <li>Potensial energiya balandlikka to'g'ri proporsional</li>
+                    <li>Nol sath ixtiyoriy tanlanadi</li>
+                    <li>Potensial energiya skaler kattalik</li>
+                    <li>Konservativ kuch maydoni</li>
+                </ul>
+            </div>
+
+            <div class="formula-display">
+                <h4>Bog'liq formulalar:</h4>
+                <div style="font-size: 1.2em; margin: 10px 0;">
+                    <p>$$E_{total} = E_k + E_p$$</p>
+                    <p>$$W = \Delta E_p = mg(h_2 - h_1)$$</p>
+                    <p>$$v = \sqrt{2gh}$$ (erkin tushish)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let canvas, ctx, chartCanvas, chartCtx;
+        let animationId;
+        let isRunning = false;
+        let currentTime = 0;
+        let animationSpeed = 1.0;
+        
+        // Simulation parameters
+        let mass = 10; // kg
+        let height = 50; // m
+        let gravity = 9.81; // m/s²
+        let referenceLevel = 0; // m
+        
+        // Planet data
+        const planets = {
+            earth: { name: 'Yer', gravity: 9.81, emoji: '🌍' },
+            moon: { name: 'Oy', gravity: 1.62, emoji: '🌙' },
+            mars: { name: 'Mars', gravity: 3.71, emoji: '🔴' },
+            jupiter: { name: 'Yupiter', gravity: 24.79, emoji: '🪐' },
+            custom: { name: 'Boshqa', gravity: 9.81, emoji: '⚙️' }
+        };
+        
+        let currentPlanet = 'earth';
+        let chartData = [];
+        let maxDataPoints = 100;
+        
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            initializeSimulation();
+            updateDisplay();
+            drawChart();
+        });
+        
+        // Initialize simulation
+        function initializeSimulation() {
+            canvas = document.getElementById('simulationCanvas');
+            ctx = canvas.getContext('2d');
+            chartCanvas = document.getElementById('chartCanvas');
+            chartCtx = chartCanvas.getContext('2d');
+            
+            // Set canvas size
+            resizeCanvas();
+            
+            // Add event listeners
+            setupEventListeners();
+            
+            // Initialize MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+            
+            // Start animation loop
+            animate();
+        }
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            const chartRect = chartCanvas.getBoundingClientRect();
+            chartCanvas.width = chartRect.width;
+            chartCanvas.height = chartRect.height;
+        }
+        
+        function setupEventListeners() {
+            // Sliders
+            document.getElementById('massSlider').addEventListener('input', updateMass);
+            document.getElementById('heightSlider').addEventListener('input', updateHeight);
+            document.getElementById('gravitySlider').addEventListener('input', updateGravity);
+            document.getElementById('referenceSlider').addEventListener('input', updateReference);
+            document.getElementById('speedSlider').addEventListener('input', updateSpeed);
+            
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', handleMouse);
+            canvas.addEventListener('mousemove', handleMouse);
+            
+            // Resize handler
+            window.addEventListener('resize', resizeCanvas);
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Update height based on touch position
+            const newHeight = Math.max(0, Math.min(200, (canvas.height - y) / canvas.height * 200));
+            document.getElementById('heightSlider').value = newHeight;
+            updateHeight();
+        }
+        
+        function handleMouse(e) {
+            if (e.buttons === 1) { // Left mouse button pressed
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Update height based on mouse position
+                const newHeight = Math.max(0, Math.min(200, (canvas.height - y) / canvas.height * 200));
+                document.getElementById('heightSlider').value = newHeight;
+                updateHeight();
+            }
+        }
+        
+        function updateMass() {
+            mass = parseFloat(document.getElementById('massSlider').value);
+            document.getElementById('massValue').textContent = mass.toFixed(1);
+            validatePhysics();
+            safeUpdateDisplay();
+        }
+        
+        function updateHeight() {
+            height = parseFloat(document.getElementById('heightSlider').value);
+            document.getElementById('heightValue').textContent = height.toFixed(0);
+            validatePhysics();
+            safeUpdateDisplay();
+            updateChart();
+        }
+        
+        function updateGravity() {
+            gravity = parseFloat(document.getElementById('gravitySlider').value);
+            document.getElementById('gravityValue').textContent = gravity.toFixed(2);
+            validatePhysics();
+            safeUpdateDisplay();
+        }
+        
+        function updateReference() {
+            referenceLevel = parseFloat(document.getElementById('referenceSlider').value);
+            document.getElementById('referenceValue').textContent = referenceLevel.toFixed(0);
+            safeUpdateDisplay();
+        }
+        
+        function updateSpeed() {
+            animationSpeed = parseFloat(document.getElementById('speedSlider').value);
+            document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
+        }
+        
+        function setPlanet(planetKey) {
+            currentPlanet = planetKey;
+            const planet = planets[planetKey];
+            
+            // Update UI
+            document.querySelectorAll('.planet-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update gravity
+            if (planetKey !== 'custom') {
+                gravity = planet.gravity;
+                document.getElementById('gravitySlider').value = gravity;
+                document.getElementById('gravityValue').textContent = gravity.toFixed(2);
+            }
+            
+            updateDisplay();
+        }
+        
+        function calculatePotentialEnergy() {
+            const relativeHeight = height - referenceLevel;
+            return mass * gravity * relativeHeight;
+        }
+        
+        function updateDisplay() {
+            const potentialEnergy = calculatePotentialEnergy();
+            const specificEnergy = potentialEnergy / mass;
+            const relativeHeight = height - referenceLevel;
+            
+            // Update value displays with formatting
+            document.getElementById('potentialEnergyDisplay').textContent = potentialEnergy.toFixed(2);
+            document.getElementById('massDisplay').textContent = mass.toFixed(1);
+            document.getElementById('heightDisplay').textContent = height.toFixed(0);
+            document.getElementById('gravityDisplay').textContent = gravity.toFixed(2);
+            document.getElementById('specificEnergyDisplay').textContent = specificEnergy.toFixed(2);
+            document.getElementById('relativeHeightDisplay').textContent = relativeHeight.toFixed(0);
+            
+            // Update progress bar
+            const maxPossibleEnergy = 100 * 25 * 200; // max mass * max gravity * max height
+            const progressPercent = Math.min(100, (Math.abs(potentialEnergy) / maxPossibleEnergy) * 100);
+            document.querySelector('.progress-fill').style.width = progressPercent + '%';
+            
+            // Add visual feedback
+            if (potentialEnergy > 0) {
+                document.querySelector('.progress-fill').style.background = 'linear-gradient(90deg, #27ae60, #2ecc71)';
+            } else {
+                document.querySelector('.progress-fill').style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+            }
+        }
+        
+        function updateChart() {
+            // Add current data point
+            chartData.push({
+                height: height,
+                energy: calculatePotentialEnergy(),
+                time: currentTime
+            });
+            
+            // Limit data points
+            if (chartData.length > maxDataPoints) {
+                chartData.shift();
+            }
+            
+            safeDrawChart();
+        }
+        
+        function drawChart() {
+            if (!chartCtx) return;
+            
+            const canvasWidth = chartCanvas.width;
+            const canvasHeight = chartCanvas.height;
+            const padding = 40;
+            
+            // Clear canvas
+            chartCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Draw background
+            chartCtx.fillStyle = '#f8f9fa';
+            chartCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Draw grid
+            chartCtx.strokeStyle = '#e9ecef';
+            chartCtx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (canvasWidth - 2 * padding) * i / 10;
+                chartCtx.beginPath();
+                chartCtx.moveTo(x, padding);
+                chartCtx.lineTo(x, canvasHeight - padding);
+                chartCtx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (canvasHeight - 2 * padding) * i / 10;
+                chartCtx.beginPath();
+                chartCtx.moveTo(padding, y);
+                chartCtx.lineTo(canvasWidth - padding, y);
+                chartCtx.stroke();
+            }
+            
+            // Draw axes
+            chartCtx.strokeStyle = '#495057';
+            chartCtx.lineWidth = 2;
+            
+            // X-axis
+            chartCtx.beginPath();
+            chartCtx.moveTo(padding, canvasHeight - padding);
+            chartCtx.lineTo(canvasWidth - padding, canvasHeight - padding);
+            chartCtx.stroke();
+            
+            // Y-axis
+            chartCtx.beginPath();
+            chartCtx.moveTo(padding, padding);
+            chartCtx.lineTo(padding, canvasHeight - padding);
+            chartCtx.stroke();
+            
+            // Draw labels
+            chartCtx.fillStyle = '#495057';
+            chartCtx.font = '12px Arial';
+            chartCtx.textAlign = 'center';
+            
+            // X-axis label
+            chartCtx.fillText('Balandlik (m)', canvasWidth / 2, canvasHeight - 10);
+            
+            // Y-axis label
+            chartCtx.save();
+            chartCtx.translate(15, canvasHeight / 2);
+            chartCtx.rotate(-Math.PI / 2);
+            chartCtx.fillText('Potensial energiya (J)', 0, 0);
+            chartCtx.restore();
+            
+            // Calculate ranges
+            const maxHeight = 200;
+            const maxEnergy = 100 * 25 * 200; // max theoretical energy
+            const minEnergy = -100 * 25 * 50; // min theoretical energy
+            
+            // Draw energy curve
+            chartCtx.strokeStyle = '#3498db';
+            chartCtx.lineWidth = 3;
+            chartCtx.beginPath();
+            
+            for (let h = 0; h <= maxHeight; h += 1) {
+                const relativeHeight = h - referenceLevel;
+                const energy = mass * gravity * relativeHeight;
+                
+                const x = padding + (canvasWidth - 2 * padding) * h / maxHeight;
+                const y = canvasHeight - padding - (canvasHeight - 2 * padding) * (energy - minEnergy) / (maxEnergy - minEnergy);
+                
+                if (h === 0) {
+                    chartCtx.moveTo(x, y);
+                } else {
+                    chartCtx.lineTo(x, y);
+                }
+            }
+            chartCtx.stroke();
+            
+            // Draw current point
+            const currentEnergy = calculatePotentialEnergy();
+            const currentX = padding + (canvasWidth - 2 * padding) * height / maxHeight;
+            const currentY = canvasHeight - padding - (canvasHeight - 2 * padding) * (currentEnergy - minEnergy) / (maxEnergy - minEnergy);
+            
+            chartCtx.fillStyle = '#e74c3c';
+            chartCtx.beginPath();
+            chartCtx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+            chartCtx.fill();
+            
+            // Draw reference line
+            if (referenceLevel !== 0) {
+                const refEnergy = 0;
+                const refY = canvasHeight - padding - (canvasHeight - 2 * padding) * (refEnergy - minEnergy) / (maxEnergy - minEnergy);
+                
+                chartCtx.strokeStyle = '#f39c12';
+                chartCtx.lineWidth = 2;
+                chartCtx.setLineDash([5, 5]);
+                chartCtx.beginPath();
+                chartCtx.moveTo(padding, refY);
+                chartCtx.lineTo(canvasWidth - padding, refY);
+                chartCtx.stroke();
+                chartCtx.setLineDash([]);
+                
+                // Reference line label
+                chartCtx.fillStyle = '#f39c12';
+                chartCtx.fillText('Nol sath', canvasWidth - 60, refY - 5);
+            }
+            
+            // Draw scale labels
+            chartCtx.fillStyle = '#6c757d';
+            chartCtx.font = '10px Arial';
+            chartCtx.textAlign = 'center';
+            
+            // X-axis scale
+            for (let i = 0; i <= 10; i++) {
+                const h = maxHeight * i / 10;
+                const x = padding + (canvasWidth - 2 * padding) * i / 10;
+                chartCtx.fillText(h.toFixed(0), x, canvasHeight - padding + 15);
+            }
+            
+            // Y-axis scale
+            chartCtx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                const energy = minEnergy + (maxEnergy - minEnergy) * i / 10;
+                const y = canvasHeight - padding - (canvasHeight - 2 * padding) * i / 10;
+                if (Math.abs(energy) > 1000) {
+                    chartCtx.fillText((energy / 1000).toFixed(1) + 'k', padding - 5, y + 3);
+                } else {
+                    chartCtx.fillText(energy.toFixed(0), padding - 5, y + 3);
+                }
+            }
+        }
+        
+        function draw() {
+            if (!ctx) return;
+            
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Draw background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#98FB98');
+            gradient.addColorStop(1, '#8FBC8F');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Draw ground
+            const groundHeight = 50;
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, canvasHeight - groundHeight, canvasWidth, groundHeight);
+            
+            // Draw reference level
+            const refY = canvasHeight - groundHeight - referenceLevel * 2;
+            if (referenceLevel !== 0) {
+                ctx.strokeStyle = '#f39c12';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([10, 5]);
+                ctx.beginPath();
+                ctx.moveTo(0, refY);
+                ctx.lineTo(canvasWidth, refY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Reference level label
+                ctx.fillStyle = '#f39c12';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText('Nol sath', 10, refY - 5);
+            }
+            
+            // Calculate object position
+            const objectX = canvasWidth / 2;
+            const objectY = canvasHeight - groundHeight - (height / 200 * (canvasHeight - groundHeight - 50)) - 20;
+            
+            // Draw tower/support
+            const towerWidth = 20;
+            const towerHeight = (height / 200 * (canvasHeight - groundHeight - 50)) + 20;
+            ctx.fillStyle = '#666';
+            ctx.fillRect(objectX - towerWidth/2, canvasHeight - groundHeight - towerHeight, towerWidth, towerHeight);
+            
+            // Draw height measurement
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(objectX + 40, canvasHeight - groundHeight);
+            ctx.lineTo(objectX + 40, objectY);
+            ctx.stroke();
+            
+            // Height arrow
+            ctx.beginPath();
+            ctx.moveTo(objectX + 35, canvasHeight - groundHeight);
+            ctx.lineTo(objectX + 40, canvasHeight - groundHeight);
+            ctx.lineTo(objectX + 45, canvasHeight - groundHeight);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(objectX + 35, objectY);
+            ctx.lineTo(objectX + 40, objectY);
+            ctx.lineTo(objectX + 45, objectY);
+            ctx.stroke();
+            
+            // Height label
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`h = ${height.toFixed(0)} m`, objectX + 80, (canvasHeight - groundHeight + objectY) / 2);
+            
+            // Draw object
+            const objectSize = Math.max(10, Math.min(30, mass));
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(objectX, objectY, objectSize, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Object outline
+            ctx.strokeStyle = '#c0392b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw energy visualization
+            const energy = calculatePotentialEnergy();
+            const energyBarWidth = 30;
+            const energyBarMaxHeight = 200;
+            const energyBarHeight = Math.min(energyBarMaxHeight, Math.abs(energy) / 100);
+            
+            // Energy bar background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(canvasWidth - 80, canvasHeight - groundHeight - energyBarMaxHeight, energyBarWidth, energyBarMaxHeight);
+            
+            // Energy bar fill
+            if (energy >= 0) {
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(canvasWidth - 80, canvasHeight - groundHeight - energyBarHeight, energyBarWidth, energyBarHeight);
+            } else {
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(canvasWidth - 80, canvasHeight - groundHeight, energyBarWidth, -energyBarHeight);
+            }
+            
+            // Energy bar label
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Ep', canvasWidth - 65, canvasHeight - groundHeight + 20);
+            ctx.fillText(`${energy.toFixed(0)} J`, canvasWidth - 65, canvasHeight - groundHeight + 35);
+            
+            // Draw planet info
+            const planet = planets[currentPlanet];
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${planet.emoji} ${planet.name}`, 20, 40);
+            ctx.font = '14px Arial';
+            ctx.fillText(`g = ${gravity.toFixed(2)} m/s²`, 20, 60);
+            
+            // Draw formula
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Ep = mgh', canvasWidth / 2, 30);
+            ctx.font = '14px Arial';
+            ctx.fillText(`${mass.toFixed(1)} × ${gravity.toFixed(2)} × ${height.toFixed(0)} = ${energy.toFixed(2)} J`, canvasWidth / 2, 50);
+            
+            // Draw vectors (if applicable)
+            if (energy > 0) {
+                // Potential energy vector
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(objectX, objectY);
+                ctx.lineTo(objectX, objectY - 50);
+                ctx.stroke();
+                
+                // Arrow
+                ctx.beginPath();
+                ctx.moveTo(objectX - 8, objectY - 42);
+                ctx.lineTo(objectX, objectY - 50);
+                ctx.lineTo(objectX + 8, objectY - 42);
+                ctx.stroke();
+                
+                // Vector label
+                ctx.fillStyle = '#27ae60';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Ep', objectX, objectY - 55);
+            }
+            
+            // Add ripple effect for visual appeal
+            if (isRunning) {
+                const rippleRadius = (currentTime % 100) * 2;
+                ctx.strokeStyle = `rgba(52, 152, 219, ${1 - rippleRadius / 200})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(objectX, objectY, rippleRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+        }
+        
+        function drawPotentialField() {
+            if (!ctx) return;
+            
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const fieldResolution = 20;
+            
+            // Draw potential field as background
+            for (let x = 0; x < canvasWidth; x += fieldResolution) {
+                for (let y = 0; y < canvasHeight; y += fieldResolution) {
+                    const fieldHeight = (canvasHeight - y) / 2;
+                    const fieldEnergy = mass * gravity * fieldHeight;
+                    const alpha = Math.min(0.3, Math.abs(fieldEnergy) / 10000);
+                    
+                    if (fieldEnergy > 0) {
+                        ctx.fillStyle = `rgba(39, 174, 96, ${alpha})`;
+                    } else {
+                        ctx.fillStyle = `rgba(231, 76, 60, ${alpha})`;
+                    }
+                    
+                    ctx.fillRect(x, y, fieldResolution, fieldResolution);
+                }
+            }
+        }
+        
+        // Add missing simulation control functions
+        function startSimulation() {
+            isRunning = true;
+            showLoading();
+            document.querySelector('.progress-fill').style.animation = 'pulse 2s infinite';
+        }
+        
+        function pauseSimulation() {
+            isRunning = false;
+            hideLoading();
+            document.querySelector('.progress-fill').style.animation = 'none';
+        }
+        
+        function resetSimulation() {
+            isRunning = false;
+            currentTime = 0;
+            
+            // Reset parameters
+            mass = 10;
+            height = 50;
+            gravity = 9.81;
+            referenceLevel = 0;
+            animationSpeed = 1.0;
+            
+            // Reset sliders
+            document.getElementById('massSlider').value = mass;
+            document.getElementById('heightSlider').value = height;
+            document.getElementById('gravitySlider').value = gravity;
+            document.getElementById('referenceSlider').value = referenceLevel;
+            document.getElementById('speedSlider').value = animationSpeed;
+            
+            // Update value displays
+            document.getElementById('massValue').textContent = mass.toFixed(1);
+            document.getElementById('heightValue').textContent = height.toFixed(0);
+            document.getElementById('gravityValue').textContent = gravity.toFixed(2);
+            document.getElementById('referenceValue').textContent = referenceLevel.toFixed(0);
+            document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
+            
+            // Reset planet selection
+            currentPlanet = 'earth';
+            document.querySelectorAll('.planet-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.planet-btn').classList.add('active');
+            
+            // Clear chart data
+            chartData = [];
+            
+            safeUpdateDisplay();
+            safeDrawChart();
+            hideLoading();
+        }
+        
+        function stepSimulation() {
+            currentTime += 1;
+            safeUpdateDisplay();
+            updateChart();
+            draw();
+        }
+        
+        // Add better error handling
+        function safeUpdateDisplay() {
+            try {
+                updateDisplay();
+            } catch (error) {
+                console.error('Error updating display:', error);
+            }
+        }
+        
+        function safeDrawChart() {
+            try {
+                drawChart();
+            } catch (error) {
+                console.error('Error drawing chart:', error);
+            }
+        }
+        
+        // Add smooth transitions
+        function smoothTransition(currentValue, targetValue, speed = 0.1) {
+            return currentValue + (targetValue - currentValue) * speed;
+        }
+        
+        // Add unit conversion helper
+        function formatValue(value, unit) {
+            if (Math.abs(value) >= 1000000) {
+                return (value / 1000000).toFixed(2) + ' M' + unit;
+            } else if (Math.abs(value) >= 1000) {
+                return (value / 1000).toFixed(2) + ' k' + unit;
+            } else {
+                return value.toFixed(2) + ' ' + unit;
+            }
+        }
+        
+        // Add physics validation
+        function validatePhysics() {
+            if (mass <= 0) {
+                mass = 0.1;
+                document.getElementById('massSlider').value = mass;
+            }
+            if (gravity <= 0) {
+                gravity = 0.1;
+                document.getElementById('gravitySlider').value = gravity;
+            }
+            if (height < 0) {
+                height = 0;
+                document.getElementById('heightSlider').value = height;
+            }
+        }
+        
+        // Add loading state
+        function showLoading() {
+            const progressBar = document.querySelector('.progress-fill');
+            progressBar.style.background = 'linear-gradient(90deg, #3498db, #2980b9)';
+            progressBar.style.animation = 'pulse 1s infinite';
+        }
+        
+        function hideLoading() {
+            const progressBar = document.querySelector('.progress-fill');
+            progressBar.style.animation = 'none';
+        }
+        
+        // Start main animation loop
+        requestAnimationFrame(animate);
+        
+        // Add haptic feedback for mobile
+        function vibrate(duration = 50) {
+            if (navigator.vibrate) {
+                navigator.vibrate(duration);
+            }
+        }
+        
+        // Add to button clicks
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => vibrate());
+        });
+        
+        // Add accessibility improvements
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'range') {
+                vibrate(25);
+            }
+        });
+        
+        // Export functionality
+        function exportData() {
+            const data = {
+                mass: mass,
+                height: height,
+                gravity: gravity,
+                referenceLevel: referenceLevel,
+                potentialEnergy: calculatePotentialEnergy(),
+                planet: currentPlanet,
+                timestamp: new Date().toISOString(),
+                chartData: chartData
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gravitational_energy_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function captureScreenshot() {
+            const link = document.createElement('a');
+            link.download = 'gravitational_energy_simulation.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Add export buttons (can be added to HTML if needed)
+        console.log('Gravitational Potential Energy Simulation Loaded Successfully!');
+        console.log('Keyboard shortcuts: Space (play/pause), R (reset), Arrow keys (adjust height)');
+        console.log('Mobile: Swipe up/down to adjust height, tap and drag on simulation');
+        
+        function animate() {
+            if (isRunning) {
+                currentTime += animationSpeed;
+                safeUpdateDisplay();
+                updateChart();
+            }
+            
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>
