@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.4 Elastik potensial energiya - Interaktiv simulyatsiya</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .simulation-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            border-radius: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .preset-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .animation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .control-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.pause {
+            background: #ffc107;
+        }
+
+        .control-btn.pause:hover {
+            background: #e0a800;
+        }
+
+        .control-btn.reset {
+            background: #dc3545;
+        }
+
+        .control-btn.reset:hover {
+            background: #c82333;
+        }
+
+        .values-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .value-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .value-item h4 {
+            margin-bottom: 8px;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .value-item .value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .value-item .unit {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .chart-canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .theory-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .theory-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            max-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .comparison-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .comparison-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-item:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .simulation-panel,
+            .control-panel {
+                padding: 15px;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .animation-controls {
+                flex-direction: column;
+            }
+            
+            .control-btn {
+                width: 100%;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes springOscillate {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.6); }
+        }
+
+        .energy-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>3.4 Elastik potensial energiya</h1>
+            <p>Prujina elastik potensial energiyasi simulyatsiyasi</p>
+        </div>
+
+        <div class="main-content">
+            <div class="simulation-panel">
+                <button class="help-btn" onclick="toggleHelp()">?</button>
+                <div class="energy-indicator">
+                    <div>E<sub>p</sub> = <span id="currentEnergy">0</span> J</div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="springCanvas" width="500" height="400"></canvas>
+                </div>
+                <div class="animation-controls">
+                    <button class="control-btn" id="playBtn" onclick="toggleAnimation()">▶ Boshlash</button>
+                    <button class="control-btn reset" onclick="resetSimulation()">🔄 Qayta boshlash</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="springConstant">Bikrlik koeffitsienti (k):</label>
+                    <div class="slider-container">
+                        <input type="range" id="springConstant" class="slider" min="10" max="1000" step="10" value="100">
+                        <div class="value-display"><span id="kValue">100</span> N/m</div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="displacement">Cho'zilish (x):</label>
+                    <div class="slider-container">
+                        <input type="range" id="displacement" class="slider" min="-50" max="50" step="1" value="0">
+                        <div class="value-display"><span id="xValue">0</span> cm</div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="animationSpeed">Animatsiya tezligi:</label>
+                    <div class="slider-container">
+                        <input type="range" id="animationSpeed" class="slider" min="0.1" max="5" step="0.1" value="1">
+                        <div class="value-display"><span id="speedValue">1</span>x</div>
+                    </div>
+                </div>
+
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setPreset('soft')">Yumshoq prujina</button>
+                    <button class="preset-btn" onclick="setPreset('medium')">O'rta prujina</button>
+                    <button class="preset-btn" onclick="setPreset('hard')">Qattiq prujina</button>
+                    <button class="preset-btn" onclick="setPreset('extreme')">Maksimal</button>
+                </div>
+
+                <div class="values-display">
+                    <div class="values-grid">
+                        <div class="value-item">
+                            <h4>Potensial energiya</h4>
+                            <div class="value" id="potentialEnergy">0</div>
+                            <span class="unit">J</span>
+                        </div>
+                        <div class="value-item">
+                            <h4>Cho'zilish</h4>
+                            <div class="value" id="displacementValue">0</div>
+                            <span class="unit">cm</span>
+                        </div>
+                        <div class="value-item">
+                            <h4>Elastik kuch</h4>
+                            <div class="value" id="elasticForce">0</div>
+                            <span class="unit">N</span>
+                        </div>
+                        <div class="value-item">
+                            <h4>Maksimal energiya</h4>
+                            <div class="value" id="maxEnergy">0</div>
+                            <span class="unit">J</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>Energiya-Cho'zilish grafigi</h2>
+            <canvas id="chartCanvas" width="800" height="400" class="chart-canvas"></canvas>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Turli k qiymatlari taqqoslash</h2>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h3>Yumshoq prujina (k = 50 N/m)</h3>
+                    <canvas id="comparisonCanvas1" width="280" height="200"></canvas>
+                </div>
+                <div class="comparison-item">
+                    <h3>O'rta prujina (k = 200 N/m)</h3>
+                    <canvas id="comparisonCanvas2" width="280" height="200"></canvas>
+                </div>
+                <div class="comparison-item">
+                    <h3>Qattiq prujina (k = 500 N/m)</h3>
+                    <canvas id="comparisonCanvas3" width="280" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Nazariy ma'lumotlar</h2>
+            
+            <div class="formula-box">
+                <h3>Elastik potensial energiya formulasi:</h3>
+                <p>$$E_p = \frac{1}{2}kx^2$$</p>
+                <p>Bu yerda:</p>
+                <ul>
+                    <li><strong>E<sub>p</sub></strong> - elastik potensial energiya (J)</li>
+                    <li><strong>k</strong> - prujina bikrlik koeffitsienti (N/m)</li>
+                    <li><strong>x</strong> - cho'zilish yoki siqilish (m)</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <h3>Elastik kuch (Guk qonuni):</h3>
+                <p>$$F = -kx$$</p>
+                <p>Elastik kuch cho'zilish yoki siqilishga qarama-qarshi yo'nalgan.</p>
+            </div>
+
+            <div class="formula-box">
+                <h3>Asosiy xususiyatlar:</h3>
+                <ul>
+                    <li>Elastik potensial energiya har doim ijobiy</li>
+                    <li>Energiya cho'zilish kvadratiga proporsional</li>
+                    <li>Bikrlik koeffitsienti qancha katta bo'lsa, energiya ham shuncha katta</li>
+                    <li>Siqilish va cho'zilishda energiya bir xil</li>
+                    <li>Grafik parabolik shakl oladi</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <h3>Amaliy misollar:</h3>
+                <ul>
+                    <li>Avtomobil amortizatorlari</li>
+                    <li>Soat mexanizmlari</li>
+                    <li>Gimnastika prujinalari</li>
+                    <li>Mushak elastikligi</li>
+                    <li>Molekulalar orasidagi bog'lar</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Global variables
+        let springCanvas, springCtx;
+        let chartCanvas, chartCtx;
+        let comparisonCanvases = [];
+        let animationId;
+        let isAnimating = false;
+        let time = 0;
+        let springConstant = 100;
+        let displacement = 0;
+        let animationSpeed = 1;
+        let maxDisplacement = 50;
+        let chartData = [];
+
+        // Initialize simulation
+        function init() {
+            // Get canvas elements
+            springCanvas = document.getElementById('springCanvas');
+            springCtx = springCanvas.getContext('2d');
+            chartCanvas = document.getElementById('chartCanvas');
+            chartCtx = chartCanvas.getContext('2d');
+            
+            // Initialize comparison canvases
+            for (let i = 1; i <= 3; i++) {
+                comparisonCanvases.push({
+                    canvas: document.getElementById(`comparisonCanvas${i}`),
+                    ctx: document.getElementById(`comparisonCanvas${i}`).getContext('2d')
+                });
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initial draw
+            updateSimulation();
+            drawChart();
+            drawComparisonSprings();
+        }
+
+        function setupEventListeners() {
+            // Spring constant slider
+            document.getElementById('springConstant').addEventListener('input', function(e) {
+                springConstant = parseFloat(e.target.value);
+                document.getElementById('kValue').textContent = springConstant;
+                updateSimulation();
+            });
+
+            // Displacement slider
+            document.getElementById('displacement').addEventListener('input', function(e) {
+                displacement = parseFloat(e.target.value);
+                document.getElementById('xValue').textContent = displacement;
+                updateSimulation();
+            });
+
+            // Animation speed slider
+            document.getElementById('animationSpeed').addEventListener('input', function(e) {
+                animationSpeed = parseFloat(e.target.value);
+                document.getElementById('speedValue').textContent = animationSpeed;
+            });
+
+            // Mouse interaction for spring canvas
+            springCanvas.addEventListener('mousedown', startDrag);
+            springCanvas.addEventListener('mousemove', drag);
+            springCanvas.addEventListener('mouseup', stopDrag);
+            springCanvas.addEventListener('mouseleave', stopDrag);
+
+            // Touch events for mobile
+            springCanvas.addEventListener('touchstart', handleTouch);
+            springCanvas.addEventListener('touchmove', handleTouch);
+            springCanvas.addEventListener('touchend', stopDrag);
+        }
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let initialDisplacement = 0;
+
+        function startDrag(e) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            initialDisplacement = displacement;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const deltaX = (e.clientX - dragStartX) * 0.2;
+            const newDisplacement = Math.max(-maxDisplacement, Math.min(maxDisplacement, initialDisplacement + deltaX));
+            
+            document.getElementById('displacement').value = newDisplacement;
+            displacement = newDisplacement;
+            document.getElementById('xValue').textContent = Math.round(displacement);
+            
+            updateSimulation();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                           e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            springCanvas.dispatchEvent(mouseEvent);
+        }
+
+        function updateSimulation() {
+            // Calculate values
+            const x = displacement / 100; // Convert cm to m
+            const potentialEnergy = 0.5 * springConstant * x * x;
+            const elasticForce = -springConstant * x;
+            const maxEnergy = 0.5 * springConstant * (maxDisplacement / 100) * (maxDisplacement / 100);
+
+            // Update display values
+            document.getElementById('potentialEnergy').textContent = potentialEnergy.toFixed(3);
+            document.getElementById('displacementValue').textContent = displacement.toFixed(1);
+            document.getElementById('elasticForce').textContent = Math.abs(elasticForce).toFixed(2);
+            document.getElementById('maxEnergy').textContent = maxEnergy.toFixed(3);
+            document.getElementById('currentEnergy').textContent = potentialEnergy.toFixed(3);
+
+            // Draw spring
+            drawSpring();
+            
+            // Update chart
+            updateChart();
+        }
+
+        function drawSpring() {
+            const canvas = springCanvas;
+            const ctx = springCtx;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw reference line
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 50);
+            ctx.lineTo(canvas.width / 2, canvas.height - 50);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Spring parameters
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const springLength = 200;
+            const springWidth = 30;
+            const coils = 10;
+            const currentDisplacement = displacement * 2; // Scale for visualization
+            
+            // Calculate spring positions
+            const springTop = centerY - springLength / 2;
+            const springBottom = centerY + springLength / 2 + currentDisplacement;
+            
+            // Draw fixed support
+            ctx.fillStyle = '#343a40';
+            ctx.fillRect(centerX - 40, springTop - 20, 80, 20);
+            
+            // Draw spring pattern
+            ctx.strokeStyle = getSpringColor(Math.abs(displacement));
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            
+            for (let i = 0; i <= coils; i++) {
+                const y = springTop + (springBottom - springTop) * (i / coils);
+                const x = centerX + (i % 2 === 0 ? -springWidth / 2 : springWidth / 2);
+                
+                if (i === 0) {
+                    ctx.moveTo(centerX, springTop);
+                    ctx.lineTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.lineTo(centerX, springBottom);
+            ctx.stroke();
+            
+            // Draw mass
+            const massSize = 40;
+            const massY = springBottom + 10;
+            
+            ctx.fillStyle = '#dc3545';
+            ctx.fillRect(centerX - massSize / 2, massY - massSize / 2, massSize, massSize);
+            
+            // Draw mass label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('m', centerX, massY + 5);
+            
+            // Draw displacement indicator
+            if (Math.abs(displacement) > 0) {
+                ctx.strokeStyle = '#28a745';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(centerX + 60, centerY);
+                ctx.lineTo(centerX + 60, massY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw displacement arrow
+                drawArrow(ctx, centerX + 60, centerY, centerX + 60, massY, '#28a745');
+                
+                // Draw displacement label
+                ctx.fillStyle = '#28a745';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`x = ${displacement.toFixed(1)} cm`, centerX + 70, (centerY + massY) / 2);
+            }
+            
+            // Draw force vector
+            const forceScale = 0.5;
+            const forceLength = Math.abs(springConstant * displacement / 100) * forceScale;
+            const forceDirection = displacement > 0 ? -1 : 1;
+            
+            if (forceLength > 5) {
+                const forceStartX = centerX;
+                const forceStartY = massY;
+                const forceEndX = centerX;
+                const forceEndY = massY + forceDirection * forceLength;
+                
+                drawArrow(ctx, forceStartX, forceStartY, forceEndX, forceEndY, '#ff6b6b');
+                
+                ctx.fillStyle = '#ff6b6b';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('F', forceEndX - 20, forceEndY);
+            }
+            
+            // Draw energy visualization
+            drawEnergyVisualization(ctx, centerX, springTop - 50, Math.abs(displacement));
+        }
+
+        function getSpringColor(displacement) {
+            const intensity = Math.min(displacement / maxDisplacement, 1);
+            const red = Math.floor(102 + intensity * 153);
+            const green = Math.floor(126 - intensity * 126);
+            const blue = Math.floor(234 - intensity * 134);
+            return `rgb(${red}, ${green}, ${blue})`;
+        }
+
+        function drawArrow(ctx, startX, startY, endX, endY, color) {
+            const headLength = 10;
+            const angle = Math.atan2(endY - startY, endX - startX);
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2;
+            
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            
+            // Draw arrowhead
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), 
+                      endY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), 
+                      endY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawEnergyVisualization(ctx, x, y, displacement) {
+            const energy = 0.5 * springConstant * (displacement / 100) * (displacement / 100);
+            const maxEnergy = 0.5 * springConstant * (maxDisplacement / 100) * (maxDisplacement / 100);
+            const energyRatio = energy / maxEnergy;
+            
+            // Draw energy bar
+            const barWidth = 100;
+            const barHeight = 20;
+            
+            ctx.fillStyle = '#e9ecef';
+            ctx.fillRect(x - barWidth / 2, y, barWidth, barHeight);
+            
+            ctx.fillStyle = `hsl(${240 - energyRatio * 60}, 70%, 60%)`;
+            ctx.fillRect(x - barWidth / 2, y, barWidth * energyRatio, barHeight);
+            
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - barWidth / 2, y, barWidth, barHeight);
+            
+            // Draw energy label
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Energiya', x, y - 5);
+            ctx.fillText(`${(energyRatio * 100).toFixed(1)}%`, x, y + barHeight + 15);
+        }
+
+        function updateChart() {
+            // Generate data points
+            chartData = [];
+            for (let x = -maxDisplacement; x <= maxDisplacement; x += 1) {
+                const xM = x / 100; // Convert to meters
+                const energy = 0.5 * springConstant * xM * xM;
+                chartData.push({ x: x, energy: energy });
+            }
+            
+            drawChart();
+        }
+
+        function drawChart() {
+            const canvas = chartCanvas;
+            const ctx = chartCtx;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Chart parameters
+            const padding = 60;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+            
+            // Find max energy for scaling
+            const maxEnergy = Math.max(...chartData.map(d => d.energy));
+            
+            // Draw axes
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Draw grid
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (chartWidth * i) / 10;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, canvas.height - padding);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (chartHeight * i) / 10;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw parabola
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i < chartData.length; i++) {
+                const point = chartData[i];
+                const x = padding + ((point.x + maxDisplacement) / (2 * maxDisplacement)) * chartWidth;
+                const y = canvas.height - padding - (point.energy / maxEnergy) * chartHeight;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Highlight current point
+            const currentX = padding + ((displacement + maxDisplacement) / (2 * maxDisplacement)) * chartWidth;
+            const currentEnergy = 0.5 * springConstant * (displacement / 100) * (displacement / 100);
+            const currentY = canvas.height - padding - (currentEnergy / maxEnergy) * chartHeight;
+            
+            ctx.fillStyle = '#dc3545';
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw labels
+            ctx.fillStyle = '#495057';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels
+            for (let i = 0; i <= 4; i++) {
+                const x = padding + (chartWidth * i) / 4;
+                const value = -maxDisplacement + (2 * maxDisplacement * i) / 4;
+                ctx.fillText(value.toFixed(0), x, canvas.height - padding + 20);
+            }
+            
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const y = canvas.height - padding - (chartHeight * i) / 4;
+                const value = (maxEnergy * i) / 4;
+                ctx.fillText(value.toFixed(2), padding - 10, y + 5);
+            }
+            
+            // Axis titles
+            ctx.textAlign = 'center';
+            ctx.font = '16px Arial';
+            ctx.fillText('Cho\'zilish (cm)', canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Potensial energiya (J)', 0, 0);
+            ctx.restore();
+        }
+
+        function drawComparisonSprings() {
+            const kValues = [50, 200, 500];
+            const testDisplacement = 20; // cm
+            
+            for (let i = 0; i < 3; i++) {
+                const canvas = comparisonCanvases[i].canvas;
+                const ctx = comparisonCanvases[i].ctx;
+                const k = kValues[i];
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw simple spring comparison
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const springLength = 120;
+                const springWidth = 20;
+                const coils = 6;
+                const currentDisplacement = testDisplacement * 1.5; // Scale for visualization
+                
+                // Calculate spring positions
+                const springTop = centerY - springLength / 2;
+                const springBottom = centerY + springLength / 2 + currentDisplacement;
+                
+                // Draw fixed support
+                ctx.fillStyle = '#343a40';
+                ctx.fillRect(centerX - 30, springTop - 15, 60, 15);
+                
+                // Draw spring
+                ctx.strokeStyle = getSpringColor(testDisplacement);
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let j = 0; j <= coils; j++) {
+                    const y = springTop + (springBottom - springTop) * (j / coils);
+                    const x = centerX + (j % 2 === 0 ? -springWidth / 2 : springWidth / 2);
+                    
+                    if (j === 0) {
+                        ctx.moveTo(centerX, springTop);
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.lineTo(centerX, springBottom);
+                ctx.stroke();
+                
+                // Draw mass
+                const massSize = 25;
+                const massY = springBottom + 8;
+                
+                ctx.fillStyle = '#dc3545';
+                ctx.fillRect(centerX - massSize / 2, massY - massSize / 2, massSize, massSize);
+                
+                // Draw energy value
+                const energy = 0.5 * k * (testDisplacement / 100) * (testDisplacement / 100);
+                ctx.fillStyle = '#495057';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`E = ${energy.toFixed(2)} J`, centerX, massY + 30);
+            }
+        }
+
+        function toggleAnimation() {
+            const playBtn = document.getElementById('playBtn');
+            
+            if (isAnimating) {
+                cancelAnimationFrame(animationId);
+                isAnimating = false;
+                playBtn.textContent = '▶ Boshlash';
+                playBtn.className = 'control-btn';
+            } else {
+                isAnimating = true;
+                playBtn.textContent = '⏸ To\'xtatish';
+                playBtn.className = 'control-btn pause';
+                animate();
+            }
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+            
+            time += 0.02 * animationSpeed;
+            
+            // Oscillate displacement
+            const amplitude = 30; // cm
+            const frequency = 1; // Hz
+            displacement = amplitude * Math.sin(2 * Math.PI * frequency * time);
+            
+            // Update UI
+            document.getElementById('displacement').value = displacement;
+            document.getElementById('xValue').textContent = displacement.toFixed(1);
+            
+            updateSimulation();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function resetSimulation() {
+            if (isAnimating) {
+                toggleAnimation();
+            }
+            
+            time = 0;
+            displacement = 0;
+            
+            document.getElementById('displacement').value = 0;
+            document.getElementById('xValue').textContent = '0';
+            
+            updateSimulation();
+        }
+
+        function setPreset(preset) {
+            const presets = {
+                'soft': { k: 50, x: 20 },
+                'medium': { k: 200, x: 15 },
+                'hard': { k: 500, x: 10 },
+                'extreme': { k: 1000, x: 5 }
+            };
+            
+            const config = presets[preset];
+            if (config) {
+                springConstant = config.k;
+                displacement = config.x;
+                
+                document.getElementById('springConstant').value = springConstant;
+                document.getElementById('displacement').value = displacement;
+                document.getElementById('kValue').textContent = springConstant;
+                document.getElementById('xValue').textContent = displacement;
+                
+                updateSimulation();
+            }
+        }
+
+        function toggleHelp() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+            tooltip.style.left = '50%';
+            tooltip.style.top = '20px';
+            tooltip.style.transform = 'translateX(-50%)';
+            tooltip.innerHTML = `
+                <strong>Elastik potensial energiya</strong><br>
+                • Prujinani sichqon bilan torting<br>
+                • Slayderlar bilan parametrlarni o'zgartiring<br>
+                • Animatsiya tugmasini bosing<br>
+                • Grafik energiya o'zgarishini ko'rsatadi<br>
+                • Parabola shaklidagi bog'liqlik
+            `;
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            init();
+            // Initialize MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            setTimeout(function() {
+                drawSpring();
+                drawChart();
+                drawComparisonSprings();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
