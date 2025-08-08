@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.5 Energiya Saqlanish Qonuni - Simulyatsiya</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #pendulumCanvas {
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            min-width: 60px;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .energy-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .energy-bars {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .energy-bar {
+            flex: 1;
+            height: 200px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #bdc3c7;
+        }
+
+        .energy-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: height 0.3s ease;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .kinetic-fill {
+            background: linear-gradient(to top, #e74c3c, #ff6b6b);
+        }
+
+        .potential-fill {
+            background: linear-gradient(to top, #3498db, #74b9ff);
+        }
+
+        .total-fill {
+            background: linear-gradient(to top, #2ecc71, #55efc4);
+        }
+
+        .energy-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .energy-value {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .energy-graph {
+            height: 150px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theory-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .theory-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .info-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .info-card .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        .info-card .unit {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-panel {
+                order: -1;
+            }
+            
+            .energy-bars {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .energy-bar {
+                height: 60px;
+                flex-direction: row;
+            }
+            
+            .energy-fill {
+                left: 0;
+                bottom: 0;
+                height: 100% !important;
+                width: 0%;
+                transition: width 0.3s ease;
+                border-radius: 8px 0 0 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                flex: none;
+                width: 100%;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>3.5 Energiya Saqlanish Qonuni</h1>
+            <p>Pendulum harakati orqali energiya saqlanish qonunini o'rganish</p>
+        </div>
+
+        <div class="main-content">
+            <div class="simulation-panel">
+                <div class="canvas-container">
+                    <canvas id="pendulumCanvas"></canvas>
+                    <button class="help-btn" onclick="showHelp()">?</button>
+                </div>
+                
+                <div class="energy-display">
+                    <h3>Energiya Taqsimoti</h3>
+                    <div class="energy-bars">
+                        <div class="energy-bar">
+                            <div class="energy-fill kinetic-fill" id="kineticBar"></div>
+                            <div class="energy-value" id="kineticValue">0 J</div>
+                            <div class="energy-label">Kinetik<br>Energiya</div>
+                        </div>
+                        <div class="energy-bar">
+                            <div class="energy-fill potential-fill" id="potentialBar"></div>
+                            <div class="energy-value" id="potentialValue">0 J</div>
+                            <div class="energy-label">Potensial<br>Energiya</div>
+                        </div>
+                        <div class="energy-bar">
+                            <div class="energy-fill total-fill" id="totalBar"></div>
+                            <div class="energy-value" id="totalValue">0 J</div>
+                            <div class="energy-label">Umumiy<br>Energiya</div>
+                        </div>
+                    </div>
+                    <canvas id="energyGraph" class="energy-graph"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h3>Boshqaruv Paneli</h3>
+                
+                <div class="control-group">
+                    <label for="lengthSlider">Pendulum Uzunligi (m):</label>
+                    <div class="slider-container">
+                        <input type="range" id="lengthSlider" class="slider" min="0.5" max="3" step="0.1" value="1.5">
+                        <span class="value-display" id="lengthValue">1.5</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="massSlider">Massa (kg):</label>
+                    <div class="slider-container">
+                        <input type="range" id="massSlider" class="slider" min="0.1" max="5" step="0.1" value="1">
+                        <span class="value-display" id="massValue">1.0</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="angleSlider">Boshlang'ich Burchak (°):</label>
+                    <div class="slider-container">
+                        <input type="range" id="angleSlider" class="slider" min="5" max="85" step="5" value="45">
+                        <span class="value-display" id="angleValue">45</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="speedSlider">Animatsiya Tezligi:</label>
+                    <div class="slider-container">
+                        <input type="range" id="speedSlider" class="slider" min="0.1" max="3" step="0.1" value="1">
+                        <span class="value-display" id="speedValue">1.0x</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="playBtn">Boshlash</button>
+                    <button class="btn btn-secondary" id="pauseBtn">Pauza</button>
+                    <button class="btn btn-danger" id="resetBtn">Qayta Boshlash</button>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>Maksimal Balandlik</h4>
+                        <div class="value" id="maxHeight">0</div>
+                        <div class="unit">m</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>Maksimal Tezlik</h4>
+                        <div class="value" id="maxSpeed">0</div>
+                        <div class="unit">m/s</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>Период</h4>
+                        <div class="value" id="period">0</div>
+                        <div class="unit">s</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>Chastota</h4>
+                        <div class="value" id="frequency">0</div>
+                        <div class="unit">Hz</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h3>Nazariy Asoslar</h3>
+            <div class="formula-box">
+                <p><strong>Energiya Saqlanish Qonuni:</strong></p>
+                <p>$$E_{umumiy} = E_k + E_p = \text{const}$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Kinetik Energiya:</strong></p>
+                <p>$$E_k = \frac{1}{2}mv^2$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Potensial Energiya:</strong></p>
+                <p>$$E_p = mgh = mg \cdot L(1 - \cos\theta)$$</p>
+            </div>
+            <div class="formula-box">
+                <p><strong>Pendulum Periodi:</strong></p>
+                <p>$$T = 2\pi\sqrt{\frac{L}{g}}$$</p>
+            </div>
+            
+            <p><strong>Energiya Saqlanish Qonuni:</strong> Yopiq sistemada energiya yaratilmaydi va yo'q qilinmaydi, faqat bir turdan ikkinchisiga o'tadi.</p>
+            <p><strong>Pendulum Harakati:</strong> Pendulum harakati davomida kinetik va potensial energiya o'zaro aylanadi, lekin ularning yig'indisi doimiy qoladi.</p>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        class PendulumSimulation {
+            constructor() {
+                this.canvas = document.getElementById('pendulumCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.energyCanvas = document.getElementById('energyGraph');
+                this.energyCtx = this.energyCanvas.getContext('2d');
+                
+                this.setupCanvas();
+                this.setupControls();
+                this.setupEventListeners();
+                
+                // Pendulum parameters
+                this.length = 1.5;
+                this.mass = 1.0;
+                this.angle = Math.PI / 4;
+                this.initialAngle = Math.PI / 4;
+                this.angularVelocity = 0;
+                this.gravity = 9.81;
+                this.animationSpeed = 1.0;
+                
+                // Animation state
+                this.isPlaying = false;
+                this.startTime = 0;
+                this.time = 0;
+                
+                // Energy tracking
+                this.energyHistory = [];
+                this.maxHistory = 300;
+                
+                this.updateCalculations();
+                this.draw();
+            }
+            
+            setupCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width * devicePixelRatio;
+                this.canvas.height = rect.height * devicePixelRatio;
+                this.ctx.scale(devicePixelRatio, devicePixelRatio);
+                this.canvas.style.width = rect.width + 'px';
+                this.canvas.style.height = rect.height + 'px';
+                
+                // Energy graph canvas
+                const energyRect = this.energyCanvas.getBoundingClientRect();
+                this.energyCanvas.width = energyRect.width * devicePixelRatio;
+                this.energyCanvas.height = energyRect.height * devicePixelRatio;
+                this.energyCtx.scale(devicePixelRatio, devicePixelRatio);
+                this.energyCanvas.style.width = energyRect.width + 'px';
+                this.energyCanvas.style.height = energyRect.height + 'px';
+            }
+            
+            setupControls() {
+                const controls = {
+                    length: document.getElementById('lengthSlider'),
+                    mass: document.getElementById('massSlider'),
+                    angle: document.getElementById('angleSlider'),
+                    speed: document.getElementById('speedSlider')
+                };
+                
+                Object.entries(controls).forEach(([key, slider]) => {
+                    slider.addEventListener('input', () => {
+                        this.updateParameter(key, parseFloat(slider.value));
+                    });
+                });
+            }
+            
+            setupEventListeners() {
+                document.getElementById('playBtn').addEventListener('click', () => this.play());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                
+                // Touch support for mobile
+                this.canvas.addEventListener('touchstart', (e) => this.handleTouch(e));
+                this.canvas.addEventListener('touchmove', (e) => this.handleTouch(e));
+            }
+            
+            updateParameter(param, value) {
+                switch(param) {
+                    case 'length':
+                        this.length = value;
+                        document.getElementById('lengthValue').textContent = value.toFixed(1);
+                        break;
+                    case 'mass':
+                        this.mass = value;
+                        document.getElementById('massValue').textContent = value.toFixed(1);
+                        break;
+                    case 'angle':
+                        this.initialAngle = value * Math.PI / 180;
+                        this.angle = this.initialAngle;
+                        this.angularVelocity = 0;
+                        document.getElementById('angleValue').textContent = value;
+                        break;
+                    case 'speed':
+                        this.animationSpeed = value;
+                        document.getElementById('speedValue').textContent = value.toFixed(1) + 'x';
+                        break;
+                }
+                this.updateCalculations();
+                this.draw();
+            }
+            
+            updateCalculations() {
+                // Calculate theoretical values
+                const period = 2 * Math.PI * Math.sqrt(this.length / this.gravity);
+                const frequency = 1 / period;
+                const maxHeight = this.length * (1 - Math.cos(this.initialAngle));
+                const maxSpeed = Math.sqrt(2 * this.gravity * maxHeight);
+                
+                document.getElementById('period').textContent = period.toFixed(2);
+                document.getElementById('frequency').textContent = frequency.toFixed(3);
+                document.getElementById('maxHeight').textContent = maxHeight.toFixed(3);
+                document.getElementById('maxSpeed').textContent = maxSpeed.toFixed(2);
+            }
+            
+            calculateEnergy() {
+                const height = this.length * (1 - Math.cos(this.angle));
+                const maxHeight = this.length * (1 - Math.cos(this.initialAngle));
+                const velocity = this.angularVelocity * this.length;
+                
+                const kineticEnergy = 0.5 * this.mass * velocity * velocity;
+                const potentialEnergy = this.mass * this.gravity * height;
+                const totalEnergy = this.mass * this.gravity * maxHeight;
+                
+                return {
+                    kinetic: kineticEnergy,
+                    potential: potentialEnergy,
+                    total: totalEnergy
+                };
+            }
+            
+            updateEnergyDisplay() {
+                const energy = this.calculateEnergy();
+                const maxEnergy = energy.total;
+                
+                // Update bar charts
+                const kineticPercent = (energy.kinetic / maxEnergy) * 100;
+                const potentialPercent = (energy.potential / maxEnergy) * 100;
+                const totalPercent = 100;
+                
+                if (window.innerWidth > 1024) {
+                    document.getElementById('kineticBar').style.height = kineticPercent + '%';
+                    document.getElementById('potentialBar').style.height = potentialPercent + '%';
+                    document.getElementById('totalBar').style.height = totalPercent + '%';
+                } else {
+                    document.getElementById('kineticBar').style.width = kineticPercent + '%';
+                    document.getElementById('potentialBar').style.width = potentialPercent + '%';
+                    document.getElementById('totalBar').style.width = totalPercent + '%';
+                }
+                
+                // Update values
+                document.getElementById('kineticValue').textContent = energy.kinetic.toFixed(2) + ' J';
+                document.getElementById('potentialValue').textContent = energy.potential.toFixed(2) + ' J';
+                document.getElementById('totalValue').textContent = energy.total.toFixed(2) + ' J';
+                
+                // Store energy history
+                this.energyHistory.push({
+                    time: this.time,
+                    kinetic: energy.kinetic,
+                    potential: energy.potential,
+                    total: energy.total
+                });
+                
+                if (this.energyHistory.length > this.maxHistory) {
+                    this.energyHistory.shift();
+                }
+                
+                this.drawEnergyGraph();
+            }
+            
+            drawEnergyGraph() {
+                const rect = this.energyCanvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                
+                this.energyCtx.clearRect(0, 0, width, height);
+                
+                if (this.energyHistory.length < 2) return;
+                
+                const maxEnergy = Math.max(...this.energyHistory.map(h => h.total));
+                const timeSpan = this.energyHistory[this.energyHistory.length - 1].time - this.energyHistory[0].time;
+                
+                // Draw grid
+                this.energyCtx.strokeStyle = '#e0e0e0';
+                this.energyCtx.lineWidth = 1;
+                
+                for (let i = 0; i <= 4; i++) {
+                    const y = (height / 4) * i;
+                    this.energyCtx.beginPath();
+                    this.energyCtx.moveTo(0, y);
+                    this.energyCtx.lineTo(width, y);
+                    this.energyCtx.stroke();
+                }
+                
+                // Draw energy lines
+                this.drawEnergyLine('kinetic', '#e74c3c', maxEnergy, width, height);
+                this.drawEnergyLine('potential', '#3498db', maxEnergy, width, height);
+                this.drawEnergyLine('total', '#2ecc71', maxEnergy, width, height);
+                
+                // Draw labels
+                this.energyCtx.fillStyle = '#333';
+                this.energyCtx.font = '12px Arial';
+                this.energyCtx.fillText('Kinetik', 10, 20);
+                this.energyCtx.fillStyle = '#e74c3c';
+                this.energyCtx.fillRect(60, 12, 15, 3);
+                
+                this.energyCtx.fillStyle = '#333';
+                this.energyCtx.fillText('Potensial', 10, 40);
+                this.energyCtx.fillStyle = '#3498db';
+                this.energyCtx.fillRect(70, 32, 15, 3);
+                
+                this.energyCtx.fillStyle = '#333';
+                this.energyCtx.fillText('Umumiy', 10, 60);
+                this.energyCtx.fillStyle = '#2ecc71';
+                this.energyCtx.fillRect(60, 52, 15, 3);
+            }
+            
+            drawEnergyLine(type, color, maxEnergy, width, height) {
+                this.energyCtx.strokeStyle = color;
+                this.energyCtx.lineWidth = 2;
+                this.energyCtx.beginPath();
+                
+                this.energyHistory.forEach((point, index) => {
+                    const x = (index / (this.energyHistory.length - 1)) * width;
+                    const y = height - (point[type] / maxEnergy) * height;
+                    
+                    if (index === 0) {
+                        this.energyCtx.moveTo(x, y);
+                    } else {
+                        this.energyCtx.lineTo(x, y);
+                    }
+                });
+                
+                this.energyCtx.stroke();
+            }
+            
+            simulate(dt) {
+                if (!this.isPlaying) return;
+                
+                // Simple pendulum physics
+                const angularAcceleration = -(this.gravity / this.length) * Math.sin(this.angle);
+                this.angularVelocity += angularAcceleration * dt * this.animationSpeed;
+                this.angle += this.angularVelocity * dt * this.animationSpeed;
+                
+                this.time += dt * this.animationSpeed;
+            }
+            
+            draw() {
+                const rect = this.canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                
+                this.ctx.clearRect(0, 0, width, height);
+                
+                // Draw background elements
+                this.drawBackground(width, height);
+                
+                // Calculate pendulum position
+                const pivotX = width / 2;
+                const pivotY = 50;
+                const scale = Math.min(width, height) / 4;
+                const pendulumLength = this.length * scale;
+                
+                const bobX = pivotX + pendulumLength * Math.sin(this.angle);
+                const bobY = pivotY + pendulumLength * Math.cos(this.angle);
+                
+                // Draw pendulum
+                this.drawPendulum(pivotX, pivotY, bobX, bobY);
+                
+                // Update energy display
+                this.updateEnergyDisplay();
+            }
+            
+            drawBackground(width, height) {
+                // Draw reference lines
+                this.ctx.strokeStyle = '#bdc3c7';
+                this.ctx.lineWidth = 1;
+                this.ctx.setLineDash([5, 5]);
+                
+                // Vertical reference line
+                this.ctx.beginPath();
+                this.ctx.moveTo(width / 2, 0);
+                this.ctx.lineTo(width / 2, height);
+                this.ctx.stroke();
+                
+                this.ctx.setLineDash([]);
+                
+                // Draw angle arc
+                const pivotX = width / 2;
+                const pivotY = 50;
+                const arcRadius = 40;
+                
+                this.ctx.strokeStyle = '#3498db';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(pivotX, pivotY, arcRadius, 0, this.angle);
+                this.ctx.stroke();
+                
+                // Draw angle text
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.font = '16px Arial';
+                this.ctx.fillText(`θ = ${(this.angle * 180 / Math.PI).toFixed(1)}°`, pivotX + 50, pivotY + 20);
+            }
+            
+            drawPendulum(pivotX, pivotY, bobX, bobY) {
+                // Draw pivot point
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.beginPath();
+                this.ctx.arc(pivotX, pivotY, 8, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Draw string
+                this.ctx.strokeStyle = '#34495e';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(pivotX, pivotY);
+                this.ctx.lineTo(bobX, bobY);
+                this.ctx.stroke();
+                
+                // Draw bob
+                const bobRadius = Math.max(10, this.mass * 8);
+                this.ctx.fillStyle = '#e74c3c';
+                this.ctx.strokeStyle = '#c0392b';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(bobX, bobY, bobRadius, 0, 2 * Math.PI);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Draw velocity vector
+                if (Math.abs(this.angularVelocity) > 0.1) {
+                    const velocityScale = 20;
+                    const velocityX = -this.angularVelocity * velocityScale * Math.cos(this.angle);
+                    const velocityY = this.angularVelocity * velocityScale * Math.sin(this.angle);
+                    
+                    this.ctx.strokeStyle = '#f39c12';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(bobX, bobY);
+                    this.ctx.lineTo(bobX + velocityX, bobY + velocityY);
+                    this.ctx.stroke();
+                    
+                    // Arrow head
+                    const arrowLength = 10;
+                    const arrowAngle = Math.atan2(velocityY, velocityX);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(bobX + velocityX, bobY + velocityY);
+                    this.ctx.lineTo(
+                        bobX + velocityX - arrowLength * Math.cos(arrowAngle - Math.PI / 6),
+                        bobY + velocityY - arrowLength * Math.sin(arrowAngle - Math.PI / 6)
+                    );
+                    this.ctx.moveTo(bobX + velocityX, bobY + velocityY);
+                    this.ctx.lineTo(
+                        bobX + velocityX - arrowLength * Math.cos(arrowAngle + Math.PI / 6),
+                        bobY + velocityY - arrowLength * Math.sin(arrowAngle + Math.PI / 6)
+                    );
+                    this.ctx.stroke();
+                }
+                
+                // Draw height indicator
+                const groundY = pivotY + this.length * Math.min(this.canvas.offsetWidth, this.canvas.offsetHeight) / 4;
+                const height = this.length * (1 - Math.cos(this.angle));
+                const heightPixels = height * Math.min(this.canvas.offsetWidth, this.canvas.offsetHeight) / 4;
+                
+                this.ctx.strokeStyle = '#27ae60';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([3, 3]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(bobX, bobY);
+                this.ctx.lineTo(bobX, groundY);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+                
+                // Height label
+                this.ctx.fillStyle = '#27ae60';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText(`h = ${height.toFixed(2)}m`, bobX + 10, bobY + 20);
+            }
+            
+            play() {
+                this.isPlaying = true;
+                this.startTime = performance.now();
+                this.animate();
+            }
+            
+            pause() {
+                this.isPlaying = false;
+            }
+            
+            reset() {
+                this.isPlaying = false;
+                this.angle = this.initialAngle;
+                this.angularVelocity = 0;
+                this.time = 0;
+                this.energyHistory = [];
+                this.draw();
+            }
+            
+            animate() {
+                if (!this.isPlaying) return;
+                
+                const currentTime = performance.now();
+                const dt = (currentTime - this.startTime) / 1000;
+                this.startTime = currentTime;
+                
+                this.simulate(dt);
+                this.draw();
+                
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            handleTouch(event) {
+                event.preventDefault();
+                const touch = event.touches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                // Calculate angle from touch position
+                const pivotX = rect.width / 2;
+                const pivotY = 50;
+                const angle = Math.atan2(x - pivotX, y - pivotY);
+                
+                if (Math.abs(angle) <= Math.PI / 2) {
+                    this.angle = angle;
+                    this.angularVelocity = 0;
+                    this.draw();
+                }
+            }
+        }
+        
+        // Helper functions
+        function showHelp() {
+            alert(`Energiya Saqlanish Simulyatsiyasi Yordami:
+
+1. Pendulum parametrlarini o'zgartirishingiz mumkin
+2. Boshlash tugmasini bosib simulyatsiyani ishga tushiring
+3. Energiya diagrammasida kinetik va potensial energiya o'zgarishini kuzating
+4. Mobil qurilmalarda pendulumni barmog'ingiz bilan harakatlantirishingiz mumkin
+
+Asosiy formulalar:
+- Umumiy energiya: E = Ek + Ep
+- Kinetik energiya: Ek = ½mv²
+- Potensial energiya: Ep = mgh
+
+Energiya saqlanish qonuniga ko'ra, umumiy energiya doimiy qoladi!`);
+        }
+        
+        // Initialize simulation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.simulation = new PendulumSimulation();
+        });
+        
+        // MathJax configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+</body>
+</html>
