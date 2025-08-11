@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.1 Impuls tushunchasi - Interaktiv Simulyatsiya</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .simulation-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(to bottom, #e3f2fd 0%, #f8f9fa 100%);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            cursor: crosshair;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h3::before {
+            content: "⚡";
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .slider:hover {
+            background: #ccc;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            padding: 5px 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .preset-btn {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .play-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .pause-btn {
+            background: #f39c12;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .info-panel {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .formula-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .values-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .value-card h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .value-card .value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .comparison-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .comparison-objects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .object-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .object-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .object-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .object-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            max-width: 200px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .values-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-objects {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .canvas-container {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .preset-buttons {
+                flex-direction: column;
+            }
+            
+            .playback-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>4.1 Impuls tushunchasi</h1>
+            <p>Interaktiv Simulyatsiya va Vizualizatsiya</p>
+        </div>
+
+        <div class="main-content">
+            <div class="simulation-panel">
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas"></canvas>
+                    <button class="help-btn" onclick="showHelp('simulation')">?</button>
+                </div>
+                
+                <div class="playback-controls">
+                    <button class="control-btn play-btn" onclick="toggleAnimation()">
+                        <span id="playIcon">▶️</span> <span id="playText">Boshlash</span>
+                    </button>
+                    <button class="control-btn reset-btn" onclick="resetSimulation()">
+                        🔄 Qayta boshlash
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-group">
+                    <h3>Jism 1 Parametrlari</h3>
+                    <div class="slider-container">
+                        <label for="mass1">Massa (kg):</label>
+                        <div class="slider-wrapper">
+                            <input type="range" id="mass1" class="slider" min="0.1" max="10" step="0.1" value="2">
+                            <span class="value-display" id="mass1Value">2.0 kg</span>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="velocity1">Tezlik (m/s):</label>
+                        <div class="slider-wrapper">
+                            <input type="range" id="velocity1" class="slider" min="-10" max="10" step="0.1" value="3">
+                            <span class="value-display" id="velocity1Value">3.0 m/s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Jism 2 Parametrlari</h3>
+                    <div class="slider-container">
+                        <label for="mass2">Massa (kg):</label>
+                        <div class="slider-wrapper">
+                            <input type="range" id="mass2" class="slider" min="0.1" max="10" step="0.1" value="1.5">
+                            <span class="value-display" id="mass2Value">1.5 kg</span>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="velocity2">Tezlik (m/s):</label>
+                        <div class="slider-wrapper">
+                            <input type="range" id="velocity2" class="slider" min="-10" max="10" step="0.1" value="-2">
+                            <span class="value-display" id="velocity2Value">-2.0 m/s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Tayyor Misollar</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setPreset('person')">🚶 Odam</button>
+                        <button class="preset-btn" onclick="setPreset('bicycle')">🚴 Velosiped</button>
+                        <button class="preset-btn" onclick="setPreset('football')">⚽ Futbol to'pi</button>
+                        <button class="preset-btn" onclick="setPreset('car')">🚗 Avtomobil</button>
+                        <button class="preset-btn" onclick="setPreset('motorbike')">🏍️ Mototsikl</button>
+                        <button class="preset-btn" onclick="setPreset('truck')">🚛 Yuk mashinasi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="values-display">
+            <div class="value-card">
+                <h4>Jism 1 Impulsi</h4>
+                <div class="value" id="momentum1">6.0 kg·m/s</div>
+            </div>
+            <div class="value-card">
+                <h4>Jism 2 Impulsi</h4>
+                <div class="value" id="momentum2">-3.0 kg·m/s</div>
+            </div>
+            <div class="value-card">
+                <h4>Umumiy Impuls</h4>
+                <div class="value" id="totalMomentum">3.0 kg·m/s</div>
+            </div>
+            <div class="value-card">
+                <h4>Impuls Nisbati</h4>
+                <div class="value" id="momentumRatio">2.00</div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-tabs">
+                <button class="tab-btn active" onclick="showTab('theory')">📚 Nazariya</button>
+                <button class="tab-btn" onclick="showTab('formulas')">📐 Formulalar</button>
+                <button class="tab-btn" onclick="showTab('comparison')">⚖️ Taqqoslash</button>
+                <button class="tab-btn" onclick="showTab('chart')">📊 Grafik</button>
+            </div>
+
+            <div id="theory" class="tab-content active">
+                <h3>Impuls tushunchasi</h3>
+                <p>Impuls (momentum) - jismning harakat miqdorini ifodalovchi fizik kattalik. Bu vektor kattalik bo'lib, jismning massasi va tezligiga bog'liq.</p>
+                
+                <div class="formula-display">
+                    <h4>Asosiy formula:</h4>
+                    <p>$$\vec{p} = m \vec{v}$$</p>
+                    <p>Bu erda:</p>
+                    <ul>
+                        <li>$\vec{p}$ - impuls vektori (kg·m/s)</li>
+                        <li>$m$ - jism massasi (kg)</li>
+                        <li>$\vec{v}$ - tezlik vektori (m/s)</li>
+                    </ul>
+                </div>
+
+                <h4>Impulsning xususiyatlari:</h4>
+                <ul>
+                    <li>Impuls vektor kattalik - yo'nalishga ega</li>
+                    <li>Impuls tezlik yo'nalishida yo'nalgan</li>
+                    <li>Massa ko'paytirilsa, impuls ham ko'payadi</li>
+                    <li>Tezlik ko'paytirilsa, impuls ham ko'payadi</li>
+                </ul>
+            </div>
+
+            <div id="formulas" class="tab-content">
+                <h3>Impuls bilan bog'liq formulalar</h3>
+                
+                <div class="formula-display">
+                    <h4>1. Impuls ta'rifi:</h4>
+                    <p>$$\vec{p} = m \vec{v}$$</p>
+                </div>
+
+                <div class="formula-display">
+                    <h4>2. Impuls o'zgarishi:</h4>
+                    <p>$$\Delta \vec{p} = \vec{p}_2 - \vec{p}_1 = m(\vec{v}_2 - \vec{v}_1)$$</p>
+                </div>
+
+                <div class="formula-display">
+                    <h4>3. Impuls va kuch:</h4>
+                    <p>$$\vec{F} = \frac{d\vec{p}}{dt} = m\vec{a}$$</p>
+                </div>
+
+                <div class="formula-display">
+                    <h4>4. Impuls saqlanish qonuni:</h4>
+                    <p>$$\vec{p}_1 + \vec{p}_2 = \vec{p}_1' + \vec{p}_2' = \text{const}$$</p>
+                </div>
+
+                <div class="formula-display">
+                    <h4>5. Impuls birligi:</h4>
+                    <p>SI tizimida: kg·m/s</p>
+                    <p>Boshqa birliklar: N·s (Nyuton·sekund)</p>
+                </div>
+            </div>
+
+            <div id="comparison" class="tab-content">
+                <h3>Turli jismlar impulsi taqqoslash</h3>
+                
+                <div class="comparison-panel">
+                    <h4>Jism turini tanlang:</h4>
+                    <div class="comparison-objects">
+                        <div class="object-card" onclick="selectObject('ping-pong')">
+                            <div class="object-icon">🏓</div>
+                            <div>Ping-pong to'pi</div>
+                            <small>m = 2.7g, v = 15 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('tennis')">
+                            <div class="object-icon">🎾</div>
+                            <div>Tennis to'pi</div>
+                            <small>m = 57g, v = 25 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('football')">
+                            <div class="object-icon">⚽</div>
+                            <div>Futbol to'pi</div>
+                            <small>m = 450g, v = 30 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('basketball')">
+                            <div class="object-icon">🏀</div>
+                            <div>Basketbol to'pi</div>
+                            <small>m = 625g, v = 15 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('person')">
+                            <div class="object-icon">�</div>
+                            <div>Odam</div>
+                            <small>m = 70kg, v = 5 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('bicycle')">
+                            <div class="object-icon">🚴</div>
+                            <div>Velosiped</div>
+                            <small>m = 15kg, v = 8 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('motorbike')">
+                            <div class="object-icon">🏍️</div>
+                            <div>Mototsikl</div>
+                            <small>m = 150kg, v = 25 m/s</small>
+                        </div>
+                        <div class="object-card" onclick="selectObject('airplane')">
+                            <div class="object-icon">✈️</div>
+                            <div>Samolyot</div>
+                            <small>m = 500t, v = 50 m/s</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chart" class="tab-content">
+                <h3>Impuls-Tezlik Grafigi</h3>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <p>Grafik impuls va tezlik orasidagi chiziqli bog'liqlikni ko'rsatadi. Massa o'zgartirilganda grafik qiyalik o'zgaradi.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Global variables
+        let canvas, ctx, chartCanvas, chartCtx;
+        let isAnimating = false;
+        let animationId;
+        let objects = [];
+        let selectedObject = null;
+        
+        // Object definitions
+        const objectData = {
+            'ping-pong': { mass: 0.0027, velocity: 15, name: 'Ping-pong to\'pi', icon: '🏓' },
+            'tennis': { mass: 0.057, velocity: 25, name: 'Tennis to\'pi', icon: '🎾' },
+            'football': { mass: 0.45, velocity: 30, name: 'Futbol to\'pi', icon: '⚽' },
+            'basketball': { mass: 0.625, velocity: 15, name: 'Basketbol to\'pi', icon: '🏀' },
+            'car': { mass: 1500, velocity: 20, name: 'Avtomobil', icon: '🚗' },
+            'truck': { mass: 8000, velocity: 15, name: 'Yuk mashinasi', icon: '🚛' },
+            'person': { mass: 70, velocity: 5, name: 'Odam', icon: '🚶' },
+            'bicycle': { mass: 15, velocity: 8, name: 'Velosiped', icon: '🚴' },
+            'motorbike': { mass: 150, velocity: 25, name: 'Mototsikl', icon: '🏍️' },
+            'airplane': { mass: 500000, velocity: 50, name: 'Samolyot', icon: '✈️' }
+        };
+        
+        // Current object types for dynamic emoji display
+        let currentObjectTypes = ['default', 'default'];
+
+        // Initialize simulation
+        function initSimulation() {
+            canvas = document.getElementById('simulationCanvas');
+            ctx = canvas.getContext('2d');
+            chartCanvas = document.getElementById('chartCanvas');
+            chartCtx = chartCanvas.getContext('2d');
+            
+            // Set canvas size
+            resizeCanvas();
+            
+            // Create objects
+            objects = [
+                {
+                    x: 100,
+                    y: canvas.height / 2,
+                    mass: 2.0,
+                    velocity: 3.0,
+                    color: '#ff6b6b',
+                    radius: 20,
+                    trail: [],
+                    type: 'default',
+                    emoji: '🔴'
+                },
+                {
+                    x: canvas.width - 100,
+                    y: canvas.height / 2,
+                    mass: 1.5,
+                    velocity: -2.0,
+                    color: '#4ecdc4',
+                    radius: 15,
+                    trail: [],
+                    type: 'default',
+                    emoji: '🔵'
+                }
+            ];
+            
+            // Add event listeners
+            addEventListeners();
+            
+            // Initial draw
+            draw();
+            updateValues();
+            drawChart();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            
+            if (chartCanvas) {
+                chartCanvas.width = chartCanvas.parentElement.offsetWidth;
+                chartCanvas.height = chartCanvas.parentElement.offsetHeight;
+            }
+        }
+
+        function addEventListeners() {
+            // Sliders
+            document.getElementById('mass1').addEventListener('input', updateObject1);
+            document.getElementById('velocity1').addEventListener('input', updateObject1);
+            document.getElementById('mass2').addEventListener('input', updateObject2);
+            document.getElementById('velocity2').addEventListener('input', updateObject2);
+            
+            // Window resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                draw();
+                drawChart();
+            });
+            
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+        }
+
+        function handleTouch(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Find closest object
+            let closestObject = null;
+            let minDistance = Infinity;
+            
+            objects.forEach(obj => {
+                const distance = Math.sqrt((x - obj.x) ** 2 + (y - obj.y) ** 2);
+                if (distance < minDistance && distance < obj.radius + 20) {
+                    minDistance = distance;
+                    closestObject = obj;
+                }
+            });
+            
+            if (closestObject && event.type === 'touchmove') {
+                // Update velocity based on touch movement
+                const newVelocity = (x - closestObject.x) / 10;
+                closestObject.velocity = Math.max(-10, Math.min(10, newVelocity));
+                
+                // Update corresponding slider
+                const objIndex = objects.indexOf(closestObject);
+                if (objIndex === 0) {
+                    document.getElementById('velocity1').value = closestObject.velocity;
+                    updateObject1();
+                } else {
+                    document.getElementById('velocity2').value = closestObject.velocity;
+                    updateObject2();
+                }
+            }
+        }
+
+        function updateObject1() {
+            const mass = parseFloat(document.getElementById('mass1').value);
+            const velocity = parseFloat(document.getElementById('velocity1').value);
+            
+            objects[0].mass = mass;
+            objects[0].velocity = velocity;
+            
+            // Update appearance based on current type
+            updateObjectAppearance(0);
+            
+            document.getElementById('mass1Value').textContent = mass.toFixed(1) + ' kg';
+            document.getElementById('velocity1Value').textContent = velocity.toFixed(1) + ' m/s';
+            
+            updateValues();
+            draw();
+            drawChart();
+        }
+
+        function updateObject2() {
+            const mass = parseFloat(document.getElementById('mass2').value);
+            const velocity = parseFloat(document.getElementById('velocity2').value);
+            
+            objects[1].mass = mass;
+            objects[1].velocity = velocity;
+            
+            // Update appearance based on current type
+            updateObjectAppearance(1);
+            
+            document.getElementById('mass2Value').textContent = mass.toFixed(1) + ' kg';
+            document.getElementById('velocity2Value').textContent = velocity.toFixed(1) + ' m/s';
+            
+            updateValues();
+            draw();
+            drawChart();
+        }
+
+        function updateValues() {
+            const p1 = objects[0].mass * objects[0].velocity;
+            const p2 = objects[1].mass * objects[1].velocity;
+            const total = p1 + p2;
+            const ratio = Math.abs(p1 / p2);
+            
+            document.getElementById('momentum1').textContent = p1.toFixed(1) + ' kg·m/s';
+            document.getElementById('momentum2').textContent = p2.toFixed(1) + ' kg·m/s';
+            document.getElementById('totalMomentum').textContent = total.toFixed(1) + ' kg·m/s';
+            document.getElementById('momentumRatio').textContent = ratio.toFixed(2);
+            
+            // Update MathJax if needed
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background grid
+            drawGrid();
+            
+            // Draw objects
+            objects.forEach(obj => {
+                drawObject(obj);
+                drawVelocityVector(obj);
+                drawMomentumVector(obj);
+            });
+            
+            // Draw info
+            drawInfo();
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawObject(obj) {
+            // Draw trail
+            if (obj.trail.length > 1) {
+                ctx.strokeStyle = obj.color + '40';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(obj.trail[0].x, obj.trail[0].y);
+                for (let i = 1; i < obj.trail.length; i++) {
+                    ctx.lineTo(obj.trail[i].x, obj.trail[i].y);
+                }
+                ctx.stroke();
+            }
+            
+            // Draw object background circle
+            ctx.fillStyle = obj.color;
+            ctx.beginPath();
+            ctx.arc(obj.x, obj.y, obj.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw emoji if available
+            if (obj.emoji) {
+                ctx.font = `${obj.radius * 1.2}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(obj.emoji, obj.x, obj.y);
+            }
+            
+            // Draw mass indicator below object
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(obj.mass.toFixed(1) + 'kg', obj.x, obj.y + obj.radius + 5);
+        }
+
+        function drawVelocityVector(obj) {
+            const scale = 20;
+            const endX = obj.x + obj.velocity * scale;
+            const endY = obj.y;
+            
+            // Draw arrow
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(obj.x, obj.y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            
+            // Draw arrowhead
+            const angle = Math.atan2(endY - obj.y, endX - obj.x);
+            const headLength = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), 
+                      endY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), 
+                      endY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+            
+            // Label
+            ctx.fillStyle = '#333';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('v⃗', endX, endY - 15);
+        }
+
+        function drawMomentumVector(obj) {
+            const momentum = obj.mass * obj.velocity;
+            const scale = 5;
+            const endX = obj.x + momentum * scale;
+            const endY = obj.y - 30;
+            
+            // Draw arrow
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(obj.x, obj.y - 30);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            
+            // Draw arrowhead
+            const angle = Math.atan2(endY - (obj.y - 30), endX - obj.x);
+            const headLength = 8;
+            
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), 
+                      endY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), 
+                      endY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+            
+            // Label
+            ctx.fillStyle = '#667eea';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('p⃗', endX, endY - 10);
+        }
+
+        function drawInfo() {
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            
+            ctx.fillText('Impuls formulasi: p⃗ = mv⃗', 10, 20);
+            ctx.fillText('Qora rang: tezlik vektori (v⃗)', 10, 40);
+            ctx.fillText('Binafsha rang: impuls vektori (p⃗)', 10, 60);
+            ctx.fillText('To\'qnashish: Impuls saqlanish qonuni', 10, 80);
+            
+            // Show momentum conservation
+            const totalMomentum = objects[0].mass * objects[0].velocity + objects[1].mass * objects[1].velocity;
+            ctx.fillText(`Umumiy impuls: ${totalMomentum.toFixed(2)} kg·m/s`, 10, 100);
+        }
+
+        function drawChart() {
+            if (!chartCtx) return;
+            
+            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+            
+            // Draw axes
+            chartCtx.strokeStyle = '#333';
+            chartCtx.lineWidth = 2;
+            
+            // X-axis
+            chartCtx.beginPath();
+            chartCtx.moveTo(50, chartCanvas.height - 50);
+            chartCtx.lineTo(chartCanvas.width - 50, chartCanvas.height - 50);
+            chartCtx.stroke();
+            
+            // Y-axis
+            chartCtx.beginPath();
+            chartCtx.moveTo(50, 50);
+            chartCtx.lineTo(50, chartCanvas.height - 50);
+            chartCtx.stroke();
+            
+            // Labels
+            chartCtx.fillStyle = '#333';
+            chartCtx.font = '12px Arial';
+            chartCtx.textAlign = 'center';
+            chartCtx.fillText('Tezlik (m/s)', chartCanvas.width / 2, chartCanvas.height - 10);
+            
+            chartCtx.save();
+            chartCtx.translate(20, chartCanvas.height / 2);
+            chartCtx.rotate(-Math.PI / 2);
+            chartCtx.fillText('Impuls (kg·m/s)', 0, 0);
+            chartCtx.restore();
+            
+            // Draw momentum lines for both objects
+            objects.forEach((obj, index) => {
+                const color = obj.color;
+                chartCtx.strokeStyle = color;
+                chartCtx.lineWidth = 3;
+                
+                // Calculate line points
+                const maxV = 10;
+                const maxP = obj.mass * maxV;
+                const minP = obj.mass * (-maxV);
+                
+                const x1 = 50 + ((-maxV + maxV) / (2 * maxV)) * (chartCanvas.width - 100);
+                const y1 = chartCanvas.height - 50 - ((minP + Math.abs(minP)) / (maxP - minP)) * (chartCanvas.height - 100);
+                const x2 = 50 + ((maxV + maxV) / (2 * maxV)) * (chartCanvas.width - 100);
+                const y2 = chartCanvas.height - 50 - ((maxP + Math.abs(minP)) / (maxP - minP)) * (chartCanvas.height - 100);
+                
+                chartCtx.beginPath();
+                chartCtx.moveTo(x1, y1);
+                chartCtx.lineTo(x2, y2);
+                chartCtx.stroke();
+                
+                // Current point
+                const currentX = 50 + ((obj.velocity + maxV) / (2 * maxV)) * (chartCanvas.width - 100);
+                const currentY = chartCanvas.height - 50 - ((obj.mass * obj.velocity + Math.abs(minP)) / (maxP - minP)) * (chartCanvas.height - 100);
+                
+                chartCtx.fillStyle = color;
+                chartCtx.beginPath();
+                chartCtx.arc(currentX, currentY, 5, 0, Math.PI * 2);
+                chartCtx.fill();
+            });
+        }
+
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            const playIcon = document.getElementById('playIcon');
+            const playText = document.getElementById('playText');
+            
+            if (isAnimating) {
+                playIcon.textContent = '⏸️';
+                playText.textContent = 'To\'xtatish';
+                animate();
+            } else {
+                playIcon.textContent = '▶️';
+                playText.textContent = 'Boshlash';
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+            
+            // Update object positions
+            objects.forEach(obj => {
+                obj.x += obj.velocity * 0.5;
+                
+                // Add to trail
+                obj.trail.push({ x: obj.x, y: obj.y });
+                if (obj.trail.length > 100) {
+                    obj.trail.shift();
+                }
+            });
+            
+            // Check collision between objects
+            checkCollision();
+            
+            // Bounce off walls
+            objects.forEach(obj => {
+                if (obj.x <= obj.radius || obj.x >= canvas.width - obj.radius) {
+                    obj.velocity *= -0.8; // Energy loss
+                    obj.x = Math.max(obj.radius, Math.min(canvas.width - obj.radius, obj.x));
+                }
+            });
+            
+            draw();
+            updateValues();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function resetSimulation() {
+            isAnimating = false;
+            cancelAnimationFrame(animationId);
+            
+            const playIcon = document.getElementById('playIcon');
+            const playText = document.getElementById('playText');
+            playIcon.textContent = '▶️';
+            playText.textContent = 'Boshlash';
+            
+            // Reset object positions
+            objects[0].x = 100;
+            objects[0].y = canvas.height / 2;
+            objects[0].velocity = 3.0;
+            objects[0].trail = [];
+            objects[0].type = 'default';
+            objects[0].emoji = '🔴';
+            
+            objects[1].x = canvas.width - 100;
+            objects[1].y = canvas.height / 2;
+            objects[1].velocity = -2.0;
+            objects[1].trail = [];
+            objects[1].type = 'default';
+            objects[1].emoji = '🔵';
+            
+            // Reset object types
+            currentObjectTypes = ['default', 'default'];
+            
+            // Update slider values after reset
+            document.getElementById('velocity1').value = 3.0;
+            document.getElementById('velocity2').value = -2.0;
+            updateObject1();
+            updateObject2();
+            
+            draw();
+        }
+
+        function setPreset(type) {
+            switch(type) {
+                case 'person':
+                    setValues(0.7, 5, 0.8, -4, 'person', 'person');
+                    break;
+                case 'bicycle':
+                    setValues(0.15, 8, 0.7, -5, 'bicycle', 'person');
+                    break;
+                case 'football':
+                    setValues(0.45, 30, 0.45, -25, 'football', 'football');
+                    break;
+                case 'car':
+                    setValues(1.5, 20, 1.2, -15, 'car', 'car');
+                    break;
+                case 'motorbike':
+                    setValues(0.15, 25, 0.7, -20, 'motorbike', 'person');
+                    break;
+                case 'truck':
+                    setValues(8, 15, 1.5, -20, 'truck', 'car');
+                    break;
+            }
+        }
+
+        function setValues(m1, v1, m2, v2, type1 = 'default', type2 = 'default') {
+            // Clamp values to slider ranges
+            m1 = Math.max(0.1, Math.min(10, m1));
+            v1 = Math.max(-10, Math.min(10, v1));
+            m2 = Math.max(0.1, Math.min(10, m2));
+            v2 = Math.max(-10, Math.min(10, v2));
+            
+            document.getElementById('mass1').value = m1;
+            document.getElementById('velocity1').value = v1;
+            document.getElementById('mass2').value = m2;
+            document.getElementById('velocity2').value = v2;
+            
+            // Set object types and emojis
+            objects[0].type = type1;
+            objects[1].type = type2;
+            objects[0].emoji = getEmojiForType(type1);
+            objects[1].emoji = getEmojiForType(type2);
+            
+            currentObjectTypes[0] = type1;
+            currentObjectTypes[1] = type2;
+            
+            updateObject1();
+            updateObject2();
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Redraw chart if chart tab is selected
+            if (tabName === 'chart') {
+                setTimeout(() => {
+                    drawChart();
+                }, 100);
+            }
+        }
+
+        function selectObject(objectType) {
+            selectedObject = objectType;
+            
+            // Remove selection from all cards
+            document.querySelectorAll('.object-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            event.target.classList.add('selected');
+            
+            // Update first object with selected object data
+            const data = objectData[objectType];
+            if (data) {
+                // Use scaled values for simulation
+                const scaledMass = Math.max(0.1, Math.min(10, data.mass / 100)); // Scale down for simulation
+                const scaledVelocity = Math.max(-10, Math.min(10, data.velocity));
+                
+                setValues(scaledMass, scaledVelocity, objects[1].mass, objects[1].velocity, objectType, objects[1].type);
+            }
+        }
+
+        function showHelp(topic) {
+            const helpTexts = {
+                simulation: 'Bu simulyatsiya impuls tushunchasini vizual ravishda ko\'rsatadi. Jismlarning massasi va tezligini o\'zgartiring, impuls vektorlarini kuzating.'
+            };
+            
+            alert(helpTexts[topic] || 'Yordam ma\'lumoti topilmadi.');
+        }
+
+        function checkCollision() {
+            const obj1 = objects[0];
+            const obj2 = objects[1];
+            
+            // Calculate distance between objects
+            const dx = obj2.x - obj1.x;
+            const dy = obj2.y - obj1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Check if collision occurred
+            if (distance < obj1.radius + obj2.radius) {
+                // Separate objects to prevent overlap
+                const overlap = obj1.radius + obj2.radius - distance;
+                const separationX = (dx / distance) * overlap * 0.5;
+                const separationY = (dy / distance) * overlap * 0.5;
+                
+                obj1.x -= separationX;
+                obj1.y -= separationY;
+                obj2.x += separationX;
+                obj2.y += separationY;
+                
+                // Apply elastic collision physics (conservation of momentum)
+                const m1 = obj1.mass;
+                const m2 = obj2.mass;
+                const v1 = obj1.velocity;
+                const v2 = obj2.velocity;
+                
+                // Calculate new velocities using conservation of momentum and energy
+                const newV1 = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
+                const newV2 = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
+                
+                obj1.velocity = newV1 * 0.9; // Small energy loss
+                obj2.velocity = newV2 * 0.9;
+                
+                // Add visual effect for collision
+                addCollisionEffect(obj1.x, obj1.y);
+                
+                // Update slider values to reflect new velocities
+                document.getElementById('velocity1').value = obj1.velocity;
+                document.getElementById('velocity2').value = obj2.velocity;
+                updateObject1();
+                updateObject2();
+            }
+        }
+
+        function addCollisionEffect(x, y) {
+            // Create collision effect
+            const effectDuration = 30;
+            let effectCounter = 0;
+            
+            const drawEffect = () => {
+                if (effectCounter < effectDuration) {
+                    ctx.save();
+                    ctx.globalAlpha = 1 - (effectCounter / effectDuration);
+                    ctx.strokeStyle = '#ff6b6b';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(x, y, effectCounter * 2, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                    effectCounter++;
+                    setTimeout(drawEffect, 16);
+                }
+            };
+            
+            drawEffect();
+        }
+
+        function getEmojiForType(type) {
+            const emojiMap = {
+                'person': '🚶',
+                'bicycle': '🚴',
+                'football': '⚽',
+                'car': '🚗',
+                'motorbike': '🏍️',
+                'truck': '🚛',
+                'ping-pong': '🏓',
+                'tennis': '🎾',
+                'basketball': '🏀',
+                'airplane': '✈️',
+                'default': '🔴'
+            };
+            return emojiMap[type] || '🔴';
+        }
+
+        function updateObjectAppearance(objectIndex) {
+            const obj = objects[objectIndex];
+            const type = currentObjectTypes[objectIndex];
+            
+            // Update emoji
+            obj.emoji = getEmojiForType(type);
+            
+            // Update size based on mass and type
+            const baseSizeMultiplier = {
+                'person': 1.2,
+                'bicycle': 1.0,
+                'football': 0.8,
+                'car': 1.5,
+                'motorbike': 1.1,
+                'truck': 1.8,
+                'ping-pong': 0.6,
+                'tennis': 0.7,
+                'basketball': 0.9,
+                'airplane': 2.0,
+                'default': 1.0
+            };
+            
+            const multiplier = baseSizeMultiplier[type] || 1.0;
+            obj.radius = (Math.sqrt(obj.mass) * 8 + 5) * multiplier;
+        }
+
+        // Dynamic object type selection
+        function setObjectType(objectIndex, type) {
+            currentObjectTypes[objectIndex] = type;
+            objects[objectIndex].type = type;
+            objects[objectIndex].emoji = getEmojiForType(type);
+            updateObjectAppearance(objectIndex);
+            draw();
+        }
+
+        // Add object type selectors (can be added to UI later)
+        function addObjectTypeSelector() {
+            const typeOptions = ['default', 'person', 'bicycle', 'football', 'car', 'motorbike', 'truck'];
+            
+            // This can be expanded to create UI dropdowns for object type selection
+            console.log('Object type options:', typeOptions);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initSimulation);
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isAnimating) {
+                isAnimating = false;
+                cancelAnimationFrame(animationId);
+                
+                const playIcon = document.getElementById('playIcon');
+                const playText = document.getElementById('playText');
+                playIcon.textContent = '▶️';
+                playText.textContent = 'Boshlash';
+            }
+        });
+    </script>
+</body>
+</html>
