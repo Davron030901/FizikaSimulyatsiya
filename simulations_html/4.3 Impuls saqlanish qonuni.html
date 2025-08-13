@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.3 Impuls saqlanish qonuni</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .simulation-area {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .controls-panel {
+            background: #f1f5f9;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .mode-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .mode-tab.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .simulation-canvas {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #ffffff;
+            cursor: crosshair;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: #4f46e5;
+            font-size: 1.1em;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+        }
+
+        .value-display {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #4f46e5;
+            background: #f1f5f9;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #3730a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .momentum-display {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .momentum-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .momentum-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .momentum-label {
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .momentum-value {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .object-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .object-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .object-btn.active {
+            border-color: #4f46e5;
+            background: #f1f5f9;
+            color: #4f46e5;
+        }
+
+        .preset-scenarios {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #f1f5f9;
+            border-color: #4f46e5;
+        }
+
+        .theory-section {
+            background: white;
+            margin: 20px 30px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .theory-section h2 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .formula-box {
+            background: #f8fafc;
+            border-left: 4px solid #4f46e5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .help-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .help-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .conservation-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .conservation-status.conserved {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .conservation-status.not-conserved {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .simulation-canvas {
+                height: 300px;
+            }
+            
+            .control-group {
+                padding: 10px;
+            }
+            
+            .preset-scenarios {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ 4.3 Impuls saqlanish qonuni</h1>
+            <p>🎯 Momentum Conservation Law - Interactive Simulation</p>
+        </div>
+
+        <div class="main-content">
+            <div class="simulation-area">
+                <div class="mode-tabs">
+                    <button class="mode-tab active" data-mode="1d">📏 1D Harakat</button>
+                    <button class="mode-tab" data-mode="2d">🌐 2D Harakat</button>
+                </div>
+
+                <canvas id="simulationCanvas" class="simulation-canvas"></canvas>
+
+                <div class="momentum-display">
+                    <h3>📊 Impuls qiymatlari:</h3>
+                    <div class="momentum-item">
+                        <span class="momentum-label">🚀 Boshlang'ich impuls:</span>
+                        <span class="momentum-value" id="initialMomentum">0 kg⋅m/s</span>
+                    </div>
+                    <div class="momentum-item">
+                        <span class="momentum-label">🎯 Oxirgi impuls:</span>
+                        <span class="momentum-value" id="finalMomentum">0 kg⋅m/s</span>
+                    </div>
+                    <div class="momentum-item">
+                        <span class="momentum-label">⚖️ Farq:</span>
+                        <span class="momentum-value" id="momentumDifference">0 kg⋅m/s</span>
+                    </div>
+                </div>
+
+                <div class="conservation-status" id="conservationStatus">
+                    ✅ Impuls saqlanmoqda
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="playBtn">▶ Boshlash</button>
+                    <button class="btn btn-secondary" id="pauseBtn">⏸ To'xtatish</button>
+                    <button class="btn btn-danger" id="resetBtn">🔄 Qayta boshlash</button>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-group">
+                    <h3>🎯 Obyekt tanlash</h3>
+                    <div class="object-selector">
+                        <button class="object-btn active" data-object="1">🔴 Obyekt 1</button>
+                        <button class="object-btn" data-object="2">🔵 Obyekt 2</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>⚙️ Parametrlar</h3>
+                    <div class="control-item">
+                        <label>⚖️ Massa (kg) <span class="help-tooltip">?<span class="tooltip-text">Obyektning massasi</span></span></label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="massSlider" min="0.1" max="10" step="0.1" value="1">
+                            <span class="value-display" id="massValue">1.0</span>
+                        </div>
+                    </div>
+
+                    <div class="control-item">
+                        <label>🏃 Tezlik (m/s) <span class="help-tooltip">?<span class="tooltip-text">Obyektning tezligi</span></span></label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="velocitySlider" min="-10" max="10" step="0.1" value="2">
+                            <span class="value-display" id="velocityValue">2.0</span>
+                        </div>
+                    </div>
+
+                    <div class="control-item" id="angleControl" style="display: none;">
+                        <label>🧭 Yo'nalish (°) <span class="help-tooltip">?<span class="tooltip-text">Harakat yo'nalishi</span></span></label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="angleSlider" min="0" max="360" step="5" value="0">
+                            <span class="value-display" id="angleValue">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔧 Simulyatsiya sozlamalari</h3>
+                    <div class="control-item">
+                        <label>⚡ Animatsiya tezligi</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="speedSlider" min="0.1" max="3" step="0.1" value="1">
+                            <span class="value-display" id="speedValue">1.0x</span>
+                        </div>
+                    </div>
+
+                    <div class="control-item">
+                        <label>
+                            <input type="checkbox" id="showVectors" checked> 🎯 Vektor ko'rsatish
+                        </label>
+                    </div>
+
+                    <div class="control-item">
+                        <label>
+                            <input type="checkbox" id="showTrails"> 🌟 Iz qoldirish
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎬 Tayyor stsenariylar</h3>
+                    <div class="preset-scenarios">
+                        <button class="preset-btn" data-scenario="elastic">🏀 Elastik to'qnashuv</button>
+                        <button class="preset-btn" data-scenario="inelastic">🥎 Noelastik to'qnashuv</button>
+                        <button class="preset-btn" data-scenario="explosion">💥 Portlash</button>
+                        <button class="preset-btn" data-scenario="headon">💥 To'g'ri to'qnashuv</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>📚 Nazariy ma'lumotlar</h2>
+            <p>Impuls saqlanish qonuni fizikaning asosiy qonunlaridan biridir. Yopiq sistemada jismlarning umumiy impulsi doimiy bo'lib qoladi.</p>
+            
+            <div class="formula-box">
+                <h3>🔢 Asosiy formula:</h3>
+                <p>$$\vec{p}_{total} = \sum_{i} m_i \vec{v}_i = \text{const}$$</p>
+                <p>$$\vec{p}_{initial} = \vec{p}_{final}$$</p>
+                <p>$$\sum \vec{p}_i = \sum \vec{p}_f$$</p>
+            </div>
+
+            <div class="formula-box">
+                <h3>📏 Bir o'lchovli holat:</h3>
+                <p>$$m_1 v_{1i} + m_2 v_{2i} = m_1 v_{1f} + m_2 v_{2f}$$</p>
+            </div>
+
+            <div class="formula-box">
+                <h3>🌐 Ikki o'lchovli holat:</h3>
+                <p>$$m_1 v_{1x,i} + m_2 v_{2x,i} = m_1 v_{1x,f} + m_2 v_{2x,f}$$</p>
+                <p>$$m_1 v_{1y,i} + m_2 v_{2y,i} = m_1 v_{1y,f} + m_2 v_{2y,f}$$</p>
+            </div>
+
+            <h3>⚠️ Muhim shartlar:</h3>
+            <ul>
+                <li><strong>🔒 Yopiq sistema:</strong> Tashqi kuchlar ta'sir qilmaydi</li>
+                <li><strong>🚫 Tashqi kuch yo'qligi:</strong> Sistemaga tashqi kuch ta'sir qilmaydi</li>
+                <li><strong>➡️ Vektor xususiyat:</strong> Impuls vektor miqdor bo'lib, yo'nalishga ega</li>
+                <li><strong>⚖️ Massa markazining harakati:</strong> Massa markazi doimiy tezlik bilan harakat qiladi</li>
+            </ul>
+
+            <h3>🌟 Amaliy misollar:</h3>
+            <ul>
+                <li>🎱 Billiard sharlarining to'qnashuvi</li>
+                <li>🚀 Raketaning uchishi</li>
+                <li>⚛️ Atomlar to'qnashuvi</li>
+                <li>🚗 Avtomashinalar avariyasi</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class MomentumSimulation {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.mode = '1d';
+                this.isPlaying = false;
+                this.animationId = null;
+                this.selectedObject = 1;
+                this.animationSpeed = 1;
+                this.showVectors = true;
+                this.showTrails = false;
+                this.trails = [];
+                
+                this.objects = [
+                    {
+                        id: 1,
+                        mass: 1,
+                        velocity: 2,
+                        angle: 0,
+                        x: 100,
+                        y: 200,
+                        initialX: 100,
+                        initialY: 200,
+                        initialVelocity: 2,
+                        initialAngle: 0,
+                        radius: 20,
+                        color: '#ef4444'
+                    },
+                    {
+                        id: 2,
+                        mass: 1,
+                        velocity: -1,
+                        angle: 180,
+                        x: 500,
+                        y: 200,
+                        initialX: 500,
+                        initialY: 200,
+                        initialVelocity: -1,
+                        initialAngle: 180,
+                        radius: 20,
+                        color: '#3b82f6'
+                    }
+                ];
+
+                this.initializeCanvas();
+                this.setupEventListeners();
+                this.updateUI();
+                this.draw();
+            }
+
+            initializeCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            resizeCanvas() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+                this.draw();
+            }
+
+            setupEventListeners() {
+                // Mode tabs
+                document.querySelectorAll('.mode-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.mode = e.target.dataset.mode;
+                        this.updateModeUI();
+                        this.reset();
+                    });
+                });
+
+                // Object selection
+                document.querySelectorAll('.object-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.object-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.selectedObject = parseInt(e.target.dataset.object);
+                        this.updateUI();
+                    });
+                });
+
+                // Control buttons
+                document.getElementById('playBtn').addEventListener('click', () => this.play());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+
+                // Sliders
+                document.getElementById('massSlider').addEventListener('input', (e) => {
+                    this.objects[this.selectedObject - 1].mass = parseFloat(e.target.value);
+                    this.updateUI();
+                });
+
+                document.getElementById('velocitySlider').addEventListener('input', (e) => {
+                    this.objects[this.selectedObject - 1].velocity = parseFloat(e.target.value);
+                    this.updateUI();
+                });
+
+                document.getElementById('angleSlider').addEventListener('input', (e) => {
+                    this.objects[this.selectedObject - 1].angle = parseFloat(e.target.value);
+                    this.updateUI();
+                });
+
+                document.getElementById('speedSlider').addEventListener('input', (e) => {
+                    this.animationSpeed = parseFloat(e.target.value);
+                    document.getElementById('speedValue').textContent = e.target.value + 'x';
+                });
+
+                document.getElementById('showVectors').addEventListener('change', (e) => {
+                    this.showVectors = e.target.checked;
+                    this.draw();
+                });
+
+                document.getElementById('showTrails').addEventListener('change', (e) => {
+                    this.showTrails = e.target.checked;
+                    if (!this.showTrails) {
+                        this.trails = [];
+                    }
+                    this.draw();
+                });
+
+                // Preset scenarios
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.loadScenario(e.target.dataset.scenario);
+                    });
+                });
+
+                // Canvas interaction
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Check if clicked on an object
+                    for (let obj of this.objects) {
+                        const dx = x - obj.x;
+                        const dy = y - obj.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < obj.radius) {
+                            this.selectedObject = obj.id;
+                            document.querySelectorAll('.object-btn').forEach(b => b.classList.remove('active'));
+                            document.querySelector(`[data-object="${obj.id}"]`).classList.add('active');
+                            this.updateUI();
+                            break;
+                        }
+                    }
+                });
+            }
+
+            updateModeUI() {
+                const angleControl = document.getElementById('angleControl');
+                if (this.mode === '2d') {
+                    angleControl.style.display = 'block';
+                    // 2D holatida obyektlarni to'qnashish uchun joylash
+                    this.objects[0].x = 200;
+                    this.objects[0].y = 200;
+                    this.objects[0].velocity = 3;
+                    this.objects[0].angle = 45;
+                    
+                    this.objects[1].x = 400;
+                    this.objects[1].y = 200;
+                    this.objects[1].velocity = 2;
+                    this.objects[1].angle = 135;
+                } else {
+                    angleControl.style.display = 'none';
+                    // 1D holatida obyektlarni bir qatorga joylash
+                    this.objects[0].x = 100;
+                    this.objects[0].y = 200;
+                    this.objects[0].velocity = 2;
+                    this.objects[0].angle = 0;
+                    
+                    this.objects[1].x = 500;
+                    this.objects[1].y = 200;
+                    this.objects[1].velocity = -1;
+                    this.objects[1].angle = 180;
+                }
+                this.objects.forEach(obj => {
+                    obj.initialX = obj.x;
+                    obj.initialY = obj.y;
+                    obj.initialVelocity = obj.velocity;
+                    obj.initialAngle = obj.angle;
+                });
+                this.updateUI();
+            }
+
+            updateUI() {
+                const obj = this.objects[this.selectedObject - 1];
+                
+                document.getElementById('massSlider').value = obj.mass;
+                document.getElementById('massValue').textContent = obj.mass.toFixed(1);
+                
+                document.getElementById('velocitySlider').value = obj.velocity;
+                document.getElementById('velocityValue').textContent = obj.velocity.toFixed(1);
+                
+                document.getElementById('angleSlider').value = obj.angle;
+                document.getElementById('angleValue').textContent = obj.angle.toFixed(0);
+                
+                this.updateMomentumDisplay();
+                this.draw();
+            }
+
+            updateMomentumDisplay() {
+                let initialMomentum, finalMomentum;
+                
+                if (this.mode === '1d') {
+                    initialMomentum = this.objects.reduce((sum, obj) => sum + obj.mass * obj.initialVelocity, 0);
+                    finalMomentum = this.objects.reduce((sum, obj) => sum + obj.mass * obj.velocity, 0);
+                } else {
+                    // 2D case - calculate magnitude
+                    const initialX = this.objects.reduce((sum, obj) => sum + obj.mass * obj.initialVelocity * Math.cos(obj.initialAngle * Math.PI / 180), 0);
+                    const initialY = this.objects.reduce((sum, obj) => sum + obj.mass * obj.initialVelocity * Math.sin(obj.initialAngle * Math.PI / 180), 0);
+                    initialMomentum = Math.sqrt(initialX * initialX + initialY * initialY);
+                    
+                    const finalX = this.objects.reduce((sum, obj) => sum + obj.mass * obj.velocity * Math.cos(obj.angle * Math.PI / 180), 0);
+                    const finalY = this.objects.reduce((sum, obj) => sum + obj.mass * obj.velocity * Math.sin(obj.angle * Math.PI / 180), 0);
+                    finalMomentum = Math.sqrt(finalX * finalX + finalY * finalY);
+                }
+                
+                const difference = Math.abs(finalMomentum - initialMomentum);
+                
+                document.getElementById('initialMomentum').textContent = initialMomentum.toFixed(2) + ' kg⋅m/s';
+                document.getElementById('finalMomentum').textContent = finalMomentum.toFixed(2) + ' kg⋅m/s';
+                document.getElementById('momentumDifference').textContent = difference.toFixed(2) + ' kg⋅m/s';
+                
+                const status = document.getElementById('conservationStatus');
+                if (difference < 0.1) {
+                    status.textContent = '✅ Impuls saqlanmoqda';
+                    status.className = 'conservation-status conserved';
+                } else {
+                    status.textContent = '❌ Impuls saqlanmayapti';
+                    status.className = 'conservation-status not-conserved';
+                }
+            }
+
+            loadScenario(scenario) {
+                this.pause();
+                
+                switch (scenario) {
+                    case 'elastic':
+                        if (this.mode === '1d') {
+                            this.objects[0] = { ...this.objects[0], mass: 1, velocity: 3, angle: 0, x: 100, y: 200 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: -2, angle: 180, x: 500, y: 200 };
+                        } else {
+                            this.objects[0] = { ...this.objects[0], mass: 1, velocity: 4, angle: 30, x: 150, y: 150 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 3, angle: 150, x: 450, y: 250 };
+                        }
+                        break;
+                    case 'inelastic':
+                        if (this.mode === '1d') {
+                            this.objects[0] = { ...this.objects[0], mass: 2, velocity: 4, angle: 0, x: 100, y: 200 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 0, angle: 0, x: 500, y: 200 };
+                        } else {
+                            this.objects[0] = { ...this.objects[0], mass: 2, velocity: 3, angle: 45, x: 150, y: 150 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 0, angle: 0, x: 400, y: 250 };
+                        }
+                        break;
+                    case 'explosion':
+                        if (this.mode === '1d') {
+                            this.objects[0] = { ...this.objects[0], mass: 1, velocity: -3, angle: 180, x: 250, y: 200 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 3, angle: 0, x: 350, y: 200 };
+                        } else {
+                            this.objects[0] = { ...this.objects[0], mass: 1, velocity: 4, angle: 225, x: 280, y: 180 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 4, angle: 45, x: 320, y: 220 };
+                        }
+                        break;
+                    case 'headon':
+                        if (this.mode === '1d') {
+                            this.objects[0] = { ...this.objects[0], mass: 1.5, velocity: 2, angle: 0, x: 150, y: 200 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: -3, angle: 180, x: 450, y: 200 };
+                        } else {
+                            this.objects[0] = { ...this.objects[0], mass: 1.5, velocity: 3, angle: 0, x: 150, y: 200 };
+                            this.objects[1] = { ...this.objects[1], mass: 1, velocity: 3, angle: 180, x: 450, y: 200 };
+                        }
+                        break;
+                }
+                
+                this.objects.forEach(obj => {
+                    obj.initialX = obj.x;
+                    obj.initialY = obj.y;
+                    obj.initialVelocity = obj.velocity;
+                    obj.initialAngle = obj.angle;
+                    obj.radius = Math.max(10, Math.min(30, obj.mass * 15));
+                });
+                
+                this.updateUI();
+                this.reset();
+            }
+
+            play() {
+                if (!this.isPlaying) {
+                    this.isPlaying = true;
+                    this.animate();
+                }
+            }
+
+            pause() {
+                this.isPlaying = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+
+            reset() {
+                this.pause();
+                this.objects.forEach(obj => {
+                    obj.x = obj.initialX;
+                    obj.y = obj.initialY;
+                    obj.velocity = obj.initialVelocity;
+                    obj.angle = obj.initialAngle;
+                });
+                this.trails = [];
+                this.updateUI();
+                this.draw();
+            }
+
+            animate() {
+                if (!this.isPlaying) return;
+                
+                this.updatePhysics();
+                this.draw();
+                
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+
+            updatePhysics() {
+                const dt = 0.016 * this.animationSpeed; // 60 FPS
+                
+                this.objects.forEach(obj => {
+                    if (this.mode === '1d') {
+                        obj.x += obj.velocity * dt * 50; // Scale for visibility
+                        
+                        // Bounce off walls
+                        if (obj.x - obj.radius < 0 || obj.x + obj.radius > this.canvas.width) {
+                            obj.velocity = -obj.velocity;
+                        }
+                    } else {
+                        const vx = obj.velocity * Math.cos(obj.angle * Math.PI / 180);
+                        const vy = obj.velocity * Math.sin(obj.angle * Math.PI / 180);
+                        
+                        obj.x += vx * dt * 50;
+                        obj.y += vy * dt * 50;
+                        
+                        // Bounce off walls with proper angle reflection
+                        if (obj.x - obj.radius < 0) {
+                            obj.x = obj.radius;
+                            obj.angle = 180 - obj.angle;
+                        } else if (obj.x + obj.radius > this.canvas.width) {
+                            obj.x = this.canvas.width - obj.radius;
+                            obj.angle = 180 - obj.angle;
+                        }
+                        
+                        if (obj.y - obj.radius < 0) {
+                            obj.y = obj.radius;
+                            obj.angle = -obj.angle;
+                        } else if (obj.y + obj.radius > this.canvas.height) {
+                            obj.y = this.canvas.height - obj.radius;
+                            obj.angle = -obj.angle;
+                        }
+                        
+                        // Normalize angle to 0-360 range
+                        obj.angle = ((obj.angle % 360) + 360) % 360;
+                    }
+                    
+                    // Add trail point
+                    if (this.showTrails) {
+                        if (!obj.trail) obj.trail = [];
+                        obj.trail.push({ x: obj.x, y: obj.y });
+                        if (obj.trail.length > 100) obj.trail.shift();
+                    }
+                });
+                
+                // Check for collisions
+                this.checkCollisions();
+            }
+
+            checkCollisions() {
+                const obj1 = this.objects[0];
+                const obj2 = this.objects[1];
+                
+                const dx = obj2.x - obj1.x;
+                const dy = obj2.y - obj1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < obj1.radius + obj2.radius && distance > 0) {
+                    // Collision detected - apply conservation of momentum
+                    if (this.mode === '1d') {
+                        const v1 = obj1.velocity;
+                        const v2 = obj2.velocity;
+                        const m1 = obj1.mass;
+                        const m2 = obj2.mass;
+                        
+                        obj1.velocity = (v1 * (m1 - m2) + 2 * m2 * v2) / (m1 + m2);
+                        obj2.velocity = (v2 * (m2 - m1) + 2 * m1 * v1) / (m1 + m2);
+                    } else {
+                        // 2D elastic collision with proper physics
+                        const v1x = obj1.velocity * Math.cos(obj1.angle * Math.PI / 180);
+                        const v1y = obj1.velocity * Math.sin(obj1.angle * Math.PI / 180);
+                        const v2x = obj2.velocity * Math.cos(obj2.angle * Math.PI / 180);
+                        const v2y = obj2.velocity * Math.sin(obj2.angle * Math.PI / 180);
+                        
+                        const m1 = obj1.mass;
+                        const m2 = obj2.mass;
+                        
+                        // Normal vector
+                        const nx = dx / distance;
+                        const ny = dy / distance;
+                        
+                        // Tangential vector
+                        const tx = -ny;
+                        const ty = nx;
+                        
+                        // Dot product tangential
+                        const dpTan1 = v1x * tx + v1y * ty;
+                        const dpTan2 = v2x * tx + v2y * ty;
+                        
+                        // Dot product normal
+                        const dpNorm1 = v1x * nx + v1y * ny;
+                        const dpNorm2 = v2x * nx + v2y * ny;
+                        
+                        // Conservation of momentum in 1D
+                        const p1 = (dpNorm1 * (m1 - m2) + 2 * m2 * dpNorm2) / (m1 + m2);
+                        const p2 = (dpNorm2 * (m2 - m1) + 2 * m1 * dpNorm1) / (m1 + m2);
+                        
+                        // Update velocities
+                        const newV1x = tx * dpTan1 + nx * p1;
+                        const newV1y = ty * dpTan1 + ny * p1;
+                        const newV2x = tx * dpTan2 + nx * p2;
+                        const newV2y = ty * dpTan2 + ny * p2;
+                        
+                        obj1.velocity = Math.sqrt(newV1x * newV1x + newV1y * newV1y);
+                        obj1.angle = Math.atan2(newV1y, newV1x) * 180 / Math.PI;
+                        
+                        obj2.velocity = Math.sqrt(newV2x * newV2x + newV2y * newV2y);
+                        obj2.angle = Math.atan2(newV2y, newV2x) * 180 / Math.PI;
+                    }
+                    
+                    // Separate objects to prevent overlap
+                    const overlap = obj1.radius + obj2.radius - distance;
+                    const separationX = (dx / distance) * overlap * 0.5;
+                    const separationY = (dy / distance) * overlap * 0.5;
+                    
+                    obj1.x -= separationX;
+                    obj1.y -= separationY;
+                    obj2.x += separationX;
+                    obj2.y += separationY;
+                    
+                    this.updateMomentumDisplay();
+                }
+            }
+
+            draw() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw background grid
+                this.drawGrid();
+                
+                // Draw trails
+                if (this.showTrails) {
+                    this.drawTrails();
+                }
+                
+                // Draw objects
+                this.objects.forEach(obj => {
+                    this.drawObject(obj);
+                });
+                
+                // Draw vectors
+                if (this.showVectors) {
+                    this.objects.forEach(obj => {
+                        this.drawVector(obj);
+                    });
+                }
+                
+                // Draw momentum arrows
+                this.drawMomentumArrows();
+            }
+
+            drawGrid() {
+                this.ctx.strokeStyle = '#f1f5f9';
+                this.ctx.lineWidth = 1;
+                
+                for (let x = 0; x < this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                for (let y = 0; y < this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawTrails() {
+                this.objects.forEach(obj => {
+                    if (obj.trail && obj.trail.length > 1) {
+                        this.ctx.strokeStyle = obj.color + '40';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(obj.trail[0].x, obj.trail[0].y);
+                        for (let i = 1; i < obj.trail.length; i++) {
+                            this.ctx.lineTo(obj.trail[i].x, obj.trail[i].y);
+                        }
+                        this.ctx.stroke();
+                    }
+                });
+            }
+
+            drawObject(obj) {
+                // Draw object
+                this.ctx.fillStyle = obj.color;
+                this.ctx.beginPath();
+                this.ctx.arc(obj.x, obj.y, obj.radius, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Draw object border
+                this.ctx.strokeStyle = obj.id === this.selectedObject ? '#000' : '#fff';
+                this.ctx.lineWidth = obj.id === this.selectedObject ? 3 : 2;
+                this.ctx.stroke();
+                
+                // Draw mass label
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(obj.mass.toFixed(1) + 'kg', obj.x, obj.y + 4);
+                
+                // Draw object ID
+                this.ctx.fillStyle = '#000';
+                this.ctx.font = '10px Arial';
+                this.ctx.fillText(obj.id.toString(), obj.x, obj.y - obj.radius - 5);
+            }
+
+            drawVector(obj) {
+                const scale = 30;
+                let vx, vy;
+                
+                if (this.mode === '1d') {
+                    vx = obj.velocity * scale;
+                    vy = 0;
+                } else {
+                    vx = obj.velocity * Math.cos(obj.angle * Math.PI / 180) * scale;
+                    vy = obj.velocity * Math.sin(obj.angle * Math.PI / 180) * scale;
+                }
+                
+                // Draw velocity vector
+                this.ctx.strokeStyle = obj.color;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(obj.x, obj.y);
+                this.ctx.lineTo(obj.x + vx, obj.y + vy);
+                this.ctx.stroke();
+                
+                // Draw arrowhead
+                const angle = Math.atan2(vy, vx);
+                const arrowLength = 10;
+                this.ctx.beginPath();
+                this.ctx.moveTo(obj.x + vx, obj.y + vy);
+                this.ctx.lineTo(obj.x + vx - arrowLength * Math.cos(angle - Math.PI/6), 
+                              obj.y + vy - arrowLength * Math.sin(angle - Math.PI/6));
+                this.ctx.moveTo(obj.x + vx, obj.y + vy);
+                this.ctx.lineTo(obj.x + vx - arrowLength * Math.cos(angle + Math.PI/6), 
+                              obj.y + vy - arrowLength * Math.sin(angle + Math.PI/6));
+                this.ctx.stroke();
+                
+                // Draw velocity label
+                this.ctx.fillStyle = obj.color;
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(obj.velocity.toFixed(1) + 'm/s', obj.x + vx/2, obj.y + vy/2 - 10);
+            }
+
+            drawMomentumArrows() {
+                const centerY = this.canvas.height - 50;
+                let totalMomentumX = 0;
+                let totalMomentumY = 0;
+                
+                this.objects.forEach(obj => {
+                    if (this.mode === '1d') {
+                        totalMomentumX += obj.mass * obj.velocity;
+                    } else {
+                        totalMomentumX += obj.mass * obj.velocity * Math.cos(obj.angle * Math.PI / 180);
+                        totalMomentumY += obj.mass * obj.velocity * Math.sin(obj.angle * Math.PI / 180);
+                    }
+                });
+                
+                if (this.mode === '1d') {
+                    // Draw total momentum arrow for 1D
+                    const arrowScale = 10;
+                    const arrowLength = totalMomentumX * arrowScale;
+                    const startX = this.canvas.width / 2;
+                    
+                    this.ctx.strokeStyle = '#4f46e5';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(startX, centerY);
+                    this.ctx.lineTo(startX + arrowLength, centerY);
+                    this.ctx.stroke();
+                    
+                    // Draw arrowhead
+                    if (Math.abs(arrowLength) > 10) {
+                        const direction = arrowLength > 0 ? 1 : -1;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(startX + arrowLength, centerY);
+                        this.ctx.lineTo(startX + arrowLength - direction * 10, centerY - 5);
+                        this.ctx.lineTo(startX + arrowLength - direction * 10, centerY + 5);
+                        this.ctx.closePath();
+                        this.ctx.fillStyle = '#4f46e5';
+                        this.ctx.fill();
+                    }
+                    
+                    // Draw momentum label
+                    this.ctx.fillStyle = '#4f46e5';
+                    this.ctx.font = '14px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(`📊 Umumiy impuls: ${totalMomentumX.toFixed(2)} kg⋅m/s`, 
+                                    startX, centerY - 20);
+                } else {
+                    // Draw 2D momentum vector
+                    const arrowScale = 10;
+                    const arrowLengthX = totalMomentumX * arrowScale;
+                    const arrowLengthY = totalMomentumY * arrowScale;
+                    const startX = this.canvas.width / 2;
+                    const startY = this.canvas.height - 80;
+                    
+                    // Draw total momentum vector
+                    this.ctx.strokeStyle = '#4f46e5';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(startX, startY);
+                    this.ctx.lineTo(startX + arrowLengthX, startY - arrowLengthY);
+                    this.ctx.stroke();
+                    
+                    // Draw arrowhead
+                    const totalLength = Math.sqrt(arrowLengthX * arrowLengthX + arrowLengthY * arrowLengthY);
+                    if (totalLength > 10) {
+                        const angle = Math.atan2(-arrowLengthY, arrowLengthX);
+                        const arrowSize = 10;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(startX + arrowLengthX, startY - arrowLengthY);
+                        this.ctx.lineTo(startX + arrowLengthX - arrowSize * Math.cos(angle - Math.PI/6), 
+                                      startY - arrowLengthY + arrowSize * Math.sin(angle - Math.PI/6));
+                        this.ctx.lineTo(startX + arrowLengthX - arrowSize * Math.cos(angle + Math.PI/6), 
+                                      startY - arrowLengthY + arrowSize * Math.sin(angle + Math.PI/6));
+                        this.ctx.closePath();
+                        this.ctx.fillStyle = '#4f46e5';
+                        this.ctx.fill();
+                    }
+                    
+                    // Draw momentum components
+                    this.ctx.fillStyle = '#4f46e5';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    const totalMomentum = Math.sqrt(totalMomentumX * totalMomentumX + totalMomentumY * totalMomentumY);
+                    this.ctx.fillText(`📊 Umumiy impuls: ${totalMomentum.toFixed(2)} kg⋅m/s`, 
+                                    startX, startY - 40);
+                    this.ctx.fillText(`X: ${totalMomentumX.toFixed(2)} | Y: ${totalMomentumY.toFixed(2)}`, 
+                                    startX, startY - 25);
+                }
+            }
+        }
+
+        // Initialize simulation when page loads
+        window.addEventListener('load', () => {
+            new MomentumSimulation();
+            
+            // Initialize MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        });
+    </script>
+</body>
+</html>
