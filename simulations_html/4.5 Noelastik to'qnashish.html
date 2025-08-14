@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noelastik To'qnashish Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .simulation-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .data-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .data-section {
+            margin-bottom: 20px;
+        }
+
+        .data-section h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .data-item {
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .data-item .label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .data-item .value {
+            color: #212529;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        #energyChart {
+            width: 100%;
+            height: 200px;
+        }
+
+        .formula-section {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .formula-section h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .theory-section {
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #b8daff;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h4 {
+            color: #0c63e4;
+            margin-bottom: 10px;
+        }
+
+        .theory-section p {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .speed-display {
+            min-width: 60px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border: 2px solid #007bff;
+            background: transparent;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Noelastik To'qnashish Simulyatsiyasi</h1>
+        
+        <div class="main-content">
+            <div class="simulation-area">
+                <h2>Simulyatsiya</h2>
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas"></canvas>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" id="startBtn">▶️ Boshlash</button>
+                    <button class="btn btn-secondary" id="pauseBtn">⏸️ Pauza</button>
+                    <button class="btn btn-danger" id="resetBtn">🔄 Qayta boshlash</button>
+                </div>
+                
+                <div class="speed-control">
+                    <label>Tezlik:</label>
+                    <input type="range" class="slider" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                    <span class="speed-display" id="speedDisplay">1.0x</span>
+                </div>
+                
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setPreset('equal')">Teng massalar</button>
+                    <button class="preset-btn" onclick="setPreset('heavy')">Og'ir + Yengil</button>
+                    <button class="preset-btn" onclick="setPreset('light')">Yengil + Og'ir</button>
+                    <button class="preset-btn" onclick="setPreset('fast')">Tez to'qnashish</button>
+                </div>
+            </div>
+            
+            <div class="data-display">
+                <div class="data-section">
+                    <h3>📊 Hozirgi Qiymatlar</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="label">Jami Impuls</div>
+                            <div class="value" id="totalMomentum">0.0 kg⋅m/s</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="label">Boshlang'ich Energiya</div>
+                            <div class="value" id="initialEnergy">0.0 J</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="label">Yakuniy Energiya</div>
+                            <div class="value" id="finalEnergy">0.0 J</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="label">Energiya Yo'qolishi</div>
+                            <div class="value" id="energyLoss">0.0 J</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="label">Yakuniy Tezlik</div>
+                            <div class="value" id="finalVelocity">0.0 m/s</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="label">Deformatsiya</div>
+                            <div class="value" id="deformation">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h4>⚡ Energiya Diagrammasi</h4>
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>🔴 Birinchi Jism</h3>
+                <div class="input-group">
+                    <label>Massa (kg) 
+                        <span class="tooltip">❓
+                            <span class="tooltiptext">Jismning massasi kilogramm birligida</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="mass1Slider" min="0.1" max="10" step="0.1" value="2">
+                        <input type="number" id="mass1Input" min="0.1" max="10" step="0.1" value="2">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Boshlang'ich Tezlik (m/s)
+                        <span class="tooltip">❓
+                            <span class="tooltiptext">Jismning boshlang'ich tezligi</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="velocity1Slider" min="-10" max="10" step="0.1" value="3">
+                        <input type="number" id="velocity1Input" min="-10" max="10" step="0.1" value="3">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>🔵 Ikkinchi Jism</h3>
+                <div class="input-group">
+                    <label>Massa (kg)
+                        <span class="tooltip">❓
+                            <span class="tooltiptext">Jismning massasi kilogramm birligida</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="mass2Slider" min="0.1" max="10" step="0.1" value="3">
+                        <input type="number" id="mass2Input" min="0.1" max="10" step="0.1" value="3">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Boshlang'ich Tezlik (m/s)
+                        <span class="tooltip">❓
+                            <span class="tooltiptext">Jismning boshlang'ich tezligi</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" class="slider" id="velocity2Slider" min="-10" max="10" step="0.1" value="-2">
+                        <input type="number" id="velocity2Input" min="-10" max="10" step="0.1" value="-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="formula-section">
+            <h4>📐 Formulalar</h4>
+            <div class="formula">
+                <strong>Impuls saqlanishi:</strong> m₁v₁ + m₂v₂ = (m₁ + m₂)v'
+            </div>
+            <div class="formula">
+                <strong>Yakuniy tezlik:</strong> v' = (m₁v₁ + m₂v₂) / (m₁ + m₂)
+            </div>
+            <div class="formula">
+                <strong>Energiya yo'qolishi:</strong> ΔE = ½m₁v₁² + ½m₂v₂² - ½(m₁ + m₂)v'²
+            </div>
+            <div class="formula">
+                <strong>Restitution koeffitsienti:</strong> e = 0 (to'liq noelastik)
+            </div>
+        </div>
+        
+        <div class="theory-section">
+            <h4>📚 Nazariy Ma'lumotlar</h4>
+            <p><strong>Noelastik to'qnashish</strong> - bu jismlar to'qnashgandan keyin birlashib ketadigan to'qnashish turi. Bunday to'qnashishda impuls saqlanadi, lekin kinetik energiya yo'qoladi.</p>
+            <p><strong>Restitution koeffitsienti e = 0</strong> bo'lib, bu jismlarning to'qnashgandan keyin birlashib ketishini bildiradi.</p>
+            <p><strong>Energiya yo'qolishi</strong> deformatsiya, issiqlik va tovush shaklida sodir bo'ladi.</p>
+            <p><strong>Amaliy misollar:</strong> Loy to'pi to'qnashishi, avtomobil halokatları, meteor Yerga qulashi.</p>
+        </div>
+    </div>
+
+    <script>
+        class InelasticCollisionSimulator {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.energyCanvas = document.getElementById('energyChart');
+                this.energyCtx = this.energyCanvas.getContext('2d');
+                
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.initializeSimulation();
+                this.setupEnergyChart();
+                
+                this.animationId = null;
+                this.isRunning = false;
+                this.time = 0;
+                this.speed = 1;
+                this.collisionOccurred = false;
+                this.energyData = [];
+                this.maxDataPoints = 100;
+                
+                this.updateCalculations();
+                this.render();
+            }
+            
+            setupCanvas() {
+                const resizeCanvas = () => {
+                    const container = this.canvas.parentElement;
+                    const rect = container.getBoundingClientRect();
+                    this.canvas.width = rect.width;
+                    this.canvas.height = rect.height;
+                    
+                    const energyContainer = this.energyCanvas.parentElement;
+                    const energyRect = energyContainer.getBoundingClientRect();
+                    this.energyCanvas.width = energyRect.width;
+                    this.energyCanvas.height = energyRect.height;
+                };
+                
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+            }
+            
+            setupEventListeners() {
+                // Control buttons
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                
+                // Speed control
+                const speedSlider = document.getElementById('speedSlider');
+                speedSlider.addEventListener('input', (e) => {
+                    this.speed = parseFloat(e.target.value);
+                    document.getElementById('speedDisplay').textContent = this.speed.toFixed(1) + 'x';
+                });
+                
+                // Mass and velocity controls
+                this.setupSliderSync('mass1');
+                this.setupSliderSync('velocity1');
+                this.setupSliderSync('mass2');
+                this.setupSliderSync('velocity2');
+                
+                // Real-time updates
+                ['mass1Slider', 'velocity1Slider', 'mass2Slider', 'velocity2Slider'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        this.updateCalculations();
+                        if (!this.isRunning) this.render();
+                    });
+                });
+            }
+            
+            setupSliderSync(name) {
+                const slider = document.getElementById(name + 'Slider');
+                const input = document.getElementById(name + 'Input');
+                
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                });
+                
+                input.addEventListener('input', () => {
+                    slider.value = input.value;
+                });
+            }
+            
+            initializeSimulation() {
+                this.object1 = {
+                    x: 100,
+                    y: 150,
+                    initialX: 100,
+                    radius: 30,
+                    color: '#ff4757',
+                    mass: 2,
+                    velocity: 3,
+                    initialVelocity: 3
+                };
+                
+                this.object2 = {
+                    x: 400,
+                    y: 150,
+                    initialX: 400,
+                    radius: 30,
+                    color: '#3742fa',
+                    mass: 3,
+                    velocity: -2,
+                    initialVelocity: -2
+                };
+                
+                this.collisionPoint = null;
+                this.deformationFactor = 0;
+            }
+            
+            updateCalculations() {
+                // Get current values
+                this.object1.mass = parseFloat(document.getElementById('mass1Slider').value);
+                this.object1.velocity = parseFloat(document.getElementById('velocity1Slider').value);
+                this.object1.initialVelocity = this.object1.velocity;
+                
+                this.object2.mass = parseFloat(document.getElementById('mass2Slider').value);
+                this.object2.velocity = parseFloat(document.getElementById('velocity2Slider').value);
+                this.object2.initialVelocity = this.object2.velocity;
+                
+                // Update visual sizes based on mass
+                this.object1.radius = Math.max(15, Math.min(50, 15 + this.object1.mass * 5));
+                this.object2.radius = Math.max(15, Math.min(50, 15 + this.object2.mass * 5));
+                
+                // Calculate physics
+                const m1 = this.object1.mass;
+                const m2 = this.object2.mass;
+                const v1 = this.object1.initialVelocity;
+                const v2 = this.object2.initialVelocity;
+                
+                // Conservation of momentum
+                const totalMomentum = m1 * v1 + m2 * v2;
+                const finalVelocity = totalMomentum / (m1 + m2);
+                
+                // Energy calculations
+                const initialKE = 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2;
+                const finalKE = 0.5 * (m1 + m2) * finalVelocity * finalVelocity;
+                const energyLoss = initialKE - finalKE;
+                
+                // Update display
+                document.getElementById('totalMomentum').textContent = totalMomentum.toFixed(2) + ' kg⋅m/s';
+                document.getElementById('initialEnergy').textContent = initialKE.toFixed(2) + ' J';
+                document.getElementById('finalEnergy').textContent = finalKE.toFixed(2) + ' J';
+                document.getElementById('energyLoss').textContent = energyLoss.toFixed(2) + ' J';
+                document.getElementById('finalVelocity').textContent = finalVelocity.toFixed(2) + ' m/s';
+                
+                // Store calculated values
+                this.finalVelocity = finalVelocity;
+                this.initialKE = initialKE;
+                this.finalKE = finalKE;
+                this.energyLoss = energyLoss;
+            }
+            
+            start() {
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.animate();
+                }
+            }
+            
+            pause() {
+                this.isRunning = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+            
+            reset() {
+                this.pause();
+                this.time = 0;
+                this.collisionOccurred = false;
+                this.collisionPoint = null;
+                this.deformationFactor = 0;
+                this.energyData = [];
+                
+                this.object1.x = this.object1.initialX;
+                this.object1.velocity = this.object1.initialVelocity;
+                this.object2.x = this.object2.initialX;
+                this.object2.velocity = this.object2.initialVelocity;
+                
+                document.getElementById('deformation').textContent = '0%';
+                this.updateCalculations();
+                this.render();
+                this.drawEnergyChart();
+            }
+            
+            animate() {
+                if (!this.isRunning) return;
+                
+                this.update();
+                this.render();
+                
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+            
+            update() {
+                const dt = 0.016 * this.speed; // 60 FPS
+                this.time += dt;
+                
+                if (!this.collisionOccurred) {
+                    // Move objects
+                    this.object1.x += this.object1.velocity * dt * 50;
+                    this.object2.x += this.object2.velocity * dt * 50;
+                    
+                    // Check for collision
+                    const distance = Math.abs(this.object1.x - this.object2.x);
+                    const collisionDistance = this.object1.radius + this.object2.radius;
+                    
+                    if (distance <= collisionDistance) {
+                        this.handleCollision();
+                    }
+                    
+                    // Track energy before collision
+                    const currentKE = 0.5 * this.object1.mass * this.object1.velocity * this.object1.velocity + 
+                                    0.5 * this.object2.mass * this.object2.velocity * this.object2.velocity;
+                    this.energyData.push({time: this.time, energy: currentKE});
+                } else {
+                    // After collision, objects move together
+                    this.object1.x += this.finalVelocity * dt * 50;
+                    this.object2.x += this.finalVelocity * dt * 50;
+                    
+                    // Simulate deformation recovery
+                    this.deformationFactor = Math.max(0, this.deformationFactor - dt * 2);
+                    
+                    // Track energy after collision
+                    const currentKE = this.finalKE;
+                    this.energyData.push({time: this.time, energy: currentKE});
+                }
+                
+                // Limit data points
+                if (this.energyData.length > this.maxDataPoints) {
+                    this.energyData.shift();
+                }
+                
+                // Update deformation display
+                document.getElementById('deformation').textContent = (this.deformationFactor * 100).toFixed(1) + '%';
+                
+                // Update energy chart
+                this.drawEnergyChart();
+            }
+            
+            handleCollision() {
+                this.collisionOccurred = true;
+                this.collisionPoint = {
+                    x: (this.object1.x + this.object2.x) / 2,
+                    y: (this.object1.y + this.object2.y) / 2
+                };
+                
+                // Set deformation
+                this.deformationFactor = 1;
+                
+                // Apply final velocity to both objects
+                this.object1.velocity = this.finalVelocity;
+                this.object2.velocity = this.finalVelocity;
+                
+                // Create collision effect
+                this.createCollisionEffect();
+            }
+            
+            createCollisionEffect() {
+                // Visual effect for collision
+                this.collisionEffect = {
+                    particles: [],
+                    duration: 1,
+                    time: 0
+                };
+                
+                // Create particles
+                for (let i = 0; i < 20; i++) {
+                    this.collisionEffect.particles.push({
+                        x: this.collisionPoint.x,
+                        y: this.collisionPoint.y,
+                        vx: (Math.random() - 0.5) * 100,
+                        vy: (Math.random() - 0.5) * 100,
+                        life: 1,
+                        color: `hsl(${Math.random() * 60 + 20}, 70%, 60%)`
+                    });
+                }
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw background grid
+                this.drawGrid();
+                
+                // Draw ground line
+                this.drawGround();
+                
+                // Draw velocity vectors
+                this.drawVelocityVectors();
+                
+                // Draw objects
+                this.drawObject(this.object1);
+                this.drawObject(this.object2);
+                
+                // Draw collision effect
+                if (this.collisionEffect && this.collisionEffect.time < this.collisionEffect.duration) {
+                    this.drawCollisionEffect();
+                }
+                
+                // Draw deformation visualization
+                if (this.collisionOccurred && this.deformationFactor > 0) {
+                    this.drawDeformation();
+                }
+                
+                // Draw measurements
+                this.drawMeasurements();
+            }
+            
+            drawGrid() {
+                this.ctx.strokeStyle = '#e9ecef';
+                this.ctx.lineWidth = 1;
+                
+                // Vertical lines
+                for (let x = 0; x < this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let y = 0; y < this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawGround() {
+                const groundY = this.canvas.height * 0.7;
+                this.ctx.strokeStyle = '#6c757d';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, groundY);
+                this.ctx.lineTo(this.canvas.width, groundY);
+                this.ctx.stroke();
+            }
+            
+            drawObject(obj) {
+                // Apply deformation if collision occurred
+                let radiusX = obj.radius;
+                let radiusY = obj.radius;
+                
+                if (this.collisionOccurred && this.deformationFactor > 0) {
+                    radiusX = obj.radius * (1 + this.deformationFactor * 0.3);
+                    radiusY = obj.radius * (1 - this.deformationFactor * 0.2);
+                }
+                
+                // Draw object shadow
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                this.ctx.beginPath();
+                this.ctx.ellipse(obj.x + 5, obj.y + 5, radiusX, radiusY, 0, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Draw object
+                this.ctx.fillStyle = obj.color;
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.ellipse(obj.x, obj.y, radiusX, radiusY, 0, 0, 2 * Math.PI);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Draw mass label
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = 'bold 14px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(`${obj.mass}kg`, obj.x, obj.y + 5);
+            }
+            
+            drawVelocityVectors() {
+                if (!this.collisionOccurred) {
+                    this.drawVector(this.object1, this.object1.velocity, '#ff4757');
+                    this.drawVector(this.object2, this.object2.velocity, '#3742fa');
+                } else {
+                    this.drawVector(this.object1, this.finalVelocity, '#2ed573');
+                    this.drawVector(this.object2, this.finalVelocity, '#2ed573');
+                }
+            }
+            
+            drawVector(obj, velocity, color) {
+                const scale = 20;
+                const startX = obj.x;
+                const startY = obj.y - obj.radius - 10;
+                const endX = startX + velocity * scale;
+                const endY = startY;
+                
+                // Draw vector line
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                
+                // Draw arrowhead
+                const angle = 0;
+                const headLength = 10;
+                this.ctx.beginPath();
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), 
+                               endY - headLength * Math.sin(angle - Math.PI / 6));
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), 
+                               endY - headLength * Math.sin(angle + Math.PI / 6));
+                this.ctx.stroke();
+                
+                // Draw velocity label
+                this.ctx.fillStyle = color;
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(`${velocity.toFixed(1)}m/s`, endX, startY - 10);
+            }
+            
+            drawCollisionEffect() {
+                if (!this.collisionEffect) return;
+                
+                this.collisionEffect.time += 0.016;
+                
+                this.collisionEffect.particles.forEach(particle => {
+                    particle.x += particle.vx * 0.016;
+                    particle.y += particle.vy * 0.016;
+                    particle.life -= 0.016 * 2;
+                    
+                    if (particle.life > 0) {
+                        this.ctx.fillStyle = particle.color;
+                        this.ctx.globalAlpha = particle.life;
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, 3, 0, 2 * Math.PI);
+                        this.ctx.fill();
+                    }
+                });
+                
+                this.ctx.globalAlpha = 1;
+            }
+            
+            drawDeformation() {
+                const x = this.collisionPoint.x;
+                const y = this.collisionPoint.y;
+                const radius = 30 * this.deformationFactor;
+                
+                this.ctx.fillStyle = 'rgba(255, 71, 87, 0.3)';
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Draw impact lines
+                this.ctx.strokeStyle = 'rgba(255, 71, 87, 0.6)';
+                this.ctx.lineWidth = 2;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * 2 * Math.PI;
+                    const startRadius = radius * 0.5;
+                    const endRadius = radius;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x + Math.cos(angle) * startRadius, y + Math.sin(angle) * startRadius);
+                    this.ctx.lineTo(x + Math.cos(angle) * endRadius, y + Math.sin(angle) * endRadius);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawMeasurements() {
+                // Draw distance measurement
+                if (!this.collisionOccurred) {
+                    const distance = Math.abs(this.object2.x - this.object1.x);
+                    const midX = (this.object1.x + this.object2.x) / 2;
+                    const y = this.canvas.height - 50;
+                    
+                    this.ctx.strokeStyle = '#6c757d';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.object1.x, this.object1.y + this.object1.radius);
+                    this.ctx.lineTo(this.object1.x, y);
+                    this.ctx.moveTo(this.object2.x, this.object2.y + this.object2.radius);
+                    this.ctx.lineTo(this.object2.x, y);
+                    this.ctx.stroke();
+                    
+                    this.ctx.setLineDash([]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.object1.x, y);
+                    this.ctx.lineTo(this.object2.x, y);
+                    this.ctx.stroke();
+                    
+                    this.ctx.fillStyle = '#6c757d';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(`${(distance / 50).toFixed(1)}m`, midX, y - 10);
+                }
+            }
+            
+            setupEnergyChart() {
+                this.energyChartSetup = {
+                    margin: { top: 20, right: 20, bottom: 40, left: 60 },
+                    maxEnergy: 100
+                };
+            }
+            
+            drawEnergyChart() {
+                if (!this.energyCanvas || this.energyData.length === 0) return;
+                
+                const ctx = this.energyCtx;
+                const width = this.energyCanvas.width;
+                const height = this.energyCanvas.height;
+                const margin = this.energyChartSetup.margin;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Calculate chart area
+                const chartWidth = width - margin.left - margin.right;
+                const chartHeight = height - margin.top - margin.bottom;
+                
+                // Find max energy for scaling
+                const maxEnergy = Math.max(...this.energyData.map(d => d.energy), this.initialKE);
+                
+                // Draw axes
+                ctx.strokeStyle = '#6c757d';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(margin.left, margin.top);
+                ctx.lineTo(margin.left, margin.top + chartHeight);
+                ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
+                ctx.stroke();
+                
+                // Draw energy line
+                if (this.energyData.length > 1) {
+                    ctx.strokeStyle = '#007bff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    
+                    this.energyData.forEach((point, index) => {
+                        const x = margin.left + (index / (this.energyData.length - 1)) * chartWidth;
+                        const y = margin.top + chartHeight - (point.energy / maxEnergy) * chartHeight;
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    
+                    ctx.stroke();
+                }
+                
+                // Draw labels
+                ctx.fillStyle = '#495057';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Vaqt', margin.left + chartWidth / 2, height - 5);
+                
+                ctx.save();
+                ctx.translate(15, margin.top + chartHeight / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText('Energiya (J)', 0, 0);
+                ctx.restore();
+                
+                // Draw collision marker
+                if (this.collisionOccurred) {
+                    const collisionIndex = this.energyData.findIndex(d => d.energy < this.initialKE * 0.95);
+                    if (collisionIndex > 0) {
+                        const x = margin.left + (collisionIndex / (this.energyData.length - 1)) * chartWidth;
+                        ctx.strokeStyle = '#dc3545';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(x, margin.top);
+                        ctx.lineTo(x, margin.top + chartHeight);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        
+                        ctx.fillStyle = '#dc3545';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('To\'qnashish', x, margin.top - 5);
+                    }
+                }
+            }
+        }
+        
+        // Preset functions
+        function setPreset(type) {
+            const mass1Slider = document.getElementById('mass1Slider');
+            const velocity1Slider = document.getElementById('velocity1Slider');
+            const mass2Slider = document.getElementById('mass2Slider');
+            const velocity2Slider = document.getElementById('velocity2Slider');
+            
+            const mass1Input = document.getElementById('mass1Input');
+            const velocity1Input = document.getElementById('velocity1Input');
+            const mass2Input = document.getElementById('mass2Input');
+            const velocity2Input = document.getElementById('velocity2Input');
+            
+            switch(type) {
+                case 'equal':
+                    mass1Slider.value = mass1Input.value = 2;
+                    velocity1Slider.value = velocity1Input.value = 3;
+                    mass2Slider.value = mass2Input.value = 2;
+                    velocity2Slider.value = velocity2Input.value = -3;
+                    break;
+                case 'heavy':
+                    mass1Slider.value = mass1Input.value = 5;
+                    velocity1Slider.value = velocity1Input.value = 2;
+                    mass2Slider.value = mass2Input.value = 1;
+                    velocity2Slider.value = velocity2Input.value = -1;
+                    break;
+                case 'light':
+                    mass1Slider.value = mass1Input.value = 1;
+                    velocity1Slider.value = velocity1Input.value = 5;
+                    mass2Slider.value = mass2Input.value = 4;
+                    velocity2Slider.value = velocity2Input.value = -1;
+                    break;
+                case 'fast':
+                    mass1Slider.value = mass1Input.value = 2;
+                    velocity1Slider.value = velocity1Input.value = 8;
+                    mass2Slider.value = mass2Input.value = 3;
+                    velocity2Slider.value = velocity2Input.value = -6;
+                    break;
+            }
+            
+            // Trigger update
+            if (window.simulator) {
+                window.simulator.updateCalculations();
+                if (!window.simulator.isRunning) {
+                    window.simulator.render();
+                }
+            }
+        }
+        
+        // Initialize simulation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.simulator = new InelasticCollisionSimulator();
+        });
+        
+        // Handle touch events for mobile
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('slider')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!window.simulator) return;
+            
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    if (window.simulator.isRunning) {
+                        window.simulator.pause();
+                    } else {
+                        window.simulator.start();
+                    }
+                    break;
+                case 'r':
+                case 'R':
+                    e.preventDefault();
+                    window.simulator.reset();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
