@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mexanika Simulyatori - Kinematika</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB, #98FB98);
+            border: 2px solid #4CAF50;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            margin-bottom: 10px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .value-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .formula {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .result-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .cannon {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 40px;
+            background: #654321;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .cannon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -30px;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 8px;
+            background: #444;
+            border-radius: 4px;
+        }
+
+        .scale-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .angle-info {
+            font-size: 12px;
+            color: #FFD700;
+            text-align: center;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Mexanika Simulyatori - Kinematika</h1>
+        
+        <div class="simulator-container">
+            <div class="canvas-container">
+                <canvas id="simulationCanvas"></canvas>
+                <div class="cannon" id="cannon"></div>
+                <div class="scale-info" id="scaleInfo">Miqyos: 1:1</div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Boshlang'ich Tezlik (m/s):</label>
+                    <input type="range" id="initialVelocity" min="0" max="50" value="20" step="1">
+                    <div class="value-display" id="velocityDisplay">20 m/s</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Burchak (gradus):</label>
+                    <input type="range" id="angle" min="-90" max="90" value="45" step="1">
+                    <div class="value-display" id="angleDisplay">45°</div>
+                    <div class="angle-info">
+                        + yuqoriga, - pastga qarab
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Boshlang'ich Balandlik (m):</label>
+                    <input type="range" id="height" min="0" max="100" value="0" step="1">
+                    <div class="value-display" id="heightDisplay">0 m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Gravitatsiya (m/s²):</label>
+                    <input type="range" id="gravity" min="5" max="15" value="9.8" step="0.1">
+                    <div class="value-display" id="gravityDisplay">9.8 m/s²</div>
+                </div>
+                
+                <button id="startBtn">🚀 Boshlash</button>
+                <button id="pauseBtn" disabled>⏸️ Pauza</button>
+                <button id="resetBtn">🔄 Qayta Boshlash</button>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📐 Projectile Motion Formulalari:</h3>
+            <div class="formula">
+                x(t) = v₀ × cos(θ) × t<br>
+                y(t) = h₀ + v₀ × sin(θ) × t - ½ × g × t²<br>
+                v_x(t) = v₀ × cos(θ)<br>
+                v_y(t) = v₀ × sin(θ) - g × t
+            </div>
+            
+            <div class="results">
+                <div class="result-card">
+                    <div>Maksimal Balandlik</div>
+                    <div class="result-value" id="maxHeight">0 m</div>
+                </div>
+                <div class="result-card">
+                    <div>Uchish Masofasi</div>
+                    <div class="result-value" id="range">0 m</div>
+                </div>
+                <div class="result-card">
+                    <div>Uchish Vaqti</div>
+                    <div class="result-value" id="flightTime">0 s</div>
+                </div>
+                <div class="result-card">
+                    <div>Joriy Tezlik</div>
+                    <div class="result-value" id="currentVelocity">0 m/s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ProjectileSimulator {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.cannon = document.getElementById('cannon');
+                this.scaleInfo = document.getElementById('scaleInfo');
+                
+                // Kengaytirilgan canvas o'lchami
+                this.canvas.width = this.canvas.offsetWidth;
+                this.canvas.height = this.canvas.offsetHeight;
+                
+                this.isRunning = false;
+                this.animationId = null;
+                this.startTime = 0;
+                this.currentTime = 0;
+                this.trajectory = [];
+                
+                // Boshlang'ich pozitsiya
+                this.launchX = 60;
+                this.launchY = this.canvas.height - 40;
+                
+                // Dinamik miqyoslash parametrlari
+                this.currentMaxRange = 100;
+                this.currentMaxHeight = 50;
+                this.targetMaxRange = 100;
+                this.targetMaxHeight = 50;
+                
+                this.setupControls();
+                this.setupCanvas();
+                this.calculateParameters();
+                this.updateScale();
+                this.draw();
+            }
+            
+            setupControls() {
+                const controls = {
+                    initialVelocity: document.getElementById('initialVelocity'),
+                    angle: document.getElementById('angle'),
+                    height: document.getElementById('height'),
+                    gravity: document.getElementById('gravity'),
+                    startBtn: document.getElementById('startBtn'),
+                    pauseBtn: document.getElementById('pauseBtn'),
+                    resetBtn: document.getElementById('resetBtn')
+                };
+                
+                // Update displays
+                controls.initialVelocity.oninput = () => {
+                    document.getElementById('velocityDisplay').textContent = controls.initialVelocity.value + ' m/s';
+                    this.calculateParameters();
+                    this.updateScale();
+                    this.draw();
+                };
+                
+                controls.angle.oninput = () => {
+                    const angle = controls.angle.value;
+                    document.getElementById('angleDisplay').textContent = angle + '°';
+                    this.updateCannonAngle(angle);
+                    this.calculateParameters();
+                    this.updateScale();
+                    this.draw();
+                };
+                
+                controls.height.oninput = () => {
+                    document.getElementById('heightDisplay').textContent = controls.height.value + ' m';
+                    this.calculateParameters();
+                    this.updateScale();
+                    this.draw();
+                };
+                
+                controls.gravity.oninput = () => {
+                    document.getElementById('gravityDisplay').textContent = controls.gravity.value + ' m/s²';
+                    this.calculateParameters();
+                    this.updateScale();
+                    this.draw();
+                };
+                
+                // Buttons
+                controls.startBtn.onclick = () => this.start();
+                controls.pauseBtn.onclick = () => this.pause();
+                controls.resetBtn.onclick = () => this.reset();
+                
+                this.controls = controls;
+            }
+            
+            updateCannonAngle(angle) {
+                const cannonBarrel = this.cannon.querySelector('::before') || this.cannon;
+                this.cannon.style.transform = `rotate(${-angle}deg)`;
+                this.cannon.style.transformOrigin = 'center bottom';
+            }
+            
+            setupCanvas() {
+                window.addEventListener('resize', () => {
+                    this.canvas.width = this.canvas.offsetWidth;
+                    this.canvas.height = this.canvas.offsetHeight;
+                    this.launchY = this.canvas.height - 40;
+                    this.updateScale();
+                    this.draw();
+                });
+            }
+            
+            getParameters() {
+                return {
+                    v0: parseFloat(this.controls.initialVelocity.value),
+                    angle: parseFloat(this.controls.angle.value) * Math.PI / 180,
+                    h0: parseFloat(this.controls.height.value),
+                    g: parseFloat(this.controls.gravity.value)
+                };
+            }
+            
+            calculateParameters() {
+                const params = this.getParameters();
+                const v0x = params.v0 * Math.cos(params.angle);
+                const v0y = params.v0 * Math.sin(params.angle);
+                
+                // Calculate theoretical values with initial height
+                let maxHeight = params.h0;
+                if (v0y > 0) {
+                    maxHeight = params.h0 + (v0y * v0y) / (2 * params.g);
+                }
+                
+                // Flight time calculation for different scenarios
+                let flightTime = 0;
+                let range = 0;
+                
+                if (v0y >= 0) {
+                    // Upward or horizontal launch
+                    const discriminant = v0y * v0y + 2 * params.g * params.h0;
+                    if (discriminant >= 0) {
+                        flightTime = (v0y + Math.sqrt(discriminant)) / params.g;
+                    }
+                } else {
+                    // Downward launch
+                    const discriminant = v0y * v0y + 2 * params.g * params.h0;
+                    if (discriminant >= 0) {
+                        flightTime = (-v0y + Math.sqrt(discriminant)) / params.g;
+                    }
+                }
+                
+                range = Math.abs(v0x * flightTime);
+                
+                document.getElementById('maxHeight').textContent = maxHeight.toFixed(1) + ' m';
+                document.getElementById('flightTime').textContent = flightTime.toFixed(1) + ' s';
+                document.getElementById('range').textContent = range.toFixed(1) + ' m';
+                
+                // Maqsadli miqyoslarni yangilash
+                this.targetMaxRange = Math.max(range * 1.2, 50); // 20% qo'shimcha joy
+                this.targetMaxHeight = Math.max(maxHeight * 1.3, 30); // 30% qo'shimcha joy
+            }
+            
+            updateScale() {
+                // Silliq o'tish uchun miqyosni asta-sekin o'zgartirish
+                const lerpFactor = 0.1;
+                this.currentMaxRange += (this.targetMaxRange - this.currentMaxRange) * lerpFactor;
+                this.currentMaxHeight += (this.targetMaxHeight - this.currentMaxHeight) * lerpFactor;
+                
+                // Miqyos ma'lumotini yangilash
+                const scaleRatio = Math.min(this.currentMaxRange / 100, this.currentMaxHeight / 50);
+                this.scaleInfo.textContent = `Miqyos: 1:${scaleRatio.toFixed(1)}`;
+            }
+            
+            getScaleFactors() {
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                const scaleX = (width - this.launchX - 40) / this.currentMaxRange;
+                const scaleY = (height - 90) / this.currentMaxHeight;
+                
+                return { scaleX, scaleY };
+            }
+            
+            start() {
+                this.isRunning = true;
+                this.startTime = Date.now();
+                this.trajectory = [];
+                
+                this.controls.startBtn.disabled = true;
+                this.controls.pauseBtn.disabled = false;
+                
+                this.animate();
+            }
+            
+            pause() {
+                this.isRunning = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+                
+                this.controls.startBtn.disabled = false;
+                this.controls.pauseBtn.disabled = true;
+            }
+            
+            reset() {
+                this.pause();
+                this.currentTime = 0;
+                this.trajectory = [];
+                
+                this.controls.startBtn.disabled = false;
+                this.controls.pauseBtn.disabled = true;
+                
+                document.getElementById('currentVelocity').textContent = '0 m/s';
+                this.draw();
+            }
+            
+            animate() {
+                if (!this.isRunning) return;
+                
+                this.currentTime = (Date.now() - this.startTime) / 1000;
+                
+                const params = this.getParameters();
+                const x = params.v0 * Math.cos(params.angle) * this.currentTime;
+                const y = params.h0 + params.v0 * Math.sin(params.angle) * this.currentTime - 0.5 * params.g * this.currentTime * this.currentTime;
+                
+                // Calculate current velocity
+                const vx = params.v0 * Math.cos(params.angle);
+                const vy = params.v0 * Math.sin(params.angle) - params.g * this.currentTime;
+                const currentV = Math.sqrt(vx * vx + vy * vy);
+                
+                document.getElementById('currentVelocity').textContent = currentV.toFixed(1) + ' m/s';
+                
+                if (y >= 0) {
+                    this.trajectory.push({x, y});
+                    this.updateScale(); // Har kadrda miqyosni yangilash
+                    this.draw();
+                    this.animationId = requestAnimationFrame(() => this.animate());
+                } else {
+                    this.pause();
+                }
+            }
+            
+            draw() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const { scaleX, scaleY } = this.getScaleFactors();
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw background gradient
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, '#87CEEB');
+                gradient.addColorStop(1, '#98FB98');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw ground
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(0, height - 30, width, 30);
+                
+                // Draw launch platform
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(20, height - 50, 80, 20);
+                
+                // Draw cannon base at adjusted position
+                const cannonBaseY = this.launchY - parseFloat(this.controls.height.value) * scaleY;
+                ctx.fillStyle = '#2F4F2F';
+                ctx.beginPath();
+                ctx.arc(this.launchX, cannonBaseY, 25, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw cannon barrel from adjusted position
+                const angle = parseFloat(this.controls.angle.value) * Math.PI / 180;
+                const barrelLength = 35;
+                const barrelEndX = this.launchX + barrelLength * Math.cos(angle);
+                const barrelEndY = cannonBaseY - barrelLength * Math.sin(angle);
+                
+                ctx.strokeStyle = '#444';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(this.launchX, cannonBaseY);
+                ctx.lineTo(barrelEndX, barrelEndY);
+                ctx.stroke();
+                
+                // Draw support pillar if height > 0
+                const heightValue = parseFloat(this.controls.height.value);
+                if (heightValue > 0) {
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(this.launchX - 15, cannonBaseY, 30, heightValue * scaleY);
+                    
+                    // Height indicator
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillText(heightValue + 'm', this.launchX + 35, cannonBaseY + heightValue * scaleY / 2 + 4);
+                }
+                
+                // Draw trajectory
+                if (this.trajectory.length > 1) {
+                    ctx.strokeStyle = '#FF4444';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    
+                    for (let i = 0; i < this.trajectory.length; i++) {
+                        const point = this.trajectory[i];
+                        const x = this.launchX + point.x * scaleX;
+                        const y = height - 30 - point.y * scaleY;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.stroke();
+                    
+                    // Draw current projectile position
+                    if (this.trajectory.length > 0) {
+                        const lastPoint = this.trajectory[this.trajectory.length - 1];
+                        const x = this.launchX + lastPoint.x * scaleX;
+                        const y = height - 30 - lastPoint.y * scaleY;
+                        
+                        // Projectile with glow effect
+                        ctx.shadowColor = '#FF4444';
+                        ctx.shadowBlur = 15;
+                        ctx.fillStyle = '#FF4444';
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                        
+                        // Draw velocity vector
+                        const params = this.getParameters();
+                        const vx = params.v0 * Math.cos(params.angle);
+                        const vy = params.v0 * Math.sin(params.angle) - params.g * this.currentTime;
+                        
+                        const vectorScale = Math.min(scaleX, scaleY) * 2;
+                        const endX = x + vx * vectorScale;
+                        const endY = y - vy * vectorScale;
+                        
+                        ctx.strokeStyle = '#0000FF';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(endX, endY);
+                        ctx.stroke();
+                        
+                        // Arrow head
+                        const arrowAngle = Math.atan2(-(vy * vectorScale), vx * vectorScale);
+                        const arrowLength = 12;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(endX, endY);
+                        ctx.lineTo(endX - arrowLength * Math.cos(arrowAngle - Math.PI/6), 
+                                  endY + arrowLength * Math.sin(arrowAngle - Math.PI/6));
+                        ctx.moveTo(endX, endY);
+                        ctx.lineTo(endX - arrowLength * Math.cos(arrowAngle + Math.PI/6), 
+                                  endY + arrowLength * Math.sin(arrowAngle + Math.PI/6));
+                        ctx.stroke();
+                        
+                        // Velocity vector label
+                        ctx.fillStyle = '#0000FF';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('v', endX + 5, endY - 5);
+                    }
+                } else {
+                    // Draw projectile at launch point when not running
+                    const cannonBaseY = this.launchY - parseFloat(this.controls.height.value) * scaleY;
+                    const angle = parseFloat(this.controls.angle.value) * Math.PI / 180;
+                    const barrelLength = 35;
+                    const barrelEndX = this.launchX + barrelLength * Math.cos(angle);
+                    const barrelEndY = cannonBaseY - barrelLength * Math.sin(angle);
+                    
+                    ctx.fillStyle = '#FF4444';
+                    ctx.strokeStyle = '#AA0000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(barrelEndX, barrelEndY, 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                
+                // Draw adaptive grid
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 1;
+                
+                // Grid spacing based on current scale
+                const xSpacing = Math.max(10, Math.round(this.currentMaxRange / 15));
+                const ySpacing = Math.max(5, Math.round(this.currentMaxHeight / 10));
+                
+                // Vertical grid lines
+                for (let i = 0; i <= this.currentMaxRange; i += xSpacing) {
+                    const x = this.launchX + i * scaleX;
+                    if (x <= width) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, height - 30);
+                        ctx.stroke();
+                        
+                        // Distance labels
+                        if (i > 0 && i % (xSpacing * 2) === 0) {
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.font = '12px Arial';
+                            ctx.fillText(i + 'm', x - 10, height - 10);
+                        }
+                    }
+                }
+                
+                // Horizontal grid lines
+                for (let i = 0; i <= this.currentMaxHeight; i += ySpacing) {
+                    const y = height - 30 - i * scaleY;
+                    if (y >= 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(this.launchX, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                        
+                        // Height labels
+                        if (i > 0 && i % (ySpacing * 2) === 0) {
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.font = '12px Arial';
+                            ctx.fillText(i + 'm', 5, y + 4);
+                        }
+                    }
+                }
+                
+                // Draw angle indicator with improved visualization for negative angles
+                if (!this.isRunning) {
+                    const cannonBaseY = this.launchY - parseFloat(this.controls.height.value) * scaleY;
+                    const angleValue = parseFloat(this.controls.angle.value);
+                    const angleRad = angleValue * Math.PI / 180;
+                    
+                    // Different colors for positive and negative angles
+                    ctx.strokeStyle = angleValue >= 0 ? '#FFD700' : '#FF6B6B';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    if (angleValue >= 0) {
+                        // Positive angle (upward)
+                        ctx.arc(this.launchX, cannonBaseY, 20, 0, -angleRad, true);
+                    } else {
+                        // Negative angle (downward)
+                        ctx.arc(this.launchX, cannonBaseY, 20, 0, -angleRad, false);
+                    }
+                    ctx.stroke();
+                    
+                    // Angle label with direction indicator
+                    ctx.fillStyle = angleValue >= 0 ? '#FFD700' : '#FF6B6B';
+                    ctx.font = 'bold 14px Arial';
+                    const angleText = angleValue >= 0 ? angleValue + '° ↗' : Math.abs(angleValue) + '° ↘';
+                    ctx.fillText(angleText, this.launchX + 25, cannonBaseY - 15);
+                }
+            }
+        }
+        
+        // Initialize simulator when page loads
+        window.addEventListener('load', () => {
+            new ProjectileSimulator();
+        });
+    </script>
+</body>
+</html>
