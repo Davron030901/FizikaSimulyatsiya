@@ -2,6 +2,8 @@
 import os
 import django
 
+
+
 # Django konfiguratsiyasini yuklash
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'simulation_website.settings')
 django.setup()
