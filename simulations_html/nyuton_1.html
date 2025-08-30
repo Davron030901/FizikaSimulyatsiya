@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nyutonning 1-qonuni - Inersiya simulyatsiyasi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: clamp(1.5em, 4vw, 2.5em);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: clamp(0.9em, 2.5vw, 1.2em);
+            opacity: 0.9;
+        }
+        
+        .simulation-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        canvas {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: linear-gradient(45deg, #1e3c72 0%, #2a5298 100%);
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 800px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        .sensor-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: clamp(1em, 3vw, 1.3em);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: clamp(12px, 2.5vw, 16px);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            min-height: 44px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .scenario-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        
+        .scenario-btn:hover:not(:disabled) {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+        
+        .sensor-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .sensor-btn:hover:not(:disabled) {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+        
+        .sensor-btn.active {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            animation: pulse 2s infinite;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            accent-color: #ff6b6b;
+            height: 30px;
+        }
+        
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+            font-size: clamp(12px, 2.5vw, 14px);
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .law-text {
+            font-size: clamp(1em, 2.5vw, 1.1em);
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: clamp(10px, 2vw, 12px);
+            word-wrap: break-word;
+        }
+        
+        .physics-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .physics-stat {
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .help-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            z-index: 1000;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            color: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .physics-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+        
+        .vector-display {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Nyutonning 1-qonuni</h1>
+        <p class="subtitle">Inersiya qonuni interaktiv simulyatsiyasi</p>
+        
+        <div class="simulation-area">
+            <div class="canvas-container">
+                <canvas id="canvas" width="800" height="400"></canvas>
+                <div class="sensor-info" id="sensorInfo">
+                    📱 Sensorlar faol
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <h3>📐 Ob'ekt sozlamalari</h3>
+                    <label>Massa (kg): <span id="massValue">5 kg</span></label>
+                    <input type="range" id="massSlider" min="1" max="50" value="5">
+                    
+                    <label>Ob'ekt turi:</label>
+                    <select id="objectType" style="width: 100%; padding: 8px; border-radius: 5px; margin-bottom: 10px;">
+                        <option value="circle">🔵 Doira</option>
+                        <option value="square">🟩 Kvadrat</option>
+                        <option value="triangle">🔺 Uchburchak</option>
+                    </select>
+                    
+                    <button onclick="addObject()">➕ Ob'ekt qo'shish</button>
+                    <button onclick="clearObjects()">🗑️ Tozalash</button>
+                </div>
+                
+                <div class="control-group">
+                    <h3>🌍 Muhit sozlamalari</h3>
+                    <label>Ishqalanish: <span id="frictionValue">0.05</span></label>
+                    <input type="range" id="frictionSlider" min="0" max="200" value="50">
+                    
+                    <label>Tortishish kuchi: <span id="gravityValue">0.3</span></label>
+                    <input type="range" id="gravitySlider" min="0" max="100" value="30">
+                    
+                    <button onclick="toggleFriction()">🔄 Ishqalanish</button>
+                    <button onclick="toggleGravity()">🪐 Tortishish</button>
+                </div>
+                
+                <div class="control-group">
+                    <h3>📱 Sensor boshqaruvi</h3>
+                    <button class="sensor-btn" id="sensorBtn" onclick="toggleSensor()">
+                        📱 Sensorni yoqish
+                    </button>
+                    <button onclick="resetOrientation()">🔄 Sensorni qayta sozlash</button>
+                    
+                    <div class="physics-info">
+                        <div class="physics-stat">
+                            <div>Ob'ektlar</div>
+                            <div id="objectCount">0</div>
+                        </div>
+                        <div class="physics-stat">
+                            <div>Umumiy energiya</div>
+                            <div id="totalEnergy">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>🎯 Stsenariylar</h3>
+                    <button class="scenario-btn" onclick="spaceScenario()">🚀 Kosmos</button>
+                    <button class="scenario-btn" onclick="iceScenario()">🧊 Muz</button>
+                    <button class="scenario-btn" onclick="roughScenario()">🏔️ G'adir-budir</button>
+                    <button class="scenario-btn" onclick="pendulumScenario()">🎡 Mayatnik</button>
+                </div>
+            </div>
+            
+            <div class="status" id="status">
+                Ob'ekt qo'shish uchun kanvasga teging yoki tugmani bosing
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="law-text">
+                📖 Nyutonning 1-qonuni (Inersiya qonuni):
+            </div>
+            <p>
+                "Agar jismga tashqi kuch ta'sir etmasa yoki ta'sir etuvchi kuchlarning yig'indisi nolga teng bo'lsa, 
+                jism tinch holatda turgan bo'lsa tinch holatda qoladi, harakat qilayotgan bo'lsa tekis to'g'ri chiziqli 
+                harakat qilishda davom etadi."
+            </p>
+            <br>
+            <p><strong>💡 Maslahat:</strong> Ob'ektlarni barmog'ingiz yoki sichqoncha bilan sudrab harakatlantiring. 
+            Mobil qurilmalarda sensorlar orqali tortishish yo'nalishini o'zgartiring!</p>
+        </div>
+    </div>
+
+    <button class="help-btn" onclick="showHelp()">❓</button>
+
+    <!-- Yordam oynasi -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideHelp()">&times;</span>
+            <h2>📚 Foydalanish bo'yicha qo'llanma</h2>
+            <h3>🖱️ Asosiy boshqaruv:</h3>
+            <ul>
+                <li>Kanvasga bosing - yangi ob'ekt yaratish</li>
+                <li>Ob'ektni sudrab torting - harakat berish</li>
+                <li>Slayderlar - parametrlarni o'zgartirish</li>
+            </ul>
+            
+            <h3>📱 Mobil funksiyalar:</h3>
+            <ul>
+                <li>Sensorlar tugmasi - telefon harakatini aktiv qilish</li>
+                <li>Telefonni burang - tortishish yo'nalishini o'zgartirish</li>
+                <li>Tebranish - ob'ektlarga kuch berish</li>
+            </ul>
+            
+            <h3>🎯 Stsenariylar:</h3>
+            <ul>
+                <li><strong>Kosmos:</strong> Ishqalanish va tortishish yo'q</li>
+                <li><strong>Muz:</strong> Juda kam ishqalanish</li>
+                <li><strong>G'adir-budir:</strong> Katta ishqalanish</li>
+                <li><strong>Mayatnik:</strong> Tebranish harakati</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let objects = [];
+        let friction = 0.05;
+        let gravity = 0.3;
+        let gravityEnabled = true;
+        let isDragging = false;
+        let dragObject = null;
+        let mousePos = {x: 0, y: 0};
+        let lastMousePos = {x: 0, y: 0};
+        let animationId;
+        
+        // Sensor variables
+        let sensorEnabled = false;
+        let deviceOrientation = {alpha: 0, beta: 0, gamma: 0};
+        let initialOrientation = {alpha: 0, beta: 0, gamma: 0};
+        let sensorSupported = false;
+        
+        // Canvas boyutlarini responsiv qilish
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const aspectRatio = 800 / 400;
+            
+            if (containerWidth < 800) {
+                canvas.style.width = containerWidth + 'px';
+                canvas.style.height = (containerWidth / aspectRatio) + 'px';
+            } else {
+                canvas.style.width = '800px';
+                canvas.style.height = '400px';
+            }
+        }
+        
+        class PhysicsObject {
+            constructor(x, y, mass, color, type = 'circle') {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.mass = mass;
+                this.radius = Math.sqrt(mass) * 6 + 10;
+                this.color = color;
+                this.type = type;
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.energy = 0;
+                this.rotation = 0;
+                this.angularVelocity = 0;
+            }
+            
+            update() {
+                // Sensordan kuch qo'shish
+                if (sensorEnabled) {
+                    const sensorForce = 0.1;
+                    this.vx += (deviceOrientation.gamma - initialOrientation.gamma) * sensorForce * 0.01;
+                    this.vy += (deviceOrientation.beta - initialOrientation.beta) * sensorForce * 0.01;
+                }
+                
+                // Tortishish kuchi
+                if (gravityEnabled) {
+                    if (sensorEnabled) {
+                        // Sensor asosida tortishish yo'nalishi
+                        const gravityX = (deviceOrientation.gamma - initialOrientation.gamma) * gravity * 0.05;
+                        const gravityY = Math.abs(deviceOrientation.beta - initialOrientation.beta) > 45 ? 
+                                       -gravity : gravity;
+                        this.vx += gravityX;
+                        this.vy += gravityY;
+                    } else {
+                        this.vy += gravity;
+                    }
+                }
+                
+                // Ishqalanish
+                this.vx *= (1 - friction);
+                this.vy *= (1 - friction * 0.5);
+                
+                // Burchak tezligi
+                this.angularVelocity *= (1 - friction);
+                this.rotation += this.angularVelocity;
+                
+                // Pozitsiya yangilash
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Energiya hisoblash
+                this.energy = 0.5 * this.mass * (this.vx * this.vx + this.vy * this.vy);
+                
+                // Chegaralar
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx = -this.vx * 0.8;
+                    this.angularVelocity = this.vx * 0.1;
+                }
+                if (this.x + this.radius > canvas.width) {
+                    this.x = canvas.width - this.radius;
+                    this.vx = -this.vx * 0.8;
+                    this.angularVelocity = this.vx * 0.1;
+                }
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.vy = -this.vy * 0.8;
+                    this.angularVelocity = this.vy * 0.1;
+                }
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.vy = -this.vy * 0.8;
+                    this.angularVelocity = this.vy * 0.1;
+                }
+                
+                // Iz
+                if (Math.abs(this.vx) > 0.5 || Math.abs(this.vy) > 0.5) {
+                    this.trail.push({x: this.x, y: this.y});
+                    if (this.trail.length > this.maxTrailLength) {
+                        this.trail.shift();
+                    }
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                
+                // Iz chizish
+                if (this.trail.length > 1) {
+                    const gradient = ctx.createLinearGradient(
+                        this.trail[0].x, this.trail[0].y,
+                        this.trail[this.trail.length-1].x, this.trail[this.trail.length-1].y
+                    );
+                    gradient.addColorStop(0, this.color + '20');
+                    gradient.addColorStop(1, this.color + '80');
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.stroke();
+                }
+                
+                // Ob'ekt chizish
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // Soya
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                this.drawShape(2, 2);
+                
+                // Asosiy shakl
+                const gradient = ctx.createRadialGradient(-this.radius/3, -this.radius/3, 0, 0, 0, this.radius);
+                gradient.addColorStop(0, this.color + 'FF');
+                gradient.addColorStop(0.7, this.color + 'CC');
+                gradient.addColorStop(1, this.color + '88');
+                ctx.fillStyle = gradient;
+                this.drawShape();
+                
+                // Massa yozuvi
+                ctx.rotate(-this.rotation);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${this.mass}kg`, 0, 4);
+                
+                // Tezlik vektori
+                if (Math.abs(this.vx) > 1 || Math.abs(this.vy) > 1) {
+                    ctx.strokeStyle = '#ffff00';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(this.vx * 10, this.vy * 10);
+                    ctx.stroke();
+                    
+                    // Strelka uchi
+                    const angle = Math.atan2(this.vy, this.vx);
+                    ctx.save();
+                    ctx.translate(this.vx * 10, this.vy * 10);
+                    ctx.rotate(angle);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(-8, -3);
+                    ctx.lineTo(-8, 3);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+                
+                ctx.restore();
+            }
+            
+            drawShape(offsetX = 0, offsetY = 0) {
+                ctx.beginPath();
+                switch(this.type) {
+                    case 'circle':
+                        ctx.arc(offsetX, offsetY, this.radius, 0, Math.PI * 2);
+                        break;
+                    case 'square':
+                        ctx.rect(-this.radius + offsetX, -this.radius + offsetY, this.radius * 2, this.radius * 2);
+                        break;
+                    case 'triangle':
+                        ctx.moveTo(0 + offsetX, -this.radius + offsetY);
+                        ctx.lineTo(-this.radius * 0.866 + offsetX, this.radius * 0.5 + offsetY);
+                        ctx.lineTo(this.radius * 0.866 + offsetX, this.radius * 0.5 + offsetY);
+                        ctx.closePath();
+                        break;
+                }
+                ctx.fill();
+            }
+            
+            isPointInside(x, y) {
+                const dx = x - this.x;
+                const dy = y - this.y;
+                return dx * dx + dy * dy < this.radius * this.radius;
+            }
+            
+            applyForce(fx, fy) {
+                const ax = fx / this.mass;
+                const ay = fy / this.mass;
+                this.vx += ax;
+                this.vy += ay;
+                this.angularVelocity += (fx + fy) * 0.01;
+            }
+        }
+        
+        // Sensor funksiyalari
+        function initSensors() {
+            if (typeof DeviceOrientationEvent !== 'undefined') {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS 13+ ruxsat so'rash
+                    DeviceOrientationEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                sensorSupported = true;
+                                setupSensorListeners();
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    // Android va boshqa qurilmalar
+                    sensorSupported = true;
+                    setupSensorListeners();
+                }
+            }
+        }
+        
+        function setupSensorListeners() {
+            window.addEventListener('deviceorientation', handleOrientation);
+            window.addEventListener('devicemotion', handleMotion);
+        }
+        
+        function handleOrientation(event) {
+            if (sensorEnabled) {
+                deviceOrientation = {
+                    alpha: event.alpha || 0,
+                    beta: event.beta || 0,
+                    gamma: event.gamma || 0
+                };
+            }
+        }
+        
+        function handleMotion(event) {
+            if (sensorEnabled && event.acceleration) {
+                const threshold = 15;
+                if (Math.abs(event.acceleration.x) > threshold || 
+                    Math.abs(event.acceleration.y) > threshold) {
+                    // Tebranishga javob
+                    objects.forEach(obj => {
+                        obj.applyForce(
+                            event.acceleration.x * 0.5,
+                            -event.acceleration.y * 0.5
+                        );
+                    });
+                    
+                    // Tebranish effekti
+                    document.body.classList.add('shake');
+                    setTimeout(() => document.body.classList.remove('shake'), 500);
+                }
+            }
+        }
+        
+        function toggleSensor() {
+            if (!sensorSupported) {
+                initSensors();
+                return;
+            }
+            
+            sensorEnabled = !sensorEnabled;
+            const btn = document.getElementById('sensorBtn');
+            const info = document.getElementById('sensorInfo');
+            
+            if (sensorEnabled) {
+                btn.textContent = '📱 Sensorni o\'chirish';
+                btn.classList.add('active');
+                info.style.display = 'block';
+                resetOrientation();
+                updateStatus('📱 Sensorlar yoqildi - telefonni harakatlantiring!');
+            } else {
+                btn.textContent = '📱 Sensorni yoqish';
+                btn.classList.remove('active');
+                info.style.display = 'none';
+                updateStatus('📱 Sensorlar o\'chirildi');
+            }
+        }
+        
+        function resetOrientation() {
+            initialOrientation = {...deviceOrientation};
+            updateStatus('🔄 Sensor boshlang\'ich pozitsiyasi o\'rnatildi');
+        }
+        
+        // Ob'ekt boshqaruvi
+        function addObject() {
+            const mass = parseInt(document.getElementById('massSlider').value);
+            const type = document.getElementById('objectType').value;
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a29bfe'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            const x = Math.random() * (canvas.width - 100) + 50;
+            const y = Math.random() * (canvas.height - 100) + 50;
+            
+            objects.push(new PhysicsObject(x, y, mass, color, type));
+            updateStatus(`Yangi ${type} qo'shildi: ${mass}kg massa`);
+        }
+        
+        function clearObjects() {
+            objects = [];
+            updateStatus('Barcha ob\'ektlar o\'chirildi');
+        }
+        
+        function toggleFriction() {
+            friction = friction > 0 ? 0 : 0.05;
+            document.getElementById('frictionSlider').value = friction * 1000;
+            updateFrictionValue();
+            updateStatus(`Ishqalanish: ${friction === 0 ? 'O\'chirildi' : 'Yoqildi'}`);
+        }
+        
+        function toggleGravity() {
+            gravityEnabled = !gravityEnabled;
+            updateStatus(`Tortishish: ${gravityEnabled ? 'Yoqildi' : 'O\'chirildi'}`);
+        }
+        
+        // Stsenariylar
+        function spaceScenario() {
+            clearObjects();
+            friction = 0;
+            gravity = 0;
+            gravityEnabled = false;
+            document.getElementById('frictionSlider').value = 0;
+            document.getElementById('gravitySlider').value = 0;
+            updateFrictionValue();
+            updateGravityValue();
+            
+            // Kosmosda harakatlanuvchi ob'ektlar
+            const obj1 = new PhysicsObject(100, 200, 8, '#4ecdc4', 'circle');
+            obj1.vx = 3;
+            const obj2 = new PhysicsObject(300, 150, 12, '#ff6b6b', 'square');
+            obj2.vx = -2;
+            obj2.vy = 1;
+            objects.push(obj1, obj2);
+            
+            updateStatus('🚀 Kosmos stsenariyasi: Mukammal inersiya - hech qanday qarshilik yo\'q!');
+        }
+        
+        function iceScenario() {
+            clearObjects();
+            friction = 0.01;
+            gravity = 0.2;
+            gravityEnabled = true;
+            document.getElementById('frictionSlider').value = 10;
+            document.getElementById('gravitySlider').value = 20;
+            updateFrictionValue();
+            updateGravityValue();
+            
+            const obj = new PhysicsObject(100, canvas.height - 60, 10, '#45b7d1', 'circle');
+            obj.vx = 5;
+            objects.push(obj);
+            
+            updateStatus('🧊 Muz stsenariyasi: Kam ishqalanish - uzoq masofaga sirpanish');
+        }
+        
+        function roughScenario() {
+            clearObjects();
+            friction = 0.15;
+            gravity = 0.5;
+            gravityEnabled = true;
+            document.getElementById('frictionSlider').value = 150;
+            document.getElementById('gravitySlider').value = 50;
+            updateFrictionValue();
+            updateGravityValue();
+            
+            const obj = new PhysicsObject(100, canvas.height - 80, 15, '#f0932b', 'square');
+            obj.vx = 6;
+            objects.push(obj);
+            
+            updateStatus('🏔️ G\'adir-budir yer: Katta ishqalanish - tez to\'xtash');
+        }
+        
+        function pendulumScenario() {
+            clearObjects();
+            friction = 0.02;
+            gravity = 0.3;
+            gravityEnabled = true;
+            document.getElementById('frictionSlider').value = 20;
+            document.getElementById('gravitySlider').value = 30;
+            updateFrictionValue();
+            updateGravityValue();
+            
+            // Mayatnik kabi harakat
+            const obj = new PhysicsObject(canvas.width / 2, 100, 8, '#9b59b6', 'triangle');
+            obj.vx = 4;
+            objects.push(obj);
+            
+            updateStatus('🎡 Mayatnik stsenariyasi: Tebranuvchi harakat');
+        }
+        
+        // Qiymat yangilash funksiyalari
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        function updateFrictionValue() {
+            const value = document.getElementById('frictionSlider').value;
+            friction = value / 1000;
+            document.getElementById('frictionValue').textContent = friction.toFixed(3);
+        }
+        
+        function updateGravityValue() {
+            const value = document.getElementById('gravitySlider').value;
+            gravity = value / 100;
+            document.getElementById('gravityValue').textContent = gravity.toFixed(2);
+        }
+        
+        function updateMassValue() {
+            const value = document.getElementById('massSlider').value;
+            document.getElementById('massValue').textContent = value + ' kg';
+        }
+        
+        function updatePhysicsStats() {
+            document.getElementById('objectCount').textContent = objects.length;
+            const totalEnergy = objects.reduce((sum, obj) => sum + obj.energy, 0);
+            document.getElementById('totalEnergy').textContent = totalEnergy.toFixed(1);
+        }
+        
+        // Modal funksiyalari
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'block';
+        }
+        
+        function hideHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+        
+        // Event listenerlar
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            if (e.touches) {
+                return {
+                    x: (e.touches[0].clientX - rect.left) * scaleX,
+                    y: (e.touches[0].clientY - rect.top) * scaleY
+                };
+            } else {
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            }
+        }
+        
+        // Mouse/Touch events
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('touchstart', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('touchmove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('touchend', handleEnd);
+        
+        function handleStart(e) {
+            e.preventDefault();
+            mousePos = getEventPos(e);
+            
+            for (let obj of objects) {
+                if (obj.isPointInside(mousePos.x, mousePos.y)) {
+                    isDragging = true;
+                    dragObject = obj;
+                    lastMousePos = {...mousePos};
+                    obj.trail = []; // Izni tozalash
+                    return;
+                }
+            }
+            
+            // Yangi ob'ekt yaratish
+            if (!isDragging) {
+                const mass = parseInt(document.getElementById('massSlider').value);
+                const type = document.getElementById('objectType').value;
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                objects.push(new PhysicsObject(mousePos.x, mousePos.y, mass, color, type));
+                updateStatus(`Yangi ${type} yaratildi!`);
+            }
+        }
+        
+        function handleMove(e) {
+            e.preventDefault();
+            if (!isDragging || !dragObject) return;
+            
+            mousePos = getEventPos(e);
+            const dx = mousePos.x - lastMousePos.x;
+            const dy = mousePos.y - lastMousePos.y;
+            
+            dragObject.x = mousePos.x;
+            dragObject.y = mousePos.y;
+            dragObject.vx = dx * 0.3;
+            dragObject.vy = dy * 0.3;
+            dragObject.angularVelocity = (dx + dy) * 0.02;
+            
+            lastMousePos = {...mousePos};
+        }
+        
+        function handleEnd(e) {
+            e.preventDefault();
+            if (isDragging && dragObject) {
+                updateStatus(`Ob'ekt harakatlandi! Tezlik: ${Math.sqrt(dragObject.vx**2 + dragObject.vy**2).toFixed(1)}`);
+            }
+            isDragging = false;
+            dragObject = null;
+        }
+        
+        // Slider event listeners
+        document.getElementById('frictionSlider').addEventListener('input', updateFrictionValue);
+        document.getElementById('gravitySlider').addEventListener('input', updateGravityValue);
+        document.getElementById('massSlider').addEventListener('input', updateMassValue);
+        
+        // Modal events
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('helpModal');
+            if (e.target === modal) {
+                hideHelp();
+            }
+        });
+        
+        // Animatsiya funksiyasi
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Fon gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1e3c72');
+            gradient.addColorStop(0.5, '#2a5298');
+            gradient.addColorStop(1, '#1e3c72');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // Sensor yo'nalishini ko'rsatish
+            if (sensorEnabled) {
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(50, 50, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(50, 50);
+                const angle = Math.atan2(
+                    deviceOrientation.beta - initialOrientation.beta,
+                    deviceOrientation.gamma - initialOrientation.gamma
+                );
+                ctx.lineTo(50 + Math.cos(angle) * 25, 50 + Math.sin(angle) * 25);
+                ctx.stroke();
+            }
+            
+            // Ob'ektlarni yangilash va chizish
+            objects.forEach(obj => {
+                obj.update();
+                obj.draw();
+            });
+            
+            // Statistikalarni yangilash
+            updatePhysicsStats();
+            
+            // Status yangilash
+            if (objects.length > 0) {
+                const movingCount = objects.filter(obj => 
+                    Math.abs(obj.vx) > 0.1 || Math.abs(obj.vy) > 0.1
+                ).length;
+                
+                if (movingCount === 0 && !isDragging) {
+                    updateStatus('✅ Barcha ob\'ektlar tinch holatda - Inersiya qonuni!');
+                } else if (movingCount > 0) {
+                    updateStatus(`⚡ ${movingCount} ta ob\'ekt harakatda - inersiya kuchi ishlayapti!`);
+                }
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Boshlang'ich sozlamalar
+        function init() {
+            resizeCanvas();
+            updateFrictionValue();
+            updateGravityValue();
+            updateMassValue();
+            initSensors();
+            
+            // Boshlang'ich stsenariy
+            setTimeout(() => {
+                if (objects.length === 0) {
+                    spaceScenario();
+                }
+            }, 1000);
+            
+            animate();
+        }
+        
+        // Window events
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 100);
+        });
+        
+        // Boshlash
+        init();
+    </script>
+</body>
+</html>
