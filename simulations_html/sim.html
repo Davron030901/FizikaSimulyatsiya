@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To'g'ri Chiziqli Harakat Simulyatsiyasi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .simulation-area {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .coordinate-system {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 100%;
+            transform: translateY(-50%);
+        }
+        
+        .axis {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-50%);
+        }
+        
+        .axis-arrow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid rgba(255, 255, 255, 0.8);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+        
+        .scale-marks {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 60px;
+            transform: translateY(-50%);
+            transition: transform 0.1s ease;
+        }
+        
+        .scale-mark {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: rgba(255, 217, 61, 0.9);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .scale-number {
+            position: absolute;
+            top: 35px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffd93d;
+            text-align: center;
+            width: 40px;
+            margin-left: -20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            padding: 2px;
+        }
+        
+        .origin-mark {
+            background: #ff4757 !important;
+            height: 35px !important;
+            width: 3px !important;
+        }
+        
+        .origin-number {
+            color: #ff4757 !important;
+            font-size: 14px !important;
+            font-weight: 900 !important;
+        }
+        
+        .object {
+            position: absolute;
+            top: 50%;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ff6b6b, #ff4757);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            transition: left 0.05s linear;
+            box-shadow: 
+                0 0 25px rgba(255, 107, 107, 0.9),
+                0 0 50px rgba(255, 107, 107, 0.5);
+            border: 3px solid #fff;
+            z-index: 100;
+        }
+        
+        .object-info {
+            position: absolute;
+            top: -75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            border: 2px solid #ffd93d;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 101;
+        }
+        
+        .position-indicator {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 30px;
+            background: #ff6b6b;
+            z-index: 99;
+        }
+        
+        .trail {
+            position: absolute;
+            top: 50%;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 107, 107, 0.6);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            animation: fadeOut 4s linear forwards;
+            z-index: 5;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateY(-50%) scale(1); }
+            100% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .control-group h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #ffd93d;
+            font-size: 18px;
+        }
+        
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ffd93d;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.8);
+            border: 2px solid white;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ffd93d;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.8);
+        }
+        
+        .value-display {
+            font-size: 16px;
+            color: #b8f2ff;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .info-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .info-item h4 {
+            margin: 0 0 12px 0;
+            color: #ffd93d;
+            font-size: 16px;
+        }
+        
+        .info-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #b8f2ff;
+            margin-bottom: 5px;
+        }
+        
+        .unit {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .graph-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .graph-title {
+            color: #ffd93d;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .graph {
+            width: 100%;
+            height: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .graph-axes {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .graph-y-axis {
+            position: absolute;
+            left: 50px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .graph-line {
+            position: absolute;
+            width: 3px;
+            background: #ff6b6b;
+            border-radius: 1px;
+            transition: all 0.1s ease;
+        }
+        
+        .graph-labels {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 To'g'ri Chiziqli Harakat Simulyatsiyasi</h1>
+        
+        <div class="simulation-area">
+            <div class="coordinate-system">
+                <div class="axis">
+                    <div class="axis-arrow"></div>
+                </div>
+                <div class="scale-marks" id="scaleMarks"></div>
+            </div>
+            <div class="object" id="movingObject">
+                <div class="position-indicator"></div>
+                <div class="object-info" id="objectInfo">
+                    x = 0.0m<br>v = 10.0m/s<br>t = 0.0s
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>⚡ Boshlang'ich Parametrlar</h3>
+                <div class="slider-container">
+                    <label for="initialVelocity">Boshlang'ich tezlik (v₀)</label>
+                    <input type="range" id="initialVelocity" min="-50" max="50" value="10" step="1">
+                    <div class="value-display" id="velocityValue">10 m/s</div>
+                </div>
+                <div class="slider-container">
+                    <label for="acceleration">Tezlanish (a)</label>
+                    <input type="range" id="acceleration" min="-20" max="20" value="5" step="0.5">
+                    <div class="value-display" id="accelerationValue">5 m/s²</div>
+                </div>
+                <div class="slider-container">
+                    <label for="initialPosition">Boshlang'ich pozitsiya (x₀)</label>
+                    <input type="range" id="initialPosition" min="-50" max="50" value="0" step="1">
+                    <div class="value-display" id="positionValue">0 m</div>
+                </div>
+                <div class="slider-container">
+                    <label for="simulationTime">Harakat vaqti (t)</label>
+                    <input type="range" id="simulationTime" min="1" max="30" value="10" step="0.5">
+                    <div class="value-display" id="simulationTimeValue">10 s</div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>🎮 Boshqaruv</h3>
+                <div class="buttons">
+                    <button onclick="startSimulation()">▶️ Boshlash</button>
+                    <button onclick="pauseSimulation()">⏸️ To'xtatish</button>
+                    <button onclick="resetSimulation()">🔄 Qayta boshlash</button>
+                </div>
+                <div class="slider-container" style="margin-top: 25px;">
+                    <label for="timeScale">Vaqt tezligi</label>
+                    <input type="range" id="timeScale" min="0.1" max="3" value="1" step="0.1">
+                    <div class="value-display" id="timeScaleValue">1x</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-item">
+                <h4>⏱️ Vaqt</h4>
+                <div class="info-value" id="timeDisplay">0.0</div>
+                <div class="unit">sekund</div>
+            </div>
+            <div class="info-item">
+                <h4>⏰ Qolgan Vaqt</h4>
+                <div class="info-value" id="remainingTimeDisplay">10.0</div>
+                <div class="unit">sekund</div>
+            </div>
+            <div class="info-item">
+                <h4>📍 Pozitsiya</h4>
+                <div class="info-value" id="positionDisplay">0.0</div>
+                <div class="unit">metr</div>
+            </div>
+            <div class="info-item">
+                <h4>🏃 Tezlik</h4>
+                <div class="info-value" id="currentVelocityDisplay">10.0</div>
+                <div class="unit">m/s</div>
+            </div>
+            <div class="info-item">
+                <h4>⚡ Tezlanish</h4>
+                <div class="info-value" id="currentAccelerationDisplay">5.0</div>
+                <div class="unit">m/s²</div>
+            </div>
+        </div>
+        
+        <div class="graph-container">
+            <h3 class="graph-title">📊 Pozitsiya-Vaqt Grafigi</h3>
+            <div class="graph" id="positionGraph">
+                <div class="graph-y-axis"></div>
+                <div class="graph-axes"></div>
+                <div class="graph-labels">
+                    Vaqt (s) →<br>↑ Pozitsiya (m)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let startTime = 0;
+        let currentTime = 0;
+        let animationId;
+        let graphData = [];
+        let maxSimulationTime = 10; // Maksimal harakat vaqti
+        
+        // Parametrlar
+        let v0 = 10; // boshlang'ich tezlik
+        let a = 5;   // tezlanish  
+        let x0 = 0;  // boshlang'ich pozitsiya
+        let timeScale = 1;
+        
+        // DOM elementlari
+        const object = document.getElementById('movingObject');
+        const objectInfo = document.getElementById('objectInfo');
+        const simulationArea = document.querySelector('.simulation-area');
+        const scaleMarks = document.getElementById('scaleMarks');
+        
+        // Koordinata o'qi parametrlari
+        let viewCenter = 0; // Ko'rinish markazi
+        let scale = 8; // 1 metr = 8 piksel
+        const simulationWidth = simulationArea.offsetWidth - 40;
+        
+        // O'lchov belgilarini yaratish
+        function createScaleMarks() {
+            scaleMarks.innerHTML = '';
+            
+            // Ko'rinadigan oraliqni aniqlash
+            const viewRange = simulationWidth / scale;
+            const startPos = viewCenter - viewRange / 2;
+            const endPos = viewCenter + viewRange / 2;
+            
+            // Belgilar orasidagi masofa
+            let step = 5;
+            if (viewRange > 100) step = 20;
+            else if (viewRange > 50) step = 10;
+            else if (viewRange > 20) step = 5;
+            else step = 2;
+            
+            // Boshlang'ich pozitsiyani aniqlash
+            const firstMark = Math.floor(startPos / step) * step;
+            
+            for (let pos = firstMark; pos <= endPos + step; pos += step) {
+                const pixelPos = (pos - startPos) * scale;
+                
+                if (pixelPos >= -50 && pixelPos <= simulationWidth + 50) {
+                    const mark = document.createElement('div');
+                    mark.className = 'scale-mark';
+                    if (pos === 0) mark.className += ' origin-mark';
+                    mark.style.left = pixelPos + 'px';
+                    
+                    const number = document.createElement('div');
+                    number.className = 'scale-number';
+                    if (pos === 0) number.className += ' origin-number';
+                    number.textContent = pos + 'm';
+                    number.style.left = pixelPos + 'px';
+                    
+                    scaleMarks.appendChild(mark);
+                    scaleMarks.appendChild(number);
+                }
+            }
+        }
+        
+        // Slider event listeners
+        document.getElementById('initialVelocity').addEventListener('input', function() {
+            v0 = parseFloat(this.value);
+            document.getElementById('velocityValue').textContent = v0 + ' m/s';
+            if (!isRunning) updateDisplay();
+        });
+        
+        document.getElementById('acceleration').addEventListener('input', function() {
+            a = parseFloat(this.value);
+            document.getElementById('accelerationValue').textContent = a + ' m/s²';
+            if (!isRunning) updateDisplay();
+        });
+        
+        document.getElementById('initialPosition').addEventListener('input', function() {
+            x0 = parseFloat(this.value);
+            document.getElementById('positionValue').textContent = x0 + ' m';
+            viewCenter = x0; // Koordinata o'qini yangi pozitsiyaga moslashtirish
+            if (!isRunning) {
+                updateDisplay();
+                updateObjectPosition();
+                createScaleMarks();
+            }
+        });
+        
+        document.getElementById('simulationTime').addEventListener('input', function() {
+            maxSimulationTime = parseFloat(this.value);
+            document.getElementById('simulationTimeValue').textContent = maxSimulationTime + ' s';
+        });
+        
+        document.getElementById('timeScale').addEventListener('input', function() {
+            timeScale = parseFloat(this.value);
+            document.getElementById('timeScaleValue').textContent = timeScale + 'x';
+        });
+        
+        function startSimulation() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - (currentTime * 1000 / timeScale);
+                animate();
+            }
+        }
+        
+        function pauseSimulation() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+        }
+        
+        function resetSimulation() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            currentTime = 0;
+            startTime = 0;
+            graphData = [];
+            viewCenter = x0;
+            
+            // Barcha izlarni tozalash
+            const trails = document.querySelectorAll('.trail');
+            trails.forEach(trail => trail.remove());
+            
+            document.getElementById('positionGraph').innerHTML = '';
+            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-y-axis').cloneNode(true));
+            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-axes').cloneNode(true));
+            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-labels').cloneNode(true));
+            
+            updateDisplay();
+            updateObjectPosition();
+            createScaleMarks();
+        }
+        
+        function animate() {
+            if (!isRunning) return;
+            
+            const now = Date.now();
+            currentTime = (now - startTime) * timeScale / 1000;
+            
+            // Harakat vaqti tugagan bo'lsa, simulyatsiyani to'xtatish
+            if (currentTime >= maxSimulationTime) {
+                currentTime = maxSimulationTime;
+                pauseSimulation();
+                
+                // Tugallangan haqida xabar
+                setTimeout(() => {
+                    alert(`🎯 Harakat tugadi!\n\nJami harakat vaqti: ${maxSimulationTime} sekund\nYakuniy pozitsiya: ${(x0 + v0 * maxSimulationTime + 0.5 * a * maxSimulationTime * maxSimulationTime).toFixed(1)} m\nYakuniy tezlik: ${(v0 + a * maxSimulationTime).toFixed(1)} m/s`);
+                }, 100);
+            }
+            
+            updateDisplay();
+            updateObjectPosition();
+            updateGraph();
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        function updateDisplay() {
+            // Kinematik tenglamalar
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            const velocity = v0 + a * currentTime;
+            const remainingTime = Math.max(0, maxSimulationTime - currentTime);
+            
+            document.getElementById('timeDisplay').textContent = currentTime.toFixed(1);
+            document.getElementById('remainingTimeDisplay').textContent = remainingTime.toFixed(1);
+            document.getElementById('positionDisplay').textContent = position.toFixed(1);
+            document.getElementById('currentVelocityDisplay').textContent = velocity.toFixed(1);
+            document.getElementById('currentAccelerationDisplay').textContent = a.toFixed(1);
+            
+            // Progress bar effekti uchun rangni o'zgartirish
+            const progressPercent = (currentTime / maxSimulationTime) * 100;
+            if (progressPercent > 90) {
+                document.getElementById('remainingTimeDisplay').style.color = '#ff6b6b';
+            } else if (progressPercent > 70) {
+                document.getElementById('remainingTimeDisplay').style.color = '#ffd93d';
+            } else {
+                document.getElementById('remainingTimeDisplay').style.color = '#b8f2ff';
+            }
+        }
+        
+        function updateObjectPosition() {
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            const velocity = v0 + a * currentTime;
+            
+            // Kameraning harakatlanishi - jismni kuzatib borish
+            if (isRunning) {
+                const targetCenter = position;
+                viewCenter += (targetCenter - viewCenter) * 0.05; // Yumshoq kuzatuv
+            }
+            
+            // Jismning ekrandagi pozitsiyasi
+            const viewRange = simulationWidth / scale;
+            const startPos = viewCenter - viewRange / 2;
+            const pixelPosition = (position - startPos) * scale;
+            
+            // Jism ma'lumotlarini yangilash
+            objectInfo.innerHTML = `x = ${position.toFixed(1)}m<br>v = ${velocity.toFixed(1)}m/s<br>t = ${currentTime.toFixed(1)}s`;
+            
+            // Iz qoldirish
+            if (isRunning && currentTime > 0) {
+                createTrail(pixelPosition);
+            }
+            
+            // Jismni ekranda ko'rsatish
+            if (pixelPosition >= -30 && pixelPosition <= simulationWidth + 30) {
+                object.style.left = pixelPosition + 'px';
+                object.style.display = 'block';
+            } else {
+                object.style.display = 'block'; // Har doim ko'rinadigan
+                if (pixelPosition < -30) {
+                    object.style.left = '-30px';
+                } else {
+                    object.style.left = (simulationWidth + 30) + 'px';
+                }
+            }
+            
+            // Koordinata o'qini yangilash
+            createScaleMarks();
+        }
+        
+        function createTrail(pixelPosition) {
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.left = (pixelPosition + 13) + 'px'; // jism markazida
+            
+            simulationArea.appendChild(trail);
+            
+            // 4 sekunddan keyin iz o'chib ketadi
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 4000);
+        }
+        
+        function updateGraph() {
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            graphData.push({time: currentTime, position: position});
+            
+            // Faqat oxirgi 100 ta nuqtani saqlash
+            if (graphData.length > 100) {
+                graphData.shift();
+            }
+            
+            drawGraph();
+        }
+        
+        function drawGraph() {
+            const graph = document.getElementById('positionGraph');
+            const existingLines = graph.querySelectorAll('.graph-line');
+            existingLines.forEach(line => line.remove());
+            
+            if (graphData.length < 2) return;
+            
+            const maxTime = Math.max(...graphData.map(d => d.time));
+            const minTime = Math.min(...graphData.map(d => d.time));
+            const maxPosition = Math.max(...graphData.map(d => d.position));
+            const minPosition = Math.min(...graphData.map(d => d.position));
+            
+            const graphHeight = 250;
+            const graphWidth = graph.offsetWidth - 100;
+            const positionRange = Math.max(Math.abs(maxPosition), Math.abs(minPosition)) || 1;
+            const timeRange = maxTime - minTime || 1;
+            
+            graphData.forEach((data, index) => {
+                if (index === 0) return;
+                
+                const prevData = graphData[index - 1];
+                const line = document.createElement('div');
+                line.className = 'graph-line';
+                
+                const x1 = 70 + ((prevData.time - minTime) / timeRange) * graphWidth;
+                const y1 = graphHeight/2 - (prevData.position / positionRange) * (graphHeight/2 - 20);
+                const x2 = 70 + ((data.time - minTime) / timeRange) * graphWidth;
+                const y2 = graphHeight/2 - (data.position / positionRange) * (graphHeight/2 - 20);
+                
+                const length = Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+                const angle = Math.atan2(y2-y1, x2-x1) * 180/Math.PI;
+                
+                line.style.left = x1 + 'px';
+                line.style.bottom = (graphHeight - y1) + 'px';
+                line.style.width = length + 'px';
+                line.style.height = '2px';
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.transformOrigin = '0 50%';
+                
+                graph.appendChild(line);
+            });
+        }
+        
+        // Boshlang'ich holatni o'rnatish
+        window.addEventListener('load', function() {
+            // Boshlang'ich qiymatlarni o'rnatish
+            document.getElementById('simulationTimeValue').textContent = maxSimulationTime + ' s';
+            
+            setTimeout(() => {
+                createScaleMarks();
+                updateDisplay();
+                updateObjectPosition();
+            }, 100);
+        });
+        
+        // Oyna o'lchami o'zgarganda
+        window.addEventListener('resize', function() {
+            setTimeout(() => {
+                createScaleMarks();
+                updateObjectPosition();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
