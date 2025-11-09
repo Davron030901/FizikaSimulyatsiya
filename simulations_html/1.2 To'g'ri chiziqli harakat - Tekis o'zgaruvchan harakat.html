@@ -3,94 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tekis O'zgaruvchan To'g'ri Chiziqli Harakat Simulyatori</title>
+    <title>Tekis O'zgaruvchan Harakat Simulyatori</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-            overflow-x: auto;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
             padding: 20px;
         }
-
+        .container { max-width: 1400px; margin: 0 auto; }
         .header {
             text-align: center;
             color: white;
             margin-bottom: 30px;
         }
-
         .header h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
-
         .main-content {
             display: grid;
             grid-template-columns: 1fr 320px;
             gap: 20px;
-            margin-bottom: 20px;
         }
-
-        .simulation-area {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        .simulation-area, .controls-panel {
+            background: linear-gradient(145deg, #fff, #f8f9fa);
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
             border: 2px solid #e3f2fd;
         }
-
-        .controls-panel {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
-            max-height: fit-content;
-            border: 2px solid #e3f2fd;
-        }
-
         .canvas-container {
-            position: relative;
-            margin-bottom: 25px;
             border: 3px solid #667eea;
             border-radius: 15px;
             overflow: hidden;
-            background: #f8f9ff;
+            margin-bottom: 25px;
             box-shadow: inset 0 2px 10px rgba(102, 126, 234, 0.1);
         }
-
         #simulationCanvas {
             display: block;
             background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 40%, #90EE90 40%, #90EE90 100%);
         }
-
         .charts-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-top: 20px;
         }
-
         .chart-container {
-            background: linear-gradient(145deg, #f8f9ff, #ffffff);
+            background: linear-gradient(145deg, #f8f9ff, #fff);
             border-radius: 15px;
             padding: 20px;
             border: 2px solid #e3f2fd;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
         }
-
         .chart-title {
             text-align: center;
             font-weight: bold;
@@ -98,38 +67,28 @@
             color: #1976d2;
             font-size: 1.1em;
         }
-
         .control-group {
             margin-bottom: 25px;
             padding: 20px;
-            background: linear-gradient(145deg, #f8f9ff, #ffffff);
+            background: linear-gradient(145deg, #f8f9ff, #fff);
             border-radius: 15px;
             border: 2px solid #e3f2fd;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
         }
-
         .control-group h3 {
             margin-bottom: 20px;
             color: #1976d2;
             font-size: 1.2em;
             font-weight: 600;
         }
-
         .control-item {
             margin-bottom: 15px;
         }
-
         .control-item label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
             color: #666;
         }
-
-        .slider-container {
-            position: relative;
-        }
-
         input[type="range"] {
             width: 100%;
             height: 8px;
@@ -138,10 +97,8 @@
             outline: none;
             -webkit-appearance: none;
         }
-
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -149,7 +106,6 @@
             cursor: pointer;
             box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
         }
-
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -157,30 +113,21 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             cursor: pointer;
             border: none;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
         }
-
         .value-display {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-top: 5px;
             font-size: 0.9em;
             color: #666;
         }
-
-        .current-value {
-            font-weight: bold;
-            color: #667eea;
-        }
-
+        .current-value { font-weight: bold; color: #667eea; }
         .playback-controls {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin-bottom: 20px;
         }
-
         .btn {
             padding: 10px 20px;
             border: none;
@@ -190,88 +137,47 @@
             transition: all 0.3s ease;
             font-size: 0.9em;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
-
         .btn-primary:hover {
-            background: linear-gradient(135deg, #764ba2, #667eea);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
-
         .btn-secondary {
             background: linear-gradient(135deg, #6c757d, #868e96);
             color: white;
             box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
         }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #868e96, #6c757d);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-        }
-
+        .btn-secondary:hover { transform: translateY(-2px); }
         .btn-success {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
-
-        .btn-success:hover {
-            background: linear-gradient(135deg, #20c997, #28a745);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        }
-
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #c82333, #dc3545);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-        }
-
+        .btn-success:hover { transform: translateY(-2px); }
         .status-display {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            background: linear-gradient(145deg, #fff, #f8f9fa);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 25px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: 2px solid #e3f2fd;
         }
-
         .status-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 12px;
             padding: 8px 12px;
             background: rgba(102, 126, 234, 0.1);
             border-radius: 8px;
             border-left: 4px solid #667eea;
         }
-
-        .status-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .status-label {
-            font-weight: 500;
-        }
-
-        .status-value {
-            font-weight: bold;
-            color: #667eea;
-        }
-
+        .status-item:last-child { margin-bottom: 0; }
+        .status-label { font-weight: 500; }
+        .status-value { font-weight: bold; color: #667eea; }
         .formula-display {
             background: linear-gradient(145deg, #fff8e1, #fffde7);
             border: 2px solid #ffeb3b;
@@ -280,44 +186,12 @@
             margin-bottom: 25px;
             box-shadow: 0 4px 15px rgba(255, 235, 59, 0.2);
         }
-
-        .formula-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #f57f17;
-        }
-
-        .help-section {
-            background: linear-gradient(145deg, #e8f5e8, #f1f8e9);
-            border: 2px solid #4caf50;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
-        }
-
-        .help-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #2e7d32;
-        }
-
-        .theory-section {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-            margin-top: 25px;
-            border: 2px solid #e3f2fd;
-        }
-
+        .formula-title { font-weight: bold; margin-bottom: 10px; color: #f57f17; }
         .preset-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
         }
-
         .btn-preset {
             background: #17a2b8;
             color: white;
@@ -328,254 +202,33 @@
             font-size: 0.8em;
             transition: all 0.3s ease;
         }
-
         .btn-preset:hover {
             background: #138496;
             transform: translateY(-1px);
         }
-
-        .acceleration-indicator {
-            position: absolute;
-            background: rgba(255, 0, 0, 0.1);
-            border: 2px solid #ff4444;
-            border-radius: 8px;
-            padding: 5px 10px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #ff4444;
-        }
-
-        .acceleration-positive {
-            border-color: #44ff44;
-            background: rgba(0, 255, 0, 0.1);
-            color: #44ff44;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .preset-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .playback-controls {
-                flex-wrap: wrap;
-                gap: 8px;
-                justify-content: center;
-            }
-            
-            .btn {
-                font-size: 0.8em;
-                padding: 8px 16px;
-                min-width: 90px;
-            }
-            
-            .controls-panel {
-                order: -1;
-            }
-            
-            .chart-container canvas {
-                max-width: 100%;
-                height: auto;
-            }
-            
-            .status-display {
-                font-size: 0.9em;
-                padding: 18px;
-                margin-bottom: 20px;
-            }
-            
-            .status-item {
-                margin-bottom: 10px;
-                padding: 6px 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .simulation-area,
-            .controls-panel {
-                padding: 15px;
-            }
-            
-            #simulationCanvas {
-                height: 200px !important;
-                max-width: 100%;
-            }
-            
-            .control-group {
-                padding: 10px;
-                margin-bottom: 15px;
-            }
-            
-            .control-group h3 {
-                font-size: 1em;
-                margin-bottom: 10px;
-            }
-            
-            .btn {
-                font-size: 0.75em;
-                padding: 8px 12px;
-                min-width: 80px;
-            }
-            
-            .playback-controls {
-                gap: 6px;
-            }
-            
-            .charts-container {
-                gap: 15px;
-            }
-            
-            .chart-container {
-                padding: 10px;
-            }
-            
-            .chart-container canvas {
-                width: 100% !important;
-                height: 150px !important;
-            }
-            
-            .status-display {
-                padding: 15px;
-                font-size: 0.85em;
-                margin-bottom: 18px;
-            }
-            
-            .status-item {
-                margin-bottom: 8px;
-                padding: 5px 8px;
-                font-size: 0.9em;
-            }
-            
-            .formula-display {
-                padding: 12px;
-                font-size: 0.9em;
-            }
-            
-            .help-section {
-                padding: 12px;
-                font-size: 0.85em;
-            }
-            
-            .theory-section {
-                padding: 15px;
-            }
-            
-            .theory-section h2 {
-                font-size: 1.3em;
-            }
-            
-            .theory-section h3 {
-                font-size: 1.1em;
-            }
-            
-            .theory-section p {
-                font-size: 0.9em;
-            }
-            
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            .header p {
-                font-size: 0.9em;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .container {
-                padding: 5px;
-            }
-            
-            .simulation-area,
-            .controls-panel {
-                padding: 10px;
-            }
-            
-            #simulationCanvas {
-                height: 180px !important;
-            }
-            
-            .btn {
-                font-size: 0.7em;
-                padding: 6px 10px;
-                min-width: 70px;
-            }
-            
-            .chart-container canvas {
-                height: 120px !important;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-        }
-
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-
-        .export-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .export-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
+        .help-section {
+            background: linear-gradient(145deg, #e8f5e8, #f1f8e9);
+            border: 2px solid #4caf50;
+            border-radius: 15px;
             padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
         }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+        .help-title { font-weight: bold; margin-bottom: 10px; color: #2e7d32; }
+        .theory-section {
+            background: linear-gradient(145deg, #fff, #f8f9fa);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            margin-top: 25px;
+            border: 2px solid #e3f2fd;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+            .charts-container { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2em; }
+            .preset-buttons { grid-template-columns: 1fr; }
+            .playback-controls { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -648,44 +301,32 @@
                     <h3>Parametrlar</h3>
                     
                     <div class="control-item">
-                        <label for="initialVelocitySlider" class="tooltip" data-tooltip="Avtomobilning boshlang'ich tezligi">
-                            Boshlang'ich tezlik (v₀) ❓
-                        </label>
-                        <div class="slider-container">
-                            <input type="range" id="initialVelocitySlider" min="0" max="30" value="0" step="1">
-                            <div class="value-display">
-                                <span>0 m/s</span>
-                                <span class="current-value" id="initialVelocityValue">0 m/s</span>
-                                <span>30 m/s</span>
-                            </div>
+                        <label for="initialVelocitySlider">Boshlang'ich tezlik (v₀)</label>
+                        <input type="range" id="initialVelocitySlider" min="0" max="30" value="0" step="1">
+                        <div class="value-display">
+                            <span>0 m/s</span>
+                            <span class="current-value" id="initialVelocityValue">0 m/s</span>
+                            <span>30 m/s</span>
                         </div>
                     </div>
 
                     <div class="control-item">
-                        <label for="accelerationSlider" class="tooltip" data-tooltip="Avtomobilning tezlanishi (ijobiy - tezlanuv, salbiy - sekinlanish)">
-                            Tezlanish (a) ❓
-                        </label>
-                        <div class="slider-container">
-                            <input type="range" id="accelerationSlider" min="-10" max="10" value="2" step="0.5">
-                            <div class="value-display">
-                                <span>-10 m/s²</span>
-                                <span class="current-value" id="accelerationValue">2.0 m/s²</span>
-                                <span>10 m/s²</span>
-                            </div>
+                        <label for="accelerationSlider">Tezlanish (a)</label>
+                        <input type="range" id="accelerationSlider" min="-10" max="10" value="2" step="0.5">
+                        <div class="value-display">
+                            <span>-10 m/s²</span>
+                            <span class="current-value" id="accelerationValue">2.0 m/s²</span>
+                            <span>10 m/s²</span>
                         </div>
                     </div>
 
                     <div class="control-item">
-                        <label for="animationSpeedSlider" class="tooltip" data-tooltip="Animatsiya tezligi (real vaqtga nisbatan)">
-                            Animatsiya tezligi ❓
-                        </label>
-                        <div class="slider-container">
-                            <input type="range" id="animationSpeedSlider" min="0.1" max="5" value="1" step="0.1">
-                            <div class="value-display">
-                                <span>0.1x</span>
-                                <span class="current-value" id="animationSpeedValue">1.0x</span>
-                                <span>5.0x</span>
-                            </div>
+                        <label for="animationSpeedSlider">Animatsiya tezligi</label>
+                        <input type="range" id="animationSpeedSlider" min="0.1" max="5" value="1" step="0.1">
+                        <div class="value-display">
+                            <span>0.1x</span>
+                            <span class="current-value" id="animationSpeedValue">1.0x</span>
+                            <span>5.0x</span>
                         </div>
                     </div>
                 </div>
@@ -709,16 +350,7 @@
                         • Ijobiy tezlanish - tezlanuv<br>
                         • Salbiy tezlanish - sekinlanuv<br>
                         • Animatsiyani boshlash uchun ▶ tugmasini bosing<br>
-                        • Grafiklar real vaqtda yangilanadi<br>
-                        • Qadam tugmasi bilan pauza qilib ko'ring
-                    </div>
-                </div>
-
-                <div class="export-section">
-                    <h3>Ma'lumotlarni eksport qilish</h3>
-                    <div class="export-buttons">
-                        <button class="btn btn-secondary" id="exportDataBtn">CSV eksport</button>
-                        <button class="btn btn-secondary" id="screenshotBtn">Ekran rasmi</button>
+                        • Grafiklar real vaqtda yangilanadi
                     </div>
                 </div>
             </div>
@@ -763,11 +395,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="loading" id="loadingIndicator">
-            <div class="spinner"></div>
-            <p>Yuklanmoqda...</p>
-        </div>
     </div>
 
     <script>
@@ -780,24 +407,21 @@
                 this.positionChart = document.getElementById('positionChart');
                 this.positionCtx = this.positionChart.getContext('2d');
 
-                // Simulation parameters
-                this.initialVelocity = 0; // m/s
-                this.acceleration = 2; // m/s²
-                this.currentVelocity = 0; // m/s
+                this.initialVelocity = 0;
+                this.acceleration = 2;
+                this.currentVelocity = 0;
                 this.time = 0;
                 this.position = 0;
                 this.animationSpeed = 1;
                 this.isPlaying = false;
                 this.pixelsPerMeter = 2;
-                this.timeStep = 0.1; // seconds
+                this.timeStep = 0.1;
 
-                // Chart data
                 this.velocityData = [];
                 this.positionData = [];
                 this.timeData = [];
                 this.maxDataPoints = 100;
 
-                // Car properties
                 this.carWidth = 60;
                 this.carHeight = 30;
                 this.roadHeight = 60;
@@ -807,30 +431,17 @@
 
             init() {
                 this.setupEventListeners();
-                this.resizeCanvas();
                 this.draw();
                 this.updateDisplays();
-                this.initializeCharts();
-                
-                // Configure MathJax
-                if (window.MathJax) {
-                    MathJax.typesetPromise();
-                }
-
-                // Add touch support
-                this.addTouchSupport();
-                
-                window.addEventListener('resize', () => this.resizeCanvas());
+                if (window.MathJax) MathJax.typesetPromise();
             }
 
             setupEventListeners() {
-                // Playback controls
                 document.getElementById('playBtn').addEventListener('click', () => this.play());
                 document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
                 document.getElementById('resetBtn').addEventListener('click', () => this.reset());
                 document.getElementById('stepBtn').addEventListener('click', () => this.step());
 
-                // Parameter controls
                 document.getElementById('initialVelocitySlider').addEventListener('input', (e) => {
                     this.initialVelocity = parseFloat(e.target.value);
                     this.updateDisplays();
@@ -846,7 +457,6 @@
                     document.getElementById('animationSpeedValue').textContent = this.animationSpeed.toFixed(1) + 'x';
                 });
 
-                // Preset buttons
                 document.querySelectorAll('.btn-preset').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const v0 = parseInt(e.target.dataset.v0);
@@ -855,120 +465,13 @@
                     });
                 });
 
-                // Export buttons
-                document.getElementById('exportDataBtn').addEventListener('click', () => this.exportData());
-                document.getElementById('screenshotBtn').addEventListener('click', () => this.takeScreenshot());
-
-                // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
-                    switch(e.code) {
-                        case 'Space':
-                            e.preventDefault();
-                            this.isPlaying ? this.pause() : this.play();
-                            break;
-                        case 'KeyR':
-                            this.reset();
-                            break;
-                        case 'KeyS':
-                            this.step();
-                            break;
-                    }
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.isPlaying ? this.pause() : this.play();
+                    } else if (e.code === 'KeyR') this.reset();
+                    else if (e.code === 'KeyS') this.step();
                 });
-            }
-
-            addTouchSupport() {
-                // Add swipe gestures for mobile
-                let startX = 0;
-                let startY = 0;
-
-                this.canvas.addEventListener('touchstart', (e) => {
-                    const touch = e.touches[0];
-                    startX = touch.clientX;
-                    startY = touch.clientY;
-                });
-
-                this.canvas.addEventListener('touchend', (e) => {
-                    if (!startX || !startY) return;
-
-                    const touch = e.changedTouches[0];
-                    const diffX = startX - touch.clientX;
-                    const diffY = startY - touch.clientY;
-
-                    if (Math.abs(diffX) > Math.abs(diffY)) {
-                        if (diffX > 50) {
-                            // Swipe left - decrease acceleration
-                            this.acceleration = Math.max(-10, this.acceleration - 1);
-                            this.setParameters(this.initialVelocity, this.acceleration);
-                        } else if (diffX < -50) {
-                            // Swipe right - increase acceleration
-                            this.acceleration = Math.min(10, this.acceleration + 1);
-                            this.setParameters(this.initialVelocity, this.acceleration);
-                        }
-                    } else {
-                        if (diffY > 50) {
-                            // Swipe up - play/pause
-                            this.isPlaying ? this.pause() : this.play();
-                        } else if (diffY < -50) {
-                            // Swipe down - reset
-                            this.reset();
-                        }
-                    }
-
-                    startX = 0;
-                    startY = 0;
-                });
-
-                // Add haptic feedback for supported devices
-                this.addHapticFeedback();
-            }
-
-            addHapticFeedback() {
-                if ('vibrate' in navigator) {
-                    const originalPlay = this.play.bind(this);
-                    const originalPause = this.pause.bind(this);
-                    const originalReset = this.reset.bind(this);
-
-                    this.play = () => {
-                        navigator.vibrate(50);
-                        originalPlay();
-                    };
-
-                    this.pause = () => {
-                        navigator.vibrate(50);
-                        originalPause();
-                    };
-
-                    this.reset = () => {
-                        navigator.vibrate([50, 50, 50]);
-                        originalReset();
-                    };
-                }
-            }
-
-            resizeCanvas() {
-                const container = this.canvas.parentElement;
-                const rect = container.getBoundingClientRect();
-                
-                // Responsive canvas and car dimensions
-                if (window.innerWidth <= 480) {
-                    this.canvas.height = 200;
-                    this.carWidth = 45;
-                    this.carHeight = 25;
-                    this.pixelsPerMeter = 1.5;
-                } else if (window.innerWidth <= 768) {
-                    this.canvas.height = 250;
-                    this.carWidth = 50;
-                    this.carHeight = 27;
-                    this.pixelsPerMeter = 1.8;
-                } else {
-                    this.canvas.height = 300;
-                    this.carWidth = 60;
-                    this.carHeight = 30;
-                    this.pixelsPerMeter = 2;
-                }
-                
-                this.canvas.width = Math.min(800, rect.width - 40);
-                this.draw();
             }
 
             setParameters(v0, a) {
@@ -1016,42 +519,30 @@
 
             animate() {
                 if (!this.isPlaying) return;
-
                 this.updatePhysics();
                 this.updateDisplays();
                 this.draw();
                 this.drawCharts();
-
-                setTimeout(() => {
-                    requestAnimationFrame(() => this.animate());
-                }, (100 / this.animationSpeed));
+                setTimeout(() => requestAnimationFrame(() => this.animate()), 100 / this.animationSpeed);
             }
 
             updatePhysics() {
                 this.time += this.timeStep;
-                
-                // Calculate current velocity: v = v₀ + at
                 this.currentVelocity = this.initialVelocity + this.acceleration * this.time;
-                
-                // Calculate position: s = v₀t + ½at²
                 this.position = this.initialVelocity * this.time + 0.5 * this.acceleration * this.time * this.time;
 
-                // Store data for charts
                 this.timeData.push(this.time);
                 this.velocityData.push(this.currentVelocity);
                 this.positionData.push(this.position);
 
-                // Limit data points for performance
                 if (this.timeData.length > this.maxDataPoints) {
                     this.timeData.shift();
                     this.velocityData.shift();
                     this.positionData.shift();
                 }
 
-                // Reset if car goes too far off screen in either direction
-                const maxPosition = this.canvas.width / this.pixelsPerMeter + 20; // Allow some margin
-                const minPosition = -30; // Allow going back some distance
-                if (this.position > maxPosition || this.position < minPosition || Math.abs(this.currentVelocity) > 100) {
+                const maxPos = this.canvas.width / this.pixelsPerMeter + 20;
+                if (this.position > maxPos || this.position < -30 || Math.abs(this.currentVelocity) > 100) {
                     this.reset();
                 }
             }
@@ -1061,42 +552,32 @@
                 document.getElementById('positionDisplay').textContent = this.position.toFixed(1) + ' m';
                 document.getElementById('velocityDisplay').textContent = this.currentVelocity.toFixed(1) + ' m/s';
                 document.getElementById('accelerationDisplay').textContent = this.acceleration.toFixed(1) + ' m/s²';
-                
                 document.getElementById('initialVelocityValue').textContent = this.initialVelocity.toFixed(0) + ' m/s';
                 document.getElementById('accelerationValue').textContent = this.acceleration.toFixed(1) + ' m/s²';
 
-                // Update formulas with current values
-                const velocityFormulaElement = document.getElementById('velocityFormulaDisplay');
-                const positionFormulaElement = document.getElementById('positionFormulaDisplay');
-                
-                velocityFormulaElement.innerHTML = `$$v = v_0 + at = ${this.initialVelocity} + ${this.acceleration} \\cdot ${this.time.toFixed(1)} = ${this.currentVelocity.toFixed(1)} \\text{ m/s}$$`;
-                positionFormulaElement.innerHTML = `$$s = v_0t + \\frac{1}{2}at^2 = ${this.initialVelocity} \\cdot ${this.time.toFixed(1)} + \\frac{1}{2} \\cdot ${this.acceleration} \\cdot ${this.time.toFixed(1)}^2 = ${this.position.toFixed(1)} \\text{ m}$$`;
-                
-                if (window.MathJax) {
-                    MathJax.typesetPromise([velocityFormulaElement, positionFormulaElement]);
-                }
+                const vEl = document.getElementById('velocityFormulaDisplay');
+                const sEl = document.getElementById('positionFormulaDisplay');
+                vEl.innerHTML = `$$v = v_0 + at = ${this.initialVelocity} + ${this.acceleration} \\cdot ${this.time.toFixed(1)} = ${this.currentVelocity.toFixed(1)} \\text{ m/s}$$`;
+                sEl.innerHTML = `$$s = v_0t + \\frac{1}{2}at^2 = ${this.initialVelocity} \\cdot ${this.time.toFixed(1)} + \\frac{1}{2} \\cdot ${this.acceleration} \\cdot ${this.time.toFixed(1)}^2 = ${this.position.toFixed(1)} \\text{ m}$$`;
+                if (window.MathJax) MathJax.typesetPromise([vEl, sEl]);
             }
 
             draw() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-                // Draw sky
                 const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height * 0.6);
                 gradient.addColorStop(0, '#87CEEB');
                 gradient.addColorStop(1, '#E0F6FF');
                 this.ctx.fillStyle = gradient;
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height * 0.6);
 
-                // Draw ground
                 this.ctx.fillStyle = '#90EE90';
                 this.ctx.fillRect(0, this.canvas.height * 0.6, this.canvas.width, this.canvas.height * 0.4);
 
-                // Draw road
                 const roadY = this.canvas.height - this.roadHeight;
                 this.ctx.fillStyle = '#444';
                 this.ctx.fillRect(0, roadY, this.canvas.width, this.roadHeight);
 
-                // Draw road markings
                 this.ctx.strokeStyle = '#fff';
                 this.ctx.lineWidth = 3;
                 this.ctx.setLineDash([20, 20]);
@@ -1106,7 +587,6 @@
                 this.ctx.stroke();
                 this.ctx.setLineDash([]);
 
-                // Draw road borders
                 this.ctx.strokeStyle = '#fff';
                 this.ctx.lineWidth = 4;
                 this.ctx.beginPath();
@@ -1114,18 +594,12 @@
                 this.ctx.lineTo(this.canvas.width, roadY);
                 this.ctx.stroke();
 
-                // Draw distance markers - responsive
-                const markerFontSize = window.innerWidth <= 480 ? 10 : 12;
                 this.ctx.fillStyle = '#666';
-                this.ctx.font = `${markerFontSize}px Arial`;
+                this.ctx.font = '12px Arial';
                 this.ctx.textAlign = 'center';
-                const markerInterval = window.innerWidth <= 480 ? 75 : 50;
-                
-                for (let i = 0; i <= this.canvas.width; i += markerInterval) {
+                for (let i = 0; i <= this.canvas.width; i += 50) {
                     const distance = i / this.pixelsPerMeter;
                     this.ctx.fillText(`${distance.toFixed(0)}m`, i, roadY - 10);
-                    
-                    // Draw marker lines
                     this.ctx.strokeStyle = '#999';
                     this.ctx.lineWidth = 1;
                     this.ctx.beginPath();
@@ -1134,99 +608,63 @@
                     this.ctx.stroke();
                 }
 
-                // Draw car using emoji
-                // Calculate car position - ensure it stays within canvas bounds
-                const carPixelPosition = this.position * this.pixelsPerMeter;
-                const carX = Math.max(-this.carWidth/2, Math.min(this.canvas.width - this.carWidth/2, carPixelPosition));
+                const carX = Math.max(-this.carWidth/2, Math.min(this.canvas.width - this.carWidth/2, this.position * this.pixelsPerMeter));
                 const carY = roadY - this.carHeight;
 
-                // Responsive car size based on screen size
-                let carEmojiSize = 40;
-                if (window.innerWidth <= 480) {
-                    carEmojiSize = 30;
-                } else if (window.innerWidth <= 768) {
-                    carEmojiSize = 35;
-                }
-
-                // Car shadow
                 this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 this.ctx.beginPath();
                 this.ctx.ellipse(carX + this.carWidth/2, roadY + 3, this.carWidth/2, 8, 0, 0, 2 * Math.PI);
                 this.ctx.fill();
 
-                // Car emoji (facing direction of motion)
                 this.ctx.save();
                 this.ctx.translate(carX + this.carWidth/2, carY + this.carHeight/2);
-                
-                // Flip car horizontally if velocity is positive (moving right)
-                if (this.currentVelocity >= 0) {
-                    this.ctx.scale(-1, 1);
-                }
-                
-                this.ctx.font = `${carEmojiSize}px Arial`;
+                if (this.currentVelocity >= 0) this.ctx.scale(-1, 1);
+                this.ctx.font = '40px Arial';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
                 this.ctx.fillText('🚗', 0, 0);
                 this.ctx.restore();
 
-                // Velocity vector - responsive arrow
                 if (Math.abs(this.currentVelocity) > 0.1) {
-                    const maxArrowLength = window.innerWidth <= 480 ? 60 : 100;
-                    const arrowLength = Math.min(maxArrowLength, Math.abs(this.currentVelocity) * 3);
-                    const arrowY = carY - (window.innerWidth <= 480 ? 15 : 20);
-                    
-                    // Arrow color based on velocity direction
+                    const arrowLength = Math.min(100, Math.abs(this.currentVelocity) * 3);
+                    const arrowY = carY - 20;
                     const arrowColor = this.currentVelocity >= 0 ? '#007bff' : '#dc3545';
                     const arrowDirection = this.currentVelocity >= 0 ? 1 : -1;
                     
-                    // Arrow shaft
                     this.ctx.strokeStyle = arrowColor;
-                    this.ctx.lineWidth = window.innerWidth <= 480 ? 2 : 3;
+                    this.ctx.lineWidth = 3;
                     this.ctx.beginPath();
                     this.ctx.moveTo(carX + this.carWidth/2, arrowY);
                     this.ctx.lineTo(carX + this.carWidth/2 + arrowLength * arrowDirection, arrowY);
                     this.ctx.stroke();
 
-                    // Arrow head
                     this.ctx.fillStyle = arrowColor;
                     this.ctx.beginPath();
-                    const arrowHeadSize = window.innerWidth <= 480 ? 7 : 10;
                     this.ctx.moveTo(carX + this.carWidth/2 + arrowLength * arrowDirection, arrowY);
-                    this.ctx.lineTo(carX + this.carWidth/2 + arrowLength * arrowDirection - arrowHeadSize * arrowDirection, arrowY - arrowHeadSize/2);
-                    this.ctx.lineTo(carX + this.carWidth/2 + arrowLength * arrowDirection - arrowHeadSize * arrowDirection, arrowY + arrowHeadSize/2);
+                    this.ctx.lineTo(carX + this.carWidth/2 + arrowLength * arrowDirection - 10 * arrowDirection, arrowY - 5);
+                    this.ctx.lineTo(carX + this.carWidth/2 + arrowLength * arrowDirection - 10 * arrowDirection, arrowY + 5);
                     this.ctx.closePath();
                     this.ctx.fill();
 
-                    // Velocity label - responsive font
                     this.ctx.fillStyle = arrowColor;
-                    const fontSize = window.innerWidth <= 480 ? 10 : 14;
-                    this.ctx.font = `bold ${fontSize}px Arial`;
+                    this.ctx.font = 'bold 14px Arial';
                     this.ctx.textAlign = 'center';
-                    this.ctx.fillText(`v = ${this.currentVelocity.toFixed(1)} m/s`, carX + this.carWidth/2 + arrowLength * arrowDirection / 2, arrowY - (fontSize/2 + 5));
+                    this.ctx.fillText(`v = ${this.currentVelocity.toFixed(1)} m/s`, carX + this.carWidth/2 + arrowLength * arrowDirection / 2, arrowY - 12);
                 }
 
-                // Acceleration indicator
                 if (Math.abs(this.acceleration) > 0.1) {
                     const accColor = this.acceleration > 0 ? '#28a745' : '#dc3545';
                     const accText = this.acceleration > 0 ? 'Tezlanuv' : 'Sekinlanuv';
-                    
                     this.ctx.fillStyle = accColor;
-                    const accFontSize = window.innerWidth <= 480 ? 10 : 12;
-                    this.ctx.font = `bold ${accFontSize}px Arial`;
+                    this.ctx.font = 'bold 12px Arial';
                     this.ctx.textAlign = 'center';
-                    this.ctx.fillText(`${accText}: ${Math.abs(this.acceleration).toFixed(1)} m/s²`, carX + this.carWidth/2, carY - (accFontSize + 40));
+                    this.ctx.fillText(`${accText}: ${Math.abs(this.acceleration).toFixed(1)} m/s²`, carX + this.carWidth/2, carY - 40);
                 }
 
-                // Position indicator - responsive
                 this.ctx.fillStyle = '#667eea';
-                const positionFontSize = window.innerWidth <= 480 ? 12 : 16;
-                this.ctx.font = `bold ${positionFontSize}px Arial`;
+                this.ctx.font = 'bold 16px Arial';
                 this.ctx.textAlign = 'center';
-                this.ctx.fillText(`s = ${this.position.toFixed(1)} m`, carX + this.carWidth/2, carY - (positionFontSize + 60));
-            }
-
-            initializeCharts() {
-                this.drawCharts();
+                this.ctx.fillText(`s = ${this.position.toFixed(1)} m`, carX + this.carWidth/2, carY - 60);
             }
 
             drawCharts() {
@@ -1236,260 +674,150 @@
 
             drawVelocityChart() {
                 const ctx = this.velocityCtx;
-                const width = this.velocityChart.width;
-                const height = this.velocityChart.height;
+                const w = this.velocityChart.width;
+                const h = this.velocityChart.height;
+                ctx.clearRect(0, 0, w, h);
 
-                // Responsive chart dimensions
-                const isMobile = window.innerWidth <= 480;
-                const actualWidth = isMobile ? this.velocityChart.parentElement.offsetWidth - 20 : width;
-                const actualHeight = isMobile ? 150 : height;
-
-                ctx.clearRect(0, 0, width, height);
-
-                // Draw axes
                 ctx.strokeStyle = '#333';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(40, actualHeight - 30);
-                ctx.lineTo(actualWidth - 20, actualHeight - 30);
-                ctx.moveTo(40, actualHeight - 30);
+                ctx.moveTo(40, h - 30);
+                ctx.lineTo(w - 20, h - 30);
+                ctx.moveTo(40, h - 30);
                 ctx.lineTo(40, 20);
                 ctx.stroke();
 
-                // Draw labels
                 ctx.fillStyle = '#333';
-                const labelFont = isMobile ? '10px Arial' : '12px Arial';
-                ctx.font = labelFont;
+                ctx.font = '12px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('t (s)', actualWidth / 2, actualHeight - 5);
+                ctx.fillText('t (s)', w / 2, h - 5);
                 ctx.save();
-                ctx.translate(15, actualHeight / 2);
+                ctx.translate(15, h / 2);
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillText('v (m/s)', 0, 0);
                 ctx.restore();
 
                 if (this.timeData.length < 2) return;
 
-                // Calculate scales
                 const maxTime = Math.max(...this.timeData);
-                const maxVelocity = Math.max(...this.velocityData);
-                const minVelocity = Math.min(...this.velocityData);
-                const velocityRange = Math.max(Math.abs(maxVelocity), Math.abs(minVelocity)) * 1.2;
+                const maxVel = Math.max(...this.velocityData);
+                const minVel = Math.min(...this.velocityData);
+                const velRange = Math.max(Math.abs(maxVel), Math.abs(minVel)) * 1.2;
                 
-                const timeScale = (actualWidth - 60) / maxTime;
-                const velocityScale = (actualHeight - 50) / (2 * velocityRange);
-                const zeroY = actualHeight - 30 - velocityRange * velocityScale;
+                const timeScale = (w - 60) / maxTime;
+                const velScale = (h - 50) / (2 * velRange);
+                const zeroY = h - 30 - velRange * velScale;
 
-                // Draw zero line
                 ctx.strokeStyle = '#999';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([5, 5]);
                 ctx.beginPath();
                 ctx.moveTo(40, zeroY);
-                ctx.lineTo(actualWidth - 20, zeroY);
+                ctx.lineTo(w - 20, zeroY);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // Draw velocity line
                 ctx.strokeStyle = '#007bff';
-                ctx.lineWidth = isMobile ? 2 : 3;
+                ctx.lineWidth = 3;
                 ctx.beginPath();
-                
                 for (let i = 0; i < this.timeData.length; i++) {
                     const x = 40 + this.timeData[i] * timeScale;
-                    const y = zeroY - this.velocityData[i] * velocityScale;
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+                    const y = zeroY - this.velocityData[i] * velScale;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
 
-                // Draw grid
                 ctx.strokeStyle = '#e0e0e0';
                 ctx.lineWidth = 1;
                 for (let i = -5; i <= 5; i++) {
-                    const y = zeroY - (i * velocityRange / 5) * velocityScale;
+                    const y = zeroY - (i * velRange / 5) * velScale;
                     ctx.beginPath();
                     ctx.moveTo(40, y);
-                    ctx.lineTo(actualWidth - 20, y);
+                    ctx.lineTo(w - 20, y);
                     ctx.stroke();
-                    
                     ctx.fillStyle = '#666';
                     ctx.textAlign = 'right';
-                    ctx.font = labelFont;
-                    ctx.fillText((i * velocityRange / 5).toFixed(0), 35, y + 4);
+                    ctx.font = '12px Arial';
+                    ctx.fillText((i * velRange / 5).toFixed(0), 35, y + 4);
                 }
             }
 
             drawPositionChart() {
                 const ctx = this.positionCtx;
-                const width = this.positionChart.width;
-                const height = this.positionChart.height;
+                const w = this.positionChart.width;
+                const h = this.positionChart.height;
+                ctx.clearRect(0, 0, w, h);
 
-                // Responsive chart dimensions
-                const isMobile = window.innerWidth <= 480;
-                const actualWidth = isMobile ? this.positionChart.parentElement.offsetWidth - 20 : width;
-                const actualHeight = isMobile ? 150 : height;
-
-                ctx.clearRect(0, 0, width, height);
-
-                // Draw axes
                 ctx.strokeStyle = '#333';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(40, actualHeight - 30);
-                ctx.lineTo(actualWidth - 20, actualHeight - 30);
-                ctx.moveTo(40, actualHeight - 30);
+                ctx.moveTo(40, h - 30);
+                ctx.lineTo(w - 20, h - 30);
+                ctx.moveTo(40, h - 30);
                 ctx.lineTo(40, 20);
                 ctx.stroke();
 
-                // Draw labels
                 ctx.fillStyle = '#333';
-                const labelFont = isMobile ? '10px Arial' : '12px Arial';
-                ctx.font = labelFont;
+                ctx.font = '12px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('t (s)', actualWidth / 2, actualHeight - 5);
+                ctx.fillText('t (s)', w / 2, h - 5);
                 ctx.save();
-                ctx.translate(15, actualHeight / 2);
+                ctx.translate(15, h / 2);
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillText('s (m)', 0, 0);
                 ctx.restore();
 
                 if (this.timeData.length < 2) return;
 
-                // Calculate scales
                 const maxTime = Math.max(...this.timeData);
-                const maxPosition = Math.max(...this.positionData);
-                const minPosition = Math.min(...this.positionData);
-                const positionRange = Math.max(Math.abs(maxPosition), Math.abs(minPosition)) * 1.2;
+                const maxPos = Math.max(...this.positionData);
+                const minPos = Math.min(...this.positionData);
+                const posRange = Math.max(Math.abs(maxPos), Math.abs(minPos)) * 1.2;
                 
-                const timeScale = (actualWidth - 60) / maxTime;
-                const positionScale = (actualHeight - 50) / (2 * positionRange);
-                const zeroY = actualHeight - 30 - positionRange * positionScale;
+                const timeScale = (w - 60) / maxTime;
+                const posScale = (h - 50) / (2 * posRange);
+                const zeroY = h - 30 - posRange * posScale;
 
-                // Draw zero line
                 ctx.strokeStyle = '#999';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([5, 5]);
                 ctx.beginPath();
                 ctx.moveTo(40, zeroY);
-                ctx.lineTo(actualWidth - 20, zeroY);
+                ctx.lineTo(w - 20, zeroY);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // Draw position line (parabola for accelerated motion)
                 ctx.strokeStyle = '#28a745';
-                ctx.lineWidth = isMobile ? 2 : 3;
+                ctx.lineWidth = 3;
                 ctx.beginPath();
-                
                 for (let i = 0; i < this.timeData.length; i++) {
                     const x = 40 + this.timeData[i] * timeScale;
-                    const y = zeroY - this.positionData[i] * positionScale;
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+                    const y = zeroY - this.positionData[i] * posScale;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
 
-                // Draw grid
                 ctx.strokeStyle = '#e0e0e0';
                 ctx.lineWidth = 1;
                 for (let i = -5; i <= 5; i++) {
-                    const y = zeroY - (i * positionRange / 5) * positionScale;
+                    const y = zeroY - (i * posRange / 5) * posScale;
                     ctx.beginPath();
                     ctx.moveTo(40, y);
-                    ctx.lineTo(actualWidth - 20, y);
+                    ctx.lineTo(w - 20, y);
                     ctx.stroke();
-                    
                     ctx.fillStyle = '#666';
                     ctx.textAlign = 'right';
-                    ctx.font = labelFont;
-                    ctx.fillText((i * positionRange / 5).toFixed(0), 35, y + 4);
+                    ctx.font = '12px Arial';
+                    ctx.fillText((i * posRange / 5).toFixed(0), 35, y + 4);
                 }
-            }
-
-            exportData() {
-                if (this.timeData.length === 0) {
-                    alert('Avval animatsiyani ishga tushiring!');
-                    return;
-                }
-
-                let csv = 'Vaqt (s),Tezlik (m/s),Pozitsiya (m),Tezlanish (m/s²)\n';
-                for (let i = 0; i < this.timeData.length; i++) {
-                    csv += `${this.timeData[i].toFixed(2)},${this.velocityData[i].toFixed(2)},${this.positionData[i].toFixed(2)},${this.acceleration.toFixed(2)}\n`;
-                }
-
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'tezlanuvchan_harakat_data.csv';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            }
-
-            takeScreenshot() {
-                const container = document.querySelector('.simulation-area');
-                
-                // Create a temporary canvas
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCanvas.width = container.offsetWidth;
-                tempCanvas.height = container.offsetHeight;
-                
-                // Fill white background
-                tempCtx.fillStyle = 'white';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // Draw main simulation
-                tempCtx.drawImage(this.canvas, 0, 0);
-                
-                // Draw charts below
-                const chartY = this.canvas.height + 20;
-                tempCtx.drawImage(this.velocityChart, 0, chartY);
-                tempCtx.drawImage(this.positionChart, this.velocityChart.width + 20, chartY);
-                
-                // Download
-                const link = document.createElement('a');
-                link.download = 'tezlanuvchan_harakat_screenshot.png';
-                link.href = tempCanvas.toDataURL();
-                link.click();
             }
         }
 
-        // Initialize the simulator when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const simulator = new AcceleratedMotionSimulator();
-            
-            // Add loading indicator
-            const loading = document.getElementById('loadingIndicator');
-            loading.style.display = 'block';
-            
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 1000);
+            new AcceleratedMotionSimulator();
         });
-
-        // Service Worker for offline functionality (optional)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => console.log('SW registered'))
-                    .catch(error => console.log('SW registration failed'));
-            });
-        }
     </script>
 </body>
 </html>
-
-
-
