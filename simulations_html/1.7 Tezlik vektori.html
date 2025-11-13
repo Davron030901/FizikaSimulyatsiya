@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1.7 Tezlik Vektori - Interaktiv Simulyatsiya</title>
+    <title>Tezlik Vektori - Interaktiv Simulyatsiya</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
@@ -15,11 +16,8 @@
         };
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -27,51 +25,39 @@
             color: #333;
             line-height: 1.6;
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
         .header {
             text-align: center;
             margin-bottom: 30px;
             color: white;
         }
-
+        
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
+        
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        
         .main-content {
             display: grid;
             grid-template-columns: 1fr 400px;
             gap: 20px;
             margin-bottom: 30px;
         }
-
-        .simulation-area {
+        
+        .simulation-area, .control-panel {
             background: white;
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            min-height: 600px;
         }
-
-        .control-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            height: fit-content;
-        }
-
+        
+        .control-panel { height: fit-content; }
+        
         .canvas-container {
             position: relative;
             width: 100%;
@@ -80,8 +66,9 @@
             border-radius: 10px;
             overflow: hidden;
             background: #f8f9fa;
+            margin-bottom: 15px;
         }
-
+        
         .status-bar {
             position: absolute;
             bottom: 0;
@@ -95,17 +82,11 @@
             font-size: 0.8em;
             font-family: 'Courier New', monospace;
         }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .controls-section {
-            margin-bottom: 25px;
-        }
-
+        
+        canvas { width: 100%; height: 100%; display: block; }
+        
+        .controls-section { margin-bottom: 25px; }
+        
         .controls-section h3 {
             color: #4a5568;
             margin-bottom: 15px;
@@ -113,11 +94,9 @@
             border-bottom: 2px solid #e2e8f0;
             padding-bottom: 5px;
         }
-
-        .control-group {
-            margin-bottom: 20px;
-        }
-
+        
+        .control-group { margin-bottom: 20px; }
+        
         .control-group label {
             display: block;
             margin-bottom: 5px;
@@ -135,12 +114,7 @@
             align-items: center;
             font-weight: 500;
         }
-
-        .slider-container {
-            position: relative;
-            margin-bottom: 10px;
-        }
-
+        
         input[type="range"] {
             width: 100%;
             height: 6px;
@@ -149,10 +123,9 @@
             outline: none;
             -webkit-appearance: none;
         }
-
+        
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -161,7 +134,7 @@
             border: 2px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
-
+        
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -171,7 +144,7 @@
             border: 2px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
-
+        
         .value-display {
             background: #f7fafc;
             padding: 5px 10px;
@@ -182,15 +155,15 @@
             margin-top: 5px;
             border: 1px solid #e2e8f0;
         }
-
+        
         .button-group {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-
+        
         .btn {
-            padding: 8px 16px;
+            padding: 10px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -199,37 +172,14 @@
             transition: all 0.3s ease;
             flex: 1;
         }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #e53e3e;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c53030;
-            transform: translateY(-2px);
-        }
-
+        
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-secondary:hover { background: #cbd5e0; transform: translateY(-2px); }
+        .btn-danger { background: #e53e3e; color: white; }
+        .btn-danger:hover { background: #c53030; transform: translateY(-2px); }
+        
         .data-display {
             background: #f7fafc;
             padding: 15px;
@@ -237,44 +187,32 @@
             margin-bottom: 15px;
             border: 1px solid #e2e8f0;
         }
-
+        
         .data-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9em;
         }
-
-        .data-label {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .data-value {
-            font-family: 'Courier New', monospace;
-            color: #4a5568;
-        }
-
+        
+        .data-label { font-weight: 600; color: #2d3748; }
+        .data-value { font-family: 'Courier New', monospace; color: #4a5568; }
+        
         .vector-info {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
         }
-
-        .vector-info h4 {
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
+        
+        .vector-info h4 { margin-bottom: 10px; font-size: 1.1em; }
+        
         .preset-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 15px;
         }
-
+        
         .preset-btn {
             padding: 8px 12px;
             border: 1px solid #e2e8f0;
@@ -286,27 +224,26 @@
             background: white;
             color: #4a5568;
         }
-
+        
         .preset-btn:hover {
             background: #f7fafc;
             border-color: #667eea;
             transform: translateY(-1px);
         }
-
+        
         .theory-section {
             background: white;
             border-radius: 15px;
             padding: 25px;
-            margin-top: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-
+        
         .theory-section h2 {
             color: #2d3748;
             margin-bottom: 20px;
             font-size: 1.5em;
         }
-
+        
         .formula-box {
             background: #f7fafc;
             padding: 15px;
@@ -314,7 +251,7 @@
             margin: 15px 0;
             border-left: 4px solid #667eea;
         }
-
+        
         .help-tooltip {
             position: relative;
             display: inline-block;
@@ -322,29 +259,13 @@
             color: #667eea;
             font-weight: bold;
         }
-
-        .help-tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2d3748;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8em;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-
+        
         .speed-control {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
         }
-
+        
         .speed-display {
             background: #667eea;
             color: white;
@@ -354,186 +275,140 @@
             min-width: 50px;
             text-align: center;
         }
-
+        
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .control-panel {
-                order: -1;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                margin-bottom: 5px;
-            }
+            .main-content { grid-template-columns: 1fr; }
+            .control-panel { order: -1; }
+            .header h1 { font-size: 2em; }
+            .button-group { flex-direction: column; }
         }
-
+        
         @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-            
-            .preset-buttons {
-                grid-template-columns: 1fr;
-            }
+            .container { padding: 10px; }
+            .header h1 { font-size: 1.5em; }
+            .preset-buttons { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>1.7 Tezlik Vektori</h1>
+            <h1>🎯 Tezlik Vektori</h1>
             <p>2D harakat va tezlik vektorining interaktiv simulyatsiyasi</p>
         </div>
 
         <div class="main-content">
             <div class="simulation-area">
                 <div class="canvas-container">
-                    <canvas id="simulationCanvas"></canvas>
+                    <canvas id="canvas"></canvas>
                     <div class="status-bar">
                         <span id="scaleInfo">Masshtab: 1:1</span>
                         <span id="mousePos">Kursor: (0, 0)</span>
                     </div>
                 </div>
                 <div class="button-group">
-                    <button class="btn btn-primary" id="playPauseBtn">▶️ Boshlash</button>
-                    <button class="btn btn-secondary" id="resetBtn">🔄 Qayta boshlash</button>
-                    <button class="btn btn-danger" id="clearTrailBtn">🧹 Izni tozalash</button>
+                    <button class="btn btn-primary" id="playBtn">▶️ Boshlash</button>
+                    <button class="btn btn-secondary" id="resetBtn">🔄 Qayta</button>
+                    <button class="btn btn-danger" id="clearBtn">🧹 Tozalash</button>
                 </div>
                 <div class="button-group">
-                    <button class="btn btn-secondary" id="zoomInBtn">🔍+ Kattalashtirish</button>
-                    <button class="btn btn-secondary" id="zoomOutBtn">🔍- Kichiklashtirish</button>
-                    <button class="btn btn-secondary" id="fitViewBtn">📐 To'liq ko'rish</button>
+                    <button class="btn btn-secondary" id="zoomIn">🔍+ Kattalashtirish</button>
+                    <button class="btn btn-secondary" id="zoomOut">🔍- Kichiklashtirish</button>
+                    <button class="btn btn-secondary" id="fitView">📐 To'liq ko'rish</button>
                 </div>
             </div>
 
             <div class="control-panel">
                 <div class="controls-section">
-                    <h3>Harakat Parametrlari</h3>
+                    <h3>⚙️ Harakat Parametrlari</h3>
                     
                     <div class="control-group">
-                        <label>Boshlang'ich tezlik vₓ (m/s) <span class="help-tooltip" data-tooltip="Gorizontal yo'nalishdagi tezlik komponenti">?</span></label>
-                        <div class="slider-container">
-                            <input type="range" id="vxSlider" min="-50" max="50" value="20" step="1">
-                            <div class="value-display" id="vxValue">20 m/s</div>
-                        </div>
+                        <label>Boshlang'ich tezlik vₓ (m/s) <span class="help-tooltip">?</span></label>
+                        <input type="range" id="vxSlider" min="-50" max="50" value="20" step="1">
+                        <div class="value-display" id="vxVal">20 m/s</div>
                     </div>
 
                     <div class="control-group">
-                        <label>Boshlang'ich tezlik vᵧ (m/s) <span class="help-tooltip" data-tooltip="Vertikal yo'nalishdagi tezlik komponenti">?</span></label>
-                        <div class="slider-container">
-                            <input type="range" id="vySlider" min="-50" max="50" value="15" step="1">
-                            <div class="value-display" id="vyValue">15 m/s</div>
-                        </div>
+                        <label>Boshlang'ich tezlik vᵧ (m/s) <span class="help-tooltip">?</span></label>
+                        <input type="range" id="vySlider" min="-50" max="50" value="15" step="1">
+                        <div class="value-display" id="vyVal">15 m/s</div>
                     </div>
 
                     <div class="control-group">
-                        <label>Tezlanish aₓ (m/s²) <span class="help-tooltip" data-tooltip="Gorizontal yo'nalishdagi tezlanish">?</span></label>
-                        <div class="slider-container">
-                            <input type="range" id="axSlider" min="-10" max="10" value="0" step="0.1">
-                            <div class="value-display" id="axValue">0.0 m/s²</div>
-                        </div>
+                        <label>Tezlanish aₓ (m/s²) <span class="help-tooltip">?</span></label>
+                        <input type="range" id="axSlider" min="-10" max="10" value="0" step="0.1">
+                        <div class="value-display" id="axVal">0.0 m/s²</div>
                     </div>
 
                     <div class="control-group">
-                        <label>Tezlanish aᵧ (m/s²) <span class="help-tooltip" data-tooltip="Vertikal yo'nalishdagi tezlanish">?</span></label>
-                        <div class="slider-container">
-                            <input type="range" id="aySlider" min="-10" max="10" value="-9.8" step="0.1">
-                            <div class="value-display" id="ayValue">-9.8 m/s²</div>
-                        </div>
+                        <label>Tezlanish aᵧ (m/s²) <span class="help-tooltip">?</span></label>
+                        <input type="range" id="aySlider" min="-10" max="10" value="-9.8" step="0.1">
+                        <div class="value-display" id="ayVal">-9.8 m/s²</div>
                     </div>
                 </div>
 
                 <div class="controls-section">
-                    <h3>Ko'rish Sozlamalari</h3>
+                    <h3>👁️ Ko'rish Sozlamalari</h3>
                     
                     <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="autoScaleCheck" checked> 
-                            Avtomatik masshtablash
-                        </label>
+                        <label><input type="checkbox" id="autoScale" checked> Avtomatik masshtablash</label>
                     </div>
-                    
                     <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="showGridCheck" checked> 
-                            Koordinata to'rini ko'rsatish
-                        </label>
+                        <label><input type="checkbox" id="showGrid" checked> Koordinata to'ri</label>
                     </div>
-                    
                     <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="showTrailCheck" checked> 
-                            Harakat izini ko'rsatish
-                        </label>
+                        <label><input type="checkbox" id="showTrail" checked> Harakat izi</label>
                     </div>
-                    
                     <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="showComponentsCheck" checked> 
-                            Komponentlarni ko'rsatish
-                        </label>
+                        <label><input type="checkbox" id="showComp" checked> Komponentlar</label>
                     </div>
                 </div>
 
                 <div class="controls-section">
-                    <h3>Simulyatsiya Tezligi</h3>
+                    <h3>⏱️ Simulyatsiya Tezligi</h3>
                     <div class="speed-control">
                         <label>Tezlik:</label>
-                        <input type="range" id="speedSlider" min="0.1" max="3" value="1" step="0.1">
-                        <div class="speed-display" id="speedValue">1.0x</div>
+                        <input type="range" id="speedSlider" min="0.1" max="3" value="1" step="0.1" style="flex:1">
+                        <div class="speed-display" id="speedVal">1.0x</div>
                     </div>
                 </div>
 
                 <div class="controls-section">
-                    <h3>Tayyor Stsenariylar</h3>
+                    <h3>🎬 Tayyor Stsenariylar</h3>
                     <div class="preset-buttons">
-                        <button class="preset-btn" data-preset="projectile">Proyektil</button>
-                        <button class="preset-btn" data-preset="circular">Aylana</button>
-                        <button class="preset-btn" data-preset="uniform">Tekis</button>
-                        <button class="preset-btn" data-preset="deceleration">Sekinlanish</button>
+                        <button class="preset-btn" data-preset="projectile">🎯 Proyektil</button>
+                        <button class="preset-btn" data-preset="circular">⭕ Aylana</button>
+                        <button class="preset-btn" data-preset="uniform">➡️ Tekis</button>
+                        <button class="preset-btn" data-preset="decel">⬇️ Sekinlanish</button>
                     </div>
                 </div>
 
                 <div class="vector-info">
-                    <h4>Tezlik Vektori Ma'lumotlari</h4>
+                    <h4>📊 Tezlik Ma'lumotlari</h4>
                     <div class="data-display">
                         <div class="data-row">
                             <span class="data-label">vₓ:</span>
-                            <span class="data-value" id="currentVx">20.0 m/s</span>
+                            <span class="data-value" id="curVx">20.0 m/s</span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">vᵧ:</span>
-                            <span class="data-value" id="currentVy">15.0 m/s</span>
+                            <span class="data-value" id="curVy">15.0 m/s</span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">|v⃗|:</span>
-                            <span class="data-value" id="currentMagnitude">25.0 m/s</span>
+                            <span class="data-value" id="curMag">25.0 m/s</span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">θ:</span>
-                            <span class="data-value" id="currentAngle">36.9°</span>
+                            <span class="data-value" id="curAng">36.9°</span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">Vaqt:</span>
-                            <span class="data-value" id="currentTime">0.0 s</span>
+                            <span class="data-value" id="curTime">0.0 s</span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">Pozitsiya:</span>
-                            <span class="data-value" id="currentPosition">(0, 0)</span>
+                            <span class="data-value" id="curPos">(0, 0)</span>
                         </div>
                     </div>
                 </div>
@@ -541,18 +416,18 @@
         </div>
 
         <div class="theory-section">
-            <h2>Nazariy Asoslar</h2>
+            <h2>📚 Nazariy Asoslar</h2>
             
             <div class="formula-box">
                 <h4>Tezlik Vektori Kattaligi</h4>
                 <p>$$|\vec{v}| = \sqrt{v_x^2 + v_y^2}$$</p>
-                <p>Bu formula Pifagor teoremasi asosida tezlik vektorining kattaligini hisoblaydi.</p>
+                <p>Pifagor teoremasi asosida tezlik vektorining kattaligini hisoblash.</p>
             </div>
 
             <div class="formula-box">
                 <h4>Tezlik Vektori Yo'nalishi</h4>
                 <p>$$\theta = \arctan\left(\frac{v_y}{v_x}\right)$$</p>
-                <p>Bu formula tezlik vektorining gorizontal o'q bilan hosil qilgan burchagini beradi.</p>
+                <p>Tezlik vektorining gorizontal o'q bilan hosil qilgan burchagi.</p>
             </div>
 
             <div class="formula-box">
@@ -563,493 +438,359 @@
                 <p>$$y(t) = y_0 + v_{0y} \cdot t + \frac{1}{2}a_y \cdot t^2$$</p>
             </div>
 
-            <div class="formula-box">
-                <h4>Vektorlar Bilan Amallar</h4>
-                <p><strong>Vektorlarni qo'shish:</strong> $\vec{v}_1 + \vec{v}_2 = (v_{1x} + v_{2x})\hat{i} + (v_{1y} + v_{2y})\hat{j}$</p>
-                <p><strong>Vektorlarni ayirish:</strong> $\vec{v}_1 - \vec{v}_2 = (v_{1x} - v_{2x})\hat{i} + (v_{1y} - v_{2y})\hat{j}$</p>
-            </div>
-
-            <h3>Real Hayotdagi Misollar</h3>
+            <h3>🌍 Real Hayotdagi Misollar</h3>
             <ul>
                 <li><strong>Proyektil harakati:</strong> Top o'qi yoki futbol to'pining harakati</li>
                 <li><strong>Aylana harakat:</strong> Planetalarning Quyosh atrofidagi harakati</li>
-                <li><strong>Nisbiy harakat:</strong> Kemada yuruvchi odamning tezligi</li>
                 <li><strong>Avtomobil harakati:</strong> Egri yo'lda harakatlanuvchi mashina</li>
+                <li><strong>Samolyot harakati:</strong> Shamol ta'sirida uchayotgan samolyot</li>
             </ul>
         </div>
     </div>
 
     <script>
-        class VelocityVectorSimulation {
+        class Sim {
             constructor() {
-                this.canvas = document.getElementById('simulationCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.setupCanvas();
+                this.c = document.getElementById('canvas');
+                this.ctx = this.c.getContext('2d');
+                this.setup();
                 
-                // Simulation parameters
-                this.isRunning = false;
-                this.time = 0;
-                this.dt = 0.016; // 60 FPS
-                this.speedMultiplier = 1;
+                this.run = false;
+                this.t = 0;
+                this.dt = 0.016;
+                this.speed = 1;
                 
-                // Initial conditions
-                this.x0 = 0;
-                this.y0 = 0;
-                this.vx0 = 20;
-                this.vy0 = 15;
-                this.ax = 0;
-                this.ay = -9.8;
+                this.x0 = 0; this.y0 = 0;
+                this.vx0 = 20; this.vy0 = 15;
+                this.ax = 0; this.ay = -9.8;
                 
-                // Current values
                 this.reset();
                 
-                // Visualization settings
-                this.scale = 3; // pixels per meter
-                this.minScale = 0.5;
-                this.maxScale = 20;
-                this.originX = this.canvas.width / 2;
-                this.originY = this.canvas.height / 2;
+                this.scale = 3;
+                this.minScale = 0.5; this.maxScale = 20;
+                this.ox = this.c.width / 2;
+                this.oy = this.c.height / 2;
                 this.showGrid = true;
                 this.showTrail = true;
                 this.trail = [];
-                this.maxTrailLength = 200;
+                this.maxTrail = 200;
                 this.autoScale = true;
-                this.viewBuffer = 50; // pixels buffer around content
+                this.buf = 50;
+                this.vecScale = 5;
+                this.showComp = true;
                 
-                // Vector display settings
-                this.vectorScale = 5; // scale for vector display
-                this.minVectorScale = 1;
-                this.maxVectorScale = 20;
-                this.showComponents = true;
-                this.showResultant = true;
-                
-                this.setupEventListeners();
+                this.bind();
                 this.updateUI();
-                this.animate();
+                this.draw();
             }
             
-            setupCanvas() {
-                const rect = this.canvas.getBoundingClientRect();
-                this.canvas.width = rect.width;
-                this.canvas.height = rect.height;
-                
-                // Handle high DPI displays
+            setup() {
+                const r = this.c.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
-                this.canvas.width = rect.width * dpr;
-                this.canvas.height = rect.height * dpr;
+                this.c.width = r.width * dpr;
+                this.c.height = r.height * dpr;
                 this.ctx.scale(dpr, dpr);
-                this.canvas.style.width = rect.width + 'px';
-                this.canvas.style.height = rect.height + 'px';
+                this.c.style.width = r.width + 'px';
+                this.c.style.height = r.height + 'px';
             }
             
-            setupEventListeners() {
-                // Control sliders
-                document.getElementById('vxSlider').addEventListener('input', (e) => {
-                    this.vx0 = parseFloat(e.target.value);
-                    this.resetViewScale();
+            bind() {
+                document.getElementById('vxSlider').oninput = e => {
+                    this.vx0 = +e.target.value;
+                    this.fitView();
                     this.updateUI();
-                });
+                };
                 
-                document.getElementById('vySlider').addEventListener('input', (e) => {
-                    this.vy0 = parseFloat(e.target.value);
-                    this.resetViewScale();
+                document.getElementById('vySlider').oninput = e => {
+                    this.vy0 = +e.target.value;
+                    this.fitView();
                     this.updateUI();
-                });
+                };
                 
-                document.getElementById('axSlider').addEventListener('input', (e) => {
-                    this.ax = parseFloat(e.target.value);
-                    this.resetViewScale();
+                document.getElementById('axSlider').oninput = e => {
+                    this.ax = +e.target.value;
+                    this.fitView();
                     this.updateUI();
-                });
+                };
                 
-                document.getElementById('aySlider').addEventListener('input', (e) => {
-                    this.ay = parseFloat(e.target.value);
-                    this.resetViewScale();
+                document.getElementById('aySlider').oninput = e => {
+                    this.ay = +e.target.value;
+                    this.fitView();
                     this.updateUI();
+                };
+                
+                document.getElementById('speedSlider').oninput = e => {
+                    this.speed = +e.target.value;
+                    document.getElementById('speedVal').textContent = this.speed.toFixed(1) + 'x';
+                };
+                
+                document.getElementById('playBtn').onclick = () => this.toggle();
+                document.getElementById('resetBtn').onclick = () => this.reset();
+                document.getElementById('clearBtn').onclick = () => this.trail = [];
+                
+                document.getElementById('zoomIn').onclick = () => this.scale = Math.min(this.maxScale, this.scale * 1.5);
+                document.getElementById('zoomOut').onclick = () => this.scale = Math.max(this.minScale, this.scale / 1.5);
+                document.getElementById('fitView').onclick = () => this.fitView();
+                
+                document.getElementById('autoScale').onchange = e => this.autoScale = e.target.checked;
+                document.getElementById('showGrid').onchange = e => this.showGrid = e.target.checked;
+                document.getElementById('showTrail').onchange = e => this.showTrail = e.target.checked;
+                document.getElementById('showComp').onchange = e => this.showComp = e.target.checked;
+                
+                document.querySelectorAll('.preset-btn').forEach(b => {
+                    b.onclick = e => this.preset(e.target.dataset.preset);
                 });
                 
-                document.getElementById('speedSlider').addEventListener('input', (e) => {
-                    this.speedMultiplier = parseFloat(e.target.value);
-                    document.getElementById('speedValue').textContent = this.speedMultiplier.toFixed(1) + 'x';
-                });
+                this.c.onclick = e => {
+                    const r = this.c.getBoundingClientRect();
+                    const x = e.clientX - r.left;
+                    const y = e.clientY - r.top;
+                    this.setPos(x, y);
+                };
                 
-                // Control buttons
-                document.getElementById('playPauseBtn').addEventListener('click', () => {
-                    this.togglePlayPause();
-                });
+                this.c.onmousemove = e => {
+                    const r = this.c.getBoundingClientRect();
+                    const x = (e.clientX - r.left - this.ox) / this.scale;
+                    const y = -(e.clientY - r.top - this.oy) / this.scale;
+                    document.getElementById('mousePos').textContent = `Kursor: (${x.toFixed(1)}, ${y.toFixed(1)})`;
+                };
                 
-                document.getElementById('resetBtn').addEventListener('click', () => {
-                    this.reset();
-                });
+                window.onresize = () => {
+                    this.setup();
+                    this.fitView();
+                };
                 
-                document.getElementById('clearTrailBtn').addEventListener('click', () => {
-                    this.trail = [];
-                });
-                
-                // View control buttons
-                document.getElementById('zoomInBtn').addEventListener('click', () => {
-                    this.scale = Math.min(this.maxScale, this.scale * 1.5);
-                });
-                
-                document.getElementById('zoomOutBtn').addEventListener('click', () => {
-                    this.scale = Math.max(this.minScale, this.scale / 1.5);
-                });
-                
-                document.getElementById('fitViewBtn').addEventListener('click', () => {
-                    this.resetViewScale();
-                });
-                
-                // View settings checkboxes
-                document.getElementById('autoScaleCheck').addEventListener('change', (e) => {
-                    this.autoScale = e.target.checked;
-                });
-                
-                document.getElementById('showGridCheck').addEventListener('change', (e) => {
-                    this.showGrid = e.target.checked;
-                });
-                
-                document.getElementById('showTrailCheck').addEventListener('change', (e) => {
-                    this.showTrail = e.target.checked;
-                });
-                
-                document.getElementById('showComponentsCheck').addEventListener('change', (e) => {
-                    this.showComponents = e.target.checked;
-                });
-                
-                // Preset buttons
-                document.querySelectorAll('.preset-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        this.loadPreset(e.target.dataset.preset);
-                    });
-                });
-                
-                // Canvas interaction
-                this.canvas.addEventListener('click', (e) => {
-                    const rect = this.canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    this.setPositionFromClick(x, y);
-                });
-                
-                // Mouse move tracking
-                this.canvas.addEventListener('mousemove', (e) => {
-                    const rect = this.canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    this.updateMousePosition(x, y);
-                });
-                
-                // Resize handling
-                window.addEventListener('resize', () => {
-                    this.setupCanvas();
-                    this.resetViewScale();
-                });
+                document.onkeydown = e => {
+                    if (e.key === ' ') { e.preventDefault(); this.toggle(); }
+                    if (e.key === 'r') this.reset();
+                    if (e.key === 'c') this.trail = [];
+                };
             }
             
             reset() {
-                this.time = 0;
+                this.t = 0;
                 this.x = this.x0;
                 this.y = this.y0;
                 this.vx = this.vx0;
                 this.vy = this.vy0;
                 this.trail = [];
-                
-                // Reset view scale based on initial parameters
-                this.resetViewScale();
-                
+                this.fitView();
                 this.updateUI();
             }
             
-            togglePlayPause() {
-                this.isRunning = !this.isRunning;
-                const btn = document.getElementById('playPauseBtn');
-                btn.textContent = this.isRunning ? '⏸️ Pauza' : '▶️ Boshlash';
+            toggle() {
+                this.run = !this.run;
+                document.getElementById('playBtn').textContent = this.run ? '⏸️ Pauza' : '▶️ Boshlash';
+                if (this.run) this.animate();
             }
             
-            loadPreset(preset) {
+            preset(p) {
                 const presets = {
                     projectile: { vx0: 20, vy0: 20, ax: 0, ay: -9.8 },
                     circular: { vx0: 15, vy0: 0, ax: 0, ay: 0 },
                     uniform: { vx0: 25, vy0: 0, ax: 0, ay: 0 },
-                    deceleration: { vx0: 30, vy0: 10, ax: -2, ay: -1 }
+                    decel: { vx0: 30, vy0: 10, ax: -2, ay: -1 }
                 };
                 
-                if (presets[preset]) {
-                    const p = presets[preset];
-                    this.vx0 = p.vx0;
-                    this.vy0 = p.vy0;
-                    this.ax = p.ax;
-                    this.ay = p.ay;
+                if (presets[p]) {
+                    const pr = presets[p];
+                    this.vx0 = pr.vx0; this.vy0 = pr.vy0;
+                    this.ax = pr.ax; this.ay = pr.ay;
                     
-                    // Update sliders
-                    document.getElementById('vxSlider').value = p.vx0;
-                    document.getElementById('vySlider').value = p.vy0;
-                    document.getElementById('axSlider').value = p.ax;
-                    document.getElementById('aySlider').value = p.ay;
+                    document.getElementById('vxSlider').value = pr.vx0;
+                    document.getElementById('vySlider').value = pr.vy0;
+                    document.getElementById('axSlider').value = pr.ax;
+                    document.getElementById('aySlider').value = pr.ay;
                     
                     this.reset();
                 }
             }
             
-            setPositionFromClick(canvasX, canvasY) {
-                this.x = (canvasX - this.originX) / this.scale;
-                this.y = -(canvasY - this.originY) / this.scale;
+            setPos(cx, cy) {
+                this.x = (cx - this.ox) / this.scale;
+                this.y = -(cy - this.oy) / this.scale;
                 this.x0 = this.x;
                 this.y0 = this.y;
-                this.time = 0;
+                this.t = 0;
                 this.trail = [];
                 this.updateUI();
             }
             
-            updateMousePosition(canvasX, canvasY) {
-                const worldX = (canvasX - this.originX) / this.scale;
-                const worldY = -(canvasY - this.originY) / this.scale;
-                document.getElementById('mousePos').textContent = 
-                    `Kursor: (${worldX.toFixed(1)}, ${worldY.toFixed(1)})`;
-            }
-            
             update() {
-                if (!this.isRunning) return;
+                if (!this.run) return;
                 
-                const dt = this.dt * this.speedMultiplier;
-                this.time += dt;
+                const dt = this.dt * this.speed;
+                this.t += dt;
                 
-                // Update velocity
-                this.vx = this.vx0 + this.ax * this.time;
-                this.vy = this.vy0 + this.ay * this.time;
+                this.vx = this.vx0 + this.ax * this.t;
+                this.vy = this.vy0 + this.ay * this.t;
                 
-                // Update position
-                this.x = this.x0 + this.vx0 * this.time + 0.5 * this.ax * this.time * this.time;
-                this.y = this.y0 + this.vy0 * this.time + 0.5 * this.ay * this.time * this.time;
+                this.x = this.x0 + this.vx0 * this.t + 0.5 * this.ax * this.t * this.t;
+                this.y = this.y0 + this.vy0 * this.t + 0.5 * this.ay * this.t * this.t;
                 
-                // Add to trail
                 if (this.showTrail) {
-                    this.trail.push({
-                        x: this.x,
-                        y: this.y,
-                        vx: this.vx,
-                        vy: this.vy
-                    });
-                    
-                    if (this.trail.length > this.maxTrailLength) {
-                        this.trail.shift();
-                    }
+                    this.trail.push({ x: this.x, y: this.y });
+                    if (this.trail.length > this.maxTrail) this.trail.shift();
                 }
                 
-                // Auto-scale view if enabled
-                if (this.autoScale) {
-                    this.updateViewScale();
-                }
+                if (this.autoScale) this.autoFit();
                 
-                // Check bounds and reset if needed
-                const maxDistance = 500; // meters
-                if (Math.abs(this.x) > maxDistance || Math.abs(this.y) > maxDistance) {
-                    this.reset();
-                }
+                if (Math.abs(this.x) > 500 || Math.abs(this.y) > 500) this.reset();
                 
                 this.updateUI();
             }
             
-            updateViewScale() {
-                // Calculate the extent of motion
+            autoFit() {
                 let minX = Math.min(this.x, this.x0);
                 let maxX = Math.max(this.x, this.x0);
                 let minY = Math.min(this.y, this.y0);
                 let maxY = Math.max(this.y, this.y0);
                 
-                // Include trail points
-                if (this.trail.length > 0) {
-                    this.trail.forEach(point => {
-                        minX = Math.min(minX, point.x);
-                        maxX = Math.max(maxX, point.x);
-                        minY = Math.min(minY, point.y);
-                        maxY = Math.max(maxY, point.y);
-                    });
-                }
+                this.trail.forEach(p => {
+                    minX = Math.min(minX, p.x);
+                    maxX = Math.max(maxX, p.x);
+                    minY = Math.min(minY, p.y);
+                    maxY = Math.max(maxY, p.y);
+                });
                 
-                // Add some buffer based on velocity vectors
                 const vMag = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                const buffer = Math.max(10, vMag * 2); // Dynamic buffer
+                const buf = Math.max(10, vMag * 2);
                 
-                minX -= buffer;
-                maxX += buffer;
-                minY -= buffer;
-                maxY += buffer;
+                minX -= buf; maxX += buf;
+                minY -= buf; maxY += buf;
                 
-                // Calculate required scale to fit content
-                const rangeX = maxX - minX;
-                const rangeY = maxY - minY;
-                const centerX = (minX + maxX) / 2;
-                const centerY = (minY + maxY) / 2;
+                const rx = maxX - minX;
+                const ry = maxY - minY;
+                const cx = (minX + maxX) / 2;
+                const cy = (minY + maxY) / 2;
                 
-                // Calculate scale to fit content with buffer
-                const scaleX = (this.canvas.width - 2 * this.viewBuffer) / rangeX;
-                const scaleY = (this.canvas.height - 2 * this.viewBuffer) / rangeY;
-                const targetScale = Math.min(scaleX, scaleY);
+                const sx = (this.c.width - 2 * this.buf) / rx;
+                const sy = (this.c.height - 2 * this.buf) / ry;
+                const ts = Math.min(sx, sy);
                 
-                // Smooth scale transition
-                const newScale = Math.max(this.minScale, Math.min(this.maxScale, targetScale));
-                this.scale = this.scale * 0.95 + newScale * 0.05;
+                const ns = Math.max(this.minScale, Math.min(this.maxScale, ts));
+                this.scale = this.scale * 0.95 + ns * 0.05;
                 
-                // Update origin to center the content
-                this.originX = this.canvas.width / 2 - centerX * this.scale;
-                this.originY = this.canvas.height / 2 + centerY * this.scale;
+                this.ox = this.c.width / 2 - cx * this.scale;
+                this.oy = this.c.height / 2 + cy * this.scale;
                 
-                // Update vector scale proportionally
-                this.vectorScale = Math.max(this.minVectorScale, 
-                    Math.min(this.maxVectorScale, 50 / Math.max(1, vMag)));
+                this.vecScale = Math.max(1, Math.min(20, 50 / Math.max(1, vMag)));
             }
             
-            resetViewScale() {
-                // Calculate initial trajectory extents for better initial view
+            fitView() {
                 const vMag = Math.sqrt(this.vx0 * this.vx0 + this.vy0 * this.vy0);
-                
-                // Estimate trajectory range based on initial conditions
-                let estimatedRange = 50; // default range
+                let est = 50;
                 
                 if (this.ay !== 0) {
-                    // Projectile motion - estimate maximum range
-                    const timeToMaxHeight = Math.abs(this.vy0 / this.ay);
-                    const maxHeight = this.y0 + this.vy0 * timeToMaxHeight + 0.5 * this.ay * timeToMaxHeight * timeToMaxHeight;
-                    const totalTime = 2 * timeToMaxHeight;
-                    const maxRange = Math.abs(this.x0 + this.vx0 * totalTime + 0.5 * this.ax * totalTime * totalTime);
-                    estimatedRange = Math.max(Math.abs(maxHeight), maxRange);
+                    const tMax = Math.abs(this.vy0 / this.ay);
+                    const hMax = Math.abs(this.y0 + this.vy0 * tMax + 0.5 * this.ay * tMax * tMax);
+                    const tTot = 2 * tMax;
+                    const rMax = Math.abs(this.x0 + this.vx0 * tTot + 0.5 * this.ax * tTot * tTot);
+                    est = Math.max(hMax, rMax);
                 }
                 
                 if (this.ax !== 0 || this.ay !== 0) {
-                    // Motion with acceleration - estimate based on initial velocity and acceleration
-                    const timeEstimate = Math.max(5, vMag / Math.max(1, Math.sqrt(this.ax * this.ax + this.ay * this.ay)));
-                    const xRange = Math.abs(this.vx0 * timeEstimate + 0.5 * this.ax * timeEstimate * timeEstimate);
-                    const yRange = Math.abs(this.vy0 * timeEstimate + 0.5 * this.ay * timeEstimate * timeEstimate);
-                    estimatedRange = Math.max(xRange, yRange);
+                    const te = Math.max(5, vMag / Math.max(1, Math.sqrt(this.ax * this.ax + this.ay * this.ay)));
+                    const xr = Math.abs(this.vx0 * te + 0.5 * this.ax * te * te);
+                    const yr = Math.abs(this.vy0 * te + 0.5 * this.ay * te * te);
+                    est = Math.max(xr, yr);
                 }
                 
-                // Set initial scale to show estimated trajectory
-                const padding = 1.5; // 50% padding
-                estimatedRange *= padding;
+                est *= 1.5;
                 
-                const scaleX = (this.canvas.width - 2 * this.viewBuffer) / (2 * estimatedRange);
-                const scaleY = (this.canvas.height - 2 * this.viewBuffer) / (2 * estimatedRange);
-                this.scale = Math.max(this.minScale, Math.min(this.maxScale, Math.min(scaleX, scaleY)));
+                const sx = (this.c.width - 2 * this.buf) / (2 * est);
+                const sy = (this.c.height - 2 * this.buf) / (2 * est);
+                this.scale = Math.max(this.minScale, Math.min(this.maxScale, Math.min(sx, sy)));
                 
-                // Center the view
-                this.originX = this.canvas.width / 2;
-                this.originY = this.canvas.height / 2;
+                this.ox = this.c.width / 2;
+                this.oy = this.c.height / 2;
                 
-                // Set vector scale based on velocity magnitude
-                this.vectorScale = Math.max(this.minVectorScale, 
-                    Math.min(this.maxVectorScale, 50 / Math.max(1, vMag)));
+                this.vecScale = Math.max(1, Math.min(20, 50 / Math.max(1, vMag)));
             }
             
             updateUI() {
-                // Update slider displays
-                document.getElementById('vxValue').textContent = this.vx0.toFixed(1) + ' m/s';
-                document.getElementById('vyValue').textContent = this.vy0.toFixed(1) + ' m/s';
-                document.getElementById('axValue').textContent = this.ax.toFixed(1) + ' m/s²';
-                document.getElementById('ayValue').textContent = this.ay.toFixed(1) + ' m/s²';
+                document.getElementById('vxVal').textContent = this.vx0.toFixed(1) + ' m/s';
+                document.getElementById('vyVal').textContent = this.vy0.toFixed(1) + ' m/s';
+                document.getElementById('axVal').textContent = this.ax.toFixed(1) + ' m/s²';
+                document.getElementById('ayVal').textContent = this.ay.toFixed(1) + ' m/s²';
                 
-                // Update current values
-                document.getElementById('currentVx').textContent = this.vx.toFixed(1) + ' m/s';
-                document.getElementById('currentVy').textContent = this.vy.toFixed(1) + ' m/s';
+                document.getElementById('curVx').textContent = this.vx.toFixed(1) + ' m/s';
+                document.getElementById('curVy').textContent = this.vy.toFixed(1) + ' m/s';
                 
-                const magnitude = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                document.getElementById('currentMagnitude').textContent = magnitude.toFixed(1) + ' m/s';
+                const mag = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                document.getElementById('curMag').textContent = mag.toFixed(1) + ' m/s';
                 
-                const angle = Math.atan2(this.vy, this.vx) * 180 / Math.PI;
-                document.getElementById('currentAngle').textContent = angle.toFixed(1) + '°';
+                const ang = Math.atan2(this.vy, this.vx) * 180 / Math.PI;
+                document.getElementById('curAng').textContent = ang.toFixed(1) + '°';
                 
-                document.getElementById('currentTime').textContent = this.time.toFixed(1) + ' s';
-                document.getElementById('currentPosition').textContent = 
-                    `(${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
+                document.getElementById('curTime').textContent = this.t.toFixed(1) + ' s';
+                document.getElementById('curPos').textContent = `(${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
                 
-                // Update scale info
-                const scaleRatio = this.scale.toFixed(2);
-                const metersPerPixel = (1 / this.scale).toFixed(2);
-                document.getElementById('scaleInfo').textContent = 
-                    `Masshtab: ${scaleRatio} px/m (${metersPerPixel} m/px)`;
+                const sr = this.scale.toFixed(2);
+                const mpp = (1 / this.scale).toFixed(2);
+                document.getElementById('scaleInfo').textContent = `Masshtab: ${sr} px/m (${mpp} m/px)`;
             }
             
             draw() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.clearRect(0, 0, this.c.width, this.c.height);
                 
-                // Draw grid
-                if (this.showGrid) {
-                    this.drawGrid();
-                }
+                if (this.showGrid) this.drawGrid();
+                if (this.showTrail && this.trail.length > 1) this.drawTrail();
                 
-                // Draw trail
-                if (this.showTrail && this.trail.length > 1) {
-                    this.drawTrail();
-                }
-                
-                // Draw axes
                 this.drawAxes();
-                
-                // Draw particle
                 this.drawParticle();
-                
-                // Draw velocity vector
-                this.drawVelocityVector();
-                
-                // Draw legend
+                this.drawVectors();
                 this.drawLegend();
             }
             
             drawGrid() {
-                const gridSpacing = 50; // meters
-                const gridPixelSpacing = gridSpacing * this.scale;
+                const gs = 50;
+                const gps = gs * this.scale;
                 
-                // Don't draw grid if too dense or too sparse
-                if (gridPixelSpacing < 10 || gridPixelSpacing > 200) return;
+                if (gps < 10 || gps > 200) return;
                 
-                this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+                this.ctx.strokeStyle = 'rgba(0,0,0,0.1)';
                 this.ctx.lineWidth = 1;
                 
-                // Calculate grid bounds
-                const minX = Math.floor((-this.originX) / gridPixelSpacing) * gridPixelSpacing;
-                const maxX = Math.ceil((this.canvas.width - this.originX) / gridPixelSpacing) * gridPixelSpacing;
-                const minY = Math.floor((-this.originY) / gridPixelSpacing) * gridPixelSpacing;
-                const maxY = Math.ceil((this.canvas.height - this.originY) / gridPixelSpacing) * gridPixelSpacing;
+                const minX = Math.floor(-this.ox / gps) * gps;
+                const maxX = Math.ceil((this.c.width - this.ox) / gps) * gps;
+                const minY = Math.floor(-this.oy / gps) * gps;
+                const maxY = Math.ceil((this.c.height - this.oy) / gps) * gps;
                 
-                // Vertical lines
-                for (let x = minX; x <= maxX; x += gridPixelSpacing) {
-                    const screenX = this.originX + x;
+                for (let x = minX; x <= maxX; x += gps) {
+                    const sx = this.ox + x;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(screenX, 0);
-                    this.ctx.lineTo(screenX, this.canvas.height);
+                    this.ctx.moveTo(sx, 0);
+                    this.ctx.lineTo(sx, this.c.height);
                     this.ctx.stroke();
                 }
                 
-                // Horizontal lines
-                for (let y = minY; y <= maxY; y += gridPixelSpacing) {
-                    const screenY = this.originY + y;
+                for (let y = minY; y <= maxY; y += gps) {
+                    const sy = this.oy + y;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(0, screenY);
-                    this.ctx.lineTo(this.canvas.width, screenY);
+                    this.ctx.moveTo(0, sy);
+                    this.ctx.lineTo(this.c.width, sy);
                     this.ctx.stroke();
                 }
                 
-                // Draw grid labels
-                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 this.ctx.font = '10px Arial';
                 
-                // X-axis labels
-                for (let x = minX; x <= maxX; x += gridPixelSpacing) {
-                    if (x === 0) continue; // Skip origin
-                    const screenX = this.originX + x;
-                    const value = Math.round(x / this.scale);
-                    if (screenX > 20 && screenX < this.canvas.width - 20) {
-                        this.ctx.fillText(value.toString(), screenX - 5, this.originY + 15);
+                for (let x = minX; x <= maxX; x += gps) {
+                    if (x === 0) continue;
+                    const sx = this.ox + x;
+                    const v = Math.round(x / this.scale);
+                    if (sx > 20 && sx < this.c.width - 20) {
+                        this.ctx.fillText(v, sx - 5, this.oy + 15);
                     }
                 }
                 
-                // Y-axis labels
-                for (let y = minY; y <= maxY; y += gridPixelSpacing) {
-                    if (y === 0) continue; // Skip origin
-                    const screenY = this.originY + y;
-                    const value = Math.round(-y / this.scale);
-                    if (screenY > 15 && screenY < this.canvas.height - 15) {
-                        this.ctx.fillText(value.toString(), this.originX + 5, screenY + 3);
+                for (let y = minY; y <= maxY; y += gps) {
+                    if (y === 0) continue;
+                    const sy = this.oy + y;
+                    const v = Math.round(-y / this.scale);
+                    if (sy > 15 && sy < this.c.height - 15) {
+                        this.ctx.fillText(v, this.ox + 5, sy + 3);
                     }
                 }
             }
@@ -1058,23 +799,20 @@
                 this.ctx.strokeStyle = '#333';
                 this.ctx.lineWidth = 2;
                 
-                // X-axis
                 this.ctx.beginPath();
-                this.ctx.moveTo(0, this.originY);
-                this.ctx.lineTo(this.canvas.width, this.originY);
+                this.ctx.moveTo(0, this.oy);
+                this.ctx.lineTo(this.c.width, this.oy);
                 this.ctx.stroke();
                 
-                // Y-axis
                 this.ctx.beginPath();
-                this.ctx.moveTo(this.originX, 0);
-                this.ctx.lineTo(this.originX, this.canvas.height);
+                this.ctx.moveTo(this.ox, 0);
+                this.ctx.lineTo(this.ox, this.c.height);
                 this.ctx.stroke();
                 
-                // Axis labels
                 this.ctx.fillStyle = '#333';
                 this.ctx.font = '14px Arial';
-                this.ctx.fillText('X', this.canvas.width - 20, this.originY - 10);
-                this.ctx.fillText('Y', this.originX + 10, 20);
+                this.ctx.fillText('X', this.c.width - 20, this.oy - 10);
+                this.ctx.fillText('Y', this.ox + 10, 20);
             }
             
             drawTrail() {
@@ -1085,18 +823,12 @@
                 this.ctx.globalAlpha = 0.3;
                 
                 this.ctx.beginPath();
-                const firstPoint = this.trail[0];
-                this.ctx.moveTo(
-                    this.originX + firstPoint.x * this.scale,
-                    this.originY - firstPoint.y * this.scale
-                );
+                const fp = this.trail[0];
+                this.ctx.moveTo(this.ox + fp.x * this.scale, this.oy - fp.y * this.scale);
                 
                 for (let i = 1; i < this.trail.length; i++) {
-                    const point = this.trail[i];
-                    this.ctx.lineTo(
-                        this.originX + point.x * this.scale,
-                        this.originY - point.y * this.scale
-                    );
+                    const p = this.trail[i];
+                    this.ctx.lineTo(this.ox + p.x * this.scale, this.oy - p.y * this.scale);
                 }
                 
                 this.ctx.stroke();
@@ -1104,177 +836,103 @@
             }
             
             drawParticle() {
-                const screenX = this.originX + this.x * this.scale;
-                const screenY = this.originY - this.y * this.scale;
+                const sx = this.ox + this.x * this.scale;
+                const sy = this.oy - this.y * this.scale;
                 
-                // Draw particle
                 this.ctx.fillStyle = '#e53e3e';
                 this.ctx.beginPath();
-                this.ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+                this.ctx.arc(sx, sy, 8, 0, 2 * Math.PI);
                 this.ctx.fill();
                 
-                // Draw particle border
                 this.ctx.strokeStyle = '#fff';
                 this.ctx.lineWidth = 2;
                 this.ctx.stroke();
             }
             
-            drawVelocityVector() {
-                const screenX = this.originX + this.x * this.scale;
-                const screenY = this.originY - this.y * this.scale;
+            drawVectors() {
+                const sx = this.ox + this.x * this.scale;
+                const sy = this.oy - this.y * this.scale;
                 
-                // Draw velocity components
-                if (this.showComponents) {
-                    // X component
-                    this.drawVector(
-                        screenX, screenY,
-                        this.vx * this.vectorScale, 0,
-                        '#ff6b6b', 'vₓ'
-                    );
-                    
-                    // Y component
-                    this.drawVector(
-                        screenX, screenY,
-                        0, -this.vy * this.vectorScale,
-                        '#4ecdc4', 'vᵧ'
-                    );
+                if (this.showComp) {
+                    this.drawVec(sx, sy, this.vx * this.vecScale, 0, '#ff6b6b', 'vₓ');
+                    this.drawVec(sx, sy, 0, -this.vy * this.vecScale, '#4ecdc4', 'vᵧ');
                 }
                 
-                // Draw resultant vector
-                if (this.showResultant) {
-                    this.drawVector(
-                        screenX, screenY,
-                        this.vx * this.vectorScale, -this.vy * this.vectorScale,
-                        '#667eea', 'v⃗'
-                    );
-                }
+                this.drawVec(sx, sy, this.vx * this.vecScale, -this.vy * this.vecScale, '#667eea', 'v⃗');
             }
             
-            drawVector(startX, startY, deltaX, deltaY, color, label) {
-                if (Math.abs(deltaX) < 0.1 && Math.abs(deltaY) < 0.1) return;
+            drawVec(sx, sy, dx, dy, col, lbl) {
+                if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return;
                 
-                const endX = startX + deltaX;
-                const endY = startY + deltaY;
+                const ex = sx + dx;
+                const ey = sy + dy;
                 
-                this.ctx.strokeStyle = color;
-                this.ctx.fillStyle = color;
+                this.ctx.strokeStyle = col;
+                this.ctx.fillStyle = col;
                 this.ctx.lineWidth = 3;
                 
-                // Draw vector line
                 this.ctx.beginPath();
-                this.ctx.moveTo(startX, startY);
-                this.ctx.lineTo(endX, endY);
+                this.ctx.moveTo(sx, sy);
+                this.ctx.lineTo(ex, ey);
                 this.ctx.stroke();
                 
-                // Draw arrowhead
-                const angle = Math.atan2(deltaY, deltaX);
-                const arrowLength = 10;
-                const arrowAngle = Math.PI / 6;
+                const ang = Math.atan2(dy, dx);
+                const al = 10;
+                const aa = Math.PI / 6;
                 
                 this.ctx.beginPath();
-                this.ctx.moveTo(endX, endY);
-                this.ctx.lineTo(
-                    endX - arrowLength * Math.cos(angle - arrowAngle),
-                    endY - arrowLength * Math.sin(angle - arrowAngle)
-                );
-                this.ctx.lineTo(
-                    endX - arrowLength * Math.cos(angle + arrowAngle),
-                    endY - arrowLength * Math.sin(angle + arrowAngle)
-                );
+                this.ctx.moveTo(ex, ey);
+                this.ctx.lineTo(ex - al * Math.cos(ang - aa), ey - al * Math.sin(ang - aa));
+                this.ctx.lineTo(ex - al * Math.cos(ang + aa), ey - al * Math.sin(ang + aa));
                 this.ctx.closePath();
                 this.ctx.fill();
                 
-                // Draw label
-                this.ctx.fillStyle = color;
+                this.ctx.fillStyle = col;
                 this.ctx.font = 'bold 14px Arial';
-                this.ctx.fillText(label, endX + 5, endY - 5);
+                this.ctx.fillText(lbl, ex + 5, ey - 5);
             }
             
             drawLegend() {
-                const legendX = 10;
-                const legendY = 10;
-                const lineHeight = 25;
+                const lx = 10, ly = 10;
                 
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                this.ctx.fillRect(legendX, legendY, 200, 100);
+                this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                this.ctx.fillRect(lx, ly, 200, 100);
                 
                 this.ctx.strokeStyle = '#ccc';
                 this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(legendX, legendY, 200, 100);
+                this.ctx.strokeRect(lx, ly, 200, 100);
                 
                 this.ctx.fillStyle = '#333';
                 this.ctx.font = '12px Arial';
-                this.ctx.fillText('Legendlar:', legendX + 10, legendY + 20);
+                this.ctx.fillText('Legendlar:', lx + 10, ly + 20);
                 
-                // Draw legend items
-                const legendItems = [
-                    { color: '#ff6b6b', label: 'vₓ - Gorizontal tezlik' },
-                    { color: '#4ecdc4', label: 'vᵧ - Vertikal tezlik' },
-                    { color: '#667eea', label: 'v⃗ - Natija tezlik' }
+                const items = [
+                    { col: '#ff6b6b', lbl: 'vₓ - Gorizontal tezlik' },
+                    { col: '#4ecdc4', lbl: 'vᵧ - Vertikal tezlik' },
+                    { col: '#667eea', lbl: 'v⃗ - Natija tezlik' }
                 ];
                 
-                legendItems.forEach((item, index) => {
-                    const y = legendY + 40 + index * 20;
+                items.forEach((it, i) => {
+                    const y = ly + 40 + i * 20;
                     
-                    // Draw color indicator
-                    this.ctx.fillStyle = item.color;
-                    this.ctx.fillRect(legendX + 10, y - 8, 15, 3);
+                    this.ctx.fillStyle = it.col;
+                    this.ctx.fillRect(lx + 10, y - 8, 15, 3);
                     
-                    // Draw label
                     this.ctx.fillStyle = '#333';
-                    this.ctx.fillText(item.label, legendX + 30, y);
+                    this.ctx.fillText(it.lbl, lx + 30, y);
                 });
             }
             
             animate() {
                 this.update();
                 this.draw();
-                requestAnimationFrame(() => this.animate());
+                if (this.run) requestAnimationFrame(() => this.animate());
             }
         }
         
-        // Initialize simulation when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const simulation = new VelocityVectorSimulation();
-            
-            // Add keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                switch(e.key) {
-                    case ' ':
-                        e.preventDefault();
-                        simulation.togglePlayPause();
-                        break;
-                    case 'r':
-                        simulation.reset();
-                        break;
-                    case 'c':
-                        simulation.trail = [];
-                        break;
-                }
-            });
-            
-            // Add touch support for mobile
-            let touchStartX, touchStartY;
-            
-            simulation.canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            });
-            
-            simulation.canvas.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                const rect = simulation.canvas.getBoundingClientRect();
-                const x = touchStartX - rect.left;
-                const y = touchStartY - rect.top;
-                simulation.setPositionFromClick(x, y);
-            });
+            new Sim();
         });
     </script>
 </body>
-
 </html>
-
-
-
-
