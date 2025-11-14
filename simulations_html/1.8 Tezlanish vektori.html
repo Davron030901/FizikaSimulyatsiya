@@ -3,31 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1.8 Tezlanish Vektori - Acceleration Vector</title>
+    <title>Tezlanish Vektori - Acceleration Vector</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
+    <script>window.MathJax = {tex: {inlineMath: [['$', '$']], displayMath: [['$$', '$$']]}};</script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 10px;
             color: #333;
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -36,425 +24,65 @@
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
-
         .header {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             padding: 20px;
             text-align: center;
             color: white;
         }
-
-        .header h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .simulation-area {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .canvas-container {
-            position: relative;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        #simulationCanvas {
-            display: block;
-            width: 100%;
-            height: 400px;
-            cursor: crosshair;
-        }
-
-        .controls-panel {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            height: fit-content;
-        }
-
-        .control-group {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .control-group h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .control-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .control-row label {
-            flex: 1;
-            font-weight: 500;
-            color: #555;
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 2;
-        }
-
-        .slider {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #4facfe;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
-        }
-
-        .value-display {
-            min-width: 60px;
-            padding: 5px 10px;
-            background: #e9ecef;
-            border-radius: 15px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #495057;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
-            flex: 1;
-            min-width: 80px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #4facfe, #00f2fe);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .info-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .info-panel h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .info-label {
-            font-weight: 500;
-            color: #666;
-        }
-
-        .info-value {
-            font-weight: 600;
-            color: #2c3e50;
-            font-family: 'Courier New', monospace;
-        }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 10px;
-            background: white;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .motion-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .motion-type-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .motion-type-btn.active {
-            background: #4facfe;
-            color: white;
-            border-color: #4facfe;
-        }
-
-        .motion-type-btn:hover {
-            border-color: #4facfe;
-            transform: translateY(-1px);
-        }
-
-        .formula-display {
-            background: #f8f9fa;
-            border-left: 4px solid #4facfe;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .help-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #4facfe;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .help-button:hover {
-            background: #369ae2;
-            transform: scale(1.1);
-        }
-
-        .tooltip {
-            position: absolute;
-            background: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            pointer-events: none;
-            z-index: 1000;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .tooltip.show {
-            opacity: 1;
-        }
-
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: #333;
-        }
-
+        .header h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: clamp(0.9rem, 2vw, 1.1rem); opacity: 0.9; }
+        .main-content { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px; }
+        @media (max-width: 1024px) { .main-content { grid-template-columns: 1fr; } }
+        .simulation-area { background: #f8f9fa; border-radius: 15px; padding: 20px; }
+        .canvas-container { position: relative; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        #canvas { display: block; width: 100%; height: 400px; cursor: crosshair; }
+        .controls-panel { background: #f8f9fa; border-radius: 15px; padding: 20px; height: fit-content; }
+        .control-group { margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .control-group h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1rem; }
+        .control-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .control-row label { flex: 1; font-weight: 500; color: #555; }
+        .slider-container { display: flex; align-items: center; gap: 10px; flex: 2; }
+        .slider { flex: 1; height: 6px; border-radius: 3px; background: #ddd; outline: none; }
+        .slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #4facfe; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        .value-display { min-width: 60px; padding: 5px 10px; background: #e9ecef; border-radius: 15px; text-align: center; font-weight: 600; font-size: 0.9rem; color: #495057; }
+        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem; flex: 1; min-width: 80px; }
+        .btn-primary { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
+        .info-panel { background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .info-panel h4 { color: #2c3e50; margin-bottom: 10px; font-size: 1rem; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .info-row:last-child { border-bottom: none; margin-bottom: 0; }
+        .info-label { font-weight: 500; color: #666; }
+        .info-value { font-weight: 600; color: #2c3e50; font-family: 'Courier New', monospace; }
+        .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; padding: 5px 10px; background: white; border-radius: 20px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .legend-color { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .motion-type-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .motion-type-btn { flex: 1; padding: 8px 12px; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; text-align: center; }
+        .motion-type-btn.active { background: #4facfe; color: white; border-color: #4facfe; }
+        .motion-type-btn:hover { border-color: #4facfe; transform: translateY(-1px); }
+        .formula-display { background: #f8f9fa; border-left: 4px solid #4facfe; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
+        .theory-section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .theory-section h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.2rem; cursor: pointer; user-select: none; }
+        .theory-content { line-height: 1.6; color: #555; }
+        .theory-content ul { margin-left: 20px; margin-bottom: 15px; }
+        .theory-content li { margin-bottom: 5px; }
+        .collapsible::before { content: '▼'; margin-right: 10px; transition: transform 0.3s; }
+        .collapsible.collapsed::before { transform: rotate(-90deg); }
+        .collapsible-content { max-height: 500px; overflow: hidden; transition: max-height 0.3s; }
+        .collapsible-content.collapsed { max-height: 0; }
         @media (max-width: 768px) {
-            .main-content {
-                padding: 10px;
-            }
-            
-            .control-row {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 5px;
-            }
-            
-            .slider-container {
-                flex-direction: column;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                flex: none;
-            }
-            
-            #simulationCanvas {
-                height: 300px;
-            }
-        }
-
-        .theory-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .theory-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .theory-content {
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .theory-content ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .theory-content li {
-            margin-bottom: 5px;
-        }
-
-        .collapsible {
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .collapsible::before {
-            content: '▼';
-            transition: transform 0.3s ease;
-        }
-
-        .collapsible.collapsed::before {
-            transform: rotate(-90deg);
-        }
-
-        .collapsible-content {
-            max-height: 500px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .collapsible-content.collapsed {
-            max-height: 0;
+            .main-content { padding: 10px; }
+            .control-row { flex-direction: column; align-items: stretch; gap: 5px; }
+            .slider-container { flex-direction: column; }
+            .button-group { flex-direction: column; }
+            .btn { flex: none; }
+            #canvas { height: 300px; }
         }
     </style>
 </head>
@@ -468,39 +96,16 @@
         <div class="main-content">
             <div class="simulation-area">
                 <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ff6b6b;"></div>
-                        <span>Tezlik vektori (v⃗)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #4ecdc4;"></div>
-                        <span>Tezlanish vektori (a⃗)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #45b7d1;"></div>
-                        <span>Normal tezlanish (aₙ)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #f39c12;"></div>
-                        <span>Tangensial tezlanish (aₜ)</span>
-                    </div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ff6b6b;"></div><span>Tezlik vektori (v⃗)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #4ecdc4;"></div><span>Tezlanish vektori (a⃗)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #45b7d1;"></div><span>Normal tezlanish (aₙ)</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #f39c12;"></div><span>Tangensial tezlanish (aₜ)</span></div>
                 </div>
-
-                <div class="canvas-container">
-                    <canvas id="simulationCanvas"></canvas>
-                    <button class="help-button" onclick="toggleHelp()">?</button>
-                </div>
-
+                <div class="canvas-container"><canvas id="canvas"></canvas></div>
                 <div class="motion-type-selector">
-                    <div class="motion-type-btn active" onclick="setMotionType('circular')">
-                        Aylanma harakat
-                    </div>
-                    <div class="motion-type-btn" onclick="setMotionType('parabolic')">
-                        Proyektil harakat
-                    </div>
-                    <div class="motion-type-btn" onclick="setMotionType('custom')">
-                        Maxsus yo'l
-                    </div>
+                    <div class="motion-type-btn active" onclick="app.setMotion('circular')">Aylanma harakat</div>
+                    <div class="motion-type-btn" onclick="app.setMotion('parabolic')">Proyektil harakat</div>
+                    <div class="motion-type-btn" onclick="app.setMotion('custom')">Maxsus yo'l</div>
                 </div>
             </div>
 
@@ -508,12 +113,8 @@
                 <div class="control-group">
                     <h3>🎮 Boshqaruv</h3>
                     <div class="button-group">
-                        <button class="btn btn-primary" onclick="toggleAnimation()">
-                            <span id="playPauseText">To'xtatish</span>
-                        </button>
-                        <button class="btn btn-secondary" onclick="resetSimulation()">
-                            Qayta boshlash
-                        </button>
+                        <button class="btn btn-primary" onclick="app.toggle()"><span id="playText">To'xtatish</span></button>
+                        <button class="btn btn-secondary" onclick="app.reset()">Qayta boshlash</button>
                     </div>
                 </div>
 
@@ -522,75 +123,56 @@
                     <div class="control-row">
                         <label>Tezlik:</label>
                         <div class="slider-container">
-                            <input type="range" class="slider" id="velocitySlider" 
-                                   min="1" max="15" step="0.5" value="5">
-                            <span class="value-display" id="velocityValue">5.0 m/s</span>
+                            <input type="range" class="slider" id="vel" min="1" max="15" step="0.5" value="5">
+                            <span class="value-display" id="velVal">5.0 m/s</span>
                         </div>
                     </div>
                     <div class="control-row">
                         <label>Radius:</label>
                         <div class="slider-container">
-                            <input type="range" class="slider" id="radiusSlider" 
-                                   min="30" max="150" step="5" value="80">
-                            <span class="value-display" id="radiusValue">80 px</span>
+                            <input type="range" class="slider" id="rad" min="30" max="150" step="5" value="80">
+                            <span class="value-display" id="radVal">80 px</span>
                         </div>
                     </div>
                     <div class="control-row">
                         <label>Animatsiya tezligi:</label>
                         <div class="slider-container">
-                            <input type="range" class="slider" id="speedSlider" 
-                                   min="0.5" max="8" step="0.2" value="2">
-                            <span class="value-display" id="speedValue">2.0x</span>
+                            <input type="range" class="slider" id="spd" min="0.5" max="8" step="0.2" value="2">
+                            <span class="value-display" id="spdVal">2.0x</span>
                         </div>
                     </div>
                     <div class="control-row">
                         <label>Vektor o'lchami:</label>
                         <div class="slider-container">
-                            <input type="range" class="slider" id="vectorScaleSlider" 
-                                   min="0.5" max="3" step="0.1" value="1">
-                            <span class="value-display" id="vectorScaleValue">1.0x</span>
+                            <input type="range" class="slider" id="scl" min="0.5" max="3" step="0.1" value="1">
+                            <span class="value-display" id="sclVal">1.0x</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="info-panel">
                     <h4>📊 Joriy qiymatlar</h4>
-                    <div class="info-row">
-                        <span class="info-label">Tezlik:</span>
-                        <span class="info-value" id="currentVelocity">5.0 m/s</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Markazga intiluvchi tezlanish:</span>
-                        <span class="info-value" id="centripetal">0.313 m/s²</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Tangensial tezlanish:</span>
-                        <span class="info-value" id="tangential">0.0 m/s²</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Umumiy tezlanish:</span>
-                        <span class="info-value" id="totalAcceleration">0.313 m/s²</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Burchak tezligi:</span>
-                        <span class="info-value" id="angularVelocity">0.063 rad/s</span>
-                    </div>
+                    <div class="info-row"><span class="info-label">Tezlik:</span><span class="info-value" id="iVel">5.0 m/s</span></div>
+                    <div class="info-row"><span class="info-label">Markazga intiluvchi:</span><span class="info-value" id="iCent">0.313 m/s²</span></div>
+                    <div class="info-row"><span class="info-label">Tangensial:</span><span class="info-value" id="iTang">0.0 m/s²</span></div>
+                    <div class="info-row"><span class="info-label">Umumiy tezlanish:</span><span class="info-value" id="iTot">0.313 m/s²</span></div>
+                    <div class="info-row"><span class="info-label">Burchak tezligi:</span><span class="info-value" id="iOmega">0.063 rad/s</span></div>
                 </div>
 
                 <div class="theory-section">
-                    <h3 class="collapsible" onclick="toggleTheory()">📚 Nazariy ma'lumotlar</h3>
-                    <div class="collapsible-content" id="theoryContent">
+                    <h3 class="collapsible" onclick="app.toggleTheory()">📚 Nazariy ma'lumotlar</h3>
+                    <div class="collapsible-content" id="theory">
                         <div class="theory-content">
                             <div class="formula-display">
                                 <strong>Asosiy formulalar:</strong><br>
-                                $$\vec{a} = \frac{d\vec{v}}{dt} = \frac{\Delta\vec{v}}{\Delta t}$$
+                                $$\vec{a} = \frac{d\vec{v}}{dt}$$
                                 $$a_n = \frac{v^2}{r}$$ (markazga intiluvchi)
                                 $$a_t = \frac{dv}{dt}$$ (tangensial)
                                 $$|\vec{a}| = \sqrt{a_n^2 + a_t^2}$$
                             </div>
                             <ul>
-                                <li><strong>Markazga intiluvchi tezlanish:</strong> Harakat yo'nalishini o'zgartiradi</li>
-                                <li><strong>Tangensial tezlanish:</strong> Tezlik kattaligini o'zgartiradi</li>
+                                <li><strong>Markazga intiluvchi:</strong> Harakat yo'nalishini o'zgartiradi</li>
+                                <li><strong>Tangensial:</strong> Tezlik kattaligini o'zgartiradi</li>
                                 <li><strong>Umumiy tezlanish:</strong> Ikki komponentning vektorial yig'indisi</li>
                                 <li><strong>Egri chiziq harakati:</strong> Har doim markazga intiluvchi tezlanish mavjud</li>
                             </ul>
@@ -601,508 +183,246 @@
         </div>
     </div>
 
-    <div class="tooltip" id="tooltip"></div>
-
     <script>
-        // Canvas va context
-        const canvas = document.getElementById('simulationCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Responsive canvas
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.offsetWidth;
-            canvas.height = container.offsetHeight;
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Simulyatsiya parametrlari
-        let animationId;
-        let isPlaying = true;
-        let time = 0;
-        let motionType = 'circular';
-        let showVectors = true;
-        let showTrail = true;
-        let trail = [];
-        let maxTrailLength = 50;
-        
-        // Harakat parametrlari
-        let velocity = 5.0;
-        let radius = 80;
-        let animationSpeed = 2.0;
-        let vectorScale = 1.0;
-        
-        // Pozitsiya va vektor ma'lumotlari
-        let position = { x: 0, y: 0 };
-        let velocityVector = { x: 0, y: 0 };
-        let accelerationVector = { x: 0, y: 0 };
-        let normalAcceleration = { x: 0, y: 0 };
-        let tangentialAcceleration = { x: 0, y: 0 };
-        
-        // Kontrol elementlari
-        const velocitySlider = document.getElementById('velocitySlider');
-        const radiusSlider = document.getElementById('radiusSlider');
-        const speedSlider = document.getElementById('speedSlider');
-        const vectorScaleSlider = document.getElementById('vectorScaleSlider');
-        
-        // Event listeners
-        velocitySlider.addEventListener('input', (e) => {
-            velocity = parseFloat(e.target.value);
-            updateDisplays();
-        });
-        
-        radiusSlider.addEventListener('input', (e) => {
-            radius = parseFloat(e.target.value);
-            updateDisplays();
-        });
-        
-        speedSlider.addEventListener('input', (e) => {
-            animationSpeed = parseFloat(e.target.value);
-            updateDisplays();
-        });
-        
-        vectorScaleSlider.addEventListener('input', (e) => {
-            vectorScale = parseFloat(e.target.value);
-            updateDisplays();
-        });
-
-        // Harakat turlari
-        function setMotionType(type) {
-            motionType = type;
-            time = 0;
-            trail = [];
+        const app = {
+            canvas: document.getElementById('canvas'),
+            ctx: null,
+            animId: null,
+            playing: true,
+            t: 0,
+            motion: 'circular',
+            trail: [],
+            maxTrail: 50,
             
-            // Tugmalar holatini yangilash
-            document.querySelectorAll('.motion-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            // Parameters
+            vel: 5, rad: 80, spd: 2, scl: 1,
             
-            updateDisplays();
-        }
-
-        // Pozitsiya va vektorlarni hisoblash
-        function calculateMotion() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
+            // Vectors
+            pos: {x: 0, y: 0},
+            v: {x: 0, y: 0},
+            a: {x: 0, y: 0},
+            an: {x: 0, y: 0},
+            at: {x: 0, y: 0},
             
-            switch(motionType) {
-                case 'circular':
-                    calculateCircularMotion(centerX, centerY);
-                    break;
-                case 'parabolic':
-                    calculateParabolicMotion(centerX, centerY);
-                    break;
-                case 'custom':
-                    calculateCustomMotion(centerX, centerY);
-                    break;
-            }
-        }
-        
-        function calculateCircularMotion(centerX, centerY) {
-            const omega = velocity / radius;
-            const angle = omega * time;
-            
-            position.x = centerX + radius * Math.cos(angle);
-            position.y = centerY + radius * Math.sin(angle);
-            
-            // Tezlik vektori
-            velocityVector.x = -velocity * Math.sin(angle);
-            velocityVector.y = velocity * Math.cos(angle);
-            
-            // Markazga intiluvchi tezlanish
-            const ac = velocity * velocity / radius;
-            normalAcceleration.x = -ac * Math.cos(angle);
-            normalAcceleration.y = -ac * Math.sin(angle);
-            
-            // Tangensial tezlanish (konstant tezlik uchun 0)
-            tangentialAcceleration.x = 0;
-            tangentialAcceleration.y = 0;
-            
-            // Umumiy tezlanish
-            accelerationVector.x = normalAcceleration.x + tangentialAcceleration.x;
-            accelerationVector.y = normalAcceleration.y + tangentialAcceleration.y;
-        }
-        
-        function calculateParabolicMotion(centerX, centerY) {
-            const t = time * 0.3;
-            const v0 = velocity;
-            const angle = Math.PI / 4; // 45 daraja
-            const g = 15;
-            
-            position.x = centerX - 150 + v0 * Math.cos(angle) * t;
-            position.y = centerY - v0 * Math.sin(angle) * t + 0.5 * g * t * t;
-            
-            // Tezlik vektori
-            velocityVector.x = v0 * Math.cos(angle);
-            velocityVector.y = -v0 * Math.sin(angle) + g * t;
-            
-            // Tezlanish vektori
-            accelerationVector.x = 0;
-            accelerationVector.y = g;
-            
-            // Normal va tangensial komponentlar
-            const vMag = Math.sqrt(velocityVector.x * velocityVector.x + velocityVector.y * velocityVector.y);
-            const curvature = calculateCurvature(t);
-            
-            normalAcceleration.x = curvature * velocityVector.y / vMag;
-            normalAcceleration.y = -curvature * velocityVector.x / vMag;
-            
-            tangentialAcceleration.x = accelerationVector.x - normalAcceleration.x;
-            tangentialAcceleration.y = accelerationVector.y - normalAcceleration.y;
-            
-            // Qayta boshlash
-            if (position.y > canvas.height) {
-                time = 0;
-                trail = [];
-            }
-        }
-        
-        function calculateCustomMotion(centerX, centerY) {
-            const t = time * 0.1;
-            const amplitude = 80;
-            
-            position.x = centerX + amplitude * Math.cos(t) * Math.sin(2 * t);
-            position.y = centerY + amplitude * Math.sin(t) * Math.cos(t);
-            
-            // Tezlik vektori (hosilalar)
-            velocityVector.x = amplitude * (-Math.sin(t) * Math.sin(2 * t) + Math.cos(t) * 2 * Math.cos(2 * t));
-            velocityVector.y = amplitude * (Math.cos(t) * Math.cos(t) - Math.sin(t) * Math.sin(t));
-            
-            // Tezlanish vektori (ikkinchi hosilalar)
-            accelerationVector.x = amplitude * (-Math.cos(t) * Math.sin(2 * t) - Math.sin(t) * 2 * Math.cos(2 * t) - Math.sin(t) * 2 * Math.cos(2 * t) - Math.cos(t) * 4 * Math.sin(2 * t));
-            accelerationVector.y = amplitude * (-Math.sin(t) * Math.cos(t) - Math.cos(t) * Math.sin(t) - Math.cos(t) * Math.sin(t) - Math.sin(t) * Math.cos(t));
-            
-            // Normal va tangensial komponentlar
-            const vMag = Math.sqrt(velocityVector.x * velocityVector.x + velocityVector.y * velocityVector.y);
-            if (vMag > 0) {
-                const tangentX = velocityVector.x / vMag;
-                const tangentY = velocityVector.y / vMag;
+            init() {
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
                 
-                const tangentialMag = accelerationVector.x * tangentX + accelerationVector.y * tangentY;
-                tangentialAcceleration.x = tangentialMag * tangentX;
-                tangentialAcceleration.y = tangentialMag * tangentY;
+                // Event listeners
+                ['vel', 'rad', 'spd', 'scl'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', e => {
+                        this[id] = parseFloat(e.target.value);
+                        this.updateDisplay();
+                    });
+                });
                 
-                normalAcceleration.x = accelerationVector.x - tangentialAcceleration.x;
-                normalAcceleration.y = accelerationVector.y - tangentialAcceleration.y;
-            }
-        }
-        
-        function calculateCurvature(t) {
-            const v0 = velocity;
-            const angle = Math.PI / 4;
-            const g = 15;
+                this.updateDisplay();
+                this.animate();
+            },
             
-            const vx = v0 * Math.cos(angle);
-            const vy = -v0 * Math.sin(angle) + g * t;
-            const v = Math.sqrt(vx * vx + vy * vy);
+            resize() {
+                const cont = this.canvas.parentElement;
+                this.canvas.width = cont.offsetWidth;
+                this.canvas.height = cont.offsetHeight;
+            },
             
-            return g * vx / (v * v);
-        }
-
-        // Chizish funktsiyalari
-        function drawVector(startX, startY, vectorX, vectorY, color, scale = 1, label = '') {
-            const scaledX = vectorX * scale * vectorScale;
-            const scaledY = vectorY * scale * vectorScale;
+            setMotion(type) {
+                this.motion = type;
+                this.t = 0;
+                this.trail = [];
+                document.querySelectorAll('.motion-type-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+            },
             
-            if (Math.abs(scaledX) < 0.1 && Math.abs(scaledY) < 0.1) return;
-            
-            ctx.strokeStyle = color;
-            ctx.fillStyle = color;
-            ctx.lineWidth = 3;
-            
-            // Vektor chizigi
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(startX + scaledX, startY + scaledY);
-            ctx.stroke();
-            
-            // O'q uchi
-            const angle = Math.atan2(scaledY, scaledX);
-            const arrowLength = 10;
-            const arrowAngle = Math.PI / 6;
-            
-            ctx.beginPath();
-            ctx.moveTo(startX + scaledX, startY + scaledY);
-            ctx.lineTo(
-                startX + scaledX - arrowLength * Math.cos(angle - arrowAngle),
-                startY + scaledY - arrowLength * Math.sin(angle - arrowAngle)
-            );
-            ctx.lineTo(
-                startX + scaledX - arrowLength * Math.cos(angle + arrowAngle),
-                startY + scaledY - arrowLength * Math.sin(angle + arrowAngle)
-            );
-            ctx.closePath();
-            ctx.fill();
-            
-            // Label
-            if (label) {
-                ctx.fillStyle = color;
-                ctx.font = '12px Arial';
-                ctx.fillText(label, startX + scaledX + 5, startY + scaledY - 5);
-            }
-        }
-        
-        function drawParticle(x, y) {
-            ctx.fillStyle = '#2c3e50';
-            ctx.beginPath();
-            ctx.arc(x, y, 8, 0, 2 * Math.PI);
-            ctx.fill();
-            
-            // Halo effekti
-            ctx.fillStyle = 'rgba(44, 62, 80, 0.3)';
-            ctx.beginPath();
-            ctx.arc(x, y, 12, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-        
-        function drawTrail() {
-            if (trail.length < 2) return;
-            
-            ctx.strokeStyle = 'rgba(108, 117, 125, 0.5)';
-            ctx.lineWidth = 2;
-            
-            ctx.beginPath();
-            ctx.moveTo(trail[0].x, trail[0].y);
-            
-            for (let i = 1; i < trail.length; i++) {
-                const alpha = i / trail.length;
-                ctx.globalAlpha = alpha * 0.5;
-                ctx.lineTo(trail[i].x, trail[i].y);
-            }
-            
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
-        
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
-            ctx.lineWidth = 1;
-            
-            const spacing = 50;
-            
-            for (let x = 0; x <= canvas.width; x += spacing) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            
-            for (let y = 0; y <= canvas.height; y += spacing) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-        }
-        
-        function drawCircularPath() {
-            if (motionType === 'circular') {
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
+            calcMotion() {
+                const cx = this.canvas.width / 2, cy = this.canvas.height / 2;
                 
-                ctx.strokeStyle = 'rgba(79, 172, 254, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                ctx.stroke();
-                
-                ctx.setLineDash([]);
-            }
-        }
-
-        // Asosiy animatsiya sikli
-        function animate() {
-            if (!isPlaying) return;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Grid va yo'l
-            drawGrid();
-            drawCircularPath();
-            
-            // Harakat hisoblash
-            calculateMotion();
-            
-            // Iz qo'shish
-            if (trail.length === 0 || 
-                Math.abs(position.x - trail[trail.length - 1].x) > 2 || 
-                Math.abs(position.y - trail[trail.length - 1].y) > 2) {
-                trail.push({ x: position.x, y: position.y });
-                
-                if (trail.length > maxTrailLength) {
-                    trail.shift();
+                if (this.motion === 'circular') {
+                    const w = this.vel / this.rad, ang = w * this.t;
+                    this.pos = {x: cx + this.rad * Math.cos(ang), y: cy + this.rad * Math.sin(ang)};
+                    this.v = {x: -this.vel * Math.sin(ang), y: this.vel * Math.cos(ang)};
+                    const ac = this.vel * this.vel / this.rad;
+                    this.an = {x: -ac * Math.cos(ang), y: -ac * Math.sin(ang)};
+                    this.at = {x: 0, y: 0};
+                    this.a = {...this.an};
+                } else if (this.motion === 'parabolic') {
+                    const t = this.t * 0.3, v0 = this.vel, ang = Math.PI / 4, g = 15;
+                    this.pos = {x: cx - 150 + v0 * Math.cos(ang) * t, y: cy - v0 * Math.sin(ang) * t + 0.5 * g * t * t};
+                    this.v = {x: v0 * Math.cos(ang), y: -v0 * Math.sin(ang) + g * t};
+                    this.a = {x: 0, y: g};
+                    
+                    const vm = Math.hypot(this.v.x, this.v.y);
+                    const curv = g * this.v.x / (vm * vm);
+                    this.an = {x: curv * this.v.y / vm, y: -curv * this.v.x / vm};
+                    this.at = {x: this.a.x - this.an.x, y: this.a.y - this.an.y};
+                    
+                    if (this.pos.y > this.canvas.height) { this.t = 0; this.trail = []; }
+                } else {
+                    const t = this.t * 0.1, amp = 80;
+                    this.pos = {x: cx + amp * Math.cos(t) * Math.sin(2*t), y: cy + amp * Math.sin(t) * Math.cos(t)};
+                    this.v = {x: amp * (-Math.sin(t) * Math.sin(2*t) + Math.cos(t) * 2 * Math.cos(2*t)), y: amp * (Math.cos(t) * Math.cos(t) - Math.sin(t) * Math.sin(t))};
+                    this.a = {x: amp * (-Math.cos(t) * Math.sin(2*t) - 4 * Math.sin(t) * Math.cos(2*t) - 4 * Math.cos(t) * Math.sin(2*t)), y: amp * (-4 * Math.sin(t) * Math.cos(t))};
+                    
+                    const vm = Math.hypot(this.v.x, this.v.y);
+                    if (vm > 0) {
+                        const tx = this.v.x / vm, ty = this.v.y / vm;
+                        const tm = this.a.x * tx + this.a.y * ty;
+                        this.at = {x: tm * tx, y: tm * ty};
+                        this.an = {x: this.a.x - this.at.x, y: this.a.y - this.at.y};
+                    }
                 }
-            }
+            },
             
-            // Chizish
-            drawTrail();
-            drawParticle(position.x, position.y);
-            
-            // Vektorlar
-            if (showVectors) {
-                drawVector(position.x, position.y, velocityVector.x, velocityVector.y, '#ff6b6b', 10, 'v⃗');
-                drawVector(position.x, position.y, accelerationVector.x, accelerationVector.y, '#4ecdc4', 50, 'a⃗');
-                drawVector(position.x, position.y, normalAcceleration.x, normalAcceleration.y, '#45b7d1', 50, 'aₙ');
-                drawVector(position.x, position.y, tangentialAcceleration.x, tangentialAcceleration.y, '#f39c12', 50, 'aₜ');
-            }
-            
-            // Vaqtni yangilash
-            time += 0.025 * animationSpeed;
-            
-            // Qiymatlarni yangilash
-            updateRealTimeValues();
-            
-            animationId = requestAnimationFrame(animate);
-        }
-
-        // Kontrol funktsiyalari
-        function toggleAnimation() {
-            isPlaying = !isPlaying;
-            const button = document.getElementById('playPauseText');
-            
-            if (isPlaying) {
-                button.textContent = 'To\'xtatish';
-                animate();
-            } else {
-                button.textContent = 'Boshlash';
-                cancelAnimationFrame(animationId);
-            }
-        }
-        
-        function resetSimulation() {
-            time = 0;
-            trail = [];
-            calculateMotion();
-            updateDisplays();
-            updateRealTimeValues();
-            
-            if (!isPlaying) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawGrid();
-                drawCircularPath();
-                drawParticle(position.x, position.y);
-            }
-        }
-
-        // Ma'lumotlarni yangilash
-        function updateDisplays() {
-            document.getElementById('velocityValue').textContent = velocity.toFixed(1) + ' m/s';
-            document.getElementById('radiusValue').textContent = radius.toFixed(0) + ' px';
-            document.getElementById('speedValue').textContent = animationSpeed.toFixed(1) + 'x';
-            document.getElementById('vectorScaleValue').textContent = vectorScale.toFixed(1) + 'x';
-        }
-        
-        function updateRealTimeValues() {
-            const vMag = Math.sqrt(velocityVector.x * velocityVector.x + velocityVector.y * velocityVector.y);
-            const aMag = Math.sqrt(accelerationVector.x * accelerationVector.x + accelerationVector.y * accelerationVector.y);
-            const anMag = Math.sqrt(normalAcceleration.x * normalAcceleration.x + normalAcceleration.y * normalAcceleration.y);
-            const atMag = Math.sqrt(tangentialAcceleration.x * tangentialAcceleration.x + tangentialAcceleration.y * tangentialAcceleration.y);
-            
-            document.getElementById('currentVelocity').textContent = (vMag * 0.2).toFixed(2) + ' m/s';
-            document.getElementById('centripetal').textContent = (anMag * 0.02).toFixed(3) + ' m/s²';
-            document.getElementById('tangential').textContent = (atMag * 0.02).toFixed(3) + ' m/s²';
-            document.getElementById('totalAcceleration').textContent = (aMag * 0.02).toFixed(3) + ' m/s²';
-            
-            if (motionType === 'circular') {
-                const omega = velocity / radius;
-                document.getElementById('angularVelocity').textContent = omega.toFixed(3) + ' rad/s';
-            } else {
-                document.getElementById('angularVelocity').textContent = 'N/A';
-            }
-        }
-
-        // Yordam va nazariya
-        function toggleHelp() {
-            alert('Tezlanish vektori simulyatsiyasi:\n\n' +
-                  '• Turli harakat turlarini tanlang\n' +
-                  '• Parametrlarni o\'zgartiring\n' +
-                  '• Vektorlarni kuzating\n' +
-                  '• Formulalarni o\'rganing\n\n' +
-                  'Maslahat: Har xil harakat turlarini sinab ko\'ring!');
-        }
-        
-        function toggleTheory() {
-            const content = document.getElementById('theoryContent');
-            const header = document.querySelector('.collapsible');
-            
-            content.classList.toggle('collapsed');
-            header.classList.toggle('collapsed');
-        }
-
-        // Tooltip
-        function showTooltip(event, text) {
-            const tooltip = document.getElementById('tooltip');
-            tooltip.textContent = text;
-            tooltip.style.left = event.pageX + 10 + 'px';
-            tooltip.style.top = event.pageY - 30 + 'px';
-            tooltip.classList.add('show');
-        }
-        
-        function hideTooltip() {
-            document.getElementById('tooltip').classList.remove('show');
-        }
-
-        // Touch support
-        let touchStartX = 0;
-        let touchStartY = 0;
-        
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-        
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const touchY = e.touches[0].clientY;
-            
-            const deltaX = touchX - touchStartX;
-            const deltaY = touchY - touchStartY;
-            
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                if (deltaX > 20) {
-                    velocity = Math.min(15, velocity + 0.5);
-                    velocitySlider.value = velocity;
-                } else if (deltaX < -20) {
-                    velocity = Math.max(1, velocity - 0.5);
-                    velocitySlider.value = velocity;
+            drawVec(x, y, vx, vy, col, s, lbl) {
+                const sx = vx * s * this.scl, sy = vy * s * this.scl;
+                if (Math.abs(sx) < 0.1 && Math.abs(sy) < 0.1) return;
+                
+                this.ctx.strokeStyle = this.ctx.fillStyle = col;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(x + sx, y + sy);
+                this.ctx.stroke();
+                
+                const ang = Math.atan2(sy, sx), al = 10, aa = Math.PI / 6;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x + sx, y + sy);
+                this.ctx.lineTo(x + sx - al * Math.cos(ang - aa), y + sy - al * Math.sin(ang - aa));
+                this.ctx.lineTo(x + sx - al * Math.cos(ang + aa), y + sy - al * Math.sin(ang + aa));
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                if (lbl) {
+                    this.ctx.font = '12px Arial';
+                    this.ctx.fillText(lbl, x + sx + 5, y + sy - 5);
                 }
-            } else {
-                if (deltaY > 20) {
-                    radius = Math.max(30, radius - 10);
-                    radiusSlider.value = radius;
-                } else if (deltaY < -20) {
-                    radius = Math.min(150, radius + 10);
-                    radiusSlider.value = radius;
-                }
-            }
+            },
             
-            updateDisplays();
-            touchStartX = touchX;
-            touchStartY = touchY;
-        });
-
-        // Boshlang'ich sozlamalar
-        updateDisplays();
-        calculateMotion();
-        updateRealTimeValues();
-        animate();
-
-        // MathJax qayta yuklash
-        window.addEventListener('load', () => {
-            if (window.MathJax) {
-                MathJax.typesetPromise();
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Grid
+                this.ctx.strokeStyle = 'rgba(200,200,200,0.3)';
+                this.ctx.lineWidth = 1;
+                for (let i = 0; i <= this.canvas.width; i += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(i, 0);
+                    this.ctx.lineTo(i, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                for (let i = 0; i <= this.canvas.height; i += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, i);
+                    this.ctx.lineTo(this.canvas.width, i);
+                    this.ctx.stroke();
+                }
+                
+                // Circle path
+                if (this.motion === 'circular') {
+                    this.ctx.strokeStyle = 'rgba(79,172,254,0.3)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.beginPath();
+                    this.ctx.arc(this.canvas.width / 2, this.canvas.height / 2, this.rad, 0, 2 * Math.PI);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                }
+                
+                // Trail
+                if (this.trail.length > 1) {
+                    this.ctx.strokeStyle = 'rgba(108,117,125,0.5)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        this.ctx.globalAlpha = i / this.trail.length * 0.5;
+                        this.ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    this.ctx.stroke();
+                    this.ctx.globalAlpha = 1;
+                }
+                
+                // Particle
+                this.ctx.fillStyle = '#2c3e50';
+                this.ctx.beginPath();
+                this.ctx.arc(this.pos.x, this.pos.y, 8, 0, 2 * Math.PI);
+                this.ctx.fill();
+                this.ctx.fillStyle = 'rgba(44,62,80,0.3)';
+                this.ctx.beginPath();
+                this.ctx.arc(this.pos.x, this.pos.y, 12, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Vectors
+                this.drawVec(this.pos.x, this.pos.y, this.v.x, this.v.y, '#ff6b6b', 10, 'v⃗');
+                this.drawVec(this.pos.x, this.pos.y, this.a.x, this.a.y, '#4ecdc4', 50, 'a⃗');
+                this.drawVec(this.pos.x, this.pos.y, this.an.x, this.an.y, '#45b7d1', 50, 'aₙ');
+                this.drawVec(this.pos.x, this.pos.y, this.at.x, this.at.y, '#f39c12', 50, 'aₜ');
+            },
+            
+            animate() {
+                if (!this.playing) return;
+                
+                this.calcMotion();
+                
+                if (this.trail.length === 0 || Math.hypot(this.pos.x - this.trail[this.trail.length-1].x, this.pos.y - this.trail[this.trail.length-1].y) > 2) {
+                    this.trail.push({...this.pos});
+                    if (this.trail.length > this.maxTrail) this.trail.shift();
+                }
+                
+                this.draw();
+                this.updateInfo();
+                
+                this.t += 0.025 * this.spd;
+                this.animId = requestAnimationFrame(() => this.animate());
+            },
+            
+            toggle() {
+                this.playing = !this.playing;
+                document.getElementById('playText').textContent = this.playing ? "To'xtatish" : "Boshlash";
+                if (this.playing) this.animate();
+                else cancelAnimationFrame(this.animId);
+            },
+            
+            reset() {
+                this.t = 0;
+                this.trail = [];
+                this.calcMotion();
+                this.updateDisplay();
+                this.updateInfo();
+                if (!this.playing) this.draw();
+            },
+            
+            updateDisplay() {
+                document.getElementById('velVal').textContent = this.vel.toFixed(1) + ' m/s';
+                document.getElementById('radVal').textContent = this.rad.toFixed(0) + ' px';
+                document.getElementById('spdVal').textContent = this.spd.toFixed(1) + 'x';
+                document.getElementById('sclVal').textContent = this.scl.toFixed(1) + 'x';
+            },
+            
+            updateInfo() {
+                const vm = Math.hypot(this.v.x, this.v.y);
+                const am = Math.hypot(this.a.x, this.a.y);
+                const anm = Math.hypot(this.an.x, this.an.y);
+                const atm = Math.hypot(this.at.x, this.at.y);
+                
+                document.getElementById('iVel').textContent = (vm * 0.2).toFixed(2) + ' m/s';
+                document.getElementById('iCent').textContent = (anm * 0.02).toFixed(3) + ' m/s²';
+                document.getElementById('iTang').textContent = (atm * 0.02).toFixed(3) + ' m/s²';
+                document.getElementById('iTot').textContent = (am * 0.02).toFixed(3) + ' m/s²';
+                document.getElementById('iOmega').textContent = this.motion === 'circular' ? (this.vel / this.rad).toFixed(3) + ' rad/s' : 'N/A';
+            },
+            
+            toggleTheory() {
+                const content = document.getElementById('theory');
+                const header = document.querySelector('.collapsible');
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
             }
-        });
+        };
+        
+        app.init();
+        window.addEventListener('load', () => window.MathJax && MathJax.typesetPromise());
     </script>
 </body>
-
 </html>
-
-
