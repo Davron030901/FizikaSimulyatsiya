@@ -3,50 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2.5 Kinetik ishqalanish kuchi</title>
+    <title>Kinetik Ishqalanish Kuchi</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
+            color: white;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
         h1 {
             text-align: center;
-            color: #fff;
-            margin-bottom: 30px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
         }
-        .simulation-container {
-            background: rgba(255, 255, 255, 0.9);
+        .formula {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .formula h3 { color: #667eea; margin-bottom: 10px; }
+        .formula strong { font-size: 1.5em; color: #764ba2; }
+        .sim-box {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 20px;
             margin: 20px 0;
             color: #333;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-        .canvas-container {
-            text-align: center;
-            margin: 20px 0;
         }
         canvas {
-            border: 2px solid #333;
-            border-radius: 10px;
-            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 50%, #654321 50%, #654321 100%);
             display: block;
-            margin: 0 auto;
+            margin: 20px auto;
+            border: 3px solid #333;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 50%, #8B7355 50%, #8B7355 100%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
         .controls {
             display: flex;
@@ -56,566 +61,477 @@
             margin: 20px 0;
         }
         .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.8);
+            background: white;
             padding: 15px;
             border-radius: 10px;
-            min-width: 150px;
+            min-width: 160px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         label {
+            display: block;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
+            color: #667eea;
+            margin-bottom: 8px;
         }
         input[type="range"] {
-            width: 120px;
-            margin: 5px 0;
+            width: 100%;
+            margin: 8px 0;
+            cursor: pointer;
         }
-        select, input[type="number"] {
-            padding: 5px;
-            border: 1px solid #ddd;
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #667eea;
             border-radius: 5px;
-            width: 100px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .value-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #764ba2;
+            margin-top: 5px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
         }
         button {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 14px 28px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s ease;
-            margin: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
-        .info-panel {
+        button:active {
+            transform: translateY(-1px);
+        }
+        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
-        .info-box {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            color: #333;
-        }
-        .info-box h3 {
-            margin: 0 0 10px 0;
-            color: #2a5298;
-        }
-        .chart-container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
+        .info-card {
+            background: white;
             padding: 20px;
-            margin: 20px 0;
-            color: #333;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
-        .surface-visual {
-            height: 50px;
-            border-radius: 5px;
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        .info-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .info-card p {
+            color: #764ba2;
+            font-size: 1.5em;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        .ice { background: linear-gradient(45deg, #E6F3FF, #B8E6FF); color: #333; }
-        .wood { background: linear-gradient(45deg, #8B4513, #A0522D); }
-        .concrete { background: linear-gradient(45deg, #696969, #808080); }
-        .rubber { background: linear-gradient(45deg, #2F4F4F, #556B2F); }
-        .formula {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            color: #333;
-            font-size: 18px;
-            text-align: center;
         }
         .comparison {
             display: flex;
             justify-content: space-around;
+            gap: 15px;
             margin: 20px 0;
         }
-        .comparison-item {
+        .comparison-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
             text-align: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+        .comparison-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .comparison-card p {
+            color: #333;
+            margin: 5px 0;
+        }
+        .surface-demo {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .ice { background: linear-gradient(135deg, #E0F4FF, #B8E6FF); color: #333; }
+        .wood { background: linear-gradient(135deg, #8B4513, #A0522D); }
+        .concrete { background: linear-gradient(135deg, #696969, #808080); }
+        .rubber { background: linear-gradient(135deg, #2F4F4F, #556B2F); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>2.5 Kinetik ishqalanish kuchi</h1>
+        <h1>⚡ Kinetik Ishqalanish Kuchi</h1>
         
         <div class="formula">
-            <h3>Kinetik ishqalanish formulasi:</h3>
+            <h3>📐 Formula</h3>
             <p><strong>fₖ = μₖ × N</strong></p>
-            <p>Bu yerda: fₖ - kinetik ishqalanish kuchi, μₖ - kinetik ishqalanish koeffitsienti, N - normal kuch</p>
+            <p style="margin-top: 10px;">fₖ - kinetik ishqalanish kuchi | μₖ - ishqalanish koeffitsienti | N - normal kuch</p>
         </div>
-        <div class="simulation-container">
-            <div class="canvas-container">
-                <canvas id="simulationCanvas" width="800" height="400"></canvas>
-            </div>
+
+        <div class="sim-box">
+            <canvas id="canvas" width="800" height="400"></canvas>
             
             <div class="controls">
                 <div class="control-group">
-                    <label for="mass">Massa (kg):</label>
+                    <label>⚖️ Massa (kg)</label>
                     <input type="range" id="mass" min="1" max="20" value="5" step="0.5">
-                    <span id="massValue">5</span>
+                    <div class="value-display" id="massVal">5</div>
                 </div>
                 
                 <div class="control-group">
-                    <label for="initialVelocity">Boshlang'ich tezlik (m/s):</label>
-                    <input type="range" id="initialVelocity" min="1" max="30" value="15" step="0.5">
-                    <span id="velocityValue">15</span>
+                    <label>🚀 Boshlang'ich tezlik (m/s)</label>
+                    <input type="range" id="velocity" min="1" max="30" value="15" step="0.5">
+                    <div class="value-display" id="velVal">15</div>
                 </div>
                 
                 <div class="control-group">
-                    <label for="surface">Sirt turi:</label>
+                    <label>🌍 Sirt turi</label>
                     <select id="surface">
-                        <option value="ice">Muz (μₖ = 0.1)</option>
-                        <option value="wood" selected>Yog'och (μₖ = 0.3)</option>
-                        <option value="concrete">Beton (μₖ = 0.6)</option>
-                        <option value="rubber">Rezina (μₖ = 0.8)</option>
+                        <option value="ice">❄️ Muz (μₖ=0.1)</option>
+                        <option value="wood" selected>🪵 Yog'och (μₖ=0.3)</option>
+                        <option value="concrete">🏗️ Beton (μₖ=0.6)</option>
+                        <option value="rubber">⚫ Rezina (μₖ=0.8)</option>
                     </select>
                 </div>
                 
                 <div class="control-group">
-                    <label for="angle">Yuzaki burchak (°):</label>
+                    <label>📐 Burchak (°)</label>
                     <input type="range" id="angle" min="0" max="30" value="0" step="1">
-                    <span id="angleValue">0</span>
+                    <div class="value-display" id="angleVal">0</div>
                 </div>
             </div>
             
-            <div style="text-align: center; margin: 20px 0;">
-                <button onclick="startSimulation()">Simulyatsiyani boshlash</button>
-                <button onclick="pauseSimulation()">Pauza</button>
-                <button onclick="resetSimulation()">Qayta boshlash</button>
+            <div class="btn-group">
+                <button onclick="start()">▶️ Boshlash</button>
+                <button onclick="pause()">⏸️ Pauza</button>
+                <button onclick="reset()">🔄 Qayta</button>
             </div>
         </div>
 
-        <div class="info-panel">
-            <div class="info-box">
-                <h3>Joriy tezlik</h3>
-                <p id="currentVelocity">0 m/s</p>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🏃 Tezlik</h3>
+                <p id="vel">0 m/s</p>
             </div>
-            <div class="info-box">
-                <h3>Ishqalanish kuchi</h3>
-                <p id="frictionForce">0 N</p>
+            <div class="info-card">
+                <h3>⚡ Ishqalanish</h3>
+                <p id="friction">0 N</p>
             </div>
-            <div class="info-box">
-                <h3>Tezlanish</h3>
-                <p id="acceleration">0 m/s²</p>
+            <div class="info-card">
+                <h3>📈 Tezlanish</h3>
+                <p id="accel">0 m/s²</p>
             </div>
-            <div class="info-box">
-                <h3>Bosib o'tgan masofa</h3>
-                <p id="distance">0 m</p>
+            <div class="info-card">
+                <h3>📏 Masofa</h3>
+                <p id="dist">0 m</p>
             </div>
-            <div class="info-box">
-                <h3>To'xtash masofasi</h3>
-                <p id="stoppingDistance">0 m</p>
-            </div>
-            <div class="info-box">
-                <h3>Vaqt</h3>
+            <div class="info-card">
+                <h3>⏱️ Vaqt</h3>
                 <p id="time">0 s</p>
+            </div>
+            <div class="info-card">
+                <h3>🛑 To'xtash</h3>
+                <p id="stop">0 m</p>
             </div>
         </div>
 
         <div class="comparison">
-            <div class="comparison-item">
-                <h4>Statik ishqalanish</h4>
-                <p>μₛ = <span id="staticFriction">0.4</span></p>
-                <p>Harakat boshlanmasdan oldin</p>
+            <div class="comparison-card">
+                <h4>🔒 Statik</h4>
+                <p>μₛ = <span id="static">0.4</span></p>
+                <p>Harakatsiz holat</p>
             </div>
-            <div class="comparison-item">
-                <h4>Kinetik ishqalanish</h4>
-                <p>μₖ = <span id="kineticFriction">0.3</span></p>
-                <p>Harakat davomida</p>
+            <div class="comparison-card">
+                <h4>🏃 Kinetik</h4>
+                <p>μₖ = <span id="kinetic">0.3</span></p>
+                <p>Harakat holati</p>
             </div>
-            <div class="comparison-item">
-                <h4>Taqqoslash</h4>
-                <p>μₖ < μₛ</p>
+            <div class="comparison-card">
+                <h4>📊 Taqqoslash</h4>
+                <p><strong>μₖ < μₛ</strong></p>
                 <p>Kinetik kichikroq</p>
             </div>
         </div>
 
-        <div class="chart-container">
-            <h3>Tezlik-Vaqt grafigi</h3>
-            <canvas id="chartCanvas" width="800" height="300"></canvas>
+        <div class="sim-box">
+            <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">🎨 Sirt turlari</h3>
+            <div class="surface-demo ice">❄️ Muz: μₖ = 0.1 (Eng silliq)</div>
+            <div class="surface-demo wood">🪵 Yog'och: μₖ = 0.3 (O'rtacha)</div>
+            <div class="surface-demo concrete">🏗️ Beton: μₖ = 0.6 (Qo'pol)</div>
+            <div class="surface-demo rubber">⚫ Rezina: μₖ = 0.8 (Eng qo'pol)</div>
         </div>
 
-        <div class="simulation-container">
-            <h3>Turli sirt turlari</h3>
-            <div class="surface-visual ice">Muz: μₖ = 0.1 (Eng silliq)</div>
-            <div class="surface-visual wood">Yog'och: μₖ = 0.3 (O'rtacha)</div>
-            <div class="surface-visual concrete">Beton: μₖ = 0.6 (Qo'pol)</div>
-            <div class="surface-visual rubber">Rezina: μₖ = 0.8 (Eng qo'pol)</div>
+        <div class="sim-box">
+            <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">📉 Tezlik-Vaqt Grafigi</h3>
+            <canvas id="chart" width="800" height="300"></canvas>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('simulationCanvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const chartCanvas = document.getElementById('chartCanvas');
-        const chartCtx = chartCanvas.getContext('2d');
+        const chart = document.getElementById('chart');
+        const chartCtx = chart.getContext('2d');
         
-        let animationId;
-        let isRunning = false;
-        let startTime = 0;
-        let currentTime = 0;
+        let animFrame, running = false;
+        let mass = 5, initVel = 15, currVel = 15, pos = 50, dist = 0, time = 0;
+        const g = 9.81;
+        let angle = 0, surface = 'wood';
+        let velData = [], timeData = [];
         
-        // Simulyatsiya o'zgaruvchilari
-        let mass = 5; // kg
-        let initialVelocity = 15; // m/s
-        let currentVelocity = 15; // m/s
-        let position = 50; // piksel
-        let distance = 0; // m
-        let time = 0; // s
-        let g = 9.81; // m/s²
-        let angle = 0; // gradus
-        
-        // Sirt koeffitsientlari
-        const surfaceCoefficients = {
-            ice: { kinetic: 0.1, static: 0.15 },
-            wood: { kinetic: 0.3, static: 0.4 },
-            concrete: { kinetic: 0.6, static: 0.8 },
-            rubber: { kinetic: 0.8, static: 1.0 }
+        const surfaces = {
+            ice: {k: 0.1, s: 0.15, color: '#B8E6FF'},
+            wood: {k: 0.3, s: 0.4, color: '#8B4513'},
+            concrete: {k: 0.6, s: 0.8, color: '#696969'},
+            rubber: {k: 0.8, s: 1.0, color: '#2F4F4F'}
         };
         
-        let currentSurface = 'wood';
-        let velocityData = [];
-        let timeData = [];
+        document.getElementById('mass').oninput = e => {
+            mass = +e.target.value;
+            document.getElementById('massVal').textContent = mass;
+            reset();
+        };
         
-        // Event listeners
-        document.getElementById('mass').addEventListener('input', updateMass);
-        document.getElementById('initialVelocity').addEventListener('input', updateInitialVelocity);
-        document.getElementById('surface').addEventListener('change', updateSurface);
-        document.getElementById('angle').addEventListener('input', updateAngle);
+        document.getElementById('velocity').oninput = e => {
+            initVel = +e.target.value;
+            document.getElementById('velVal').textContent = initVel;
+            reset();
+        };
         
-        function updateMass() {
-            mass = parseFloat(document.getElementById('mass').value);
-            document.getElementById('massValue').textContent = mass;
-            resetSimulation();
+        document.getElementById('surface').onchange = e => {
+            surface = e.target.value;
+            updateCoeffs();
+            reset();
+        };
+        
+        document.getElementById('angle').oninput = e => {
+            angle = +e.target.value;
+            document.getElementById('angleVal').textContent = angle;
+            reset();
+        };
+        
+        function updateCoeffs() {
+            document.getElementById('kinetic').textContent = surfaces[surface].k;
+            document.getElementById('static').textContent = surfaces[surface].s;
         }
         
-        function updateInitialVelocity() {
-            initialVelocity = parseFloat(document.getElementById('initialVelocity').value);
-            document.getElementById('velocityValue').textContent = initialVelocity;
-            resetSimulation();
+        function calcPhysics() {
+            const rad = angle * Math.PI / 180;
+            const N = mass * g * Math.cos(rad);
+            const fk = surfaces[surface].k * N;
+            const gComp = mass * g * Math.sin(rad);
+            const a = (gComp - fk) / mass;
+            return {N, fk, a};
         }
         
-        function updateSurface() {
-            currentSurface = document.getElementById('surface').value;
-            document.getElementById('kineticFriction').textContent = surfaceCoefficients[currentSurface].kinetic;
-            document.getElementById('staticFriction').textContent = surfaceCoefficients[currentSurface].static;
-            resetSimulation();
-        }
-        
-        function updateAngle() {
-            angle = parseFloat(document.getElementById('angle').value);
-            document.getElementById('angleValue').textContent = angle;
-            resetSimulation();
-        }
-        
-        function startSimulation() {
-            if (!isRunning) {
-                isRunning = true;
-                startTime = Date.now();
+        function start() {
+            if (!running) {
+                running = true;
                 animate();
             }
         }
         
-        function pauseSimulation() {
-            isRunning = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+        function pause() {
+            running = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
         }
         
-        function resetSimulation() {
-            isRunning = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-            
-            currentVelocity = initialVelocity;
-            position = 50;
-            distance = 0;
+        function reset() {
+            pause();
+            currVel = initVel;
+            pos = 50;
+            dist = 0;
             time = 0;
-            velocityData = [];
+            velData = [];
             timeData = [];
-            
-            updateDisplay();
-            drawBlock();
+            update();
+            draw();
             drawChart();
-        }
-        
-        function calculatePhysics() {
-            const angleRad = angle * Math.PI / 180;
-            const normalForce = mass * g * Math.cos(angleRad);
-            const frictionCoeff = surfaceCoefficients[currentSurface].kinetic;
-            const frictionForce = frictionCoeff * normalForce;
-            const gravityComponent = mass * g * Math.sin(angleRad);
-            
-            // Net kuch (ishqalanish va og'irlik komponenti)
-            const netForce = gravityComponent - frictionForce;
-            const acceleration = netForce / mass;
-            
-            return {
-                normalForce,
-                frictionForce,
-                acceleration,
-                frictionCoeff
-            };
         }
         
         function animate() {
-            if (!isRunning) return;
+            if (!running) return;
             
-            const dt = 0.016; // 60 FPS
+            const dt = 0.016;
             time += dt;
             
-            const physics = calculatePhysics();
+            const {fk, a} = calcPhysics();
+            currVel += a * dt;
             
-            // Tezlik yangilanishi
-            currentVelocity += physics.acceleration * dt;
-            
-            // Agar tezlik manfiy bo'lsa, to'xtash
-            if (currentVelocity <= 0) {
-                currentVelocity = 0;
-                isRunning = false;
+            if (currVel <= 0) {
+                currVel = 0;
+                running = false;
             }
             
-            // Pozitsiya yangilanishi
-            const deltaDistance = currentVelocity * dt;
-            distance += deltaDistance;
-            position += deltaDistance * 10; // Ekran uchun masshtab
+            const dd = currVel * dt;
+            dist += dd;
+            pos += dd * 10;
             
-            // Agar blok ekrandan chiqsa, qayta boshlash
-            if (position > canvas.width + 50) {
-                resetSimulation();
-                return;
-            }
+            if (pos > canvas.width + 50) reset();
             
-            // Ma'lumotlarni saqlash
-            velocityData.push(currentVelocity);
+            velData.push(currVel);
             timeData.push(time);
             
-            // Ekranlarni yangilash
-            updateDisplay();
-            drawBlock();
+            update();
+            draw();
             drawChart();
             
-            animationId = requestAnimationFrame(animate);
+            animFrame = requestAnimationFrame(animate);
         }
         
-        function updateDisplay() {
-            const physics = calculatePhysics();
+        function update() {
+            const {fk, a} = calcPhysics();
             
-            document.getElementById('currentVelocity').textContent = currentVelocity.toFixed(2) + ' m/s';
-            document.getElementById('frictionForce').textContent = physics.frictionForce.toFixed(2) + ' N';
-            document.getElementById('acceleration').textContent = physics.acceleration.toFixed(2) + ' m/s²';
-            document.getElementById('distance').textContent = distance.toFixed(2) + ' m';
+            document.getElementById('vel').textContent = currVel.toFixed(2) + ' m/s';
+            document.getElementById('friction').textContent = fk.toFixed(2) + ' N';
+            document.getElementById('accel').textContent = a.toFixed(2) + ' m/s²';
+            document.getElementById('dist').textContent = dist.toFixed(2) + ' m';
             document.getElementById('time').textContent = time.toFixed(2) + ' s';
             
-            // To'xtash masofasini hisoblash
-            const stoppingDistance = calculateStoppingDistance();
-            document.getElementById('stoppingDistance').textContent = stoppingDistance.toFixed(2) + ' m';
+            const stopDist = a >= 0 ? '∞' : (-(currVel * currVel) / (2 * a)).toFixed(2) + ' m';
+            document.getElementById('stop').textContent = stopDist;
         }
         
-        function calculateStoppingDistance() {
-            const physics = calculatePhysics();
-            if (physics.acceleration >= 0) return Infinity;
-            
-            // v² = v₀² + 2as, v = 0 da: s = -v₀²/(2a)
-            return -(currentVelocity * currentVelocity) / (2 * physics.acceleration);
-        }
-        
-        function drawBlock() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Sirt chizish
-            drawSurface();
-            
-            // Blok chizish
-            const blockSize = 40;
-            const blockY = canvas.height - 100;
-            
-            // Blok soyasi
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.fillRect(position + 3, blockY + 3, blockSize, blockSize);
+            // Sirt
+            const groundY = canvas.height - 60;
+            ctx.fillStyle = surfaces[surface].color;
+            ctx.fillRect(0, groundY, canvas.width, 60);
             
             // Blok
-            ctx.fillStyle = '#ff6b6b';
-            ctx.fillRect(position, blockY, blockSize, blockSize);
-            
-            // Blok chegarasi
+            const size = 40, y = groundY - 40;
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(pos + 3, y + 3, size, size);
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillRect(pos, y, size, size);
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
-            ctx.strokeRect(position, blockY, blockSize, blockSize);
+            ctx.strokeRect(pos, y, size, size);
             
             // Tezlik vektori
-            if (currentVelocity > 0) {
-                const arrowLength = currentVelocity * 3;
-                const arrowX = position + blockSize / 2;
-                const arrowY = blockY - 10;
+            if (currVel > 0) {
+                const len = currVel * 3;
+                const x = pos + size / 2, ay = y - 10;
                 
                 ctx.strokeStyle = '#4CAF50';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.moveTo(arrowX, arrowY);
-                ctx.lineTo(arrowX + arrowLength, arrowY);
+                ctx.moveTo(x, ay);
+                ctx.lineTo(x + len, ay);
                 ctx.stroke();
                 
-                // O'q uchi
                 ctx.beginPath();
-                ctx.moveTo(arrowX + arrowLength, arrowY);
-                ctx.lineTo(arrowX + arrowLength - 10, arrowY - 5);
-                ctx.lineTo(arrowX + arrowLength - 10, arrowY + 5);
+                ctx.moveTo(x + len, ay);
+                ctx.lineTo(x + len - 8, ay - 5);
+                ctx.lineTo(x + len - 8, ay + 5);
                 ctx.closePath();
                 ctx.fillStyle = '#4CAF50';
                 ctx.fill();
                 
-                // Tezlik belgisi
                 ctx.fillStyle = '#333';
-                ctx.font = '14px Arial';
-                ctx.fillText(`v = ${currentVelocity.toFixed(1)} m/s`, arrowX + arrowLength + 10, arrowY + 5);
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(`v=${currVel.toFixed(1)}`, x + len + 5, ay + 5);
             }
             
-            // Ishqalanish kuchi vektori
-            const physics = calculatePhysics();
-            if (physics.frictionForce > 0) {
-                const frictionLength = physics.frictionForce * 2;
-                const frictionX = position + blockSize / 2;
-                const frictionY = blockY + blockSize / 2;
+            // Ishqalanish
+            const {fk} = calcPhysics();
+            if (fk > 0) {
+                const len = fk * 2;
+                const x = pos + size / 2, fy = y + size / 2;
                 
                 ctx.strokeStyle = '#FF5722';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.moveTo(frictionX, frictionY);
-                ctx.lineTo(frictionX - frictionLength, frictionY);
+                ctx.moveTo(x, fy);
+                ctx.lineTo(x - len, fy);
                 ctx.stroke();
                 
-                // O'q uchi
                 ctx.beginPath();
-                ctx.moveTo(frictionX - frictionLength, frictionY);
-                ctx.lineTo(frictionX - frictionLength + 10, frictionY - 5);
-                ctx.lineTo(frictionX - frictionLength + 10, frictionY + 5);
+                ctx.moveTo(x - len, fy);
+                ctx.lineTo(x - len + 8, fy - 5);
+                ctx.lineTo(x - len + 8, fy + 5);
                 ctx.closePath();
                 ctx.fillStyle = '#FF5722';
                 ctx.fill();
                 
-                // Ishqalanish belgisi
                 ctx.fillStyle = '#333';
-                ctx.font = '14px Arial';
-                ctx.fillText(`fₖ = ${physics.frictionForce.toFixed(1)} N`, frictionX - frictionLength - 80, frictionY - 10);
-            }
-            
-            // Masofa ko'rsatgichi
-            ctx.fillStyle = '#333';
-            ctx.font = '16px Arial';
-            ctx.fillText(`Masofa: ${distance.toFixed(2)} m`, 10, 30);
-        }
-        
-        function drawSurface() {
-            const groundY = canvas.height - 60;
-            
-            // Sirt rangi
-            let surfaceColor;
-            switch (currentSurface) {
-                case 'ice': surfaceColor = '#E6F3FF'; break;
-                case 'wood': surfaceColor = '#8B4513'; break;
-                case 'concrete': surfaceColor = '#696969'; break;
-                case 'rubber': surfaceColor = '#2F4F4F'; break;
-            }
-            
-            ctx.fillStyle = surfaceColor;
-            ctx.fillRect(0, groundY, canvas.width, 60);
-            
-            // Sirt teksturasi
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            for (let i = 0; i < canvas.width; i += 20) {
-                ctx.fillRect(i, groundY, 1, 60);
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(`fₖ=${fk.toFixed(1)}N`, x - len - 70, fy - 10);
             }
         }
         
         function drawChart() {
-            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+            chartCtx.clearRect(0, 0, chart.width, chart.height);
+            if (velData.length < 2) return;
             
-            if (velocityData.length < 2) return;
+            const m = 40, w = chart.width - 2 * m, h = chart.height - 2 * m;
             
-            // Grafik chegaralari
-            const margin = 40;
-            const chartWidth = chartCanvas.width - 2 * margin;
-            const chartHeight = chartCanvas.height - 2 * margin;
-            
-            // O'qlar
             chartCtx.strokeStyle = '#333';
             chartCtx.lineWidth = 2;
             chartCtx.beginPath();
-            chartCtx.moveTo(margin, margin);
-            chartCtx.lineTo(margin, chartCanvas.height - margin);
-            chartCtx.lineTo(chartCanvas.width - margin, chartCanvas.height - margin);
+            chartCtx.moveTo(m, m);
+            chartCtx.lineTo(m, chart.height - m);
+            chartCtx.lineTo(chart.width - m, chart.height - m);
             chartCtx.stroke();
             
-            // Belgiler
             chartCtx.fillStyle = '#333';
-            chartCtx.font = '14px Arial';
-            chartCtx.fillText('Tezlik (m/s)', margin, 20);
-            chartCtx.fillText('Vaqt (s)', chartCanvas.width - 80, chartCanvas.height - 10);
+            chartCtx.font = 'bold 14px Arial';
+            chartCtx.fillText('Tezlik (m/s)', m, 20);
+            chartCtx.fillText('Vaqt (s)', chart.width - 80, chart.height - 10);
             
-            // Ma'lumotlarni normalizatsiya qilish
-            const maxVelocity = Math.max(...velocityData);
-            const maxTime = Math.max(...timeData);
+            const maxV = Math.max(...velData);
+            const maxT = Math.max(...timeData);
             
-            // Grafik chizish
-            chartCtx.strokeStyle = '#4CAF50';
+            chartCtx.strokeStyle = '#667eea';
             chartCtx.lineWidth = 3;
             chartCtx.beginPath();
             
-            for (let i = 0; i < velocityData.length; i++) {
-                const x = margin + (timeData[i] / maxTime) * chartWidth;
-                const y = chartCanvas.height - margin - (velocityData[i] / maxVelocity) * chartHeight;
-                
-                if (i === 0) {
-                    chartCtx.moveTo(x, y);
-                } else {
-                    chartCtx.lineTo(x, y);
-                }
+            for (let i = 0; i < velData.length; i++) {
+                const x = m + (timeData[i] / maxT) * w;
+                const y = chart.height - m - (velData[i] / maxV) * h;
+                i === 0 ? chartCtx.moveTo(x, y) : chartCtx.lineTo(x, y);
             }
             chartCtx.stroke();
             
-            // Nuqtalar
-            chartCtx.fillStyle = '#4CAF50';
-            for (let i = 0; i < velocityData.length; i += 10) {
-                const x = margin + (timeData[i] / maxTime) * chartWidth;
-                const y = chartCanvas.height - margin - (velocityData[i] / maxVelocity) * chartHeight;
+            chartCtx.fillStyle = '#764ba2';
+            for (let i = 0; i < velData.length; i += 5) {
+                const x = m + (timeData[i] / maxT) * w;
+                const y = chart.height - m - (velData[i] / maxV) * h;
                 chartCtx.beginPath();
-                chartCtx.arc(x, y, 3, 0, 2 * Math.PI);
+                chartCtx.arc(x, y, 4, 0, 2 * Math.PI);
                 chartCtx.fill();
             }
         }
         
-        // Dastlabki holatni o'rnatish
-        updateSurface();
-        resetSimulation();
+        updateCoeffs();
+        reset();
     </script>
 </body>
 </html>
-
-
-
