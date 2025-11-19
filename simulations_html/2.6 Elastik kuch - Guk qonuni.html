@@ -3,1435 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2.6 Elastik kuch - Guk qonuni</title>
+    <title>Guk Qonuni Simulyatsiyasi</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             line-height: 1.6;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .simulation-area {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .spring-container {
-            position: relative;
-            height: 400px;
-            overflow: hidden;
-        }
-
-        .spring-system {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 100%;
-        }
-
-        .ceiling {
-            width: 100%;
-            height: 20px;
-            background: #8B4513;
-            border-radius: 5px;
-            position: relative;
-        }
-
-        .ceiling::before {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: repeating-linear-gradient(
-                45deg,
-                #8B4513,
-                #8B4513 10px,
-                #A0522D 10px,
-                #A0522D 20px
-            );
-        }
-
-        .spring {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            top: 20px;
-            transition: height 0.3s ease;
-        }
-
-        .spring-segment {
-            width: 100%;
-            height: 10px;
-            border: 2px solid #4CAF50;
-            border-radius: 50%;
-            margin: 1px 0;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-        }
-
-        .mass {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 40px;
-            background: linear-gradient(45deg, #FF6B6B, #FF5252);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            transition: top 0.3s ease;
-        }
-
-        .mass::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
-            background: #333;
-            border-radius: 50%;
-        }
-
-        .equilibrium-line {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #FF9800;
-            z-index: 10;
-        }
-
-        .equilibrium-line::before {
-            content: 'Muvozanat';
-            position: absolute;
-            right: 10px;
-            top: -20px;
-            color: #FF9800;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .force-vector {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            background: #E91E63;
-            transform-origin: top center;
-            transition: height 0.3s ease;
-        }
-
-        .force-vector::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 15px solid #E91E63;
-        }
-
-        .force-label {
-            position: absolute;
-            left: 60px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #E91E63;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .graph-container {
-            position: relative;
-            height: 400px;
-        }
-
-        .graph-canvas {
-            width: 100%;
-            height: 100%;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            background: #f9f9f9;
-        }
-
-        .controls {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
-        }
-
-        .control-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .control-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-
-        .control-item:hover {
-            border-color: #007bff;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
-        }
-
-        .control-item label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .control-item input[type="range"] {
-            width: 100%;
-            margin-bottom: 10px;
-            height: 8px;
-            border-radius: 5px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .control-item input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #007bff;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .control-item input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #007bff;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .control-item input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .value-display {
-            font-size: 14px;
-            color: #007bff;
-            font-weight: bold;
-            text-align: center;
-            background: white;
-            padding: 5px;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-
-        .preset-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .preset-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .preset-btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .playback-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .playback-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .playback-btn:hover {
-            background: #1e7e34;
-            transform: translateY(-2px);
-        }
-
-        .playback-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .info-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
-        }
-
-        .info-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-
-        .info-tab {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px 20px 0 0;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .info-tab.active {
-            background: #007bff;
-            color: white;
-        }
-
-        .info-content {
-            display: none;
-        }
-
-        .info-content.active {
-            display: block;
-        }
-
-        .formula-display {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #007bff;
-        }
-
-        .current-values {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .value-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 2px solid #e9ecef;
-        }
-
-        .value-card h3 {
-            color: #007bff;
-            margin-bottom: 10px;
-        }
-
-        .value-card .value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .value-card .unit {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        .comparison-table th {
-            background: #007bff;
-            color: white;
-        }
-
-        .comparison-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .help-tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-            color: #007bff;
-            margin-left: 5px;
-        }
-
-        .help-tooltip::after {
-            content: '?';
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background: #007bff;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            font-size: 12px;
-            line-height: 16px;
-        }
-
-        .help-tooltip:hover::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            white-space: nowrap;
-            z-index: 1000;
-            font-size: 12px;
-        }
-
-        .elastic-limit {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #FF5722;
-            z-index: 10;
-        }
-
-        .elastic-limit::before {
-            content: 'Elastiklik chegarasi';
-            position: absolute;
-            right: 10px;
-            top: -20px;
-            color: #FF5722;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .panel { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .panel h2 { margin-bottom: 20px; color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        
+        /* Spring System */
+        .spring-container { position: relative; height: 400px; background: linear-gradient(180deg, #e3f2fd 0%, #fff 100%); border-radius: 10px; overflow: hidden; }
+        .ceiling { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 25px; background: #8B4513; border-radius: 0 0 5px 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .ceiling::after { content: ''; position: absolute; bottom: -10px; left: 0; right: 0; height: 15px; background: repeating-linear-gradient(45deg, #8B4513, #8B4513 10px, #A0522D 10px, #A0522D 20px); }
+        .spring { position: absolute; left: 50%; transform: translateX(-50%); width: 30px; top: 40px; }
+        .spring-coil { width: 100%; border: 3px solid #4CAF50; border-radius: 50%; margin: 0; background: linear-gradient(90deg, #4CAF50 0%, #81C784 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .mass { position: absolute; left: 50%; transform: translateX(-50%); width: 80px; height: 50px; background: linear-gradient(145deg, #FF6B6B, #FF5252); border-radius: 10px; box-shadow: 0 6px 20px rgba(255,107,107,0.5); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; will-change: top; }
+        .mass::before { content: ''; position: absolute; top: -8px; width: 15px; height: 15px; background: #333; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .force-arrow { position: absolute; left: 50%; transform: translateX(-50%); width: 6px; background: linear-gradient(180deg, #E91E63, #C2185B); transition: all 0.3s ease; box-shadow: 0 0 10px rgba(233,30,99,0.5); }
+        .force-arrow::after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid #C2185B; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .force-label { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #E91E63; font-weight: bold; font-size: 18px; background: white; padding: 5px 10px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .ref-line { position: absolute; left: 0; right: 0; height: 2px; background: #FF9800; z-index: 10; }
+        .ref-line::before { content: attr(data-label); position: absolute; right: 10px; top: -22px; color: #FF9800; font-size: 11px; font-weight: bold; background: white; padding: 2px 6px; border-radius: 3px; }
+        
+        /* Graph */
+        .graph-wrapper { position: relative; height: 400px; background: #f9f9f9; border-radius: 10px; padding: 10px; }
+        canvas { width: 100%; height: 100%; border-radius: 8px; }
+        
+        /* Controls */
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .control-item { background: linear-gradient(145deg, #f8f9fa, #e9ecef); padding: 20px; border-radius: 12px; border: 2px solid #dee2e6; transition: all 0.3s ease; }
+        .control-item:hover { border-color: #667eea; box-shadow: 0 6px 20px rgba(102,126,234,0.3); transform: translateY(-2px); }
+        .control-item label { display: block; margin-bottom: 10px; font-weight: 600; color: #495057; font-size: 14px; }
+        input[type="range"] { width: 100%; height: 8px; border-radius: 5px; background: linear-gradient(to right, #667eea, #764ba2); outline: none; -webkit-appearance: none; appearance: none; margin-bottom: 10px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.3); border: 3px solid #667eea; }
+        input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: white; cursor: pointer; border: 3px solid #667eea; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+        input[type="number"] { width: 100%; padding: 10px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px; transition: border-color 0.3s ease; }
+        input[type="number"]:focus { outline: none; border-color: #667eea; }
+        .value-display { text-align: center; font-size: 16px; color: #667eea; font-weight: bold; background: white; padding: 8px; border-radius: 8px; margin-top: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .preset-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .preset-btn { flex: 1; padding: 8px 12px; border: none; border-radius: 20px; background: linear-gradient(145deg, #667eea, #764ba2); color: white; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease; }
+        .preset-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        
+        /* Action Buttons */
+        .actions { display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 12px 24px; border: none; border-radius: 25px; color: white; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .btn-play { background: linear-gradient(145deg, #28a745, #20c997); }
+        .btn-reset { background: linear-gradient(145deg, #dc3545, #c82333); }
+        .btn-export { background: linear-gradient(145deg, #007bff, #0056b3); }
+        
+        /* Info Cards */
+        .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .info-card { background: linear-gradient(145deg, #ffffff, #f8f9fa); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid #e9ecef; transition: all 0.3s ease; }
+        .info-card:hover { border-color: #667eea; box-shadow: 0 8px 25px rgba(102,126,234,0.2); transform: translateY(-3px); }
+        .info-card h3 { color: #667eea; margin-bottom: 10px; font-size: 14px; font-weight: 600; }
+        .info-card .value { font-size: 2em; font-weight: bold; color: #495057; }
+        .info-card .unit { color: #6c757d; font-size: 0.9em; margin-top: 5px; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #e9ecef; }
+        .tab { padding: 12px 24px; border: none; background: transparent; cursor: pointer; transition: all 0.3s ease; font-weight: 600; color: #6c757d; border-bottom: 3px solid transparent; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .formula-box { background: linear-gradient(145deg, #f8f9fa, #e9ecef); padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 5px solid #667eea; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .formula-box strong { color: #667eea; font-size: 18px; }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .simulation-area {
-                grid-template-columns: 1fr;
-            }
-            
-            .control-group {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .playback-controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .preset-buttons {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .panel {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-            
-            .current-values {
-                grid-template-columns: 1fr;
-            }
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2em; }
+            .controls { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>2.6 Elastik kuch - Guk qonuni</h1>
-            <p>Prujina-yuk tizimi simulyatsiyasi</p>
+            <h1>⚙️ Guk Qonuni - Interaktiv Simulyatsiya</h1>
+            <p>Prujina elastikligi va kuch-cho'zilish bog'lanishini o'rganing</p>
         </div>
 
-        <div class="simulation-area">
+        <div class="grid">
             <div class="panel">
-                <h2>Prujina-Yuk Tizimi</h2>
+                <h2>🌀 Prujina-Yuk Tizimi</h2>
                 <div class="spring-container">
-                    <div class="spring-system">
-                        <div class="ceiling"></div>
-                        <div class="spring" id="spring">
-                            <!-- Spring segments will be generated by JavaScript -->
-                        </div>
-                        <div class="mass" id="mass">m</div>
-                        <div class="equilibrium-line" id="equilibrium-line"></div>
-                        <div class="elastic-limit" id="elastic-limit"></div>
-                        <div class="force-vector" id="force-vector"></div>
-                        <div class="force-label" id="force-label">F = 0 N</div>
-                    </div>
+                    <div class="ceiling"></div>
+                    <div class="spring" id="spring"></div>
+                    <div class="mass" id="mass">1 kg</div>
+                    <div class="ref-line" id="eq-line" data-label="Muvozanat"></div>
+                    <div class="force-arrow" id="arrow"></div>
+                    <div class="force-label" id="f-label">F = 0 N</div>
                 </div>
             </div>
 
             <div class="panel">
-                <h2>Kuch-Cho'zilish Grafigi</h2>
-                <div class="graph-container">
-                    <canvas id="graph-canvas" class="graph-canvas"></canvas>
+                <h2>📊 Kuch-Cho'zilish Grafigi</h2>
+                <div class="graph-wrapper">
+                    <canvas id="graph"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="controls">
-            <h2>Boshqaruv Paneli</h2>
-            <div class="control-group">
+        <div class="panel">
+            <h2>🎛️ Boshqaruv Paneli</h2>
+            <div class="controls">
                 <div class="control-item">
-                    <label for="k-slider">
-                        Bikrlik koeffitsienti (k)
-                        <span class="help-tooltip" data-tooltip="Prujinaning bikrlik darajasini belgilaydi"></span>
-                    </label>
-                    <input type="range" id="k-slider" min="1" max="100" value="50" step="1">
-                    <input type="number" id="k-input" min="1" max="100" value="50" step="1">
-                    <div class="value-display">k = <span id="k-value">50</span> N/m</div>
-                    <div class="preset-buttons">
-                        <button class="preset-btn" onclick="setK(10)">Yumshoq</button>
-                        <button class="preset-btn" onclick="setK(50)">O'rtacha</button>
-                        <button class="preset-btn" onclick="setK(100)">Qattiq</button>
+                    <label>Bikrlik koeffitsienti (k)</label>
+                    <input type="range" id="k-range" min="10" max="100" value="50" step="5">
+                    <input type="number" id="k-num" min="10" max="100" value="50">
+                    <div class="value-display">k = <span id="k-val">50</span> N/m</div>
+                    <div class="preset-btns">
+                        <button class="preset-btn" data-param="k" data-value="20">Yumshoq</button>
+                        <button class="preset-btn" data-param="k" data-value="50">O'rta</button>
+                        <button class="preset-btn" data-param="k" data-value="100">Qattiq</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <label for="x-slider">
-                        Cho'zilish (x)
-                        <span class="help-tooltip" data-tooltip="Prujinaning muvozanat holatidan cho'zilish miqdori"></span>
-                    </label>
-                    <input type="range" id="x-slider" min="0" max="20" value="5" step="0.1">
-                    <input type="number" id="x-input" min="0" max="20" value="5" step="0.1">
-                    <div class="value-display">x = <span id="x-value">5</span> cm</div>
-                    <div class="preset-buttons">
-                        <button class="preset-btn" onclick="setX(0)">Muvozanat</button>
-                        <button class="preset-btn" onclick="setX(10)">O'rtacha</button>
-                        <button class="preset-btn" onclick="setX(20)">Maksimal</button>
+                    <label>Cho'zilish (x)</label>
+                    <input type="range" id="x-range" min="0" max="20" value="5" step="0.5">
+                    <input type="number" id="x-num" min="0" max="20" value="5" step="0.1">
+                    <div class="value-display">x = <span id="x-val">5</span> cm</div>
+                    <div class="preset-btns">
+                        <button class="preset-btn" data-param="x" data-value="0">0 cm</button>
+                        <button class="preset-btn" data-param="x" data-value="10">10 cm</button>
+                        <button class="preset-btn" data-param="x" data-value="20">20 cm</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <label for="mass-slider">
-                        Massa (m)
-                        <span class="help-tooltip" data-tooltip="Prujinaga osilgan yuk massasi"></span>
-                    </label>
-                    <input type="range" id="mass-slider" min="0.1" max="5" value="1" step="0.1">
-                    <input type="number" id="mass-input" min="0.1" max="5" value="1" step="0.1">
-                    <div class="value-display">m = <span id="mass-value">1</span> kg</div>
-                    <div class="preset-buttons">
-                        <button class="preset-btn" onclick="setMass(0.5)">Engil</button>
-                        <button class="preset-btn" onclick="setMass(1)">O'rtacha</button>
-                        <button class="preset-btn" onclick="setMass(2)">Og'ir</button>
+                    <label>Massa (m)</label>
+                    <input type="range" id="m-range" min="0.5" max="5" value="1" step="0.5">
+                    <input type="number" id="m-num" min="0.5" max="5" value="1" step="0.1">
+                    <div class="value-display">m = <span id="m-val">1</span> kg</div>
+                    <div class="preset-btns">
+                        <button class="preset-btn" data-param="m" data-value="0.5">0.5 kg</button>
+                        <button class="preset-btn" data-param="m" data-value="2">2 kg</button>
+                        <button class="preset-btn" data-param="m" data-value="5">5 kg</button>
                     </div>
                 </div>
 
                 <div class="control-item">
-                    <label for="speed-slider">
-                        Animatsiya tezligi
-                        <span class="help-tooltip" data-tooltip="Simulyatsiya animatsiya tezligi"></span>
-                    </label>
-                    <input type="range" id="speed-slider" min="0.1" max="5" value="1" step="0.1">
-                    <div class="value-display">Tezlik: <span id="speed-value">1</span>x</div>
+                    <label>Animatsiya Tezligi</label>
+                    <input type="range" id="spd-range" min="0.5" max="3" value="1" step="0.5">
+                    <div class="value-display">Tezlik: <span id="spd-val">1</span>x</div>
                 </div>
             </div>
 
-            <div class="playback-controls">
-                <button class="playback-btn" id="play-btn" onclick="toggleAnimation()">▶ Boshlash</button>
-                <button class="playback-btn" onclick="resetSimulation()">🔄 Qaytarish</button>
-                <button class="playback-btn" onclick="exportData()">📊 Ma'lumot yuklash</button>
-                <button class="playback-btn" onclick="takeScreenshot()">📸 Suratga olish</button>
+            <div class="actions">
+                <button class="btn btn-play" id="play-btn">▶ Boshlash</button>
+                <button class="btn btn-reset" id="reset-btn">🔄 Qaytarish</button>
+                <button class="btn btn-export" id="export-btn">💾 Saqlash</button>
             </div>
         </div>
 
-        <div class="current-values">
-            <div class="value-card">
-                <h3>Elastik kuch</h3>
-                <div class="value" id="elastic-force">0</div>
-                <div class="unit">N</div>
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>Elastik Kuch</h3>
+                <div class="value" id="f-elastic">0</div>
+                <div class="unit">N (Nyuton)</div>
             </div>
-            <div class="value-card">
-                <h3>Potensial energiya</h3>
-                <div class="value" id="potential-energy">0</div>
-                <div class="unit">J</div>
+            <div class="info-card">
+                <h3>Potensial Energiya</h3>
+                <div class="value" id="energy">0</div>
+                <div class="unit">J (Joul)</div>
             </div>
-            <div class="value-card">
+            <div class="info-card">
                 <h3>Cho'zilish</h3>
-                <div class="value" id="displacement">0</div>
+                <div class="value" id="disp">0</div>
                 <div class="unit">cm</div>
             </div>
-            <div class="value-card">
-                <h3>Og'irlik kuchi</h3>
-                <div class="value" id="weight-force">0</div>
-                <div class="unit">N</div>
+            <div class="info-card">
+                <h3>Og'irlik Kuchi</h3>
+                <div class="value" id="weight">0</div>
+                <div class="unit">N (Nyuton)</div>
             </div>
         </div>
 
-        <div class="info-panel">
-            <div class="info-tabs">
-                <button class="info-tab active" onclick="showTab('theory')">Nazariya</button>
-                <button class="info-tab" onclick="showTab('formulas')">Formulalar</button>
-                <button class="info-tab" onclick="showTab('comparison')">Taqqoslash</button>
-                <button class="info-tab" onclick="showTab('examples')">Misollar</button>
+        <div class="panel">
+            <div class="tabs">
+                <button class="tab active" data-tab="0">📚 Nazariya</button>
+                <button class="tab" data-tab="1">📐 Formulalar</button>
+                <button class="tab" data-tab="2">💡 Misollar</button>
             </div>
 
-            <div id="theory" class="info-content active">
-                <h3>Guk qonuni</h3>
-                <p>Guk qonuni elastik jismlarning deformatsiyasi va uni keltirib chiqaruvchi kuch orasidagi bog'lanishni ifodalaydi. Bu qonun bo'yicha, elastik jismning cho'zilishi (yoki siqilishi) uni deformatsiyalayotgan kuchga to'g'ri proporsionaldir.</p>
-                
-                <div class="formula-display">
-                    <strong>Asosiy formula:</strong><br>
+            <div class="tab-content active">
+                <h3>Guk Qonuni haqida</h3>
+                <p>Guk qonuni elastik jismlarning deformatsiyasi va kuch orasidagi munosabatni ifodalaydi. Ingliz olimi Robert Hooke tomonidan 1660-yilda kashf etilgan.</p>
+                <div class="formula-box">
+                    <strong>Asosiy formula:</strong><br><br>
                     $$F = -kx$$
-                    <ul>
-                        <li>F - qaytaruvchi kuch (N)</li>
-                        <li>k - bikrlik koeffitsienti (N/m)</li>
-                        <li>x - cho'zilish (m)</li>
+                    <ul style="margin-top: 10px; line-height: 2;">
+                        <li><strong>F</strong> - qaytaruvchi kuch (N)</li>
+                        <li><strong>k</strong> - bikrlik koeffitsienti (N/m)</li>
+                        <li><strong>x</strong> - cho'zilish (m)</li>
                     </ul>
                 </div>
-
-                <p>Minus belgisi qaytaruvchi kuch har doim cho'zilish yo'nalishiga qarama-qarshi yo'nalganligini bildiradi.</p>
-
-                <h4>Elastiklik chegarasi</h4>
-                <p>Har qanday elastik jism ma'lum chegaragacha deformatsiyalanishi mumkin. Bu chegaradan oshib ketsa, jism o'zining asl shaklini qaytarib olishga qodir bo'lmaydi.</p>
+                <p><strong>Minus belgisi:</strong> Qaytaruvchi kuch har doim cho'zilish yo'nalishiga qarama-qarshi tomonga yo'nalgan.</p>
             </div>
 
-            <div id="formulas" class="info-content">
-                <h3>Bog'liq formulalar</h3>
-                
-                <div class="formula-display">
-                    <strong>Guk qonuni:</strong><br>
-                    $$F = -kx$$
+            <div class="tab-content">
+                <h3>Muhim Formulalar</h3>
+                <div class="formula-box">
+                    <strong>1. Guk qonuni:</strong><br>$$F = -kx$$
                 </div>
-
-                <div class="formula-display">
-                    <strong>Elastik potensial energiya:</strong><br>
-                    $$U = \frac{1}{2}kx^2$$
+                <div class="formula-box">
+                    <strong>2. Elastik potensial energiya:</strong><br>$$U = \frac{1}{2}kx^2$$
                 </div>
-
-                <div class="formula-display">
-                    <strong>Tebranish davri:</strong><br>
-                    $$T = 2\pi\sqrt{\frac{m}{k}}$$
+                <div class="formula-box">
+                    <strong>3. Tebranish davri:</strong><br>$$T = 2\pi\sqrt{\frac{m}{k}}$$
                 </div>
-
-                <div class="formula-display">
-                    <strong>Tebranish chastotasi:</strong><br>
-                    $$f = \frac{1}{2\pi}\sqrt{\frac{k}{m}}$$
+                <div class="formula-box">
+                    <strong>4. Tebranish chastotasi:</strong><br>$$f = \frac{1}{2\pi}\sqrt{\frac{k}{m}}$$
                 </div>
-
-                <div class="formula-display">
-                    <strong>Muvozanat holatida:</strong><br>
-                    $$kx_0 = mg$$
+                <div class="formula-box">
+                    <strong>5. Muvozanat sharti:</strong><br>$$kx_0 = mg$$
                 </div>
             </div>
 
-            <div id="comparison" class="info-content">
-                <h3>Turli k qiymatlari taqqoslash</h3>
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Bikrlik koeffitsienti (N/m)</th>
-                            <th>Prujina turi</th>
-                            <th>5 cm cho'zilish uchun kuch (N)</th>
-                            <th>Potensial energiya (J)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparison-tbody">
-                        <!-- JavaScript tomonidan to'ldiriladi -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="examples" class="info-content">
-                <h3>Hayotiy misollar</h3>
-                <div class="formula-display">
-                    <strong>Avtomobil ressori:</strong><br>
+            <div class="tab-content">
+                <h3>Hayotiy Qo'llanmalar</h3>
+                <div class="formula-box">
+                    <strong>🚗 Avtomobil Ressori</strong><br>
                     k ≈ 30,000 N/m<br>
-                    Yo'lning notekisligini yumshatish uchun ishlatiladi.
+                    Yo'l notekisliklarini yumshatadi va haydovchilik qulayligini oshiradi.
                 </div>
-
-                <div class="formula-display">
-                    <strong>Yay (bow):</strong><br>
+                <div class="formula-box">
+                    <strong>🏹 Kamon (Yoy)</strong><br>
                     k ≈ 500-1000 N/m<br>
-                    Kinetik energiya hosil qilish uchun ishlatiladi.
+                    O'qqa kinetik energiya berish uchun elastik energiyadan foydalaniladi.
                 </div>
-
-                <div class="formula-display">
-                    <strong>Prujinali tarozi:</strong><br>
+                <div class="formula-box">
+                    <strong>⚖️ Prujinali Tarozi</strong><br>
                     k ≈ 10-100 N/m<br>
-                    Massa o'lchash uchun ishlatiladi.
+                    Massani cho'zilishni o'lchash orqali aniqlaydi.
                 </div>
-
-                <div class="formula-display">
-                    <strong>Soat prujinasi:</strong><br>
+                <div class="formula-box">
+                    <strong>⏰ Soat Mexanizmi</strong><br>
                     k ≈ 0.1-1 N/m<br>
-                    Vaqt o'lchash mexanizmida ishlatiladi.
+                    Muntazam tebranishlar orqali vaqtni o'lchaydi.
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Global variables
-        let isAnimating = false;
-        let animationSpeed = 1;
-        let currentK = 50;
-        let currentX = 5;
-        let currentMass = 1;
-        let equilibriumPosition = 150;
-        let animationFrame;
-        let graphData = [];
-        let maxGraphPoints = 50;
+        let state = { k: 50, x: 5, m: 1, speed: 1, isPlaying: false, time: 0 };
+        let animFrame;
 
-        // Initialize the simulation
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                initializeSpring();
-                initializeGraph();
-                updateSimulation();
-                bindEvents();
-                updateComparisonTable();
-                
-                // Hide loading indicator if present
-                const loader = document.querySelector('.loading');
-                if (loader) loader.style.display = 'none';
-                
-            } catch (error) {
-                console.error('Simulation initialization error:', error);
-                alert('Simulyatsiya yuklanishda xatolik yuz berdi. Sahifani qayta yuklang.');
-            }
-        });
-
-        function initializeSpring() {
+        function init() {
             const spring = document.getElementById('spring');
             spring.innerHTML = '';
-            
-            // Create spring segments
-            for (let i = 0; i < 15; i++) {
-                const segment = document.createElement('div');
-                segment.className = 'spring-segment';
-                spring.appendChild(segment);
+            // Create 25 coils for smoother spring effect
+            for (let i = 0; i < 25; i++) {
+                const coil = document.createElement('div');
+                coil.className = 'spring-coil';
+                spring.appendChild(coil);
             }
-        }
-
-        function initializeGraph() {
-            const canvas = document.getElementById('graph-canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size with proper pixel ratio
-            const rect = canvas.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            
-            ctx.scale(dpr, dpr);
-            
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
-            
+            bindEvents();
+            update();
             drawGraph();
         }
 
         function bindEvents() {
-            // K slider events
-            document.getElementById('k-slider').addEventListener('input', function(e) {
-                currentK = parseFloat(e.target.value);
-                document.getElementById('k-input').value = currentK;
-                document.getElementById('k-value').textContent = currentK;
-                updateSimulation();
+            ['k', 'x', 'm'].forEach(p => {
+                const range = document.getElementById(p + '-range');
+                const num = document.getElementById(p + '-num');
+                if (range) range.oninput = e => setParam(p, e.target.value);
+                if (num) num.oninput = e => setParam(p, e.target.value);
             });
 
-            document.getElementById('k-input').addEventListener('input', function(e) {
-                currentK = parseFloat(e.target.value);
-                document.getElementById('k-slider').value = currentK;
-                document.getElementById('k-value').textContent = currentK;
-                updateSimulation();
+            const spdRange = document.getElementById('spd-range');
+            if (spdRange) {
+                spdRange.oninput = e => {
+                    state.speed = parseFloat(e.target.value);
+                    document.getElementById('spd-val').textContent = state.speed;
+                };
+            }
+
+            const playBtn = document.getElementById('play-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const exportBtn = document.getElementById('export-btn');
+            
+            if (playBtn) playBtn.addEventListener('click', togglePlay);
+            if (resetBtn) resetBtn.addEventListener('click', reset);
+            if (exportBtn) exportBtn.addEventListener('click', exportData);
+
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setParam(btn.dataset.param, btn.dataset.value);
+                });
             });
 
-            // X slider events
-            document.getElementById('x-slider').addEventListener('input', function(e) {
-                currentX = parseFloat(e.target.value);
-                document.getElementById('x-input').value = currentX;
-                document.getElementById('x-value').textContent = currentX;
-                updateSimulation();
-            });
-
-            document.getElementById('x-input').addEventListener('input', function(e) {
-                currentX = parseFloat(e.target.value);
-                document.getElementById('x-slider').value = currentX;
-                document.getElementById('x-value').textContent = currentX;
-                updateSimulation();
-            });
-
-            // Mass slider events
-            document.getElementById('mass-slider').addEventListener('input', function(e) {
-                currentMass = parseFloat(e.target.value);
-                document.getElementById('mass-input').value = currentMass;
-                document.getElementById('mass-value').textContent = currentMass;
-                updateSimulation();
-            });
-
-            document.getElementById('mass-input').addEventListener('input', function(e) {
-                currentMass = parseFloat(e.target.value);
-                document.getElementById('mass-slider').value = currentMass;
-                document.getElementById('mass-value').textContent = currentMass;
-                updateSimulation();
-            });
-
-            // Speed slider events
-            document.getElementById('speed-slider').addEventListener('input', function(e) {
-                animationSpeed = parseFloat(e.target.value);
-                document.getElementById('speed-value').textContent = animationSpeed;
-            });
-
-            // Window resize
-            window.addEventListener('resize', function() {
-                setTimeout(initializeGraph, 100);
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    showTab(parseInt(tab.dataset.tab));
+                });
             });
         }
 
-        function updateSimulation() {
-            // Calculate forces and energy
-            const displacement = currentX / 100; // Convert cm to m
-            const elasticForce = currentK * displacement;
-            const weightForce = currentMass * 9.8;
-            const potentialEnergy = 0.5 * currentK * displacement * displacement;
+        function setParam(param, val) {
+            val = parseFloat(val);
+            const limits = { k: [10, 100], x: [0, 20], m: [0.5, 5], spd: [0.5, 3] };
+            if (limits[param]) val = Math.max(limits[param][0], Math.min(limits[param][1], val));
             
-            // Update spring visual
-            updateSpringVisual();
-            
-            // Update mass position
-            updateMassPosition();
-            
-            // Update force vector
-            updateForceVector(elasticForce);
-            
-            // Update equilibrium and elastic limit lines
-            updateLimitLines();
-            
-            // Update value displays
-            document.getElementById('elastic-force').textContent = elasticForce.toFixed(2);
-            document.getElementById('potential-energy').textContent = potentialEnergy.toFixed(4);
-            document.getElementById('displacement').textContent = currentX.toFixed(1);
-            document.getElementById('weight-force').textContent = weightForce.toFixed(2);
-            
-            // Update graph
-            updateGraphData();
+            if (param === 'k') state.k = val;
+            else if (param === 'x') state.x = val;
+            else if (param === 'm') state.m = val;
+            else if (param === 'spd') state.speed = val;
+
+            // Update UI elements safely
+            const updateElement = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+            };
+
+            const updateText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
+
+            if (param === 'k') {
+                updateElement('k-range', state.k);
+                updateElement('k-num', state.k);
+                updateText('k-val', state.k);
+            } else if (param === 'x') {
+                updateElement('x-range', state.x);
+                updateElement('x-num', state.x);
+                updateText('x-val', state.x);
+            } else if (param === 'm') {
+                updateElement('m-range', state.m);
+                updateElement('m-num', state.m);
+                updateText('m-val', state.m);
+            } else if (param === 'spd') {
+                updateElement('spd-range', state.speed);
+                updateText('spd-val', state.speed);
+            }
+
+            update();
             drawGraph();
         }
 
-        function updateSpringVisual() {
-            const spring = document.getElementById('spring');
-            const naturalLength = 120; // Base spring length
-            const maxExtension = 200; // Maximum extension
-            const currentLength = naturalLength + (currentX / 20) * maxExtension;
+        function update() {
+            const xm = state.x / 100;
+            const F = state.k * xm;
+            const U = 0.5 * state.k * xm * xm;
+            const W = state.m * 9.8;
+
+            // Update spring with realistic coil spacing
+            const springEl = document.getElementById('spring');
+            const coils = springEl.querySelectorAll('.spring-coil');
+            const naturalHeight = 100;
+            const maxStretch = 250;
+            const currentStretch = (state.x / 20) * maxStretch;
+            const totalHeight = naturalHeight + currentStretch;
             
-            spring.style.height = currentLength + 'px';
+            // Calculate coil properties based on stretch
+            const baseCoilHeight = 6;
+            const coilHeight = baseCoilHeight + (state.x / 20) * 6; // Coils get taller when stretched
+            const spacing = (totalHeight - (coils.length * coilHeight)) / (coils.length - 1);
             
-            // Update spring segments
-            const segments = spring.querySelectorAll('.spring-segment');
-            const segmentHeight = currentLength / segments.length;
-            
-            segments.forEach((segment, index) => {
-                segment.style.height = (segmentHeight - 2) + 'px';
-                // Add stretch effect
-                const stretchFactor = 1 + (currentX / 20) * 0.5;
-                segment.style.transform = `scaleY(${stretchFactor})`;
+            // Apply to each coil with smooth transition
+            let currentY = 0;
+            coils.forEach((coil, i) => {
+                coil.style.height = coilHeight + 'px';
+                coil.style.marginTop = (i === 0 ? 0 : spacing) + 'px';
+                
+                // Add slight wave effect for more realism
+                const wave = Math.sin((i / coils.length) * Math.PI) * 2;
+                coil.style.width = (30 + wave) + 'px';
             });
-        }
 
-        function updateMassPosition() {
-            const mass = document.getElementById('mass');
-            const basePosition = 140; // Base position from top
-            const extension = (currentX / 20) * 200;
-            const newPosition = basePosition + extension;
-            
-            mass.style.top = newPosition + 'px';
-            mass.textContent = currentMass + 'kg';
-        }
+            springEl.style.height = totalHeight + 'px';
 
-        function updateForceVector(force) {
-            const forceVector = document.getElementById('force-vector');
-            const forceLabel = document.getElementById('force-label');
-            
-            if (force > 0) {
-                // Scale force vector (max 100px)
-                const vectorLength = Math.min(force * 2, 100);
-                
-                forceVector.style.height = vectorLength + 'px';
-                forceVector.style.top = (document.getElementById('mass').offsetTop + 40) + 'px';
-                forceVector.style.display = 'block';
-                
-                // Point upward (restoring force)
-                forceVector.style.transform = 'translateX(-50%) rotate(180deg)';
-                
-                forceLabel.textContent = `F = ${force.toFixed(2)} N ↑`;
-                forceLabel.style.top = (document.getElementById('mass').offsetTop + 10) + 'px';
+            // Update mass position smoothly
+            const massTop = 40 + totalHeight;
+            const massEl = document.getElementById('mass');
+            massEl.style.top = massTop + 'px';
+            massEl.textContent = state.m + ' kg';
+
+            // Add subtle rotation effect when stretching
+            const rotation = (state.x / 20) * 3;
+            massEl.style.transform = `translateX(-50%) rotate(${Math.sin(rotation) * 2}deg)`;
+
+            // Update force arrow with smooth animation
+            const arrowH = Math.min(F * 20, 150);
+            const arrow = document.getElementById('arrow');
+            if (F > 0.05) {
+                arrow.style.height = arrowH + 'px';
+                arrow.style.top = (massTop + 50) + 'px';
+                arrow.style.display = 'block';
+                arrow.style.opacity = Math.min(F / 5, 1);
             } else {
-                forceVector.style.display = 'none';
-                forceLabel.textContent = 'F = 0 N';
+                arrow.style.display = 'none';
             }
-        }
 
-        function updateLimitLines() {
-            const equilibriumLine = document.getElementById('equilibrium-line');
-            const elasticLimit = document.getElementById('elastic-limit');
-            
-            // Calculate equilibrium position where spring force balances weight
-            const equilibriumExtension = (currentMass * 9.8) / currentK; // in meters
-            const equilibriumExtensionCm = equilibriumExtension * 100; // in cm
-            
-            // Convert to pixel position (scale based on max displacement of 20cm)
-            const equilibriumY = 140 + (equilibriumExtensionCm / 20) * 200;
-            
-            // Ensure the equilibrium line is within visible bounds
-            if (equilibriumY < 380) {
-                equilibriumLine.style.top = equilibriumY + 'px';
-                equilibriumLine.style.display = 'block';
+            const fLabel = document.getElementById('f-label');
+            fLabel.textContent = `F = ${F.toFixed(2)} N ↑`;
+            fLabel.style.top = (massTop + 15) + 'px';
+
+            // Update equilibrium line
+            const eqExtension = (W / state.k) * 100;
+            const eqY = 40 + naturalHeight + ((eqExtension / 20) * maxStretch);
+            const eqLine = document.getElementById('eq-line');
+            if (eqY < 380 && eqExtension < 20) {
+                eqLine.style.top = eqY + 'px';
+                eqLine.style.display = 'block';
             } else {
-                equilibriumLine.style.display = 'none';
+                eqLine.style.display = 'none';
             }
-            
-            // Set elastic limit at 80% of container height
-            elasticLimit.style.top = '320px';
-        }
 
-        function updateGraphData() {
-            const displacement = currentX / 100; // Convert to meters
-            const force = currentK * displacement;
-            
-            // Add current point to graph data
-            graphData.push({ x: displacement, y: force });
-            
-            // Keep only last maxGraphPoints points
-            if (graphData.length > maxGraphPoints) {
-                graphData.shift();
-            }
+            // Update info cards
+            document.getElementById('f-elastic').textContent = F.toFixed(2);
+            document.getElementById('energy').textContent = U.toFixed(4);
+            document.getElementById('disp').textContent = state.x.toFixed(1);
+            document.getElementById('weight').textContent = W.toFixed(2);
         }
 
         function drawGraph() {
-            const canvas = document.getElementById('graph-canvas');
+            const canvas = document.getElementById('graph');
             const ctx = canvas.getContext('2d');
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Get actual canvas dimensions
             const rect = canvas.getBoundingClientRect();
-            const canvasWidth = rect.width;
-            const canvasHeight = rect.height;
-            
-            // Set up coordinate system
-            const padding = 40;
-            const graphWidth = canvasWidth - 2 * padding;
-            const graphHeight = canvasHeight - 2 * padding;
-            
-            // Draw axes
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const w = canvas.width, h = canvas.height;
+            const p = 40;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i <= 10; i++) {
+                const x = p + i * (w - 2 * p) / 10;
+                ctx.beginPath(); ctx.moveTo(x, p); ctx.lineTo(x, h - p); ctx.stroke();
+                const y = h - p - i * (h - 2 * p) / 10;
+                ctx.beginPath(); ctx.moveTo(p, y); ctx.lineTo(w - p, y); ctx.stroke();
+            }
+
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
-            
-            // X-axis
+            ctx.beginPath(); ctx.moveTo(p, h - p); ctx.lineTo(w - p, h - p); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p, p); ctx.lineTo(p, h - p); ctx.stroke();
+
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(padding, canvasHeight - padding);
-            ctx.lineTo(canvasWidth - padding, canvasHeight - padding);
+            ctx.moveTo(p, h - p);
+            ctx.lineTo(w - p, p);
             ctx.stroke();
-            
-            // Y-axis
-            ctx.beginPath();
-            ctx.moveTo(padding, padding);
-            ctx.lineTo(padding, canvasHeight - padding);
-            ctx.stroke();
-            
-            // Draw axis labels
-            ctx.fillStyle = '#333';
+
+            if (state.x > 0) {
+                const xm = state.x / 100;
+                const F = state.k * xm;
+                const px = p + (xm / 0.2) * (w - 2 * p);
+                const py = h - p - (F / (state.k * 0.2)) * (h - 2 * p);
+
+                ctx.fillStyle = '#FF6B6B';
+                ctx.beginPath();
+                ctx.arc(px, py, 10, 0, 2 * Math.PI);
+                ctx.fill();
+
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.fillText(`(${xm.toFixed(2)}, ${F.toFixed(1)})`, px + 15, py - 10);
+            }
+
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`F = ${state.k}x`, p + 10, p + 25);
+
+            ctx.fillStyle = '#666';
             ctx.font = '12px Arial';
             ctx.textAlign = 'center';
-            
-            // X-axis label
-            ctx.fillText('Cho\'zilish (m)', canvasWidth / 2, canvasHeight - 5);
-            
-            // Y-axis label
+            ctx.fillText('Cho\'zilish (m)', w / 2, h - 5);
             ctx.save();
-            ctx.translate(15, canvasHeight / 2);
+            ctx.translate(15, h / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText('Kuch (N)', 0, 0);
             ctx.restore();
-            
-            // Draw scale
-            const maxX = 0.2; // 20 cm in meters
-            const maxY = currentK * maxX;
-            
-            // Draw grid
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 1;
-            
-            // Vertical grid lines
-            for (let i = 1; i <= 10; i++) {
-                const x = padding + (i / 10) * graphWidth;
-                ctx.beginPath();
-                ctx.moveTo(x, padding);
-                ctx.lineTo(x, canvasHeight - padding);
-                ctx.stroke();
-            }
-            
-            // Horizontal grid lines
-            for (let i = 1; i <= 10; i++) {
-                const y = canvasHeight - padding - (i / 10) * graphHeight;
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(canvasWidth - padding, y);
-                ctx.stroke();
-            }
-            
-            // Draw theoretical line (Hooke's law)
-            ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(padding, canvasHeight - padding);
-            ctx.lineTo(canvasWidth - padding, padding);
-            ctx.stroke();
-            
-            // Draw current point
-            if (currentX > 0) {
-                const currentPointX = padding + (currentX / 100 / maxX) * graphWidth;
-                const currentPointY = canvasHeight - padding - (currentK * currentX / 100 / maxY) * graphHeight;
-                
-                ctx.fillStyle = '#FF6B6B';
-                ctx.beginPath();
-                ctx.arc(currentPointX, currentPointY, 8, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Draw point label
-                ctx.fillStyle = '#333';
-                ctx.font = '10px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`(${(currentX/100).toFixed(2)}, ${(currentK * currentX / 100).toFixed(1)})`, 
-                           currentPointX + 10, currentPointY - 10);
-            }
-            
-            // Draw scale numbers
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-            
-            // X-axis numbers
-            for (let i = 0; i <= 10; i++) {
-                const x = padding + (i / 10) * graphWidth;
-                const value = (i / 10) * maxX;
-                ctx.fillText(value.toFixed(2), x, canvasHeight - padding + 15);
-            }
-            
-            // Y-axis numbers
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 10; i++) {
-                const y = canvasHeight - padding - (i / 10) * graphHeight;
-                const value = (i / 10) * maxY;
-                ctx.fillText(value.toFixed(1), padding - 5, y + 3);
-            }
-            
-            // Draw equation
-            ctx.fillStyle = '#007bff';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText(`F = ${currentK}x`, padding + 10, padding + 20);
         }
 
-        function setK(value) {
-            value = Math.max(1, Math.min(100, parseFloat(value) || 1));
-            currentK = value;
-            document.getElementById('k-slider').value = value;
-            document.getElementById('k-input').value = value;
-            document.getElementById('k-value').textContent = value;
-            updateSimulation();
+        function togglePlay() {
+            state.isPlaying = !state.isPlaying;
+            const btn = document.getElementById('play-btn');
+            btn.textContent = state.isPlaying ? '⏸ To\'xtatish' : '▶ Boshlash';
+            if (state.isPlaying) animate();
+            else cancelAnimationFrame(animFrame);
         }
 
-        function setX(value) {
-            value = Math.max(0, Math.min(20, parseFloat(value) || 0));
-            currentX = value;
-            document.getElementById('x-slider').value = value;
-            document.getElementById('x-input').value = value;
-            document.getElementById('x-value').textContent = value;
-            updateSimulation();
-        }
-
-        function setMass(value) {
-            value = Math.max(0.1, Math.min(5, parseFloat(value) || 0.1));
-            currentMass = value;
-            document.getElementById('mass-slider').value = value;
-            document.getElementById('mass-input').value = value;
-            document.getElementById('mass-value').textContent = value;
-            updateSimulation();
-        }
-
-        function toggleAnimation() {
-            const playBtn = document.getElementById('play-btn');
+        function animate() {
+            if (!state.isPlaying) return;
             
-            if (isAnimating) {
-                isAnimating = false;
-                playBtn.textContent = '▶ Boshlash';
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                }
-            } else {
-                isAnimating = true;
-                playBtn.textContent = '⏸ To\'xtatish';
-                startOscillation();
-            }
-        }
-
-        function startOscillation() {
-            let time = 0;
+            const deltaTime = 0.016 * state.speed;
+            state.time += deltaTime;
+            
+            // Calculate natural frequency
+            const omega = Math.sqrt(state.k / state.m);
+            const freq = omega / (2 * Math.PI);
+            const period = 1 / freq;
+            
+            // Use cosine for smooth oscillation starting from maximum
             const amplitude = 10; // cm
-            const frequency = Math.sqrt(currentK / currentMass) / (2 * Math.PI);
+            const phase = omega * state.time;
             
-            function animate() {
-                if (!isAnimating) return;
-                
-                time += 0.016 * animationSpeed; // 60fps base
-                const newX = amplitude * Math.sin(2 * Math.PI * frequency * time);
-                
-                setX(Math.abs(newX));
-                
-                // Reset after complete cycle
-                if (time >= 2 / frequency) {
-                    time = 0;
-                }
-                
-                animationFrame = requestAnimationFrame(animate);
+            // Calculate position with damping effect for realism
+            const dampingFactor = 0.98; // Slight damping
+            const currentAmp = amplitude * Math.pow(dampingFactor, state.time);
+            const newX = Math.abs(currentAmp * Math.cos(phase));
+            
+            // Smooth update
+            state.x = newX;
+            
+            // Update all elements
+            const xm = state.x / 100;
+            const F = state.k * xm;
+            const U = 0.5 * state.k * xm * xm;
+            const W = state.m * 9.8;
+
+            // Direct DOM manipulation for smooth 60fps animation
+            const springEl = document.getElementById('spring');
+            const coils = springEl.querySelectorAll('.spring-coil');
+            const naturalHeight = 100;
+            const maxStretch = 250;
+            const currentStretch = (state.x / 20) * maxStretch;
+            const totalHeight = naturalHeight + currentStretch;
+            
+            const baseCoilHeight = 6;
+            const coilHeight = baseCoilHeight + (state.x / 20) * 6;
+            const spacing = (totalHeight - (coils.length * coilHeight)) / (coils.length - 1);
+            
+            coils.forEach((coil, i) => {
+                coil.style.height = coilHeight + 'px';
+                coil.style.marginTop = (i === 0 ? 0 : spacing) + 'px';
+                const wave = Math.sin((i / coils.length) * Math.PI + state.time * 3) * 1.5;
+                coil.style.width = (30 + wave) + 'px';
+            });
+
+            springEl.style.height = totalHeight + 'px';
+
+            const massTop = 40 + totalHeight;
+            const massEl = document.getElementById('mass');
+            massEl.style.top = massTop + 'px';
+            
+            const rotation = Math.sin(phase) * 3;
+            massEl.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+
+            const arrowH = Math.min(F * 20, 150);
+            const arrow = document.getElementById('arrow');
+            if (F > 0.05) {
+                arrow.style.height = arrowH + 'px';
+                arrow.style.top = (massTop + 50) + 'px';
+                arrow.style.opacity = Math.min(F / 5, 1);
+            }
+
+            document.getElementById('f-label').textContent = `F = ${F.toFixed(2)} N ↑`;
+            document.getElementById('x-val').textContent = state.x.toFixed(1);
+            document.getElementById('f-elastic').textContent = F.toFixed(2);
+            document.getElementById('energy').textContent = U.toFixed(4);
+            document.getElementById('disp').textContent = state.x.toFixed(1);
+
+            // Reset after one complete period for continuous oscillation
+            if (state.time >= period * 2) {
+                state.time = 0;
             }
             
-            animate();
+            animFrame = requestAnimationFrame(animate);
         }
 
-        function resetSimulation() {
-            isAnimating = false;
+        function reset() {
+            state.isPlaying = false;
             document.getElementById('play-btn').textContent = '▶ Boshlash';
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-            }
-            
-            setK(50);
-            setX(5);
-            setMass(1);
-            animationSpeed = 1;
-            document.getElementById('speed-slider').value = 1;
-            document.getElementById('speed-value').textContent = 1;
-            
-            graphData = [];
-            updateSimulation();
+            cancelAnimationFrame(animFrame);
+            state.time = 0;
+            setParam('k', 50);
+            setParam('x', 5);
+            setParam('m', 1);
+            setParam('spd', 1);
         }
 
         function exportData() {
-            try {
-                const data = {
-                    springConstant: currentK,
-                    displacement: currentX,
-                    mass: currentMass,
-                    elasticForce: currentK * (currentX / 100),
-                    potentialEnergy: 0.5 * currentK * Math.pow(currentX / 100, 2),
-                    weightForce: currentMass * 9.8,
-                    equilibriumPosition: (currentMass * 9.8) / currentK,
-                    timestamp: new Date().toISOString()
-                };
-                
-                const jsonData = JSON.stringify(data, null, 2);
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `guk_qonuni_${new Date().toISOString().slice(0,10)}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                URL.revokeObjectURL(url);
-                
-            } catch (error) {
-                console.error('Data export error:', error);
-                alert('Ma\'lumotlarni yuklashda xatolik yuz berdi.');
-            }
+            const xm = state.x / 100;
+            const data = {
+                bikrlik_koeffitsienti: state.k + ' N/m',
+                chozilish: state.x + ' cm',
+                massa: state.m + ' kg',
+                elastik_kuch: (state.k * xm).toFixed(2) + ' N',
+                potensial_energiya: (0.5 * state.k * xm * xm).toFixed(4) + ' J',
+                ogirlik_kuchi: (state.m * 9.8).toFixed(2) + ' N',
+                vaqt: new Date().toLocaleString('uz-UZ')
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `guk_qonuni_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
-        function takeScreenshot() {
-            try {
-                // Create a temporary canvas
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                // Set canvas size
-                tempCanvas.width = 1200;
-                tempCanvas.height = 800;
-                
-                // Fill background
-                tempCtx.fillStyle = '#f8f9fa';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // Draw title
-                tempCtx.fillStyle = '#333';
-                tempCtx.font = 'bold 28px Arial';
-                tempCtx.textAlign = 'center';
-                tempCtx.fillText('Guk qonuni simulyatsiyasi', tempCanvas.width / 2, 50);
-                
-                // Draw current values
-                tempCtx.font = '18px Arial';
-                tempCtx.textAlign = 'left';
-                tempCtx.fillText(`Bikrlik koeffitsienti: k = ${currentK} N/m`, 50, 100);
-                tempCtx.fillText(`Cho'zilish: x = ${currentX} cm`, 50, 130);
-                tempCtx.fillText(`Massa: m = ${currentMass} kg`, 50, 160);
-                tempCtx.fillText(`Elastik kuch: F = ${(currentK * currentX / 100).toFixed(2)} N`, 50, 190);
-                tempCtx.fillText(`Potensial energiya: U = ${(0.5 * currentK * Math.pow(currentX / 100, 2)).toFixed(4)} J`, 50, 220);
-                
-                // Copy graph if possible
-                const graphCanvas = document.getElementById('graph-canvas');
-                if (graphCanvas && graphCanvas.width > 0) {
-                    tempCtx.drawImage(graphCanvas, 300, 100, 600, 400);
-                }
-                
-                // Add date/time
-                tempCtx.font = '14px Arial';
-                tempCtx.textAlign = 'right';
-                tempCtx.fillText(new Date().toLocaleString('uz-UZ'), tempCanvas.width - 50, tempCanvas.height - 30);
-                
-                // Download
-                const link = document.createElement('a');
-                link.download = `guk_qonuni_${new Date().toISOString().slice(0,10)}.png`;
-                link.href = tempCanvas.toDataURL();
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-            } catch (error) {
-                console.error('Screenshot error:', error);
-                alert('Suratga olishda xatolik yuz berdi.');
-            }
-        }
-
-        function showTab(tabName) {
-            // Hide all contents
-            document.querySelectorAll('.info-content').forEach(content => {
-                content.classList.remove('active');
+        function showTab(index) {
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', i === index);
             });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.info-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected content
-            document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked tab
-            event.target.classList.add('active');
-        }
-
-        function updateComparisonTable() {
-            const tbody = document.getElementById('comparison-tbody');
-            tbody.innerHTML = '';
-            
-            const kValues = [10, 25, 50, 75, 100];
-            const displacement = 0.05; // 5 cm in meters
-            
-            kValues.forEach(k => {
-                const row = document.createElement('tr');
-                const force = k * displacement;
-                const energy = 0.5 * k * displacement * displacement;
-                
-                let springType = '';
-                if (k <= 25) springType = 'Yumshoq';
-                else if (k <= 75) springType = 'O\'rtacha';
-                else springType = 'Qattiq';
-                
-                row.innerHTML = `
-                    <td>${k}</td>
-                    <td>${springType}</td>
-                    <td>${force.toFixed(2)}</td>
-                    <td>${energy.toFixed(4)}</td>
-                `;
-                
-                tbody.appendChild(row);
+            document.querySelectorAll('.tab-content').forEach((c, i) => {
+                c.classList.toggle('active', i === index);
             });
         }
 
-        // Touch support for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let isTouchMove = false;
-
-        document.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isTouchMove = false;
+        document.addEventListener('keydown', e => {
+            if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+            if (e.key === 'r') reset();
+            if (e.key === 'ArrowUp') setParam('x', Math.min(state.x + 0.5, 20));
+            if (e.key === 'ArrowDown') setParam('x', Math.max(state.x - 0.5, 0));
+            if (e.key === 'ArrowRight') setParam('k', Math.min(state.k + 5, 100));
+            if (e.key === 'ArrowLeft') setParam('k', Math.max(state.k - 5, 10));
         });
 
-        document.addEventListener('touchmove', function(e) {
-            isTouchMove = true;
-            // Only prevent default for control interactions, not general scrolling
-            const target = e.target;
-            if (target.type === 'range' || target.closest('.spring-container')) {
-                e.preventDefault();
-            }
-        });
+        window.addEventListener('resize', () => setTimeout(drawGraph, 100));
 
-        document.addEventListener('touchend', function(e) {
-            if (isTouchMove) return; // Ignore if this was a scroll
-            
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
-            
-            // Swipe gestures for parameter control
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                if (Math.abs(deltaX) > 50) {
-                    if (deltaX > 0) {
-                        // Swipe right - increase k
-                        setK(Math.min(currentK + 5, 100));
-                    } else {
-                        // Swipe left - decrease k
-                        setK(Math.max(currentK - 5, 1));
-                    }
-                }
-            } else {
-                if (Math.abs(deltaY) > 50) {
-                    if (deltaY > 0) {
-                        // Swipe down - increase x
-                        setX(Math.min(currentX + 1, 20));
-                    } else {
-                        // Swipe up - decrease x
-                        setX(Math.max(currentX - 1, 0));
-                    }
-                }
-            }
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            switch(e.key) {
-                case ' ':
-                    e.preventDefault();
-                    toggleAnimation();
-                    break;
-                case 'r':
-                    resetSimulation();
-                    break;
-                case 'ArrowUp':
-                    setX(Math.min(currentX + 0.5, 20));
-                    break;
-                case 'ArrowDown':
-                    setX(Math.max(currentX - 0.5, 0));
-                    break;
-                case 'ArrowRight':
-                    setK(Math.min(currentK + 1, 100));
-                    break;
-                case 'ArrowLeft':
-                    setK(Math.max(currentK - 1, 1));
-                    break;
-            }
-        });
-
-        // Initialize MathJax
         window.MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                inlineMath: [[', ']],
+                displayMath: [['$', '$']]
             }
         };
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-
 </html>
-
