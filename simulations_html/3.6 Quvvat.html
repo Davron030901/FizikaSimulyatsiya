@@ -12,17 +12,11 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             },
-            svg: {
-                fontCache: 'global'
-            }
+            svg: { fontCache: 'global' }
         };
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -30,31 +24,19 @@
             color: #333;
             overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .header {
             text-align: center;
             color: white;
             margin-bottom: 30px;
             animation: fadeInDown 1s ease-out;
         }
-
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
+        .header p { font-size: 1.2rem; opacity: 0.9; }
         .simulation-container {
             background: white;
             border-radius: 20px;
@@ -62,13 +44,11 @@
             overflow: hidden;
             animation: fadeInUp 1s ease-out;
         }
-
         .tabs {
             display: flex;
             background: #f8f9fa;
             border-bottom: 2px solid #e9ecef;
         }
-
         .tab {
             flex: 1;
             padding: 15px;
@@ -80,27 +60,14 @@
             background: none;
             font-size: 1rem;
         }
-
         .tab.active {
             background: #007bff;
             color: white;
             transform: translateY(-2px);
         }
-
-        .tab:hover:not(.active) {
-            background: #e9ecef;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
+        .tab:hover:not(.active) { background: #e9ecef; }
+        .tab-content { display: none; padding: 30px; animation: fadeIn 0.5s ease-out; }
+        .tab-content.active { display: block; }
         .controls-section {
             background: #f8f9fa;
             padding: 25px;
@@ -108,13 +75,11 @@
             margin-bottom: 25px;
             border: 2px solid #e9ecef;
         }
-
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
-
         .control-group {
             background: white;
             padding: 20px;
@@ -122,19 +87,16 @@
             border: 1px solid #dee2e6;
             transition: all 0.3s ease;
         }
-
         .control-group:hover {
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transform: translateY(-2px);
         }
-
         .control-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #495057;
         }
-
         .control-group input[type="range"] {
             width: 100%;
             height: 8px;
@@ -144,7 +106,6 @@
             margin-bottom: 10px;
             cursor: pointer;
         }
-
         .control-group input[type="range"]::-webkit-slider-thumb {
             appearance: none;
             width: 20px;
@@ -154,12 +115,10 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
         .control-group input[type="range"]::-webkit-slider-thumb:hover {
             background: #0056b3;
             transform: scale(1.1);
         }
-
         .control-group input[type="number"] {
             width: 100%;
             padding: 10px;
@@ -167,12 +126,10 @@
             border-radius: 5px;
             font-size: 1rem;
         }
-
         .control-group input[type="number"]:focus {
             border-color: #007bff;
             outline: none;
         }
-
         .value-display {
             background: #e9ecef;
             padding: 8px 12px;
@@ -182,7 +139,6 @@
             text-align: center;
             margin-top: 5px;
         }
-
         .canvas-container {
             position: relative;
             background: white;
@@ -191,13 +147,11 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
         .canvas-container canvas {
             width: 100%;
             height: 400px;
             display: block;
         }
-
         .formula-display {
             background: #f8f9fa;
             padding: 20px;
@@ -206,14 +160,12 @@
             margin-bottom: 20px;
             font-size: 1.1rem;
         }
-
         .results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
-
         .result-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -222,35 +174,24 @@
             text-align: center;
             transition: transform 0.3s ease;
         }
-
-        .result-card:hover {
-            transform: translateY(-5px);
-        }
-
+        .result-card:hover { transform: translateY(-5px); }
         .result-card h3 {
             font-size: 0.9rem;
             margin-bottom: 10px;
             opacity: 0.9;
         }
-
         .result-card .value {
             font-size: 1.8rem;
             font-weight: bold;
             margin-bottom: 5px;
         }
-
-        .result-card .unit {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
+        .result-card .unit { font-size: 0.8rem; opacity: 0.8; }
         .playback-controls {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-bottom: 25px;
         }
-
         .btn {
             padding: 12px 24px;
             border: none;
@@ -262,54 +203,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #545b62;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #1e7e34;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
+        .btn-primary { background: #007bff; color: white; }
+        .btn-primary:hover { background: #0056b3; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #545b62; transform: translateY(-2px); }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #1e7e34; transform: translateY(-2px); }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; transform: translateY(-2px); }
         .presets {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
         }
-
         .preset-btn {
             padding: 10px 20px;
             border: 2px solid #007bff;
@@ -324,39 +231,33 @@
             align-items: center;
             gap: 8px;
         }
-
         .preset-btn:hover {
             background: #007bff;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
-
         .preset-btn.active {
             background: #007bff;
             color: white;
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
-
         .theory-section {
             background: #f8f9fa;
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 25px;
         }
-
         .theory-section h3 {
             color: #007bff;
             margin-bottom: 15px;
             font-size: 1.5rem;
         }
-
         .theory-section p {
             line-height: 1.6;
             margin-bottom: 15px;
             color: #495057;
         }
-
         .examples {
             background: white;
             padding: 20px;
@@ -364,26 +265,19 @@
             border: 1px solid #dee2e6;
             margin-top: 20px;
         }
-
         .examples h4 {
             color: #007bff;
             margin-bottom: 15px;
         }
-
         .examples ul {
             list-style: none;
             padding: 0;
         }
-
         .examples li {
             padding: 10px 0;
             border-bottom: 1px solid #eee;
         }
-
-        .examples li:last-child {
-            border-bottom: none;
-        }
-
+        .examples li:last-child { border-bottom: none; }
         .help-tooltip {
             position: relative;
             display: inline-block;
@@ -391,7 +285,6 @@
             color: #007bff;
             margin-left: 5px;
         }
-
         .help-tooltip::before {
             content: '?';
             display: inline-block;
@@ -405,7 +298,6 @@
             font-size: 12px;
             font-weight: bold;
         }
-
         .help-tooltip:hover::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -421,73 +313,33 @@
             z-index: 1000;
             animation: fadeIn 0.3s ease;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                padding: 12px;
-            }
-            
-            .controls-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .playback-controls {
-                flex-wrap: wrap;
-            }
-            
-            .btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-            
-            .presets {
-                justify-content: center;
-            }
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .tabs { flex-direction: column; }
+            .tab { padding: 12px; }
+            .controls-grid { grid-template-columns: 1fr; }
+            .playback-controls { flex-wrap: wrap; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; }
+            .presets { justify-content: center; }
         }
-
         @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .tab-content {
-                padding: 20px;
-            }
-            
-            .controls-section {
-                padding: 20px;
-            }
-            
-            .canvas-container canvas {
-                height: 300px;
-            }
+            .header h1 { font-size: 1.8rem; }
+            .tab-content { padding: 20px; }
+            .controls-section { padding: 20px; }
+            .canvas-container canvas { height: 300px; }
         }
     </style>
 </head>
@@ -518,7 +370,7 @@
                     <h3>🎛️ Parametrlarni boshqarish</h3>
                     <div class="presets">
                         <button class="preset-btn" onclick="setPreset('car')">🚗 Avtomobil</button>
-                        <button class="preset-btn" onclick="setPreset('human')">👤 Inson</button>
+                        <button class="preset-btn active" onclick="setPreset('human')">👤 Inson</button>
                         <button class="preset-btn" onclick="setPreset('motor')">⚡ Elektr motor</button>
                         <button class="preset-btn" onclick="setPreset('turbine')">🔧 Turbina</button>
                     </div>
@@ -526,16 +378,16 @@
                     <div class="controls-grid">
                         <div class="control-group">
                             <label for="force">💪 Kuch (F) <span class="help-tooltip" data-tooltip="Qo'llaniladigan kuch kattaligi"></span></label>
-                            <input type="range" id="force" min="1" max="1000" value="100" step="1">
-                            <input type="number" id="forceInput" min="1" max="1000" value="100" step="1">
-                            <div class="value-display" id="forceValue">100 N</div>
+                            <input type="range" id="force" min="1" max="1000" value="50" step="1">
+                            <input type="number" id="forceInput" min="1" max="1000" value="50" step="1">
+                            <div class="value-display" id="forceValue">50 N</div>
                         </div>
 
                         <div class="control-group">
                             <label for="velocity">🏃 Tezlik (v) <span class="help-tooltip" data-tooltip="Harakat tezligi"></span></label>
-                            <input type="range" id="velocity" min="0.1" max="50" value="5" step="0.1">
-                            <input type="number" id="velocityInput" min="0.1" max="50" value="5" step="0.1">
-                            <div class="value-display" id="velocityValue">5 m/s</div>
+                            <input type="range" id="velocity" min="0.1" max="50" value="2" step="0.1">
+                            <input type="number" id="velocityInput" min="0.1" max="50" value="2" step="0.1">
+                            <div class="value-display" id="velocityValue">2 m/s</div>
                         </div>
 
                         <div class="control-group">
@@ -547,9 +399,9 @@
 
                         <div class="control-group">
                             <label for="efficiency">📊 Samaradorlik (η) <span class="help-tooltip" data-tooltip="Energiya uzatish samaradorligi"></span></label>
-                            <input type="range" id="efficiency" min="10" max="100" value="80" step="1">
-                            <input type="number" id="efficiencyInput" min="10" max="100" value="80" step="1">
-                            <div class="value-display" id="efficiencyValue">80 %</div>
+                            <input type="range" id="efficiency" min="10" max="100" value="25" step="1">
+                            <input type="number" id="efficiencyInput" min="10" max="100" value="25" step="1">
+                            <div class="value-display" id="efficiencyValue">25 %</div>
                         </div>
                     </div>
                 </div>
@@ -557,22 +409,22 @@
                 <div class="results-grid">
                     <div class="result-card">
                         <h3>⚡ Quvvat</h3>
-                        <div class="value" id="powerResult">500</div>
+                        <div class="value" id="powerResult">100</div>
                         <div class="unit">W (Watt)</div>
                     </div>
                     <div class="result-card">
                         <h3>🔧 Ish</h3>
-                        <div class="value" id="workResult">5000</div>
+                        <div class="value" id="workResult">1000</div>
                         <div class="unit">J (Joul)</div>
                     </div>
                     <div class="result-card">
                         <h3>✅ Foydali Quvvat</h3>
-                        <div class="value" id="usefulPowerResult">400</div>
+                        <div class="value" id="usefulPowerResult">25</div>
                         <div class="unit">W (Watt)</div>
                     </div>
                     <div class="result-card">
                         <h3>❌ Yo'qotilgan Quvvat</h3>
-                        <div class="value" id="lostPowerResult">100</div>
+                        <div class="value" id="lostPowerResult">75</div>
                         <div class="unit">W (Watt)</div>
                     </div>
                 </div>
@@ -595,7 +447,7 @@
                     <div class="controls-grid">
                         <div class="control-group">
                             <label for="graphType">📈 Grafik turi</label>
-                            <select id="graphType" onchange="updateGraph()">
+                            <select id="graphType" style="width: 100%; padding: 10px; border: 2px solid #dee2e6; border-radius: 5px; font-size: 1rem;" onchange="updateGraph()">
                                 <option value="power-time">⚡ Quvvat - Vaqt</option>
                                 <option value="work-time">🔧 Ish - Vaqt</option>
                                 <option value="power-velocity">🏃 Quvvat - Tezlik</option>
@@ -604,7 +456,7 @@
                         </div>
                         <div class="control-group">
                             <label for="powerType">⚡ Quvvat turi</label>
-                            <select id="powerType" onchange="updateGraph()">
+                            <select id="powerType" style="width: 100%; padding: 10px; border: 2px solid #dee2e6; border-radius: 5px; font-size: 1rem;" onchange="updateGraph()">
                                 <option value="constant">📈 Konstant quvvat</option>
                                 <option value="variable">📉 O'zgaruvchan quvvat</option>
                             </select>
@@ -698,25 +550,13 @@
     </div>
 
     <script>
-        // Global variables
-        let canvas, ctx, graphCanvas, graphCtx;
-        let animationId;
-        let isAnimating = false;
-        let currentTime = 0;
-        let animationSpeed = 1;
-        let powerData = [];
-        let workData = [];
-        let timeData = [];
-        let currentPreset = 'human'; // Default preset
+        let canvas, ctx, graphCanvas, graphCtx, animationId, isAnimating = false, currentTime = 0, currentPreset = 'human';
 
-        // Initialize when page loads
-        window.addEventListener('load', function() {
+        window.addEventListener('load', () => {
             initializeCanvas();
             initializeControls();
             updateCalculations();
-            if (window.MathJax) {
-                MathJax.typesetPromise();
-            }
+            if (window.MathJax) MathJax.typesetPromise();
         });
 
         function initializeCanvas() {
@@ -724,393 +564,223 @@
             ctx = canvas.getContext('2d');
             graphCanvas = document.getElementById('graphCanvas');
             graphCtx = graphCanvas.getContext('2d');
-            
-            // Set actual canvas size
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             graphCanvas.width = graphCanvas.offsetWidth;
             graphCanvas.height = graphCanvas.offsetHeight;
-            
             drawSimulation();
             updateGraph();
         }
 
         function initializeControls() {
-            // Synchronize sliders with number inputs
-            const controls = ['force', 'velocity', 'time', 'efficiency'];
-            
-            controls.forEach(control => {
-                const slider = document.getElementById(control);
-                const input = document.getElementById(control + 'Input');
-                
-                slider.addEventListener('input', function() {
-                    input.value = this.value;
-                    updateCalculations();
-                });
-                
-                input.addEventListener('input', function() {
-                    slider.value = this.value;
-                    updateCalculations();
-                });
+            ['force', 'velocity', 'time', 'efficiency'].forEach(c => {
+                const s = document.getElementById(c), i = document.getElementById(c + 'Input');
+                s.addEventListener('input', () => { i.value = s.value; updateCalculations(); });
+                i.addEventListener('input', () => { s.value = i.value; updateCalculations(); });
             });
-
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
-            });
-            
-            // Set default human preset as active
-            document.querySelector('[onclick="setPreset(\'human\')"]').classList.add('active');
+            document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', function() { switchTab(this.dataset.tab); }));
         }
 
-        function switchTab(tabName) {
-            // Remove active class from all tabs and contents
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Add active class to selected tab and content
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            
-            // Update canvas size if needed
+        function switchTab(n) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[data-tab="${n}"]`).classList.add('active');
+            document.getElementById(n).classList.add('active');
             setTimeout(() => {
-                if (tabName === 'simulation') {
-                    canvas.width = canvas.offsetWidth;
-                    canvas.height = canvas.offsetHeight;
-                    drawSimulation();
-                } else if (tabName === 'graphs') {
-                    graphCanvas.width = graphCanvas.offsetWidth;
-                    graphCanvas.height = graphCanvas.offsetHeight;
-                    updateGraph();
-                }
+                if (n === 'simulation') { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; drawSimulation(); }
+                else if (n === 'graphs') { graphCanvas.width = graphCanvas.offsetWidth; graphCanvas.height = graphCanvas.offsetHeight; updateGraph(); }
             }, 100);
         }
 
         function updateCalculations() {
-            const force = parseFloat(document.getElementById('force').value);
-            const velocity = parseFloat(document.getElementById('velocity').value);
-            const time = parseFloat(document.getElementById('time').value);
-            const efficiency = parseFloat(document.getElementById('efficiency').value);
-            
-            // Calculate power
-            const power = force * velocity;
-            const work = power * time;
-            const usefulPower = power * efficiency / 100;
-            const lostPower = power - usefulPower;
-            
-            // Update displays
-            document.getElementById('forceValue').textContent = force + ' N';
-            document.getElementById('velocityValue').textContent = velocity + ' m/s';
-            document.getElementById('timeValue').textContent = time + ' s';
-            document.getElementById('efficiencyValue').textContent = efficiency + ' %';
-            
-            document.getElementById('powerResult').textContent = power.toFixed(0);
-            document.getElementById('workResult').textContent = work.toFixed(0);
-            document.getElementById('usefulPowerResult').textContent = usefulPower.toFixed(0);
-            document.getElementById('lostPowerResult').textContent = lostPower.toFixed(0);
-            
-            // Update visualization
+            const f = parseFloat(document.getElementById('force').value);
+            const v = parseFloat(document.getElementById('velocity').value);
+            const t = parseFloat(document.getElementById('time').value);
+            const e = parseFloat(document.getElementById('efficiency').value);
+            const p = f * v, w = p * t, u = p * e / 100, l = p - u;
+            document.getElementById('forceValue').textContent = f + ' N';
+            document.getElementById('velocityValue').textContent = v + ' m/s';
+            document.getElementById('timeValue').textContent = t + ' s';
+            document.getElementById('efficiencyValue').textContent = e + ' %';
+            document.getElementById('powerResult').textContent = p.toFixed(0);
+            document.getElementById('workResult').textContent = w.toFixed(0);
+            document.getElementById('usefulPowerResult').textContent = u.toFixed(0);
+            document.getElementById('lostPowerResult').textContent = l.toFixed(0);
             drawSimulation();
             updateGraph();
         }
 
         function drawSimulation() {
             if (!ctx) return;
-            
-            const force = parseFloat(document.getElementById('force').value);
-            const velocity = parseFloat(document.getElementById('velocity').value);
-            const power = force * velocity;
-            const efficiency = parseFloat(document.getElementById('efficiency').value);
-            
-            // Clear canvas
+            const f = parseFloat(document.getElementById('force').value);
+            const v = parseFloat(document.getElementById('velocity').value);
+            const p = f * v, e = parseFloat(document.getElementById('efficiency').value);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw background
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#f8f9fa');
-            gradient.addColorStop(1, '#e9ecef');
-            ctx.fillStyle = gradient;
+            const g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            g.addColorStop(0, '#f8f9fa');
+            g.addColorStop(1, '#e9ecef');
+            ctx.fillStyle = g;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw coordinate system
             drawCoordinateSystem();
-            
-            // Draw force vector
-            drawForceVector(force, velocity);
-            
-            // Draw power visualization
-            drawPowerVisualization(power, efficiency);
-            
-            // Draw moving object
-            drawMovingObject(velocity, currentTime);
-            
-            // Draw power meter
-            drawPowerMeter(power);
+            drawForceVector(f, v);
+            drawPowerVisualization(p, e);
+            drawMovingObject(v, currentTime);
+            drawPowerMeter(p);
         }
 
         function drawCoordinateSystem() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            
-            // Draw main axes
+            const cx = canvas.width / 2, cy = canvas.height / 2;
             ctx.strokeStyle = '#6c757d';
             ctx.lineWidth = 2;
-            
-            // X axis (horizontal)
             ctx.beginPath();
-            ctx.moveTo(80, centerY + 50);
-            ctx.lineTo(canvas.width - 80, centerY + 50);
+            ctx.moveTo(80, cy + 50);
+            ctx.lineTo(canvas.width - 80, cy + 50);
             ctx.stroke();
-            
-            // Y axis (vertical) - for force
             ctx.beginPath();
-            ctx.moveTo(centerX, 80);
-            ctx.lineTo(centerX, centerY + 50);
+            ctx.moveTo(cx, 80);
+            ctx.lineTo(cx, cy + 50);
             ctx.stroke();
-            
-            // Axis labels
             ctx.fillStyle = '#495057';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('📏 Masofa (Position)', canvas.width - 60, centerY + 35);
-            
+            ctx.fillText('📏 Masofa (Position)', canvas.width - 60, cy + 35);
             ctx.save();
-            ctx.translate(centerX - 30, 60);
+            ctx.translate(cx - 30, 60);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText('💪 Kuch (Force)', 0, 0);
             ctx.restore();
-            
-            // Draw grid lines
-            ctx.strokeStyle = '#e9ecef';
-            ctx.lineWidth = 1;
-            
-            // Vertical grid lines
-            for (let x = 120; x < canvas.width - 80; x += 40) {
-                ctx.beginPath();
-                ctx.moveTo(x, centerY + 45);
-                ctx.lineTo(x, centerY + 55);
-                ctx.stroke();
-            }
-            
-            // Horizontal grid lines
-            for (let y = 120; y < centerY + 50; y += 40) {
-                ctx.beginPath();
-                ctx.moveTo(centerX - 5, y);
-                ctx.lineTo(centerX + 5, y);
-                ctx.stroke();
-            }
         }
 
-        function drawForceVector(force, velocity) {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const scale = 0.2;
-            
-            // Draw force vector
+        function drawForceVector(f, v) {
+            const cx = canvas.width / 2, cy = canvas.height / 2, s = 0.2;
             ctx.strokeStyle = '#007bff';
             ctx.lineWidth = 6;
             ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + force * scale, centerY - 50);
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + f * s, cy - 50);
             ctx.stroke();
-            
-            // Draw arrowhead
-            const headLength = 20;
-            const headAngle = Math.PI / 6;
-            const endX = centerX + force * scale;
-            const endY = centerY - 50;
-            
+            const ex = cx + f * s, ey = cy - 50, hl = 20, ha = Math.PI / 6;
             ctx.beginPath();
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - headLength * Math.cos(headAngle), endY + headLength * Math.sin(headAngle));
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - headLength * Math.cos(-headAngle), endY + headLength * Math.sin(-headAngle));
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - hl * Math.cos(ha), ey + hl * Math.sin(ha));
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - hl * Math.cos(-ha), ey + hl * Math.sin(-ha));
             ctx.stroke();
-            
-            // Force label with better positioning
             ctx.fillStyle = '#007bff';
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`💪 F = ${force} N`, centerX + force * scale / 2, centerY - 70);
-            
-            // Draw ground line
+            ctx.fillText(`💪 F = ${f} N`, cx + f * s / 2, cy - 70);
             ctx.strokeStyle = '#6c757d';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(50, centerY + 50);
-            ctx.lineTo(canvas.width - 50, centerY + 50);
+            ctx.moveTo(50, cy + 50);
+            ctx.lineTo(canvas.width - 50, cy + 50);
             ctx.stroke();
-            
-            // Ground pattern
             ctx.strokeStyle = '#adb5bd';
             ctx.lineWidth = 1;
             for (let i = 50; i < canvas.width - 50; i += 20) {
                 ctx.beginPath();
-                ctx.moveTo(i, centerY + 50);
-                ctx.lineTo(i + 10, centerY + 60);
+                ctx.moveTo(i, cy + 50);
+                ctx.lineTo(i + 10, cy + 60);
                 ctx.stroke();
             }
         }
 
-        function drawPowerVisualization(power, efficiency) {
-            const x = 50;
-            const y = 50;
-            const width = 200;
-            const height = 20;
-            
-            // Background bar
-            ctx.fillStyle = '#e9ecef';
-            ctx.fillRect(x, y, width, height);
-            
-            // Total power bar
+        function drawPowerVisualization(p, e) {
+            const x = 50, y = 50, w = 200, h = 20;
             ctx.fillStyle = '#dc3545';
-            ctx.fillRect(x, y, width, height);
-            
-            // Useful power bar
+            ctx.fillRect(x, y, w, h);
             ctx.fillStyle = '#28a745';
-            ctx.fillRect(x, y, width * efficiency / 100, height);
-            
-            // Border
+            ctx.fillRect(x, y, w * e / 100, h);
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, width, height);
-            
-            // Labels with better positioning
+            ctx.strokeRect(x, y, w, h);
             ctx.fillStyle = '#333';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'left';
-            ctx.fillText(`⚡ Umumiy: ${power.toFixed(0)} W`, x, y - 8);
-            ctx.fillText(`✅ Foydali: ${(power * efficiency / 100).toFixed(0)} W`, x, y + height + 18);
-            ctx.fillText(`❌ Yo'qotilgan: ${(power * (100 - efficiency) / 100).toFixed(0)} W`, x, y + height + 35);
-            
-            // Efficiency percentage
+            ctx.fillText(`⚡ Umumiy: ${p.toFixed(0)} W`, x, y - 8);
+            ctx.fillText(`✅ Foydali: ${(p * e / 100).toFixed(0)} W`, x, y + h + 18);
+            ctx.fillText(`❌ Yo'qotilgan: ${(p * (100 - e) / 100).toFixed(0)} W`, x, y + h + 35);
             ctx.fillStyle = '#007bff';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'right';
-            ctx.fillText(`${efficiency}% samaradorlik`, x + width, y - 8);
-            
-            // Add visual indicator for current preset
-            const presetEmojis = {
-                'car': '🚗',
-                'human': '👤',
-                'motor': '⚡',
-                'turbine': '🔧'
-            };
-            
+            ctx.fillText(`${e}% samaradorlik`, x + w, y - 8);
+            const em = { car: '🚗', human: '👤', motor: '⚡', turbine: '🔧' };
             ctx.font = '24px Arial';
             ctx.textAlign = 'center';
-            
             if (currentPreset === 'car') {
-                // Flip car emoji horizontally
                 ctx.save();
                 ctx.scale(-1, 1);
-                ctx.fillText(presetEmojis[currentPreset], -(x + width + 40), y + height/2 + 8);
+                ctx.fillText(em[currentPreset], -(x + w + 40), y + h/2 + 8);
                 ctx.restore();
             } else {
-                ctx.fillText(presetEmojis[currentPreset] || '👤', x + width + 40, y + height/2 + 8);
+                ctx.fillText(em[currentPreset] || '👤', x + w + 40, y + h/2 + 8);
             }
         }
 
-        function drawMovingObject(velocity, time) {
-            const startX = 150;
-            const centerY = canvas.height / 2;
-            const maxDistance = canvas.width - 300;
-            const position = startX + (velocity * time * 8) % maxDistance;
-            
-            // Get emoji and colors based on current preset
-            const presetData = {
-                'car': { emoji: '🚗', color: '#dc3545', size: 35, flipped: true },
-                'human': { emoji: '👤', color: '#28a745', size: 30, flipped: false },
-                'motor': { emoji: '⚡', color: '#ffc107', size: 32, flipped: false },
-                'turbine': { emoji: '🔧', color: '#6f42c1', size: 33, flipped: false }
-            };
-            
-            const preset = presetData[currentPreset] || presetData['human'];
-            
-            // Draw object background circle
-            ctx.fillStyle = preset.color;
+        function drawMovingObject(v, t) {
+            const sx = 150, cy = canvas.height / 2, md = canvas.width - 300, pos = sx + (v * t * 8) % md;
+            const pd = { car: { emoji: '🚗', color: '#dc3545', size: 35, flipped: true },
+                human: { emoji: '👤', color: '#28a745', size: 30, flipped: false },
+                motor: { emoji: '⚡', color: '#ffc107', size: 32, flipped: false },
+                turbine: { emoji: '🔧', color: '#6f42c1', size: 33, flipped: false } };
+            const pr = pd[currentPreset] || pd.human;
+            ctx.fillStyle = pr.color;
             ctx.globalAlpha = 0.3;
             ctx.beginPath();
-            ctx.arc(position, centerY, 35, 0, 2 * Math.PI);
+            ctx.arc(pos, cy, 35, 0, 2 * Math.PI);
             ctx.fill();
             ctx.globalAlpha = 1;
-            
-            // Draw object border
-            ctx.strokeStyle = preset.color;
+            ctx.strokeStyle = pr.color;
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(position, centerY, 35, 0, 2 * Math.PI);
+            ctx.arc(pos, cy, 35, 0, 2 * Math.PI);
             ctx.stroke();
-            
-            // Draw emoji with optional flip
-            ctx.font = `${preset.size}px Arial`;
+            ctx.font = `${pr.size}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#333';
-            
-            if (preset.flipped) {
-                // Save context and flip horizontally for car
+            if (pr.flipped) {
                 ctx.save();
                 ctx.scale(-1, 1);
-                ctx.fillText(preset.emoji, -position, centerY);
+                ctx.fillText(pr.emoji, -pos, cy);
                 ctx.restore();
             } else {
-                ctx.fillText(preset.emoji, position, centerY);
+                ctx.fillText(pr.emoji, pos, cy);
             }
-            
-            // Draw velocity vector if object is moving
-            if (velocity > 0) {
-                const vectorLength = Math.min(velocity * 8, 60);
+            if (v > 0) {
+                const vl = Math.min(v * 8, 60);
                 ctx.strokeStyle = '#28a745';
                 ctx.lineWidth = 4;
                 ctx.beginPath();
-                ctx.moveTo(position + 35, centerY);
-                ctx.lineTo(position + 35 + vectorLength, centerY);
+                ctx.moveTo(pos + 35, cy);
+                ctx.lineTo(pos + 35 + vl, cy);
                 ctx.stroke();
-                
-                // Draw arrowhead for velocity
-                const arrowX = position + 35 + vectorLength;
-                const arrowY = centerY;
+                const ax = pos + 35 + vl;
                 ctx.beginPath();
-                ctx.moveTo(arrowX, arrowY);
-                ctx.lineTo(arrowX - 12, arrowY - 8);
-                ctx.moveTo(arrowX, arrowY);
-                ctx.lineTo(arrowX - 12, arrowY + 8);
+                ctx.moveTo(ax, cy);
+                ctx.lineTo(ax - 12, cy - 8);
+                ctx.moveTo(ax, cy);
+                ctx.lineTo(ax - 12, cy + 8);
                 ctx.stroke();
-                
-                // Velocity label
                 ctx.fillStyle = '#28a745';
                 ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
                 ctx.textBaseline = 'alphabetic';
-                ctx.fillText(`🏃 v = ${velocity} m/s`, position + vectorLength/2, centerY - 55);
+                ctx.fillText(`🏃 v = ${v} m/s`, pos + vl/2, cy - 55);
             }
-            
-            // Object label
-            const presetNames = {
-                'car': '🚗 Avtomobil',
-                'human': '👤 Inson',
-                'motor': '⚡ Elektr motor',
-                'turbine': '🔧 Turbina'
-            };
-            
+            const pn = { car: '🚗 Avtomobil', human: '👤 Inson', motor: '⚡ Elektr motor', turbine: '🔧 Turbina' };
             ctx.fillStyle = '#495057';
             ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText(presetNames[currentPreset] || '👤 Inson', position, centerY + 45);
-            
-            // Motion trail effect
-            if (isAnimating && velocity > 0) {
+            ctx.fillText(pn[currentPreset] || '👤 Inson', pos, cy + 45);
+            if (isAnimating && v > 0) {
                 ctx.globalAlpha = 0.3;
                 for (let i = 1; i <= 3; i++) {
-                    const trailX = position - i * 15;
-                    if (trailX > startX - 50) {
-                        ctx.fillStyle = preset.color;
+                    const tx = pos - i * 15;
+                    if (tx > sx - 50) {
+                        ctx.fillStyle = pr.color;
                         ctx.beginPath();
-                        ctx.arc(trailX, centerY, 35 - i * 5, 0, 2 * Math.PI);
+                        ctx.arc(tx, cy, 35 - i * 5, 0, 2 * Math.PI);
                         ctx.fill();
                     }
                 }
@@ -1118,324 +788,200 @@
             }
         }
 
-        function drawPowerMeter(power) {
-            const x = canvas.width - 150;
-            const y = 80;
-            const radius = 50;
-            const maxPower = 2000;
-            const angle = (power / maxPower) * Math.PI * 1.5 - Math.PI * 0.75;
-            
-            // Draw meter background circle
+        function drawPowerMeter(p) {
+            const x = canvas.width - 150, y = 80, r = 50, mp = 2000;
+            const a = (p / mp) * Math.PI * 1.5 - Math.PI * 0.75;
             ctx.fillStyle = '#f8f9fa';
             ctx.beginPath();
-            ctx.arc(x, y, radius + 5, 0, 2 * Math.PI);
+            ctx.arc(x, y, r + 5, 0, 2 * Math.PI);
             ctx.fill();
-            
-            // Draw meter background arc
             ctx.strokeStyle = '#dee2e6';
             ctx.lineWidth = 8;
             ctx.beginPath();
-            ctx.arc(x, y, radius, -Math.PI * 0.75, Math.PI * 0.75);
+            ctx.arc(x, y, r, -Math.PI * 0.75, Math.PI * 0.75);
             ctx.stroke();
-            
-            // Draw power level arc
-            ctx.strokeStyle = power > 1000 ? '#dc3545' : power > 500 ? '#ffc107' : '#28a745';
+            ctx.strokeStyle = p > 1000 ? '#dc3545' : p > 500 ? '#ffc107' : '#28a745';
             ctx.lineWidth = 6;
             ctx.beginPath();
-            ctx.arc(x, y, radius, -Math.PI * 0.75, angle);
+            ctx.arc(x, y, r, -Math.PI * 0.75, a);
             ctx.stroke();
-            
-            // Draw needle
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(x, y);
-            const needleX = x + (radius - 10) * Math.cos(angle);
-            const needleY = y + (radius - 10) * Math.sin(angle);
-            ctx.lineTo(needleX, needleY);
+            ctx.lineTo(x + (r - 10) * Math.cos(a), y + (r - 10) * Math.sin(a));
             ctx.stroke();
-            
-            // Draw center dot
             ctx.fillStyle = '#333';
             ctx.beginPath();
             ctx.arc(x, y, 5, 0, 2 * Math.PI);
             ctx.fill();
-            
-            // Draw scale marks
             ctx.strokeStyle = '#6c757d';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 10; i++) {
-                const markAngle = -Math.PI * 0.75 + (Math.PI * 1.5 * i / 10);
-                const innerRadius = radius - 5;
-                const outerRadius = radius + 2;
-                
+                const ma = -Math.PI * 0.75 + (Math.PI * 1.5 * i / 10);
                 ctx.beginPath();
-                ctx.moveTo(x + innerRadius * Math.cos(markAngle), y + innerRadius * Math.sin(markAngle));
-                ctx.lineTo(x + outerRadius * Math.cos(markAngle), y + outerRadius * Math.sin(markAngle));
+                ctx.moveTo(x + (r - 5) * Math.cos(ma), y + (r - 5) * Math.sin(ma));
+                ctx.lineTo(x + (r + 2) * Math.cos(ma), y + (r + 2) * Math.sin(ma));
                 ctx.stroke();
             }
-            
-            // Labels
             ctx.fillStyle = '#333';
             ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('⚡ Quvvat O\'lchagich', x, y + radius + 20);
+            ctx.fillText('⚡ Quvvat O\'lchagich', x, y + r + 20);
             ctx.font = 'bold 16px Arial';
-            ctx.fillText(`${power.toFixed(0)} W`, x, y + radius + 38);
-            
-            // Min/Max labels
+            ctx.fillText(`${p.toFixed(0)} W`, x, y + r + 38);
             ctx.font = '10px Arial';
-            ctx.fillText('0', x - radius - 10, y + 15);
-            ctx.fillText('2000W', x + radius + 15, y + 15);
+            ctx.fillText('0', x - r - 10, y + 15);
+            ctx.fillText('2000W', x + r + 15, y + 15);
         }
 
         function updateGraph() {
             if (!graphCtx) return;
-            
-            const graphType = document.getElementById('graphType').value;
-            const powerType = document.getElementById('powerType').value;
-            
-            // Clear canvas
+            const gt = document.getElementById('graphType').value;
+            const pt = document.getElementById('powerType').value;
             graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
-            
-            // Draw background
-            const gradient = graphCtx.createLinearGradient(0, 0, graphCanvas.width, graphCanvas.height);
-            gradient.addColorStop(0, '#f8f9fa');
-            gradient.addColorStop(1, '#e9ecef');
-            graphCtx.fillStyle = gradient;
+            const g = graphCtx.createLinearGradient(0, 0, graphCanvas.width, graphCanvas.height);
+            g.addColorStop(0, '#f8f9fa');
+            g.addColorStop(1, '#e9ecef');
+            graphCtx.fillStyle = g;
             graphCtx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
-            
-            // Draw grid
             drawGrid();
-            
-            // Draw graph based on type
-            switch(graphType) {
-                case 'power-time':
-                    drawPowerTimeGraph(powerType);
-                    break;
-                case 'work-time':
-                    drawWorkTimeGraph(powerType);
-                    break;
-                case 'power-velocity':
-                    drawPowerVelocityGraph();
-                    break;
-                case 'efficiency-power':
-                    drawEfficiencyPowerGraph();
-                    break;
-            }
+            if (gt === 'power-time') drawPowerTimeGraph(pt);
+            else if (gt === 'work-time') drawWorkTimeGraph(pt);
+            else if (gt === 'power-velocity') drawPowerVelocityGraph();
+            else if (gt === 'efficiency-power') drawEfficiencyPowerGraph();
         }
 
         function drawGrid() {
-            const width = graphCanvas.width;
-            const height = graphCanvas.height;
-            const padding = 60;
-            
+            const w = graphCanvas.width, h = graphCanvas.height, p = 60;
             graphCtx.strokeStyle = '#dee2e6';
             graphCtx.lineWidth = 1;
-            
-            // Vertical lines
             for (let i = 0; i <= 10; i++) {
-                const x = padding + (width - 2 * padding) * i / 10;
+                const x = p + (w - 2 * p) * i / 10;
                 graphCtx.beginPath();
-                graphCtx.moveTo(x, padding);
-                graphCtx.lineTo(x, height - padding);
+                graphCtx.moveTo(x, p);
+                graphCtx.lineTo(x, h - p);
                 graphCtx.stroke();
             }
-            
-            // Horizontal lines
             for (let i = 0; i <= 10; i++) {
-                const y = padding + (height - 2 * padding) * i / 10;
+                const y = p + (h - 2 * p) * i / 10;
                 graphCtx.beginPath();
-                graphCtx.moveTo(padding, y);
-                graphCtx.lineTo(width - padding, y);
+                graphCtx.moveTo(p, y);
+                graphCtx.lineTo(w - p, y);
                 graphCtx.stroke();
             }
-            
-            // Draw axes
             graphCtx.strokeStyle = '#333';
             graphCtx.lineWidth = 2;
-            
-            // X axis
             graphCtx.beginPath();
-            graphCtx.moveTo(padding, height - padding);
-            graphCtx.lineTo(width - padding, height - padding);
+            graphCtx.moveTo(p, h - p);
+            graphCtx.lineTo(w - p, h - p);
             graphCtx.stroke();
-            
-            // Y axis
             graphCtx.beginPath();
-            graphCtx.moveTo(padding, padding);
-            graphCtx.lineTo(padding, height - padding);
+            graphCtx.moveTo(p, p);
+            graphCtx.lineTo(p, h - p);
             graphCtx.stroke();
         }
 
-        function drawPowerTimeGraph(powerType) {
-            const force = parseFloat(document.getElementById('force').value);
-            const velocity = parseFloat(document.getElementById('velocity').value);
-            const time = parseFloat(document.getElementById('time').value);
-            
-            const width = graphCanvas.width;
-            const height = graphCanvas.height;
-            const padding = 60;
-            
+        function drawPowerTimeGraph(pt) {
+            const f = parseFloat(document.getElementById('force').value);
+            const v = parseFloat(document.getElementById('velocity').value);
+            const t = parseFloat(document.getElementById('time').value);
+            const w = graphCanvas.width, h = graphCanvas.height, p = 60;
             graphCtx.strokeStyle = '#007bff';
             graphCtx.lineWidth = 3;
             graphCtx.beginPath();
-            
-            for (let t = 0; t <= time; t += 0.1) {
-                let power;
-                if (powerType === 'constant') {
-                    power = force * velocity;
-                } else {
-                    power = force * velocity * (1 + 0.3 * Math.sin(t * 2));
-                }
-                
-                const x = padding + (width - 2 * padding) * t / time;
-                const y = height - padding - (height - 2 * padding) * power / (force * velocity * 1.5);
-                
-                if (t === 0) {
-                    graphCtx.moveTo(x, y);
-                } else {
-                    graphCtx.lineTo(x, y);
-                }
+            for (let i = 0; i <= t; i += 0.1) {
+                const pw = pt === 'constant' ? f * v : f * v * (1 + 0.3 * Math.sin(i * 2));
+                const x = p + (w - 2 * p) * i / t;
+                const y = h - p - (h - 2 * p) * pw / (f * v * 1.5);
+                if (i === 0) graphCtx.moveTo(x, y);
+                else graphCtx.lineTo(x, y);
             }
-            
             graphCtx.stroke();
-            
-            // Labels
             graphCtx.fillStyle = '#333';
             graphCtx.font = '14px Arial';
             graphCtx.textAlign = 'center';
-            graphCtx.fillText('Vaqt (s)', width / 2, height - 20);
-            
+            graphCtx.fillText('Vaqt (s)', w / 2, h - 20);
             graphCtx.save();
-            graphCtx.translate(20, height / 2);
+            graphCtx.translate(20, h / 2);
             graphCtx.rotate(-Math.PI / 2);
             graphCtx.fillText('Quvvat (W)', 0, 0);
             graphCtx.restore();
         }
 
-        function drawWorkTimeGraph(powerType) {
-            const force = parseFloat(document.getElementById('force').value);
-            const velocity = parseFloat(document.getElementById('velocity').value);
-            const time = parseFloat(document.getElementById('time').value);
-            
-            const width = graphCanvas.width;
-            const height = graphCanvas.height;
-            const padding = 60;
-            
+        function drawWorkTimeGraph(pt) {
+            const f = parseFloat(document.getElementById('force').value);
+            const v = parseFloat(document.getElementById('velocity').value);
+            const t = parseFloat(document.getElementById('time').value);
+            const w = graphCanvas.width, h = graphCanvas.height, p = 60;
             graphCtx.strokeStyle = '#28a745';
             graphCtx.lineWidth = 3;
             graphCtx.beginPath();
-            
-            let totalWork = 0;
-            for (let t = 0; t <= time; t += 0.1) {
-                let power;
-                if (powerType === 'constant') {
-                    power = force * velocity;
-                    totalWork = power * t;
-                } else {
-                    power = force * velocity * (1 + 0.3 * Math.sin(t * 2));
-                    totalWork += power * 0.1;
-                }
-                
-                const x = padding + (width - 2 * padding) * t / time;
-                const y = height - padding - (height - 2 * padding) * totalWork / (force * velocity * time);
-                
-                if (t === 0) {
-                    graphCtx.moveTo(x, y);
-                } else {
-                    graphCtx.lineTo(x, y);
-                }
+            let tw = 0;
+            for (let i = 0; i <= t; i += 0.1) {
+                const pw = pt === 'constant' ? f * v : f * v * (1 + 0.3 * Math.sin(i * 2));
+                tw = pt === 'constant' ? pw * i : tw + pw * 0.1;
+                const x = p + (w - 2 * p) * i / t;
+                const y = h - p - (h - 2 * p) * tw / (f * v * t);
+                if (i === 0) graphCtx.moveTo(x, y);
+                else graphCtx.lineTo(x, y);
             }
-            
             graphCtx.stroke();
-            
-            // Labels
             graphCtx.fillStyle = '#333';
             graphCtx.font = '14px Arial';
             graphCtx.textAlign = 'center';
-            graphCtx.fillText('Vaqt (s)', width / 2, height - 20);
-            
+            graphCtx.fillText('Vaqt (s)', w / 2, h - 20);
             graphCtx.save();
-            graphCtx.translate(20, height / 2);
+            graphCtx.translate(20, h / 2);
             graphCtx.rotate(-Math.PI / 2);
             graphCtx.fillText('Ish (J)', 0, 0);
             graphCtx.restore();
         }
 
         function drawPowerVelocityGraph() {
-            const force = parseFloat(document.getElementById('force').value);
-            const maxVelocity = 50;
-            
-            const width = graphCanvas.width;
-            const height = graphCanvas.height;
-            const padding = 60;
-            
+            const f = parseFloat(document.getElementById('force').value);
+            const mv = 50, w = graphCanvas.width, h = graphCanvas.height, p = 60;
             graphCtx.strokeStyle = '#dc3545';
             graphCtx.lineWidth = 3;
             graphCtx.beginPath();
-            
-            for (let v = 0; v <= maxVelocity; v += 0.5) {
-                const power = force * v;
-                
-                const x = padding + (width - 2 * padding) * v / maxVelocity;
-                const y = height - padding - (height - 2 * padding) * power / (force * maxVelocity);
-                
-                if (v === 0) {
-                    graphCtx.moveTo(x, y);
-                } else {
-                    graphCtx.lineTo(x, y);
-                }
+            for (let v = 0; v <= mv; v += 0.5) {
+                const pw = f * v;
+                const x = p + (w - 2 * p) * v / mv;
+                const y = h - p - (h - 2 * p) * pw / (f * mv);
+                if (v === 0) graphCtx.moveTo(x, y);
+                else graphCtx.lineTo(x, y);
             }
-            
             graphCtx.stroke();
-            
-            // Labels
             graphCtx.fillStyle = '#333';
             graphCtx.font = '14px Arial';
             graphCtx.textAlign = 'center';
-            graphCtx.fillText('Tezlik (m/s)', width / 2, height - 20);
-            
+            graphCtx.fillText('Tezlik (m/s)', w / 2, h - 20);
             graphCtx.save();
-            graphCtx.translate(20, height / 2);
+            graphCtx.translate(20, h / 2);
             graphCtx.rotate(-Math.PI / 2);
             graphCtx.fillText('Quvvat (W)', 0, 0);
             graphCtx.restore();
         }
 
         function drawEfficiencyPowerGraph() {
-            const width = graphCanvas.width;
-            const height = graphCanvas.height;
-            const padding = 60;
-            
+            const w = graphCanvas.width, h = graphCanvas.height, p = 60;
             graphCtx.strokeStyle = '#6f42c1';
             graphCtx.lineWidth = 3;
             graphCtx.beginPath();
-            
-            for (let p = 0; p <= 100; p += 1) {
-                // Realistic efficiency curve
-                const efficiency = 100 - Math.pow(p / 100, 2) * 30;
-                
-                const x = padding + (width - 2 * padding) * p / 100;
-                const y = height - padding - (height - 2 * padding) * efficiency / 100;
-                
-                if (p === 0) {
-                    graphCtx.moveTo(x, y);
-                } else {
-                    graphCtx.lineTo(x, y);
-                }
+            for (let i = 0; i <= 100; i += 1) {
+                const e = 100 - Math.pow(i / 100, 2) * 30;
+                const x = p + (w - 2 * p) * i / 100;
+                const y = h - p - (h - 2 * p) * e / 100;
+                if (i === 0) graphCtx.moveTo(x, y);
+                else graphCtx.lineTo(x, y);
             }
-            
             graphCtx.stroke();
-            
-            // Labels
             graphCtx.fillStyle = '#333';
             graphCtx.font = '14px Arial';
             graphCtx.textAlign = 'center';
-            graphCtx.fillText('Quvvat (%)', width / 2, height - 20);
-            
+            graphCtx.fillText('Quvvat (%)', w / 2, h - 20);
             graphCtx.save();
-            graphCtx.translate(20, height / 2);
+            graphCtx.translate(20, h / 2);
             graphCtx.rotate(-Math.PI / 2);
             graphCtx.fillText('Samaradorlik (%)', 0, 0);
             graphCtx.restore();
@@ -1451,95 +997,49 @@
 
         function pauseAnimation() {
             isAnimating = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+            if (animationId) cancelAnimationFrame(animationId);
         }
 
         function resetAnimation() {
             isAnimating = false;
             currentTime = 0;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+            if (animationId) cancelAnimationFrame(animationId);
             drawSimulation();
         }
 
         function stepAnimation() {
             currentTime += 0.1;
-            const maxTime = parseFloat(document.getElementById('time').value);
-            if (currentTime > maxTime) {
-                currentTime = 0;
-            }
+            if (currentTime > parseFloat(document.getElementById('time').value)) currentTime = 0;
             drawSimulation();
         }
 
         function animate() {
             if (!isAnimating) return;
-            
-            currentTime += 0.05 * animationSpeed;
-            const maxTime = parseFloat(document.getElementById('time').value);
-            
-            if (currentTime > maxTime) {
-                currentTime = 0;
-            }
-            
+            currentTime += 0.05;
+            if (currentTime > parseFloat(document.getElementById('time').value)) currentTime = 0;
             drawSimulation();
             animationId = requestAnimationFrame(animate);
         }
 
         function setPreset(type) {
-            // Remove active class from all preset buttons
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Add active class to clicked button
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            
-            // Update current preset
             currentPreset = type;
-            
-            switch(type) {
-                case 'car':
-                    document.getElementById('force').value = 1000;
-                    document.getElementById('velocity').value = 25;
-                    document.getElementById('time').value = 30;
-                    document.getElementById('efficiency').value = 75;
-                    break;
-                case 'human':
-                    document.getElementById('force').value = 50;
-                    document.getElementById('velocity').value = 2;
-                    document.getElementById('time').value = 10;
-                    document.getElementById('efficiency').value = 25;
-                    break;
-                case 'motor':
-                    document.getElementById('force').value = 200;
-                    document.getElementById('velocity').value = 10;
-                    document.getElementById('time').value = 20;
-                    document.getElementById('efficiency').value = 90;
-                    break;
-                case 'turbine':
-                    document.getElementById('force').value = 500;
-                    document.getElementById('velocity').value = 40;
-                    document.getElementById('time').value = 60;
-                    document.getElementById('efficiency').value = 95;
-                    break;
-            }
-            
-            // Update input fields
-            const controls = ['force', 'velocity', 'time', 'efficiency'];
-            controls.forEach(control => {
-                const slider = document.getElementById(control);
-                const input = document.getElementById(control + 'Input');
-                input.value = slider.value;
+            const presets = {
+                car: [1000, 25, 30, 75],
+                human: [50, 2, 10, 25],
+                motor: [200, 10, 20, 90],
+                turbine: [500, 40, 60, 95]
+            };
+            const vals = presets[type];
+            ['force', 'velocity', 'time', 'efficiency'].forEach((c, i) => {
+                document.getElementById(c).value = vals[i];
+                document.getElementById(c + 'Input').value = vals[i];
             });
-            
             updateCalculations();
         }
 
-        // Handle window resize
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', () => {
             setTimeout(() => {
                 if (canvas) {
                     canvas.width = canvas.offsetWidth;
@@ -1553,25 +1053,6 @@
                 }
             }, 100);
         });
-
-        // Touch support for mobile
-        function addTouchSupport() {
-            const sliders = document.querySelectorAll('input[type="range"]');
-            sliders.forEach(slider => {
-                slider.addEventListener('touchstart', function() {
-                    this.style.background = '#007bff';
-                });
-                slider.addEventListener('touchend', function() {
-                    this.style.background = '#ddd';
-                });
-            });
-        }
-
-        // Initialize touch support
-        addTouchSupport();
     </script>
 </body>
 </html>
-
-
-
