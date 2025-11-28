@@ -5,918 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinematika Harakatlari Simulyatsiyasi</title>
     <style>
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-            color: white;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .simulation-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .tab-button {
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            cursor: pointer;
-            font-size: clamp(12px, 3vw, 16px);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            margin: 2px;
-            min-width: fit-content;
-        }
-        
-        .tab-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .tab-button.active {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(1.05);
-        }
-        
-        .simulation-area {
-            display: none;
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        .simulation-area.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-        
-        canvas {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            max-width: 100%;
-            height: auto;
-        }
-        
-        /* Mobile canvas sizing */
-        @media (max-width: 768px) {
-            canvas {
-                width: 100% !important;
-                height: 250px !important;
-            }
-        }
-        
-        .controls {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .control-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: clamp(12px, 3vw, 16px);
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 10px;
-            accent-color: #667eea;
-            height: 30px;
-        }
-        
-        /* Better range styling for mobile */
-        input[type="range"]::-webkit-slider-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .value-display {
-            font-size: clamp(12px, 3vw, 14px);
-            color: #e0e0e0;
-            margin-bottom: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        button {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            cursor: pointer;
-            font-size: clamp(12px, 3vw, 16px);
-            margin: 5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            min-width: 120px;
-            touch-action: manipulation; /* Better touch response */
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .info-panel {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-        
-        .info-panel h3 {
-            font-size: clamp(14px, 4vw, 18px);
-            margin-bottom: 10px;
-        }
-        
-        .formula {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: clamp(11px, 2.5vw, 14px);
-            overflow-x: auto;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        /* Mobile stats layout */
-        @media (max-width: 480px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-        }
-        
-        .stat-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-item div:first-child {
-            font-size: clamp(10px, 2.5vw, 12px);
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: clamp(14px, 4vw, 1.5em);
-            font-weight: bold;
-            color: #ffd700;
-        }
-        
-        /* Touch-friendly improvements */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-                margin: 5px;
-                border-radius: 15px;
-            }
-            
-            .controls {
-                padding: 12px;
-            }
-            
-            .control-group {
-                margin-bottom: 20px;
-            }
-            
-            .simulation-tabs {
-                gap: 8px;
-            }
-            
-            .tab-button {
-                padding: 12px 16px;
-                font-size: 14px;
-            }
-        }
-        
-        /* Very small screens */
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                padding: 10px;
-            }
-            
-            .tab-button {
-                padding: 10px 12px;
-                font-size: 12px;
-            }
-            
-            button {
-                min-width: 100px;
-                padding: 10px 16px;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:10px;color:#fff}.container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:20px;padding:20px;box-shadow:0 8px 32px rgba(31,38,135,.37);border:1px solid rgba(255,255,255,.18)}h1{text-align:center;margin-bottom:20px;font-size:clamp(1.5rem,4vw,2.5rem);text-shadow:2px 2px 4px rgba(0,0,0,.3)}.simulation-tabs{display:flex;justify-content:center;margin-bottom:20px;gap:5px;flex-wrap:wrap}.tab-button{padding:10px 16px;background:rgba(255,255,255,.2);border:none;border-radius:25px;color:#fff;cursor:pointer;font-size:clamp(12px,3vw,16px);transition:all .3s ease;backdrop-filter:blur(5px);margin:2px}.tab-button:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}.tab-button.active{background:rgba(255,255,255,.4);transform:scale(1.05)}.simulation-area{display:none;animation:fadeIn .5s ease-in}.simulation-area.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.canvas-container{display:flex;justify-content:center;margin-bottom:20px}canvas{background:rgba(0,0,0,.3);border-radius:15px;border:2px solid rgba(255,255,255,.2);box-shadow:0 4px 15px rgba(0,0,0,.2);max-width:100%;height:auto}@media (max-width:768px){canvas{width:100%!important;height:250px!important}}.controls{background:rgba(255,255,255,.1);padding:15px;border-radius:15px;margin-bottom:20px}.control-group{margin-bottom:15px}label{display:block;margin-bottom:8px;font-weight:700;font-size:clamp(12px,3vw,16px)}input[type=range]{width:100%;margin-bottom:10px;accent-color:#667eea;height:30px}input[type=range]::-webkit-slider-thumb{width:20px;height:20px;border-radius:50%;background:#667eea;cursor:pointer;-webkit-appearance:none;appearance:none}input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#667eea;cursor:pointer;border:none}.value-display{font-size:clamp(12px,3vw,14px);color:#e0e0e0;margin-bottom:10px;text-align:center;font-weight:700}.button-container{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}button{padding:12px 20px;background:linear-gradient(45deg,#667eea,#764ba2);border:none;border-radius:25px;color:#fff;cursor:pointer;font-size:clamp(12px,3vw,16px);margin:5px;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,.2);min-width:120px;touch-action:manipulation}button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}button:active{transform:translateY(0)}.info-panel{background:rgba(255,255,255,.1);padding:15px;border-radius:15px;margin-top:20px}.info-panel h3{font-size:clamp(14px,4vw,18px);margin-bottom:10px}.formula{background:rgba(0,0,0,.3);padding:10px;border-radius:10px;margin:10px 0;font-family:'Courier New',monospace;font-size:clamp(11px,2.5vw,14px);overflow-x:auto}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:15px}@media (max-width:480px){.stats{grid-template-columns:repeat(2,1fr);gap:8px}}.stat-item{background:rgba(255,255,255,.1);padding:8px;border-radius:10px;text-align:center}.stat-item div:first-child{font-size:clamp(10px,2.5vw,12px);margin-bottom:5px}.stat-value{font-size:clamp(14px,4vw,1.5em);font-weight:700;color:#ffd700}@media (max-width:768px){.container{padding:15px;margin:5px;border-radius:15px}.controls{padding:12px}.control-group{margin-bottom:20px}.simulation-tabs{gap:8px}.tab-button{padding:12px 16px;font-size:14px}}@media (max-width:480px){body{padding:5px}.container{padding:10px}.tab-button{padding:10px 12px;font-size:12px}button{min-width:100px;padding:10px 16px}}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 Kinematika Harakatlari Simulyatsiyasi</h1>
-        
         <div class="simulation-tabs">
             <button class="tab-button active" onclick="showTab('freefall')">Erkin Tushish</button>
             <button class="tab-button" onclick="showTab('projectile')">Parabola Harakat</button>
             <button class="tab-button" onclick="showTab('circular')">Aylana Harakat</button>
         </div>
-        
-        <!-- Erkin Tushish Simulyatsiyasi -->
         <div id="freefall" class="simulation-area active">
-            <div class="canvas-container">
-                <canvas id="freefallCanvas" width="600" height="400"></canvas>
-            </div>
-            
+            <div class="canvas-container"><canvas id="freefallCanvas" width="600" height="400"></canvas></div>
             <div class="controls">
                 <div class="control-group">
                     <label>Boshlang'ich tezlik (m/s):</label>
                     <input type="range" id="freefallV0" min="0" max="50" value="0" oninput="updateFreefallDisplay()">
                     <div class="value-display" id="freefallV0Display">0 m/s</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Erkin tushish tezlanishi (m/s²):</label>
                     <input type="range" id="freefallG" min="1" max="20" value="9.8" step="0.1" oninput="updateFreefallDisplay()">
                     <div class="value-display" id="freefallGDisplay">9.8 m/s²</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Boshlang'ich balandlik (m):</label>
                     <input type="range" id="freefallH" min="10" max="200" value="100" oninput="updateFreefallDisplay()">
                     <div class="value-display" id="freefallHDisplay">100 m</div>
                 </div>
-                
                 <div class="button-container">
                     <button onclick="startFreefall()">🚀 Boshlash</button>
                     <button onclick="resetFreefall()">🔄 Qayta boshlash</button>
                 </div>
             </div>
-            
             <div class="info-panel">
                 <h3>📐 Erkin Tushish Formulalari:</h3>
-                <div class="formula">
-                    v = v₀ + gt<br>
-                    s = v₀t + ½gt²<br>
-                    v² = v₀² + 2gs
-                </div>
-                
+                <div class="formula">v = v₀ + gt<br>s = v₀t + ½gt²<br>v² = v₀² + 2gs</div>
                 <div class="stats">
-                    <div class="stat-item">
-                        <div>Vaqt</div>
-                        <div class="stat-value" id="freefallTime">0.0 s</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Tezlik</div>
-                        <div class="stat-value" id="freefallVelocity">0.0 m/s</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Masofa</div>
-                        <div class="stat-value" id="freefallDistance">0.0 m</div>
-                    </div>
+                    <div class="stat-item"><div>Vaqt</div><div class="stat-value" id="freefallTime">0.0 s</div></div>
+                    <div class="stat-item"><div>Tezlik</div><div class="stat-value" id="freefallVelocity">0.0 m/s</div></div>
+                    <div class="stat-item"><div>Masofa</div><div class="stat-value" id="freefallDistance">0.0 m</div></div>
                 </div>
             </div>
         </div>
-        
-        <!-- Parabola Harakat Simulyatsiyasi -->
         <div id="projectile" class="simulation-area">
-            <div class="canvas-container">
-                <canvas id="projectileCanvas" width="600" height="400"></canvas>
-            </div>
-            
+            <div class="canvas-container"><canvas id="projectileCanvas" width="600" height="400"></canvas></div>
             <div class="controls">
                 <div class="control-group">
                     <label>Boshlang'ich tezlik (m/s):</label>
                     <input type="range" id="projectileV0" min="10" max="100" value="50" oninput="updateProjectileDisplay()">
                     <div class="value-display" id="projectileV0Display">50 m/s</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Otish burchagi (°):</label>
                     <input type="range" id="projectileAngle" min="0" max="90" value="45" oninput="updateProjectileDisplay()">
                     <div class="value-display" id="projectileAngleDisplay">45°</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Tortishish kuchi (m/s²):</label>
                     <input type="range" id="projectileG" min="1" max="20" value="9.8" step="0.1" oninput="updateProjectileDisplay()">
                     <div class="value-display" id="projectileGDisplay">9.8 m/s²</div>
                 </div>
-                
                 <div class="button-container">
                     <button onclick="startProjectile()">🎯 Otish</button>
                     <button onclick="resetProjectile()">🔄 Qayta boshlash</button>
                 </div>
             </div>
-            
             <div class="info-panel">
                 <h3>📐 Parabola Harakat Formulalari:</h3>
-                <div class="formula">
-                    x = v₀ cos(θ) × t<br>
-                    y = v₀ sin(θ) × t - ½gt²<br>
-                    Maksimal balandlik: H = v₀²sin²(θ) / 2g<br>
-                    Masofasi: R = v₀²sin(2θ) / g
-                </div>
-                
+                <div class="formula">x = v₀ cos(θ) × t<br>y = v₀ sin(θ) × t - ½gt²<br>Maksimal balandlik: H = v₀²sin²(θ) / 2g<br>Masofasi: R = v₀²sin(2θ) / g</div>
                 <div class="stats">
-                    <div class="stat-item">
-                        <div>Vaqt</div>
-                        <div class="stat-value" id="projectileTime">0.0 s</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Masofasi</div>
-                        <div class="stat-value" id="projectileRange">0.0 m</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Maks. balandlik</div>
-                        <div class="stat-value" id="projectileMaxHeight">0.0 m</div>
-                    </div>
+                    <div class="stat-item"><div>Vaqt</div><div class="stat-value" id="projectileTime">0.0 s</div></div>
+                    <div class="stat-item"><div>Masofasi</div><div class="stat-value" id="projectileRange">0.0 m</div></div>
+                    <div class="stat-item"><div>Maks. balandlik</div><div class="stat-value" id="projectileMaxHeight">0.0 m</div></div>
                 </div>
             </div>
         </div>
-        
-        <!-- Aylana Harakat Simulyatsiyasi -->
         <div id="circular" class="simulation-area">
-            <div class="canvas-container">
-                <canvas id="circularCanvas" width="600" height="400"></canvas>
-            </div>
-            
+            <div class="canvas-container"><canvas id="circularCanvas" width="600" height="400"></canvas></div>
             <div class="controls">
                 <div class="control-group">
                     <label>Radius (m):</label>
                     <input type="range" id="circularRadius" min="50" max="150" value="100" oninput="updateCircularDisplay()">
                     <div class="value-display" id="circularRadiusDisplay">100 m</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Burchak tezligi (rad/s):</label>
                     <input type="range" id="circularOmega" min="0.1" max="5" value="1" step="0.1" oninput="updateCircularDisplay()">
                     <div class="value-display" id="circularOmegaDisplay">1.0 rad/s</div>
                 </div>
-                
                 <div class="control-group">
                     <label>Massa (kg):</label>
                     <input type="range" id="circularMass" min="1" max="20" value="5" oninput="updateCircularDisplay()">
                     <div class="value-display" id="circularMassDisplay">5 kg</div>
                 </div>
-                
                 <div class="button-container">
                     <button onclick="startCircular()">🌀 Boshlash</button>
                     <button onclick="stopCircular()">⏹️ To'xtatish</button>
                     <button onclick="resetCircular()">🔄 Qayta boshlash</button>
                 </div>
             </div>
-            
             <div class="info-panel">
                 <h3>📐 Aylana Harakat Formulalari:</h3>
-                <div class="formula">
-                    v = ωr (chiziqli tezlik)<br>
-                    a = ω²r = v²/r (markazga intiluvchan tezlanish)<br>
-                    F = ma = mω²r (markazga intiluvchan kuch)<br>
-                    T = 2π/ω (period)
-                </div>
-                
+                <div class="formula">v = ωr (chiziqli tezlik)<br>a = ω²r = v²/r (markazga intiluvchan tezlanish)<br>F = ma = mω²r (markazga intiluvchan kuch)<br>T = 2π/ω (period)</div>
                 <div class="stats">
-                    <div class="stat-item">
-                        <div>Chiziqli tezlik</div>
-                        <div class="stat-value" id="circularVelocity">0.0 m/s</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Tezlanish</div>
-                        <div class="stat-value" id="circularAcceleration">0.0 m/s²</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Markaziy kuch</div>
-                        <div class="stat-value" id="circularForce">0.0 N</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Period</div>
-                        <div class="stat-value" id="circularPeriod">0.0 s</div>
-                    </div>
+                    <div class="stat-item"><div>Chiziqli tezlik</div><div class="stat-value" id="circularVelocity">0.0 m/s</div></div>
+                    <div class="stat-item"><div>Tezlanish</div><div class="stat-value" id="circularAcceleration">0.0 m/s²</div></div>
+                    <div class="stat-item"><div>Markaziy kuch</div><div class="stat-value" id="circularForce">0.0 N</div></div>
+                    <div class="stat-item"><div>Period</div><div class="stat-value" id="circularPeriod">0.0 s</div></div>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
-        // Global variables
-        let animationId;
-        let freefallAnimation = null;
-        let projectileAnimation = null;
-        let circularAnimation = null;
-        
-        // Canvas contexts with mobile adaptation
-        let freefallCtx, projectileCtx, circularCtx;
-        
-        function initializeCanvases() {
-            const canvases = document.querySelectorAll('canvas');
-            canvases.forEach(canvas => {
-                const ctx = canvas.getContext('2d');
-                
-                // Mobile responsive canvas sizing
-                if (window.innerWidth <= 768) {
-                    canvas.width = Math.min(window.innerWidth - 40, 500);
-                    canvas.height = 250;
-                } else {
-                    canvas.width = 600;
-                    canvas.height = 400;
-                }
-            });
-            
-            freefallCtx = document.getElementById('freefallCanvas').getContext('2d');
-            projectileCtx = document.getElementById('projectileCanvas').getContext('2d');
-            circularCtx = document.getElementById('circularCanvas').getContext('2d');
-        }
-        
-        // Responsive canvas resize
-        window.addEventListener('resize', () => {
-            clearTimeout(window.resizeTimeout);
-            window.resizeTimeout = setTimeout(() => {
-                initializeCanvases();
-                resetFreefall();
-                resetProjectile();
-                resetCircular();
-            }, 100);
-        });
-        
-        // Tab switching
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.simulation-area').forEach(area => {
-                area.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-            
-            // Stop all animations
-            if (freefallAnimation) clearInterval(freefallAnimation);
-            if (projectileAnimation) clearInterval(projectileAnimation);
-            if (circularAnimation) clearInterval(circularAnimation);
-        }
-        
-        // Erkin Tushish Simulyatsiyasi
-        function updateFreefallDisplay() {
-            const v0 = document.getElementById('freefallV0').value;
-            const g = document.getElementById('freefallG').value;
-            const h = document.getElementById('freefallH').value;
-            
-            document.getElementById('freefallV0Display').textContent = v0 + ' m/s';
-            document.getElementById('freefallGDisplay').textContent = g + ' m/s²';
-            document.getElementById('freefallHDisplay').textContent = h + ' m';
-        }
-        
-        function startFreefall() {
-            resetFreefall();
-            
-            const v0 = parseFloat(document.getElementById('freefallV0').value);
-            const g = parseFloat(document.getElementById('freefallG').value);
-            const h = parseFloat(document.getElementById('freefallH').value);
-            
-            let t = 0;
-            const dt = 0.02;
-            const canvas = document.getElementById('freefallCanvas');
-            const scale = 1.2; // Adjusted for mobile
-            
-            freefallAnimation = setInterval(() => {
-                // Clear canvas
-                freefallCtx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Calculate position (distance fallen)
-                const y = v0 * t + 0.5 * g * t * t;
-                const v = v0 + g * t;
-                
-                // Draw ground
-                freefallCtx.fillStyle = '#8B7355';
-                freefallCtx.fillRect(0, canvas.height - 20, canvas.width, 20);
-                
-                // Calculate object position on screen
-                const startY = 30;
-                const objY = startY + y * scale;
-                const centerX = canvas.width / 2;
-                
-                // Check if object hits ground
-                if (objY >= canvas.height - 30) {
-                    // Object hits ground
-                    freefallCtx.fillStyle = '#FF6B6B';
-                    freefallCtx.beginPath();
-                    freefallCtx.arc(centerX, canvas.height - 30, 8, 0, 2 * Math.PI);
-                    freefallCtx.fill();
-                    
-                    // Draw impact effect
-                    freefallCtx.strokeStyle = '#FF6B6B';
-                    freefallCtx.lineWidth = 2;
-                    for (let i = 0; i < 8; i++) {
-                        const angle = (i * Math.PI) / 4;
-                        freefallCtx.beginPath();
-                        freefallCtx.moveTo(centerX, canvas.height - 30);
-                        freefallCtx.lineTo(centerX + Math.cos(angle) * 15, canvas.height - 30 + Math.sin(angle) * 15);
-                        freefallCtx.stroke();
-                    }
-                    
-                    clearInterval(freefallAnimation);
-                } else {
-                    // Draw falling object
-                    freefallCtx.fillStyle = '#4ECDC4';
-                    freefallCtx.beginPath();
-                    freefallCtx.arc(centerX, objY, 8, 0, 2 * Math.PI);
-                    freefallCtx.fill();
-                    
-                    // Draw velocity vector
-                    freefallCtx.strokeStyle = '#FFD93D';
-                    freefallCtx.lineWidth = 2;
-                    freefallCtx.beginPath();
-                    freefallCtx.moveTo(centerX, objY);
-                    freefallCtx.lineTo(centerX, objY + Math.min(v * 2, 40));
-                    freefallCtx.stroke();
-                    
-                    // Draw arrow head for velocity vector
-                    const arrowY = objY + Math.min(v * 2, 40);
-                    freefallCtx.beginPath();
-                    freefallCtx.moveTo(centerX, arrowY);
-                    freefallCtx.lineTo(centerX - 3, arrowY - 5);
-                    freefallCtx.moveTo(centerX, arrowY);
-                    freefallCtx.lineTo(centerX + 3, arrowY - 5);
-                    freefallCtx.stroke();
-                }
-                
-                // Draw height indicator
-                freefallCtx.strokeStyle = '#FFFFFF';
-                freefallCtx.lineWidth = 1;
-                freefallCtx.setLineDash([3, 3]);
-                freefallCtx.beginPath();
-                freefallCtx.moveTo(30, startY);
-                freefallCtx.lineTo(30, canvas.height - 30);
-                freefallCtx.stroke();
-                freefallCtx.setLineDash([]);
-                
-                // Height label
-                freefallCtx.fillStyle = '#FFFFFF';
-                freefallCtx.font = window.innerWidth <= 768 ? '10px Arial' : '12px Arial';
-                freefallCtx.fillText(h + 'm', 5, canvas.height / 2);
-                
-                // Update stats
-                document.getElementById('freefallTime').textContent = t.toFixed(2) + ' s';
-                document.getElementById('freefallVelocity').textContent = v.toFixed(1) + ' m/s';
-                document.getElementById('freefallDistance').textContent = y.toFixed(1) + ' m';
-                
-                t += dt;
-            }, 20);
-        }
-        
-        function resetFreefall() {
-            if (freefallAnimation) clearInterval(freefallAnimation);
-            freefallCtx.clearRect(0, 0, 600, 400);
-            
-            const h = parseFloat(document.getElementById('freefallH').value);
-            
-            // Draw ground
-            freefallCtx.fillStyle = '#8B7355';
-            freefallCtx.fillRect(0, 380, 600, 20);
-            
-            // Draw initial object position
-            freefallCtx.fillStyle = '#4ECDC4';
-            freefallCtx.beginPath();
-            freefallCtx.arc(300, 50, 10, 0, 2 * Math.PI);
-            freefallCtx.fill();
-            
-            // Draw height indicator
-            freefallCtx.strokeStyle = '#FFFFFF';
-            freefallCtx.lineWidth = 1;
-            freefallCtx.setLineDash([5, 5]);
-            freefallCtx.beginPath();
-            freefallCtx.moveTo(50, 50);
-            freefallCtx.lineTo(50, 370);
-            freefallCtx.stroke();
-            freefallCtx.setLineDash([]);
-            
-            // Height label
-            freefallCtx.fillStyle = '#FFFFFF';
-            freefallCtx.font = '12px Arial';
-            freefallCtx.fillText(h + 'm', 10, 200);
-            
-            // Reset stats
-            document.getElementById('freefallTime').textContent = '0.0 s';
-            document.getElementById('freefallVelocity').textContent = '0.0 m/s';
-            document.getElementById('freefallDistance').textContent = '0.0 m';
-        }
-        
-        // Parabola Harakat Simulyatsiyasi
-        function updateProjectileDisplay() {
-            const v0 = document.getElementById('projectileV0').value;
-            const angle = document.getElementById('projectileAngle').value;
-            const g = document.getElementById('projectileG').value;
-            
-            document.getElementById('projectileV0Display').textContent = v0 + ' m/s';
-            document.getElementById('projectileAngleDisplay').textContent = angle + '°';
-            document.getElementById('projectileGDisplay').textContent = g + ' m/s²';
-            
-            // Calculate and display theoretical values
-            const angleRad = angle * Math.PI / 180;
-            const maxHeight = (v0 * v0 * Math.sin(angleRad) * Math.sin(angleRad)) / (2 * g);
-            const range = (v0 * v0 * Math.sin(2 * angleRad)) / g;
-            
-            document.getElementById('projectileMaxHeight').textContent = maxHeight.toFixed(1) + ' m';
-            document.getElementById('projectileRange').textContent = range.toFixed(1) + ' m';
-        }
-        
-        function startProjectile() {
-            resetProjectile();
-            
-            const v0 = parseFloat(document.getElementById('projectileV0').value);
-            const angle = parseFloat(document.getElementById('projectileAngle').value) * Math.PI / 180;
-            const g = parseFloat(document.getElementById('projectileG').value);
-            
-            const v0x = v0 * Math.cos(angle);
-            const v0y = v0 * Math.sin(angle);
-            
-            let t = 0;
-            const dt = 0.02;
-            const scale = 2;
-            const trail = [];
-            
-            projectileAnimation = setInterval(() => {
-                // Clear canvas
-                projectileCtx.clearRect(0, 0, 600, 400);
-                
-                // Calculate position
-                const x = v0x * t;
-                const y = v0y * t - 0.5 * g * t * t;
-                
-                // Draw ground
-                projectileCtx.fillStyle = '#8B7355';
-                projectileCtx.fillRect(0, 380, 600, 20);
-                
-                // Add to trail
-                trail.push({x: x * scale + 50, y: 380 - y * scale});
-                if (trail.length > 100) trail.shift();
-                
-                // Draw trail
-                projectileCtx.strokeStyle = 'rgba(255, 217, 61, 0.5)';
-                projectileCtx.lineWidth = 2;
-                projectileCtx.beginPath();
-                for (let i = 0; i < trail.length - 1; i++) {
-                    projectileCtx.moveTo(trail[i].x, trail[i].y);
-                    projectileCtx.lineTo(trail[i + 1].x, trail[i + 1].y);
-                }
-                projectileCtx.stroke();
-                
-                // Check if projectile hits ground
-                if (y <= 0 && t > 0) {
-                    // Draw final position
-                    projectileCtx.fillStyle = '#FF6B6B';
-                    projectileCtx.beginPath();
-                    projectileCtx.arc(x * scale + 50, 380, 8, 0, 2 * Math.PI);
-                    projectileCtx.fill();
-                    
-                    clearInterval(projectileAnimation);
-                } else {
-                    // Draw projectile
-                    projectileCtx.fillStyle = '#4ECDC4';
-                    projectileCtx.beginPath();
-                    projectileCtx.arc(x * scale + 50, 380 - y * scale, 8, 0, 2 * Math.PI);
-                    projectileCtx.fill();
-                }
-                
-                // Update stats
-                document.getElementById('projectileTime').textContent = t.toFixed(1) + ' s';
-                
-                t += dt;
-            }, 20);
-        }
-        
-        function resetProjectile() {
-            if (projectileAnimation) clearInterval(projectileAnimation);
-            projectileCtx.clearRect(0, 0, 600, 400);
-            
-            // Draw initial state
-            projectileCtx.fillStyle = '#8B7355';
-            projectileCtx.fillRect(0, 380, 600, 20);
-            
-            projectileCtx.fillStyle = '#4ECDC4';
-            projectileCtx.beginPath();
-            projectileCtx.arc(50, 380, 8, 0, 2 * Math.PI);
-            projectileCtx.fill();
-            
-            // Reset stats
-            document.getElementById('projectileTime').textContent = '0.0 s';
-        }
-        
-        // Aylana Harakat Simulyatsiyasi
-        function updateCircularDisplay() {
-            const radius = document.getElementById('circularRadius').value;
-            const omega = document.getElementById('circularOmega').value;
-            const mass = document.getElementById('circularMass').value;
-            
-            document.getElementById('circularRadiusDisplay').textContent = radius + ' m';
-            document.getElementById('circularOmegaDisplay').textContent = omega + ' rad/s';
-            document.getElementById('circularMassDisplay').textContent = mass + ' kg';
-            
-            // Calculate and display values
-            const velocity = omega * radius;
-            const acceleration = omega * omega * radius;
-            const force = mass * acceleration;
-            const period = 2 * Math.PI / omega;
-            
-            document.getElementById('circularVelocity').textContent = velocity.toFixed(1) + ' m/s';
-            document.getElementById('circularAcceleration').textContent = acceleration.toFixed(1) + ' m/s²';
-            document.getElementById('circularForce').textContent = force.toFixed(1) + ' N';
-            document.getElementById('circularPeriod').textContent = period.toFixed(1) + ' s';
-        }
-        
-        function startCircular() {
-            const radius = parseFloat(document.getElementById('circularRadius').value);
-            const omega = parseFloat(document.getElementById('circularOmega').value);
-            
-            let angle = 0;
-            const dt = 0.02;
-            const centerX = 300;
-            const centerY = 200;
-            const scale = 1;
-            
-            circularAnimation = setInterval(() => {
-                // Clear canvas
-                circularCtx.clearRect(0, 0, 600, 400);
-                
-                // Draw center
-                circularCtx.fillStyle = '#FFD93D';
-                circularCtx.beginPath();
-                circularCtx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
-                circularCtx.fill();
-                
-                // Draw orbit path
-                circularCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                circularCtx.lineWidth = 2;
-                circularCtx.beginPath();
-                circularCtx.arc(centerX, centerY, radius * scale, 0, 2 * Math.PI);
-                circularCtx.stroke();
-                
-                // Calculate position
-                const x = centerX + radius * scale * Math.cos(angle);
-                const y = centerY + radius * scale * Math.sin(angle);
-                
-                // Draw object
-                circularCtx.fillStyle = '#4ECDC4';
-                circularCtx.beginPath();
-                circularCtx.arc(x, y, 10, 0, 2 * Math.PI);
-                circularCtx.fill();
-                
-                // Draw velocity vector
-                const vx = -omega * radius * scale * Math.sin(angle);
-                const vy = omega * radius * scale * Math.cos(angle);
-                circularCtx.strokeStyle = '#FFD93D';
-                circularCtx.lineWidth = 3;
-                circularCtx.beginPath();
-                circularCtx.moveTo(x, y);
-                circularCtx.lineTo(x + vx * 0.1, y + vy * 0.1);
-                circularCtx.stroke();
-                
-                // Draw acceleration vector (toward center)
-                const ax = (centerX - x) * 0.1;
-                const ay = (centerY - y) * 0.1;
-                circularCtx.strokeStyle = '#FF6B6B';
-                circularCtx.lineWidth = 3;
-                circularCtx.beginPath();
-                circularCtx.moveTo(x, y);
-                circularCtx.lineTo(x + ax, y + ay);
-                circularCtx.stroke();
-                
-                angle += omega * dt;
-            }, 20);
-        }
-        
-        function stopCircular() {
-            if (circularAnimation) clearInterval(circularAnimation);
-        }
-        
-        function resetCircular() {
-            if (circularAnimation) clearInterval(circularAnimation);
-            circularCtx.clearRect(0, 0, 600, 400);
-            
-            const radius = parseFloat(document.getElementById('circularRadius').value);
-            const centerX = 300;
-            const centerY = 200;
-            const scale = 1;
-            
-            // Draw initial state
-            circularCtx.fillStyle = '#FFD93D';
-            circularCtx.beginPath();
-            circularCtx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
-            circularCtx.fill();
-            
-            circularCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            circularCtx.lineWidth = 2;
-            circularCtx.beginPath();
-            circularCtx.arc(centerX, centerY, radius * scale, 0, 2 * Math.PI);
-            circularCtx.stroke();
-            
-            circularCtx.fillStyle = '#4ECDC4';
-            circularCtx.beginPath();
-            circularCtx.arc(centerX + radius * scale, centerY, 10, 0, 2 * Math.PI);
-            circularCtx.fill();
-        }
-        
-        // Initialize displays and canvases
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCanvases();
-            updateFreefallDisplay();
-            updateProjectileDisplay();
-            updateCircularDisplay();
-            
-            // Initialize canvases
-            resetFreefall();
-            resetProjectile();
-            resetCircular();
-        });
+        let freefallAnimation,projectileAnimation,circularAnimation,freefallCtx,projectileCtx,circularCtx;function initializeCanvases(){document.querySelectorAll('canvas').forEach(c=>{if(window.innerWidth<=768){c.width=Math.min(window.innerWidth-40,500);c.height=250}else{c.width=600;c.height=400}});freefallCtx=document.getElementById('freefallCanvas').getContext('2d');projectileCtx=document.getElementById('projectileCanvas').getContext('2d');circularCtx=document.getElementById('circularCanvas').getContext('2d')}window.addEventListener('resize',()=>{clearTimeout(window.resizeTimeout);window.resizeTimeout=setTimeout(()=>{initializeCanvases();resetFreefall();resetProjectile();resetCircular()},100)});function showTab(t){document.querySelectorAll('.simulation-area').forEach(a=>a.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));document.getElementById(t).classList.add('active');event.target.classList.add('active');if(freefallAnimation)clearInterval(freefallAnimation);if(projectileAnimation)clearInterval(projectileAnimation);if(circularAnimation)clearInterval(circularAnimation)}function updateFreefallDisplay(){const v=document.getElementById('freefallV0').value,g=document.getElementById('freefallG').value,h=document.getElementById('freefallH').value;document.getElementById('freefallV0Display').textContent=v+' m/s';document.getElementById('freefallGDisplay').textContent=g+' m/s²';document.getElementById('freefallHDisplay').textContent=h+' m'}function startFreefall(){resetFreefall();const v0=parseFloat(document.getElementById('freefallV0').value),g=parseFloat(document.getElementById('freefallG').value),h=parseFloat(document.getElementById('freefallH').value);let t=0;const dt=.02,canvas=document.getElementById('freefallCanvas'),scale=1.2;freefallAnimation=setInterval(()=>{freefallCtx.clearRect(0,0,canvas.width,canvas.height);const y=v0*t+.5*g*t*t,v=v0+g*t;freefallCtx.fillStyle='#8B7355';freefallCtx.fillRect(0,canvas.height-20,canvas.width,20);const startY=30,objY=startY+y*scale,centerX=canvas.width/2;if(objY>=canvas.height-30){freefallCtx.fillStyle='#FF6B6B';freefallCtx.beginPath();freefallCtx.arc(centerX,canvas.height-30,8,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FF6B6B';freefallCtx.lineWidth=2;for(let i=0;i<8;i++){const a=i*Math.PI/4;freefallCtx.beginPath();freefallCtx.moveTo(centerX,canvas.height-30);freefallCtx.lineTo(centerX+Math.cos(a)*15,canvas.height-30+Math.sin(a)*15);freefallCtx.stroke()}clearInterval(freefallAnimation)}else{freefallCtx.fillStyle='#4ECDC4';freefallCtx.beginPath();freefallCtx.arc(centerX,objY,8,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FFD93D';freefallCtx.lineWidth=2;freefallCtx.beginPath();freefallCtx.moveTo(centerX,objY);freefallCtx.lineTo(centerX,objY+Math.min(v*2,40));freefallCtx.stroke();const arrowY=objY+Math.min(v*2,40);freefallCtx.beginPath();freefallCtx.moveTo(centerX,arrowY);freefallCtx.lineTo(centerX-3,arrowY-5);freefallCtx.moveTo(centerX,arrowY);freefallCtx.lineTo(centerX+3,arrowY-5);freefallCtx.stroke()}freefallCtx.strokeStyle='#FFFFFF';freefallCtx.lineWidth=1;freefallCtx.setLineDash([3,3]);freefallCtx.beginPath();freefallCtx.moveTo(30,startY);freefallCtx.lineTo(30,canvas.height-30);freefallCtx.stroke();freefallCtx.setLineDash([]);freefallCtx.fillStyle='#FFFFFF';freefallCtx.font=window.innerWidth<=768?'10px Arial':'12px Arial';freefallCtx.fillText(h+'m',5,canvas.height/2);document.getElementById('freefallTime').textContent=t.toFixed(2)+' s';document.getElementById('freefallVelocity').textContent=v.toFixed(1)+' m/s';document.getElementById('freefallDistance').textContent=y.toFixed(1)+' m';t+=dt},20)}function resetFreefall(){if(freefallAnimation)clearInterval(freefallAnimation);freefallCtx.clearRect(0,0,600,400);const h=parseFloat(document.getElementById('freefallH').value);freefallCtx.fillStyle='#8B7355';freefallCtx.fillRect(0,380,600,20);freefallCtx.fillStyle='#4ECDC4';freefallCtx.beginPath();freefallCtx.arc(300,50,10,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FFFFFF';freefallCtx.lineWidth=1;freefallCtx.setLineDash([5,5]);freefallCtx.beginPath();freefallCtx.moveTo(50,50);freefallCtx.lineTo(50,370);freefallCtx.stroke();freefallCtx.setLineDash([]);freefallCtx.fillStyle='#FFFFFF';freefallCtx.font='12px Arial';freefallCtx.fillText(h+'m',10,200);document.getElementById('freefallTime').textContent='0.0 s';document.getElementById('freefallVelocity').textContent='0.0 m/s';document.getElementById('freefallDistance').textContent='0.0 m'}function updateProjectileDisplay(){const v=document.getElementById('projectileV0').value,a=document.getElementById('projectileAngle').value,g=document.getElementById('projectileG').value;document.getElementById('projectileV0Display').textContent=v+' m/s';document.getElementById('projectileAngleDisplay').textContent=a+'°';document.getElementById('projectileGDisplay').textContent=g+' m/s²';const ar=a*Math.PI/180,mh=v*v*Math.sin(ar)*Math.sin(ar)/(2*g),r=v*v*Math.sin(2*ar)/g;document.getElementById('projectileMaxHeight').textContent=mh.toFixed(1)+' m';document.getElementById('projectileRange').textContent=r.toFixed(1)+' m'}function startProjectile(){resetProjectile();const v0=parseFloat(document.getElementById('projectileV0').value),a=parseFloat(document.getElementById('projectileAngle').value)*Math.PI/180,g=parseFloat(document.getElementById('projectileG').value),v0x=v0*Math.cos(a),v0y=v0*Math.sin(a);let t=0;const dt=.02,canvas=document.getElementById('projectileCanvas'),scale=2,trail=[];projectileAnimation=setInterval(()=>{projectileCtx.clearRect(0,0,canvas.width,canvas.height);const x=v0x*t,y=v0y*t-.5*g*t*t;projectileCtx.fillStyle='#8B7355';projectileCtx.fillRect(0,canvas.height-20,canvas.width,20);trail.push({x:x*scale+50,y:canvas.height-20-y*scale});if(trail.length>100)trail.shift();projectileCtx.strokeStyle='rgba(255, 217, 61, 0.5)';projectileCtx.lineWidth=2;projectileCtx.beginPath();for(let i=0;i<trail.length-1;i++){projectileCtx.moveTo(trail[i].x,trail[i].y);projectileCtx.lineTo(trail[i+1].x,trail[i+1].y)}projectileCtx.stroke();if(y<=0&&t>0){projectileCtx.fillStyle='#FF6B6B';projectileCtx.beginPath();projectileCtx.arc(x*scale+50,canvas.height-20,8,0,2*Math.PI);projectileCtx.fill();clearInterval(projectileAnimation)}else{projectileCtx.fillStyle='#4ECDC4';projectileCtx.beginPath();projectileCtx.arc(x*scale+50,canvas.height-20-y*scale,8,0,2*Math.PI);projectileCtx.fill()}document.getElementById('projectileTime').textContent=t.toFixed(1)+' s';t+=dt},20)}function resetProjectile(){if(projectileAnimation)clearInterval(projectileAnimation);const canvas=document.getElementById('projectileCanvas');projectileCtx.clearRect(0,0,canvas.width,canvas.height);projectileCtx.fillStyle='#8B7355';projectileCtx.fillRect(0,canvas.height-20,canvas.width,20);projectileCtx.fillStyle='#4ECDC4';projectileCtx.beginPath();projectileCtx.arc(50,canvas.height-20,8,0,2*Math.PI);projectileCtx.fill();document.getElementById('projectileTime').textContent='0.0 s'}function updateCircularDisplay(){const r=document.getElementById('circularRadius').value,o=document.getElementById('circularOmega').value,m=document.getElementById('circularMass').value;document.getElementById('circularRadiusDisplay').textContent=r+' m';document.getElementById('circularOmegaDisplay').textContent=o+' rad/s';document.getElementById('circularMassDisplay').textContent=m+' kg';const v=o*r,a=o*o*r,f=m*a,p=2*Math.PI/o;document.getElementById('circularVelocity').textContent=v.toFixed(1)+' m/s';document.getElementById('circularAcceleration').textContent=a.toFixed(1)+' m/s²';document.getElementById('circularForce').textContent=f.toFixed(1)+' N';document.getElementById('circularPeriod').textContent=p.toFixed(1)+' s'}function startCircular(){const r=parseFloat(document.getElementById('circularRadius').value),o=parseFloat(document.getElementById('circularOmega').value);let angle=0;const dt=.02,canvas=document.getElementById('circularCanvas'),cx=canvas.width/2,cy=canvas.height/2,s=1;circularAnimation=setInterval(()=>{circularCtx.clearRect(0,0,canvas.width,canvas.height);circularCtx.fillStyle='#FFD93D';circularCtx.beginPath();circularCtx.arc(cx,cy,5,0,2*Math.PI);circularCtx.fill();circularCtx.strokeStyle='rgba(255, 255, 255, 0.3)';circularCtx.lineWidth=2;circularCtx.beginPath();circularCtx.arc(cx,cy,r*s,0,2*Math.PI);circularCtx.stroke();const x=cx+r*s*Math.cos(angle),y=cy+r*s*Math.sin(angle);circularCtx.fillStyle='#4ECDC4';circularCtx.beginPath();circularCtx.arc(x,y,10,0,2*Math.PI);circularCtx.fill();const vx=-o*r*s*Math.sin(angle),vy=o*r*s*Math.cos(angle);circularCtx.strokeStyle='#FFD93D';circularCtx.lineWidth=3;circularCtx.beginPath();circularCtx.moveTo(x,y);circularCtx.lineTo(x+vx*.1,y+vy*.1);circularCtx.stroke();const ax=(cx-x)*.1,ay=(cy-y)*.1;circularCtx.strokeStyle='#FF6B6B';circularCtx.lineWidth=3;circularCtx.beginPath();circularCtx.moveTo(x,y);circularCtx.lineTo(x+ax,y+ay);circularCtx.stroke();angle+=o*dt},20)}function stopCircular(){if(circularAnimation)clearInterval(circularAnimation)}function resetCircular(){if(circularAnimation)clearInterval(circularAnimation);const canvas=document.getElementById('circularCanvas'),r=parseFloat(document.getElementById('circularRadius').value),cx=canvas.width/2,cy=canvas.height/2,s=1;circularCtx.clearRect(0,0,canvas.width,canvas.height);circularCtx.fillStyle='#FFD93D';circularCtx.beginPath();circularCtx.arc(cx,cy,5,0,2*Math.PI);circularCtx.fill();circularCtx.strokeStyle='rgba(255, 255, 255, 0.3)';circularCtx.lineWidth=2;circularCtx.beginPath();circularCtx.arc(cx,cy,r*s,0,2*Math.PI);circularCtx.stroke();circularCtx.fillStyle='#4ECDC4';circularCtx.beginPath();circularCtx.arc(cx+r*s,cy,10,0,2*Math.PI);circularCtx.fill()}document.addEventListener('DOMContentLoaded',function(){initializeCanvases();updateFreefallDisplay();updateProjectileDisplay();updateCircularDisplay();resetFreefall();resetProjectile();resetCircular()});
     </script>
 </body>
-
 </html>
-
