@@ -126,9 +126,7 @@
             border-radius: 50%;
             transform: translateY(-50%);
             transition: left 0.05s linear;
-            box-shadow: 
-                0 0 25px rgba(255, 107, 107, 0.9),
-                0 0 50px rgba(255, 107, 107, 0.5);
+            box-shadow: 0 0 25px rgba(255, 107, 107, 0.9), 0 0 50px rgba(255, 107, 107, 0.5);
             border: 3px solid #fff;
             z-index: 100;
         }
@@ -173,8 +171,14 @@
         }
         
         @keyframes fadeOut {
-            0% { opacity: 1; transform: translateY(-50%) scale(1); }
-            100% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+            0% { 
+                opacity: 1; 
+                transform: translateY(-50%) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-50%) scale(0.3); 
+            }
         }
         
         .controls {
@@ -373,7 +377,7 @@
     <div class="container">
         <h1>🚀 To'g'ri Chiziqli Harakat Simulyatsiyasi</h1>
         
-        <div class="simulation-area">
+        <div class="simulation-area" id="simulationArea">
             <div class="coordinate-system">
                 <div class="axis">
                     <div class="axis-arrow"></div>
@@ -416,9 +420,9 @@
             <div class="control-group">
                 <h3>🎮 Boshqaruv</h3>
                 <div class="buttons">
-                    <button onclick="startSimulation()">▶️ Boshlash</button>
-                    <button onclick="pauseSimulation()">⏸️ To'xtatish</button>
-                    <button onclick="resetSimulation()">🔄 Qayta boshlash</button>
+                    <button id="startBtn">▶️ Boshlash</button>
+                    <button id="pauseBtn">⏸️ To'xtatish</button>
+                    <button id="resetBtn">🔄 Qayta boshlash</button>
                 </div>
                 <div class="slider-container" style="margin-top: 25px;">
                     <label for="timeScale">Vaqt tezligi</label>
@@ -469,47 +473,58 @@
     </div>
 
     <script>
+        // Global variables
         let isRunning = false;
         let startTime = 0;
         let currentTime = 0;
-        let animationId;
+        let animationId = null;
         let graphData = [];
-        let maxSimulationTime = 10; // Maksimal harakat vaqti
+        let maxSimulationTime = 10;
         
-        // Parametrlar
-        let v0 = 10; // boshlang'ich tezlik
-        let a = 5;   // tezlanish  
-        let x0 = 0;  // boshlang'ich pozitsiya
-        let timeScale = 1;
+        // Physics parameters
+        let v0 = 10; // initial velocity
+        let a = 5;   // acceleration
+        let x0 = 0;  // initial position
+        let timeScale = 1; // time scale factor
         
-        // DOM elementlari
+        // DOM elements
         const object = document.getElementById('movingObject');
         const objectInfo = document.getElementById('objectInfo');
-        const simulationArea = document.querySelector('.simulation-area');
+        const simulationArea = document.getElementById('simulationArea');
         const scaleMarks = document.getElementById('scaleMarks');
         
-        // Koordinata o'qi parametrlari
-        let viewCenter = 0; // Ko'rinish markazi
-        let scale = 8; // 1 metr = 8 piksel
-        const simulationWidth = simulationArea.offsetWidth - 40;
+        // View parameters
+        let viewCenter = 0;
+        let scale = 8; // 1 meter = 8 pixels
+        let simulationWidth = 0;
         
-        // O'lchov belgilarini yaratish
+        // Initialize simulation width
+        function initializeSimulation() {
+            simulationWidth = simulationArea.offsetWidth - 40;
+            createScaleMarks();
+            updateDisplay();
+            updateObjectPosition();
+        }
+        
+        // Create scale marks on the coordinate axis
         function createScaleMarks() {
             scaleMarks.innerHTML = '';
             
-            // Ko'rinadigan oraliqni aniqlash
             const viewRange = simulationWidth / scale;
             const startPos = viewCenter - viewRange / 2;
             const endPos = viewCenter + viewRange / 2;
             
-            // Belgilar orasidagi masofa
             let step = 5;
-            if (viewRange > 100) step = 20;
-            else if (viewRange > 50) step = 10;
-            else if (viewRange > 20) step = 5;
-            else step = 2;
+            if (viewRange > 100) {
+                step = 20;
+            } else if (viewRange > 50) {
+                step = 10;
+            } else if (viewRange > 20) {
+                step = 5;
+            } else {
+                step = 2;
+            }
             
-            // Boshlang'ich pozitsiyani aniqlash
             const firstMark = Math.floor(startPos / step) * step;
             
             for (let pos = firstMark; pos <= endPos + step; pos += step) {
@@ -518,12 +533,16 @@
                 if (pixelPos >= -50 && pixelPos <= simulationWidth + 50) {
                     const mark = document.createElement('div');
                     mark.className = 'scale-mark';
-                    if (pos === 0) mark.className += ' origin-mark';
+                    if (pos === 0) {
+                        mark.className += ' origin-mark';
+                    }
                     mark.style.left = pixelPos + 'px';
                     
                     const number = document.createElement('div');
                     number.className = 'scale-number';
-                    if (pos === 0) number.className += ' origin-number';
+                    if (pos === 0) {
+                        number.className += ' origin-number';
+                    }
                     number.textContent = pos + 'm';
                     number.style.left = pixelPos + 'px';
                     
@@ -533,23 +552,232 @@
             }
         }
         
-        // Slider event listeners
+        // Update all displays with current values
+        function updateDisplay() {
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            const velocity = v0 + a * currentTime;
+            const remainingTime = Math.max(0, maxSimulationTime - currentTime);
+            
+            document.getElementById('timeDisplay').textContent = currentTime.toFixed(1);
+            document.getElementById('remainingTimeDisplay').textContent = remainingTime.toFixed(1);
+            document.getElementById('positionDisplay').textContent = position.toFixed(1);
+            document.getElementById('currentVelocityDisplay').textContent = velocity.toFixed(1);
+            document.getElementById('currentAccelerationDisplay').textContent = a.toFixed(1);
+            
+            const progressPercent = (currentTime / maxSimulationTime) * 100;
+            const remainingDisplay = document.getElementById('remainingTimeDisplay');
+            
+            if (progressPercent > 90) {
+                remainingDisplay.style.color = '#ff6b6b';
+            } else if (progressPercent > 70) {
+                remainingDisplay.style.color = '#ffd93d';
+            } else {
+                remainingDisplay.style.color = '#b8f2ff';
+            }
+        }
+        
+        // Update object position on screen
+        function updateObjectPosition() {
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            const velocity = v0 + a * currentTime;
+            
+            if (isRunning) {
+                const targetCenter = position;
+                viewCenter += (targetCenter - viewCenter) * 0.05;
+            }
+            
+            const viewRange = simulationWidth / scale;
+            const startPos = viewCenter - viewRange / 2;
+            const pixelPosition = (position - startPos) * scale;
+            
+            objectInfo.innerHTML = 'x = ' + position.toFixed(1) + 'm<br>v = ' + velocity.toFixed(1) + 'm/s<br>t = ' + currentTime.toFixed(1) + 's';
+            
+            if (isRunning && currentTime > 0) {
+                createTrail(pixelPosition);
+            }
+            
+            object.style.display = 'block';
+            if (pixelPosition >= -30 && pixelPosition <= simulationWidth + 30) {
+                object.style.left = pixelPosition + 'px';
+            } else {
+                if (pixelPosition < -30) {
+                    object.style.left = '-30px';
+                } else {
+                    object.style.left = (simulationWidth + 30) + 'px';
+                }
+            }
+            
+            createScaleMarks();
+        }
+        
+        // Create trail effect behind moving object
+        function createTrail(pixelPosition) {
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.left = (pixelPosition + 13) + 'px';
+            simulationArea.appendChild(trail);
+            
+            setTimeout(function() {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 4000);
+        }
+        
+        // Animation loop
+        function animate() {
+            if (!isRunning) return;
+            
+            const now = Date.now();
+            currentTime = (now - startTime) * timeScale / 1000;
+            
+            if (currentTime >= maxSimulationTime) {
+                currentTime = maxSimulationTime;
+                pauseSimulation();
+                
+                const finalPosition = x0 + v0 * maxSimulationTime + 0.5 * a * maxSimulationTime * maxSimulationTime;
+                const finalVelocity = v0 + a * maxSimulationTime;
+                
+                setTimeout(function() {
+                    alert('🎯 Harakat tugadi!\n\nJami harakat vaqti: ' + maxSimulationTime + ' sekund\nYakuniy pozitsiya: ' + finalPosition.toFixed(1) + ' m\nYakuniy tezlik: ' + finalVelocity.toFixed(1) + ' m/s');
+                }, 100);
+            }
+            
+            updateDisplay();
+            updateObjectPosition();
+            updateGraph();
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        // Start simulation
+        function startSimulation() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - (currentTime * 1000 / timeScale);
+                animate();
+            }
+        }
+        
+        // Pause simulation
+        function pauseSimulation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        }
+        
+        // Reset simulation
+        function resetSimulation() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            currentTime = 0;
+            startTime = 0;
+            graphData = [];
+            viewCenter = x0;
+            
+            const trails = document.querySelectorAll('.trail');
+            trails.forEach(function(trail) {
+                trail.remove();
+            });
+            
+            const graph = document.getElementById('positionGraph');
+            graph.innerHTML = '<div class="graph-y-axis"></div><div class="graph-axes"></div><div class="graph-labels">Vaqt (s) →<br>↑ Pozitsiya (m)</div>';
+            
+            updateDisplay();
+            updateObjectPosition();
+            createScaleMarks();
+        }
+        
+        // Update graph with current data
+        function updateGraph() {
+            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
+            graphData.push({time: currentTime, position: position});
+            
+            if (graphData.length > 100) {
+                graphData.shift();
+            }
+            
+            drawGraph();
+        }
+        
+        // Draw the position-time graph
+        function drawGraph() {
+            const graph = document.getElementById('positionGraph');
+            const existingLines = graph.querySelectorAll('.graph-line');
+            existingLines.forEach(function(line) {
+                line.remove();
+            });
+            
+            if (graphData.length < 2) return;
+            
+            const times = graphData.map(function(d) { return d.time; });
+            const positions = graphData.map(function(d) { return d.position; });
+            
+            const maxTime = Math.max.apply(null, times);
+            const minTime = Math.min.apply(null, times);
+            const maxPosition = Math.max.apply(null, positions);
+            const minPosition = Math.min.apply(null, positions);
+            
+            const graphHeight = 250;
+            const graphWidth = graph.offsetWidth - 100;
+            const positionRange = Math.max(Math.abs(maxPosition), Math.abs(minPosition)) || 1;
+            const timeRange = maxTime - minTime || 1;
+            
+            for (let i = 1; i < graphData.length; i++) {
+                const prevData = graphData[i - 1];
+                const data = graphData[i];
+                
+                const line = document.createElement('div');
+                line.className = 'graph-line';
+                
+                const x1 = 70 + ((prevData.time - minTime) / timeRange) * graphWidth;
+                const y1 = graphHeight / 2 - (prevData.position / positionRange) * (graphHeight / 2 - 20);
+                const x2 = 70 + ((data.time - minTime) / timeRange) * graphWidth;
+                const y2 = graphHeight / 2 - (data.position / positionRange) * (graphHeight / 2 - 20);
+                
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                line.style.left = x1 + 'px';
+                line.style.bottom = (graphHeight - y1) + 'px';
+                line.style.width = length + 'px';
+                line.style.height = '2px';
+                line.style.transform = 'rotate(' + angle + 'deg)';
+                line.style.transformOrigin = '0 50%';
+                
+                graph.appendChild(line);
+            }
+        }
+        
+        // Event listeners for sliders
         document.getElementById('initialVelocity').addEventListener('input', function() {
             v0 = parseFloat(this.value);
             document.getElementById('velocityValue').textContent = v0 + ' m/s';
-            if (!isRunning) updateDisplay();
+            if (!isRunning) {
+                updateDisplay();
+            }
         });
         
         document.getElementById('acceleration').addEventListener('input', function() {
             a = parseFloat(this.value);
             document.getElementById('accelerationValue').textContent = a + ' m/s²';
-            if (!isRunning) updateDisplay();
+            if (!isRunning) {
+                updateDisplay();
+            }
         });
         
         document.getElementById('initialPosition').addEventListener('input', function() {
             x0 = parseFloat(this.value);
             document.getElementById('positionValue').textContent = x0 + ' m';
-            viewCenter = x0; // Koordinata o'qini yangi pozitsiyaga moslashtirish
+            viewCenter = x0;
             if (!isRunning) {
                 updateDisplay();
                 updateObjectPosition();
@@ -567,215 +795,22 @@
             document.getElementById('timeScaleValue').textContent = timeScale + 'x';
         });
         
-        function startSimulation() {
-            if (!isRunning) {
-                isRunning = true;
-                startTime = Date.now() - (currentTime * 1000 / timeScale);
-                animate();
-            }
-        }
+        // Button event listeners
+        document.getElementById('startBtn').addEventListener('click', startSimulation);
+        document.getElementById('pauseBtn').addEventListener('click', pauseSimulation);
+        document.getElementById('resetBtn').addEventListener('click', resetSimulation);
         
-        function pauseSimulation() {
-            isRunning = false;
-            cancelAnimationFrame(animationId);
-        }
-        
-        function resetSimulation() {
-            isRunning = false;
-            cancelAnimationFrame(animationId);
-            currentTime = 0;
-            startTime = 0;
-            graphData = [];
-            viewCenter = x0;
-            
-            // Barcha izlarni tozalash
-            const trails = document.querySelectorAll('.trail');
-            trails.forEach(trail => trail.remove());
-            
-            document.getElementById('positionGraph').innerHTML = '';
-            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-y-axis').cloneNode(true));
-            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-axes').cloneNode(true));
-            document.getElementById('positionGraph').appendChild(document.querySelector('.graph-labels').cloneNode(true));
-            
-            updateDisplay();
-            updateObjectPosition();
-            createScaleMarks();
-        }
-        
-        function animate() {
-            if (!isRunning) return;
-            
-            const now = Date.now();
-            currentTime = (now - startTime) * timeScale / 1000;
-            
-            // Harakat vaqti tugagan bo'lsa, simulyatsiyani to'xtatish
-            if (currentTime >= maxSimulationTime) {
-                currentTime = maxSimulationTime;
-                pauseSimulation();
-                
-                // Tugallangan haqida xabar
-                setTimeout(() => {
-                    alert(`🎯 Harakat tugadi!\n\nJami harakat vaqti: ${maxSimulationTime} sekund\nYakuniy pozitsiya: ${(x0 + v0 * maxSimulationTime + 0.5 * a * maxSimulationTime * maxSimulationTime).toFixed(1)} m\nYakuniy tezlik: ${(v0 + a * maxSimulationTime).toFixed(1)} m/s`);
-                }, 100);
-            }
-            
-            updateDisplay();
-            updateObjectPosition();
-            updateGraph();
-            
-            if (isRunning) {
-                animationId = requestAnimationFrame(animate);
-            }
-        }
-        
-        function updateDisplay() {
-            // Kinematik tenglamalar
-            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
-            const velocity = v0 + a * currentTime;
-            const remainingTime = Math.max(0, maxSimulationTime - currentTime);
-            
-            document.getElementById('timeDisplay').textContent = currentTime.toFixed(1);
-            document.getElementById('remainingTimeDisplay').textContent = remainingTime.toFixed(1);
-            document.getElementById('positionDisplay').textContent = position.toFixed(1);
-            document.getElementById('currentVelocityDisplay').textContent = velocity.toFixed(1);
-            document.getElementById('currentAccelerationDisplay').textContent = a.toFixed(1);
-            
-            // Progress bar effekti uchun rangni o'zgartirish
-            const progressPercent = (currentTime / maxSimulationTime) * 100;
-            if (progressPercent > 90) {
-                document.getElementById('remainingTimeDisplay').style.color = '#ff6b6b';
-            } else if (progressPercent > 70) {
-                document.getElementById('remainingTimeDisplay').style.color = '#ffd93d';
-            } else {
-                document.getElementById('remainingTimeDisplay').style.color = '#b8f2ff';
-            }
-        }
-        
-        function updateObjectPosition() {
-            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
-            const velocity = v0 + a * currentTime;
-            
-            // Kameraning harakatlanishi - jismni kuzatib borish
-            if (isRunning) {
-                const targetCenter = position;
-                viewCenter += (targetCenter - viewCenter) * 0.05; // Yumshoq kuzatuv
-            }
-            
-            // Jismning ekrandagi pozitsiyasi
-            const viewRange = simulationWidth / scale;
-            const startPos = viewCenter - viewRange / 2;
-            const pixelPosition = (position - startPos) * scale;
-            
-            // Jism ma'lumotlarini yangilash
-            objectInfo.innerHTML = `x = ${position.toFixed(1)}m<br>v = ${velocity.toFixed(1)}m/s<br>t = ${currentTime.toFixed(1)}s`;
-            
-            // Iz qoldirish
-            if (isRunning && currentTime > 0) {
-                createTrail(pixelPosition);
-            }
-            
-            // Jismni ekranda ko'rsatish
-            if (pixelPosition >= -30 && pixelPosition <= simulationWidth + 30) {
-                object.style.left = pixelPosition + 'px';
-                object.style.display = 'block';
-            } else {
-                object.style.display = 'block'; // Har doim ko'rinadigan
-                if (pixelPosition < -30) {
-                    object.style.left = '-30px';
-                } else {
-                    object.style.left = (simulationWidth + 30) + 'px';
-                }
-            }
-            
-            // Koordinata o'qini yangilash
-            createScaleMarks();
-        }
-        
-        function createTrail(pixelPosition) {
-            const trail = document.createElement('div');
-            trail.className = 'trail';
-            trail.style.left = (pixelPosition + 13) + 'px'; // jism markazida
-            
-            simulationArea.appendChild(trail);
-            
-            // 4 sekunddan keyin iz o'chib ketadi
-            setTimeout(() => {
-                if (trail.parentNode) {
-                    trail.parentNode.removeChild(trail);
-                }
-            }, 4000);
-        }
-        
-        function updateGraph() {
-            const position = x0 + v0 * currentTime + 0.5 * a * currentTime * currentTime;
-            graphData.push({time: currentTime, position: position});
-            
-            // Faqat oxirgi 100 ta nuqtani saqlash
-            if (graphData.length > 100) {
-                graphData.shift();
-            }
-            
-            drawGraph();
-        }
-        
-        function drawGraph() {
-            const graph = document.getElementById('positionGraph');
-            const existingLines = graph.querySelectorAll('.graph-line');
-            existingLines.forEach(line => line.remove());
-            
-            if (graphData.length < 2) return;
-            
-            const maxTime = Math.max(...graphData.map(d => d.time));
-            const minTime = Math.min(...graphData.map(d => d.time));
-            const maxPosition = Math.max(...graphData.map(d => d.position));
-            const minPosition = Math.min(...graphData.map(d => d.position));
-            
-            const graphHeight = 250;
-            const graphWidth = graph.offsetWidth - 100;
-            const positionRange = Math.max(Math.abs(maxPosition), Math.abs(minPosition)) || 1;
-            const timeRange = maxTime - minTime || 1;
-            
-            graphData.forEach((data, index) => {
-                if (index === 0) return;
-                
-                const prevData = graphData[index - 1];
-                const line = document.createElement('div');
-                line.className = 'graph-line';
-                
-                const x1 = 70 + ((prevData.time - minTime) / timeRange) * graphWidth;
-                const y1 = graphHeight/2 - (prevData.position / positionRange) * (graphHeight/2 - 20);
-                const x2 = 70 + ((data.time - minTime) / timeRange) * graphWidth;
-                const y2 = graphHeight/2 - (data.position / positionRange) * (graphHeight/2 - 20);
-                
-                const length = Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
-                const angle = Math.atan2(y2-y1, x2-x1) * 180/Math.PI;
-                
-                line.style.left = x1 + 'px';
-                line.style.bottom = (graphHeight - y1) + 'px';
-                line.style.width = length + 'px';
-                line.style.height = '2px';
-                line.style.transform = `rotate(${angle}deg)`;
-                line.style.transformOrigin = '0 50%';
-                
-                graph.appendChild(line);
-            });
-        }
-        
-        // Boshlang'ich holatni o'rnatish
+        // Window load event
         window.addEventListener('load', function() {
-            // Boshlang'ich qiymatlarni o'rnatish
-            document.getElementById('simulationTimeValue').textContent = maxSimulationTime + ' s';
-            
-            setTimeout(() => {
-                createScaleMarks();
-                updateDisplay();
-                updateObjectPosition();
+            setTimeout(function() {
+                initializeSimulation();
             }, 100);
         });
         
-        // Oyna o'lchami o'zgarganda
+        // Window resize event
         window.addEventListener('resize', function() {
-            setTimeout(() => {
+            simulationWidth = simulationArea.offsetWidth - 40;
+            setTimeout(function() {
                 createScaleMarks();
                 updateObjectPosition();
             }, 100);
