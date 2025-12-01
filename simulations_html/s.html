@@ -6,402 +6,66 @@
   <title>Simulyatsiya Ikonkalari - To'liq Ishlaydigan Versiya</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    h1 {
-      color: white;
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 15px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      animation: fadeIn 0.8s ease-in;
-    }
-    
-    .subtitle {
-      color: rgba(255,255,255,0.9);
-      text-align: center;
-      margin-bottom: 40px;
-      font-size: 1.1rem;
-    }
-    
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
-      animation: slideUp 0.8s ease-out;
-    }
-    
-    .icon-box {
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .icon-box::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(102,126,234,0.1), transparent);
-      transition: left 0.5s ease;
-    }
-    
-    .icon-box:hover::before {
-      left: 100%;
-    }
-    
-    .icon-box:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    }
-    
-    .icon-wrapper {
-      min-width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-    
-    .icon-box:hover .icon-wrapper {
-      transform: scale(1.1) rotate(5deg);
-    }
-    
-    .icon-box i {
-      font-size: 2rem;
-      color: white;
-    }
-    
-    .icon-content {
-      flex: 1;
-    }
-    
-    .icon-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 5px;
-    }
-    
-    .icon-code {
-      font-size: 0.9rem;
-      color: #666;
-      font-family: 'Courier New', monospace;
-      background: #f5f5f5;
-      padding: 3px 8px;
-      border-radius: 5px;
-      display: inline-block;
-    }
-    
-    .stats {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 30px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    
-    .stats-number {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #667eea;
-      margin-bottom: 5px;
-    }
-    
-    .stats-label {
-      color: #666;
-      font-size: 1.1rem;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-      
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-      
-      .icon-box {
-        padding: 20px;
-      }
-      
-      .icon-wrapper {
-        min-width: 50px;
-        height: 50px;
-      }
-      
-      .icon-box i {
-        font-size: 1.5rem;
-      }
-    }
-    
-    .copy-notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      display: none;
-      animation: slideInRight 0.3s ease;
-      z-index: 1000;
-    }
-    
-    .copy-notification.show {
-      display: block;
-    }
-    
-    @keyframes slideInRight {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: white; text-align: center; font-size: 2.5rem; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); animation: fadeIn 0.8s ease-in; }
+    .subtitle { color: rgba(255,255,255,0.9); text-align: center; margin-bottom: 40px; font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; animation: slideUp 0.8s ease-out; }
+    .icon-box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 20px; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
+    .icon-box::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(102,126,234,0.1), transparent); transition: left 0.5s ease; }
+    .icon-box:hover::before { left: 100%; }
+    .icon-box:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+    .icon-wrapper { min-width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; transition: all 0.3s ease; }
+    .icon-box:hover .icon-wrapper { transform: scale(1.1) rotate(5deg); }
+    .icon-box i { font-size: 2rem; color: white; }
+    .icon-content { flex: 1; }
+    .icon-title { font-size: 1.2rem; font-weight: 600; color: #333; margin-bottom: 5px; }
+    .icon-code { font-size: 0.9rem; color: #666; font-family: 'Courier New', monospace; background: #f5f5f5; padding: 3px 8px; border-radius: 5px; display: inline-block; }
+    .stats { background: white; border-radius: 15px; padding: 20px; margin-bottom: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .stats-number { font-size: 3rem; font-weight: bold; color: #667eea; margin-bottom: 5px; }
+    .stats-label { color: #666; font-size: 1.1rem; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 768px) { h1 { font-size: 2rem; } .grid { grid-template-columns: 1fr; gap: 20px; } .icon-box { padding: 20px; } .icon-wrapper { min-width: 50px; height: 50px; } .icon-box i { font-size: 1.5rem; } }
+    .copy-notification { position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: none; animation: slideInRight 0.3s ease; z-index: 1000; }
+    .copy-notification.show { display: block; }
+    @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎯 Simulyatsiya Ikonkalari</h1>
     <p class="subtitle">Font Awesome ikonkalari - Bosing va kodni nusxalang!</p>
-    
-    <div class="stats">
-      <div class="stats-number" id="iconCount">15</div>
-      <div class="stats-label">Turli simulyatsiya ikonkalari</div>
-    </div>
-    
+    <div class="stats"><div class="stats-number" id="iconCount">15</div><div class="stats-label">Turli simulyatsiya ikonkalari</div></div>
     <div class="grid">
-      <div class="icon-box" onclick="copyCode('fa-chalkboard-teacher')">
-        <div class="icon-wrapper">
-          <i class="fas fa-chalkboard-teacher"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">O'quv simulyatsiyasi</div>
-          <div class="icon-code">fa-chalkboard-teacher</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-vr-cardboard')">
-        <div class="icon-wrapper">
-          <i class="fas fa-vr-cardboard"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Virtual reallik</div>
-          <div class="icon-code">fa-vr-cardboard</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-cogs')">
-        <div class="icon-wrapper">
-          <i class="fas fa-cogs"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Mexanik simulyatsiya</div>
-          <div class="icon-code">fa-cogs</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-project-diagram')">
-        <div class="icon-wrapper">
-          <i class="fas fa-project-diagram"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Model va tizimlar</div>
-          <div class="icon-code">fa-project-diagram</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-brain')">
-        <div class="icon-wrapper">
-          <i class="fas fa-brain"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Kognitiv simulyatsiya</div>
-          <div class="icon-code">fa-brain</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-robot')">
-        <div class="icon-wrapper">
-          <i class="fas fa-robot"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Robotika simulyatsiyasi</div>
-          <div class="icon-code">fa-robot</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-network-wired')">
-        <div class="icon-wrapper">
-          <i class="fas fa-network-wired"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Tarmoq simulyatsiyasi</div>
-          <div class="icon-code">fa-network-wired</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-heartbeat')">
-        <div class="icon-wrapper">
-          <i class="fas fa-heartbeat"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Tibbiy simulyatsiya</div>
-          <div class="icon-code">fa-heartbeat</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-plane')">
-        <div class="icon-wrapper">
-          <i class="fas fa-plane"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Parvoz simulyatori</div>
-          <div class="icon-code">fa-plane</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-flask')">
-        <div class="icon-wrapper">
-          <i class="fas fa-flask"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Ilmiy simulyatsiya</div>
-          <div class="icon-code">fa-flask</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-chart-line')">
-        <div class="icon-wrapper">
-          <i class="fas fa-chart-line"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Moliyaviy simulyatsiya</div>
-          <div class="icon-code">fa-chart-line</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-gamepad')">
-        <div class="icon-wrapper">
-          <i class="fas fa-gamepad"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">O'yin simulyatsiyasi</div>
-          <div class="icon-code">fa-gamepad</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-car')">
-        <div class="icon-wrapper">
-          <i class="fas fa-car"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Haydash simulyatori</div>
-          <div class="icon-code">fa-car</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-atom')">
-        <div class="icon-wrapper">
-          <i class="fas fa-atom"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">Fizik simulyatsiya</div>
-          <div class="icon-code">fa-atom</div>
-        </div>
-      </div>
-      
-      <div class="icon-box" onclick="copyCode('fa-cube')">
-        <div class="icon-wrapper">
-          <i class="fas fa-cube"></i>
-        </div>
-        <div class="icon-content">
-          <div class="icon-title">3D simulyatsiya</div>
-          <div class="icon-code">fa-cube</div>
-        </div>
-      </div>
+      <div class="icon-box" onclick="copyCode('fa-chalkboard-teacher')"><div class="icon-wrapper"><i class="fas fa-chalkboard-teacher"></i></div><div class="icon-content"><div class="icon-title">O'quv simulyatsiyasi</div><div class="icon-code">fa-chalkboard-teacher</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-vr-cardboard')"><div class="icon-wrapper"><i class="fas fa-vr-cardboard"></i></div><div class="icon-content"><div class="icon-title">Virtual reallik</div><div class="icon-code">fa-vr-cardboard</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-cogs')"><div class="icon-wrapper"><i class="fas fa-cogs"></i></div><div class="icon-content"><div class="icon-title">Mexanik simulyatsiya</div><div class="icon-code">fa-cogs</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-project-diagram')"><div class="icon-wrapper"><i class="fas fa-project-diagram"></i></div><div class="icon-content"><div class="icon-title">Model va tizimlar</div><div class="icon-code">fa-project-diagram</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-brain')"><div class="icon-wrapper"><i class="fas fa-brain"></i></div><div class="icon-content"><div class="icon-title">Kognitiv simulyatsiya</div><div class="icon-code">fa-brain</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-robot')"><div class="icon-wrapper"><i class="fas fa-robot"></i></div><div class="icon-content"><div class="icon-title">Robotika simulyatsiyasi</div><div class="icon-code">fa-robot</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-network-wired')"><div class="icon-wrapper"><i class="fas fa-network-wired"></i></div><div class="icon-content"><div class="icon-title">Tarmoq simulyatsiyasi</div><div class="icon-code">fa-network-wired</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-heartbeat')"><div class="icon-wrapper"><i class="fas fa-heartbeat"></i></div><div class="icon-content"><div class="icon-title">Tibbiy simulyatsiya</div><div class="icon-code">fa-heartbeat</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-plane')"><div class="icon-wrapper"><i class="fas fa-plane"></i></div><div class="icon-content"><div class="icon-title">Parvoz simulyatori</div><div class="icon-code">fa-plane</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-flask')"><div class="icon-wrapper"><i class="fas fa-flask"></i></div><div class="icon-content"><div class="icon-title">Ilmiy simulyatsiya</div><div class="icon-code">fa-flask</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-chart-line')"><div class="icon-wrapper"><i class="fas fa-chart-line"></i></div><div class="icon-content"><div class="icon-title">Moliyaviy simulyatsiya</div><div class="icon-code">fa-chart-line</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-gamepad')"><div class="icon-wrapper"><i class="fas fa-gamepad"></i></div><div class="icon-content"><div class="icon-title">O'yin simulyatsiyasi</div><div class="icon-code">fa-gamepad</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-car')"><div class="icon-wrapper"><i class="fas fa-car"></i></div><div class="icon-content"><div class="icon-title">Haydash simulyatori</div><div class="icon-code">fa-car</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-atom')"><div class="icon-wrapper"><i class="fas fa-atom"></i></div><div class="icon-content"><div class="icon-title">Fizik simulyatsiya</div><div class="icon-code">fa-atom</div></div></div>
+      <div class="icon-box" onclick="copyCode('fa-cube')"><div class="icon-wrapper"><i class="fas fa-cube"></i></div><div class="icon-content"><div class="icon-title">3D simulyatsiya</div><div class="icon-code">fa-cube</div></div></div>
     </div>
   </div>
-  
-  <div class="copy-notification" id="notification">
-    ✓ Kod nusxalandi!
-  </div>
-  
+  <div class="copy-notification" id="notification">✓ Kod nusxalandi!</div>
   <script>
     function copyCode(iconClass) {
       const text = iconClass;
-      
-      // Clipboard API orqali nusxalash
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          showNotification();
-        }).catch(() => {
-          fallbackCopy(text);
-        });
+        navigator.clipboard.writeText(text).then(() => { showNotification(); }).catch(() => { fallbackCopy(text); });
       } else {
         fallbackCopy(text);
       }
     }
-    
     function fallbackCopy(text) {
       const textarea = document.createElement('textarea');
       textarea.value = text;
@@ -409,27 +73,19 @@
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
       textarea.select();
-      
       try {
         document.execCommand('copy');
         showNotification();
       } catch (err) {
         console.error('Nusxalash xatosi:', err);
       }
-      
       document.body.removeChild(textarea);
     }
-    
     function showNotification() {
       const notification = document.getElementById('notification');
       notification.classList.add('show');
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 2000);
+      setTimeout(() => { notification.classList.remove('show'); }, 2000);
     }
-    
-    // Ikonkalar sonini hisoblash
     window.addEventListener('DOMContentLoaded', () => {
       const iconCount = document.querySelectorAll('.icon-box').length;
       document.getElementById('iconCount').textContent = iconCount;
