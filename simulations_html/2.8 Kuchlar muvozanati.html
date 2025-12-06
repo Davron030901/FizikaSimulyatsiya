@@ -17,190 +17,261 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             overflow-x: hidden;
-            padding: 10px;
+            padding: 8px;
             min-height: 100vh;
         }
 
         .header {
             text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 16px;
+            border-radius: 16px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
-            font-size: 1.5em;
-            color: #667eea;
-            margin-bottom: 5px;
+            font-size: 1.6em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+            font-weight: 800;
+        }
+
+        .header .subtitle {
+            font-size: 0.85em;
+            color: #666;
         }
 
         .status-bar {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
         .status-equilibrium {
             background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            font-weight: bold;
+            border: 2px solid #28a745;
         }
 
         .status-not-equilibrium {
             background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-            font-weight: bold;
+            border: 2px solid #dc3545;
+        }
+
+        #statusText {
+            font-size: 1.05em;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
         }
 
         .components {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
-            margin-top: 8px;
-            font-size: 0.9em;
+            margin-top: 10px;
         }
 
         .component {
-            background: rgba(255,255,255,0.8);
-            padding: 8px;
-            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 12px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .component strong {
+            display: block;
+            font-size: 0.85em;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .component span {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
         }
 
         .canvas-container {
             background: white;
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 16px;
+            padding: 12px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
 
         #canvas {
             width: 100%;
-            height: 280px;
+            height: 400px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 12px;
             touch-action: none;
-            background: #f8f9fa;
+            background: #fafbfc;
+            cursor: crosshair;
+        }
+
+        .canvas-info {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
         }
 
         .controls {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
         }
 
         .control-title {
-            font-size: 1.1em;
-            font-weight: bold;
+            font-size: 1.15em;
+            font-weight: 700;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .input-label {
             display: block;
             font-size: 0.9em;
-            color: #666;
-            margin-bottom: 4px;
-            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .input-row {
             display: grid;
             grid-template-columns: 1fr auto;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
 
         input[type="number"], input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
+            border-radius: 10px;
+            font-size: 1.05em;
             background: white;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .value-display {
+            min-width: 70px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+            color: #667eea;
         }
 
         input[type="range"] {
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
             outline: none;
             -webkit-appearance: none;
-            margin: 8px 0;
+            margin: 10px 0;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #667eea;
+            background: white;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 3px solid #667eea;
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #667eea;
+            background: white;
             cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 3px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .quick-btns {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         .quick-btn {
-            padding: 6px 12px;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.85em;
+            flex: 1;
+            min-width: 60px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            color: #495057;
         }
 
         .quick-btn:active {
             transform: scale(0.95);
-            background: #e0e0e0;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             margin-bottom: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
         }
 
         .btn:active {
-            transform: scale(0.98);
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .btn-primary {
@@ -230,28 +301,46 @@
         }
 
         .force-list {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
         }
 
         .force-item {
             background: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border-left: 4px solid;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 5px solid;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .force-item:active {
+            transform: scale(0.98);
         }
 
         .force-info {
             flex: 1;
-            font-size: 0.9em;
+            font-size: 0.95em;
+        }
+
+        .force-info strong {
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .force-info small {
+            display: block;
+            margin-top: 4px;
+            color: #666;
+            line-height: 1.4;
         }
 
         .force-actions {
@@ -260,16 +349,17 @@
         }
 
         .icon-btn {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border: none;
-            border-radius: 6px;
-            font-size: 1.2em;
+            border-radius: 8px;
+            font-size: 1.3em;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-weight: bold;
         }
 
         .icon-btn:active {
@@ -277,12 +367,12 @@
         }
 
         .edit-btn {
-            background: #ffc107;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
             color: #333;
         }
 
         .delete-btn {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
         }
 
@@ -292,22 +382,26 @@
             margin-bottom: 10px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            padding: 4px 0;
         }
 
         .tab {
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 8px;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
             white-space: nowrap;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .tab.active {
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             color: #667eea;
+            transform: scale(1.05);
         }
 
         .tab-content {
@@ -316,37 +410,63 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .empty-state {
             text-align: center;
             color: #999;
-            padding: 30px 20px;
-            font-size: 0.9em;
+            padding: 40px 20px;
+            font-size: 0.95em;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            opacity: 0.3;
         }
 
         .legend {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 10px;
+            right: 10px;
             background: rgba(255,255,255,0.95);
-            padding: 8px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             font-size: 0.75em;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin: 3px 0;
+            gap: 8px;
+            margin: 4px 0;
         }
 
         .legend-line {
-            width: 20px;
+            width: 24px;
             height: 3px;
             border-radius: 2px;
+        }
+
+        .accuracy-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
         }
 
         .toast {
@@ -354,14 +474,15 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             color: white;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 0.9em;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 0.95em;
             z-index: 1000;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            font-weight: 600;
         }
 
         .toast.show {
@@ -369,30 +490,108 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .pulse {
-            animation: pulse 1.5s ease-in-out infinite;
+            animation: pulse 1s ease-in-out 3;
+        }
+
+        .vector-info {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 14px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .vector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .vector-box {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+
+        .vector-box strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+
+        .vector-box span {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .precision-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .precision-control label {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .precision-control input {
+            flex: 1;
+        }
+
+        .grid-toggle {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .grid-toggle.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>⚖️ Kuchlar Muvozanati</h1>
+        <div class="subtitle">Yuqori aniqlikdagi simulyator</div>
     </div>
 
     <div class="status-bar" id="statusBar">
-        <div id="statusText">Muvozanat tekshirilmoqda...</div>
+        <div id="statusText">📊 Muvozanat tahlili kutilmoqda...</div>
         <div class="components">
             <div class="component">
-                <strong>ΣFₓ</strong><br>
-                <span id="sumFx">0.00</span> N
+                <strong>ΣFₓ</strong>
+                <span id="sumFx">0.00</span>
             </div>
             <div class="component">
-                <strong>ΣFᵧ</strong><br>
-                <span id="sumFy">0.00</span> N
+                <strong>ΣFᵧ</strong>
+                <span id="sumFy">0.00</span>
+            </div>
+            <div class="component">
+                <strong>|F|</strong>
+                <span id="resultant">0.00</span>
             </div>
         </div>
     </div>
@@ -406,66 +605,117 @@
                     <span>Kuchlar</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-line" style="background: #dc3545;"></div>
+                    <div class="legend-line" style="background: #dc3545; border: 1px dashed #dc3545;"></div>
                     <span>Natijaviy</span>
                 </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #28a745;"></div>
+                    <span>Muvozanat</span>
+                </div>
             </div>
+            <div class="accuracy-indicator" id="accuracyIndicator">
+                ⚡ Aniqlik: ±0.01 N
+            </div>
+        </div>
+        <div class="canvas-info">
+            💡 Burchakni o'rnatish uchun canvas ustiga bosing
         </div>
     </div>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('add')">➕ Qo'shish</div>
-        <div class="tab" onclick="switchTab('list')">📋 Ro'yxat</div>
-        <div class="tab" onclick="switchTab('preset')">🎲 Tayyor</div>
+        <div class="tab active" data-tab="add">➕ Qo'shish</div>
+        <div class="tab" data-tab="list">📋 Ro'yxat</div>
+        <div class="tab" data-tab="analysis">📊 Tahlil</div>
+        <div class="tab" data-tab="preset">🎲 Tayyor</div>
     </div>
 
     <div class="tab-content active" id="tab-add">
         <div class="controls">
-            <div class="control-title">➕ Kuch qo'shish</div>
+            <div class="control-title">➕ Yangi kuch qo'shish</div>
             
             <div class="input-group">
-                <label class="input-label">Kuch qiymati (N)</label>
-                <input type="number" id="forceInput" value="50" min="0" max="500" step="1">
-                <input type="range" id="forceSlider" min="0" max="500" value="50" step="1">
-                <div class="quick-btns">
-                    <button class="quick-btn" onclick="setForce(25)">25N</button>
-                    <button class="quick-btn" onclick="setForce(50)">50N</button>
-                    <button class="quick-btn" onclick="setForce(75)">75N</button>
-                    <button class="quick-btn" onclick="setForce(100)">100N</button>
-                    <button class="quick-btn" onclick="setForce(150)">150N</button>
+                <label class="input-label">🔢 Kuch qiymati (N)</label>
+                <div class="input-row">
+                    <input type="number" id="forceInput" value="50" min="0" max="500" step="0.01">
+                    <div class="value-display" id="forceDisplay">50 N</div>
                 </div>
+                <input type="range" id="forceSlider" min="0" max="500" value="50" step="0.1">
+                <div class="quick-btns" id="forceQuickBtns"></div>
             </div>
 
             <div class="input-group">
-                <label class="input-label">Burchak (°)</label>
-                <input type="number" id="angleInput" value="0" min="0" max="360" step="1">
-                <input type="range" id="angleSlider" min="0" max="360" value="0" step="1">
-                <div class="quick-btns">
-                    <button class="quick-btn" onclick="setAngle(0)">0°</button>
-                    <button class="quick-btn" onclick="setAngle(45)">45°</button>
-                    <button class="quick-btn" onclick="setAngle(90)">90°</button>
-                    <button class="quick-btn" onclick="setAngle(180)">180°</button>
-                    <button class="quick-btn" onclick="setAngle(270)">270°</button>
+                <label class="input-label">📐 Burchak (daraja)</label>
+                <div class="input-row">
+                    <input type="number" id="angleInput" value="0" min="0" max="360" step="0.1">
+                    <div class="value-display" id="angleDisplay">0°</div>
                 </div>
+                <input type="range" id="angleSlider" min="0" max="360" value="0" step="0.1">
+                <div class="quick-btns" id="angleQuickBtns"></div>
             </div>
 
-            <button class="btn btn-primary" onclick="addForce()">➕ Kuch qo'shish</button>
+            <div class="input-group">
+                <label class="input-label">🏷️ Kuch nomi (ixtiyoriy)</label>
+                <input type="text" id="nameInput" placeholder="Masalan: F1, F2, ..." maxlength="10">
+            </div>
+
+            <button class="btn btn-primary" id="addForceBtn">➕ Kuch qo'shish</button>
             
             <div class="btn-grid">
-                <button class="btn btn-success" onclick="checkEquilibrium()">✓ Tekshirish</button>
-                <button class="btn btn-warning" onclick="findEquilibrium()">🎯 Topish</button>
+                <button class="btn btn-success" id="checkBtn">✓ Tekshirish</button>
+                <button class="btn btn-warning" id="findBtn">🎯 Topish</button>
             </div>
             
-            <button class="btn btn-danger" onclick="clearAll()">🗑️ Tozalash</button>
+            <button class="btn btn-danger" id="clearBtn">🗑️ Hammasini tozalash</button>
         </div>
     </div>
 
     <div class="tab-content" id="tab-list">
         <div class="force-list">
-            <div class="control-title">📋 Kuchlar ro'yxati</div>
-            <div id="forceList" class="empty-state">
-                Hozircha kuch qo'shilmagan<br>
-                <small>Kuch qo'shish uchun ➕ Qo'shish bo'limiga o'ting</small>
+            <div class="control-title">📋 Qo'shilgan kuchlar</div>
+            <div id="forceList"></div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-analysis">
+        <div class="vector-info">
+            <div class="control-title">📊 Vektor tahlili</div>
+            <div class="vector-grid">
+                <div class="vector-box">
+                    <strong>Natijaviy kuch</strong>
+                    <span id="resultantMag">0.00 N</span>
+                </div>
+                <div class="vector-box">
+                    <strong>Yo'nalish</strong>
+                    <span id="resultantAngle">0.0°</span>
+                </div>
+                <div class="vector-box">
+                    <strong>X komponenti</strong>
+                    <span id="sumFxDetail">0.00 N</span>
+                </div>
+                <div class="vector-box">
+                    <strong>Y komponenti</strong>
+                    <span id="sumFyDetail">0.00 N</span>
+                </div>
+            </div>
+            
+            <div class="precision-control">
+                <label>⚡ Aniqlik: ±</label>
+                <input type="range" id="precisionSlider" min="0.001" max="1" value="0.01" step="0.001">
+                <span id="precisionValue" style="font-weight: 700; color: #667eea;">0.01 N</span>
+            </div>
+
+            <div class="precision-control">
+                <label>📏 To'r:</label>
+                <button class="grid-toggle" id="gridToggle">O'chirilgan</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-title">ℹ️ Qo'shimcha ma'lumot</div>
+            <div style="font-size: 0.9em; line-height: 1.6; color: #555;">
+                <p style="margin-bottom: 10px;"><strong>Kuchlar soni:</strong> <span id="forceCount">0</span></p>
+                <p style="margin-bottom: 10px;"><strong>Muvozanat holati:</strong> <span id="equilibriumStatus">Tekshirilmagan</span></p>
+                <p style="margin-bottom: 10px;"><strong>Xatolik chegarasi:</strong> <span id="errorMargin">±0.01 N</span></p>
             </div>
         </div>
     </div>
@@ -473,87 +723,247 @@
     <div class="tab-content" id="tab-preset">
         <div class="controls">
             <div class="control-title">🎲 Tayyor senariylar</div>
-            <button class="btn btn-primary" onclick="loadPreset('triangle')">
-                🔺 Uchburchak muvozanat
-            </button>
-            <button class="btn btn-primary" onclick="loadPreset('square')">
-                ⬜ To'rtburchak muvozanat
-            </button>
-            <button class="btn btn-primary" onclick="loadPreset('asymmetric')">
-                🔀 Asimmetrik muvozanat
-            </button>
-            <button class="btn btn-primary" onclick="loadPreset('vertical')">
-                ↕️ Vertikal kuchlar
-            </button>
+            <div id="presetButtons"></div>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
+        // Global simulation instance
+        let sim;
+
         class ForceSimulation {
             constructor() {
                 this.canvas = document.getElementById('canvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.forces = [];
-                this.colors = ['#667eea', '#28a745', '#fd7e14', '#20c997', '#6f42c1', '#e83e8c'];
+                this.colors = ['#667eea', '#28a745', '#fd7e14', '#20c997', '#6f42c1', '#e83e8c', '#17a2b8'];
                 this.colorIndex = 0;
+                this.precision = 0.01;
+                this.showGrid = false;
+                this.scale = 1;
                 
                 this.setupCanvas();
                 this.setupInputs();
                 this.setupTouch();
-                this.draw();
+                this.setupButtons();
+                this.createQuickButtons();
+                this.createPresetButtons();
+                this.updateList();
+                this.animate();
             }
 
             setupCanvas() {
                 const rect = this.canvas.getBoundingClientRect();
-                this.canvas.width = rect.width * window.devicePixelRatio;
-                this.canvas.height = rect.height * window.devicePixelRatio;
-                this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-                this.centerX = rect.width / 2;
-                this.centerY = rect.height / 2;
-                this.scale = Math.min(rect.width, rect.height) / 400;
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.ctx.scale(dpr, dpr);
+                this.canvasWidth = rect.width;
+                this.canvasHeight = rect.height;
+                this.centerX = this.canvasWidth / 2;
+                this.centerY = this.canvasHeight / 2;
+                // Kattaroq masshtab - kuchlar uzoqroq va kattaroq bo'ladi
+                this.scale = Math.min(this.canvasWidth, this.canvasHeight) / 300;
             }
 
             setupInputs() {
                 const forceInput = document.getElementById('forceInput');
                 const forceSlider = document.getElementById('forceSlider');
+                const forceDisplay = document.getElementById('forceDisplay');
                 const angleInput = document.getElementById('angleInput');
                 const angleSlider = document.getElementById('angleSlider');
+                const angleDisplay = document.getElementById('angleDisplay');
+                const precisionSlider = document.getElementById('precisionSlider');
+                const precisionValue = document.getElementById('precisionValue');
 
                 forceInput.addEventListener('input', (e) => {
-                    forceSlider.value = e.target.value;
+                    const val = parseFloat(e.target.value) || 0;
+                    forceSlider.value = val;
+                    forceDisplay.textContent = val.toFixed(2) + ' N';
                 });
 
                 forceSlider.addEventListener('input', (e) => {
-                    forceInput.value = e.target.value;
+                    const val = parseFloat(e.target.value);
+                    forceInput.value = val.toFixed(2);
+                    forceDisplay.textContent = val.toFixed(2) + ' N';
                 });
 
                 angleInput.addEventListener('input', (e) => {
-                    angleSlider.value = e.target.value;
+                    const val = parseFloat(e.target.value) || 0;
+                    angleSlider.value = val;
+                    angleDisplay.textContent = val.toFixed(1) + '°';
                 });
 
                 angleSlider.addEventListener('input', (e) => {
-                    angleInput.value = e.target.value;
+                    const val = parseFloat(e.target.value);
+                    angleInput.value = val.toFixed(1);
+                    angleDisplay.textContent = val.toFixed(1) + '°';
+                });
+
+                precisionSlider.addEventListener('input', (e) => {
+                    this.precision = parseFloat(e.target.value);
+                    precisionValue.textContent = this.precision.toFixed(3) + ' N';
+                    document.getElementById('accuracyIndicator').textContent = `⚡ Aniqlik: ±${this.precision.toFixed(3)} N`;
+                    document.getElementById('errorMargin').textContent = `±${this.precision.toFixed(3)} N`;
+                    this.updateStatus();
+                });
+            }
+
+            setupButtons() {
+                document.getElementById('addForceBtn').addEventListener('click', () => this.addForceFromInputs());
+                document.getElementById('checkBtn').addEventListener('click', () => this.checkEquilibrium());
+                document.getElementById('findBtn').addEventListener('click', () => this.findEquilibrium());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearAll());
+                document.getElementById('gridToggle').addEventListener('click', () => this.toggleGrid());
+                
+                // Tab buttons
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const tabName = tab.getAttribute('data-tab');
+                        this.switchTab(tabName);
+                    });
+                });
+            }
+
+            createQuickButtons() {
+                const forceValues = [10, 25, 50, 75, 100];
+                const forceContainer = document.getElementById('forceQuickBtns');
+                forceValues.forEach(val => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quick-btn';
+                    btn.textContent = val + 'N';
+                    btn.addEventListener('click', () => this.setForce(val));
+                    forceContainer.appendChild(btn);
+                });
+
+                const angleValues = [0, 30, 45, 60, 90, 120, 180, 270];
+                const angleContainer = document.getElementById('angleQuickBtns');
+                angleValues.forEach(val => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quick-btn';
+                    btn.textContent = val + '°';
+                    btn.addEventListener('click', () => this.setAngle(val));
+                    angleContainer.appendChild(btn);
+                });
+            }
+
+            createPresetButtons() {
+                const presets = [
+                    { id: 'triangle', name: '🔺 Uchburchak muvozanat', desc: '3 ta teng kuch, 120° burchak' },
+                    { id: 'square', name: '⬜ To\'rtburchak muvozanat', desc: '4 ta teng kuch, 90° burchak' },
+                    { id: 'pentagon', name: '⭐ Beshburchak muvozanat', desc: '5 ta teng kuch, 72° burchak' },
+                    { id: 'asymmetric', name: '🔀 Asimmetrik muvozanat', desc: 'Turli kattalikdagi kuchlar' },
+                    { id: 'vertical', name: '↕️ Vertikal kuchlar', desc: 'Yuqoriga va pastga' },
+                    { id: 'horizontal', name: '↔️ Gorizontal kuchlar', desc: 'Chapga va o\'ngga' }
+                ];
+
+                const container = document.getElementById('presetButtons');
+                presets.forEach(preset => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary';
+                    btn.innerHTML = `${preset.name}<br><small style="font-size: 0.8em; opacity: 0.9;">${preset.desc}</small>`;
+                    btn.addEventListener('click', () => this.loadPreset(preset.id));
+                    container.appendChild(btn);
                 });
             }
 
             setupTouch() {
+                let touchStartTime = 0;
+                
                 this.canvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    const touch = e.touches[0];
-                    const rect = this.canvas.getBoundingClientRect();
-                    const x = touch.clientX - rect.left;
-                    const y = touch.clientY - rect.top;
-                    
-                    const dx = x - this.centerX;
-                    const dy = y - this.centerY;
-                    let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
-                    if (angle < 0) angle += 360;
-                    
-                    document.getElementById('angleInput').value = Math.round(angle);
-                    document.getElementById('angleSlider').value = Math.round(angle);
+                    touchStartTime = Date.now();
+                    this.handleTouch(e.touches[0]);
                 });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e.touches[0]);
+                });
+
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const touchDuration = Date.now() - touchStartTime;
+                    if (touchDuration < 200) {
+                        this.showToast('💡 Burchak o\'rnatildi');
+                    }
+                    this.draw();
+                });
+
+                this.canvas.addEventListener('click', (e) => {
+                    this.handleTouch(e);
+                });
+            }
+
+            handleTouch(touch) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                const dx = x - this.centerX;
+                const dy = y - this.centerY;
+                let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
+                if (angle < 0) angle += 360;
+                
+                angle = Math.round(angle * 10) / 10;
+                
+                document.getElementById('angleInput').value = angle;
+                document.getElementById('angleSlider').value = angle;
+                document.getElementById('angleDisplay').textContent = angle.toFixed(1) + '°';
+                
+                this.drawTempVector(x, y);
+            }
+
+            drawTempVector(x, y) {
+                this.draw();
+                
+                // Ko'rinadigan vaqtinchalik vektor
+                this.ctx.strokeStyle = 'rgba(102, 126, 234, 0.7)';
+                this.ctx.lineWidth = 4;
+                this.ctx.setLineDash([8, 4]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX, this.centerY);
+                this.ctx.lineTo(x, y);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+                
+                // Vaqtinchalik o'q boshi
+                const angle = Math.atan2(y - this.centerY, x - this.centerX);
+                const headLen = 15;
+                this.ctx.fillStyle = 'rgba(102, 126, 234, 0.7)';
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(
+                    x - headLen * Math.cos(angle - Math.PI / 7),
+                    y - headLen * Math.sin(angle - Math.PI / 7)
+                );
+                this.ctx.lineTo(
+                    x - headLen * Math.cos(angle + Math.PI / 7),
+                    y - headLen * Math.sin(angle + Math.PI / 7)
+                );
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+
+            setForce(value) {
+                document.getElementById('forceInput').value = value;
+                document.getElementById('forceSlider').value = value;
+                document.getElementById('forceDisplay').textContent = value + ' N';
+            }
+
+            setAngle(value) {
+                document.getElementById('angleInput').value = value;
+                document.getElementById('angleSlider').value = value;
+                document.getElementById('angleDisplay').textContent = value + '°';
+            }
+
+            addForceFromInputs() {
+                const magnitude = parseFloat(document.getElementById('forceInput').value);
+                const angle = parseFloat(document.getElementById('angleInput').value);
+                const name = document.getElementById('nameInput').value.trim();
+                this.addForce(magnitude, angle, name);
             }
 
             addForce(magnitude, angle, name) {
@@ -562,72 +972,110 @@
                     return;
                 }
 
+                if (isNaN(angle) || angle < 0 || angle > 360) {
+                    this.showToast('❌ Burchak 0-360 orasida bo\'lishi kerak!');
+                    return;
+                }
+
                 const force = {
-                    magnitude: parseFloat(magnitude),
-                    angle: parseFloat(angle),
+                    magnitude: magnitude,
+                    angle: angle,
                     color: this.colors[this.colorIndex % this.colors.length],
-                    id: Date.now(),
+                    id: Date.now() + Math.random(),
                     name: name || `F${this.forces.length + 1}`
                 };
 
                 this.forces.push(force);
                 this.colorIndex++;
-                this.draw();
-                this.updateList();
                 this.updateStatus();
-                this.showToast(`✅ ${force.name} qo'shildi`);
+                this.updateList();
+                this.updateAnalysis();
+                this.showToast(`✅ ${force.name}: ${magnitude.toFixed(2)}N, ${angle.toFixed(1)}° qo'shildi`);
 
-                // Auto increment angle
-                const nextAngle = (parseFloat(angle) + 45) % 360;
-                document.getElementById('angleInput').value = nextAngle;
+                const nextAngle = (angle + 45) % 360;
+                document.getElementById('angleInput').value = nextAngle.toFixed(1);
                 document.getElementById('angleSlider').value = nextAngle;
+                document.getElementById('angleDisplay').textContent = nextAngle.toFixed(1) + '°';
+                
+                document.getElementById('nameInput').value = '';
             }
 
             removeForce(id) {
                 this.forces = this.forces.filter(f => f.id !== id);
-                this.draw();
-                this.updateList();
                 this.updateStatus();
+                this.updateList();
+                this.updateAnalysis();
                 this.showToast('🗑️ Kuch o\'chirildi');
             }
 
+            editForce(id) {
+                const force = this.forces.find(f => f.id === id);
+                if (!force) return;
+                
+                document.getElementById('forceInput').value = force.magnitude;
+                document.getElementById('forceSlider').value = force.magnitude;
+                document.getElementById('forceDisplay').textContent = force.magnitude.toFixed(2) + ' N';
+                document.getElementById('angleInput').value = force.angle;
+                document.getElementById('angleSlider').value = force.angle;
+                document.getElementById('angleDisplay').textContent = force.angle.toFixed(1) + '°';
+                document.getElementById('nameInput').value = force.name;
+                
+                this.removeForce(id);
+                this.switchTab('add');
+                this.showToast('✏️ Kuch tahrirlash uchun yuklandi');
+            }
+
             clearAll() {
+                if (this.forces.length === 0) {
+                    this.showToast('⚠️ Tozalanadigan narsa yo\'q');
+                    return;
+                }
+                
                 this.forces = [];
                 this.colorIndex = 0;
-                this.draw();
-                this.updateList();
                 this.updateStatus();
-                this.showToast('🗑️ Hammasi tozalandi');
+                this.updateList();
+                this.updateAnalysis();
+                this.showToast('🗑️ Barcha kuchlar o\'chirildi');
             }
 
             calculateComponents() {
                 let sumFx = 0, sumFy = 0;
+                
                 this.forces.forEach(f => {
                     const rad = f.angle * Math.PI / 180;
                     sumFx += f.magnitude * Math.cos(rad);
                     sumFy += f.magnitude * Math.sin(rad);
                 });
+                
                 return { sumFx, sumFy };
             }
 
             checkEquilibrium() {
+                if (this.forces.length === 0) {
+                    this.showToast('⚠️ Avval kuch qo\'shing!');
+                    return;
+                }
+
                 const { sumFx, sumFy } = this.calculateComponents();
                 const resultant = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
-                const isEquilibrium = resultant < 0.5;
+                const isEquilibrium = resultant < this.precision;
 
                 const statusBar = document.getElementById('statusBar');
                 const statusText = document.getElementById('statusText');
 
                 if (isEquilibrium) {
                     statusBar.className = 'status-bar status-equilibrium';
-                    statusText.textContent = '✅ Tizim muvozanatda!';
+                    statusText.textContent = '✅ Muvozanat: Tizim muvozanat holatida!';
+                    this.showToast(`✅ Muvozanat! Xatolik: ${resultant.toFixed(4)} N`);
                 } else {
                     statusBar.className = 'status-bar status-not-equilibrium';
-                    statusText.textContent = '❌ Muvozanat yo\'q!';
+                    statusText.textContent = '❌ Muvozanat yo\'q: Natijaviy kuch mavjud';
+                    this.showToast(`❌ Muvozanat yo'q! Farq: ${resultant.toFixed(4)} N`);
                 }
 
                 statusBar.classList.add('pulse');
-                setTimeout(() => statusBar.classList.remove('pulse'), 1500);
+                setTimeout(() => statusBar.classList.remove('pulse'), 2000);
             }
 
             findEquilibrium() {
@@ -639,8 +1087,8 @@
                 const { sumFx, sumFy } = this.calculateComponents();
                 const magnitude = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
                 
-                if (magnitude < 0.5) {
-                    this.showToast('✅ Allaqachon muvozanatda!');
+                if (magnitude < this.precision) {
+                    this.showToast('✅ Tizim allaqachon muvozanatda!');
                     return;
                 }
 
@@ -651,160 +1099,347 @@
                     magnitude: magnitude,
                     angle: angle,
                     color: '#28a745',
-                    id: Date.now(),
-                    name: 'Muvozanat',
+                    id: Date.now() + Math.random(),
+                    name: '⚖️ Muvozanat',
                     isEquilibrium: true
                 };
 
                 this.forces.push(equilibriumForce);
-                this.draw();
-                this.updateList();
                 this.updateStatus();
-                this.showToast(`✅ Muvozanat kuchi: ${magnitude.toFixed(1)}N, ${angle.toFixed(0)}°`);
+                this.updateList();
+                this.updateAnalysis();
+                
+                this.showToast(`🎯 Muvozanat kuchi topildi: ${magnitude.toFixed(2)}N @ ${angle.toFixed(1)}°`);
+                this.switchTab('list');
             }
 
             updateStatus() {
                 const { sumFx, sumFy } = this.calculateComponents();
+                const resultant = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
+                
                 document.getElementById('sumFx').textContent = sumFx.toFixed(2);
                 document.getElementById('sumFy').textContent = sumFy.toFixed(2);
+                document.getElementById('resultant').textContent = resultant.toFixed(2);
+            }
+
+            updateAnalysis() {
+                const { sumFx, sumFy } = this.calculateComponents();
+                const resultant = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
+                let angle = Math.atan2(sumFy, sumFx) * 180 / Math.PI;
+                if (angle < 0) angle += 360;
+
+                document.getElementById('resultantMag').textContent = resultant.toFixed(4) + ' N';
+                document.getElementById('resultantAngle').textContent = angle.toFixed(2) + '°';
+                document.getElementById('sumFxDetail').textContent = sumFx.toFixed(4) + ' N';
+                document.getElementById('sumFyDetail').textContent = sumFy.toFixed(4) + ' N';
+                document.getElementById('forceCount').textContent = this.forces.length;
+                
+                const isEquilibrium = resultant < this.precision;
+                document.getElementById('equilibriumStatus').textContent = isEquilibrium ? 
+                    '✅ Muvozanatda' : '❌ Muvozanatda emas';
             }
 
             updateList() {
                 const list = document.getElementById('forceList');
                 
                 if (this.forces.length === 0) {
-                    list.innerHTML = '<div class="empty-state">Hozircha kuch qo\'shilmagan<br><small>Kuch qo\'shish uchun ➕ Qo\'shish bo\'limiga o\'ting</small></div>';
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>Hozircha hech qanday kuch qo'shilmagan</div>
+                            <small>➕ Qo'shish bo'limidan boshlang</small>
+                        </div>
+                    `;
                     return;
                 }
 
                 list.innerHTML = this.forces.map(f => {
                     const rad = f.angle * Math.PI / 180;
-                    const fx = (f.magnitude * Math.cos(rad)).toFixed(1);
-                    const fy = (f.magnitude * Math.sin(rad)).toFixed(1);
+                    const fx = (f.magnitude * Math.cos(rad)).toFixed(2);
+                    const fy = (f.magnitude * Math.sin(rad)).toFixed(2);
                     
                     return `
                         <div class="force-item" style="border-left-color: ${f.color};">
                             <div class="force-info">
-                                <strong>${f.name}:</strong> ${f.magnitude}N, ${f.angle.toFixed(0)}°
-                                <br><small style="color: #666;">Fx: ${fx}N, Fy: ${fy}N</small>
-                                ${f.isEquilibrium ? '<br><small style="color: #28a745;">⚖️ Muvozanat kuchi</small>' : ''}
+                                <strong>${f.name}:</strong> ${f.magnitude.toFixed(2)}N @ ${f.angle.toFixed(1)}°
+                                <small>
+                                    Komponenti: Fx = ${fx}N, Fy = ${fy}N
+                                    ${f.isEquilibrium ? '<br>⚖️ Muvozanat kuchi' : ''}
+                                </small>
                             </div>
                             <div class="force-actions">
-                                <button class="icon-btn delete-btn" onclick="sim.removeForce(${f.id})">×</button>
+                                <button class="icon-btn edit-btn" data-id="${f.id}">✏️</button>
+                                <button class="icon-btn delete-btn" data-id="${f.id}">×</button>
                             </div>
                         </div>
                     `;
                 }).join('');
+
+                // Add event listeners to dynamically created buttons
+                list.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseFloat(e.target.getAttribute('data-id'));
+                        this.editForce(id);
+                    });
+                });
+
+                list.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseFloat(e.target.getAttribute('data-id'));
+                        this.removeForce(id);
+                    });
+                });
+            }
+
+            switchTab(tabName) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                
+                const targetTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+                
+                const targetContent = document.getElementById(`tab-${tabName}`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            }
+
+            toggleGrid() {
+                this.showGrid = !this.showGrid;
+                const btn = document.getElementById('gridToggle');
+                if (this.showGrid) {
+                    btn.textContent = 'Yoqilgan';
+                    btn.classList.add('active');
+                } else {
+                    btn.textContent = 'O\'chirilgan';
+                    btn.classList.remove('active');
+                }
             }
 
             draw() {
-                const w = this.canvas.width / window.devicePixelRatio;
-                const h = this.canvas.height / window.devicePixelRatio;
+                this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
                 
-                this.ctx.clearRect(0, 0, w, h);
-                
-                // Draw axes
-                this.ctx.strokeStyle = '#ccc';
+                if (this.showGrid) {
+                    this.drawGrid();
+                }
+
+                this.drawAxes();
+                this.drawForces();
+                this.drawResultant();
+            }
+
+            drawGrid() {
+                this.ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
                 this.ctx.lineWidth = 1;
+
+                const spacing = 30;
+                for (let x = 0; x <= this.canvasWidth; x += spacing) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvasHeight);
+                    this.ctx.stroke();
+                }
+
+                for (let y = 0; y <= this.canvasHeight; y += spacing) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvasWidth, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawAxes() {
+                // Qalinroq o'qlar
+                this.ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
+                this.ctx.lineWidth = 3;
+
+                // X o'qi
                 this.ctx.beginPath();
                 this.ctx.moveTo(0, this.centerY);
-                this.ctx.lineTo(w, this.centerY);
-                this.ctx.moveTo(this.centerX, 0);
-                this.ctx.lineTo(this.centerX, h);
+                this.ctx.lineTo(this.canvasWidth, this.centerY);
                 this.ctx.stroke();
 
-                // Draw forces
-                this.forces.forEach(force => {
+                // Y o'qi
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX, 0);
+                this.ctx.lineTo(this.centerX, this.canvasHeight);
+                this.ctx.stroke();
+
+                // O'q yo'nalishlari (strelkalar)
+                const arrowSize = 12;
+                
+                // X o'qi o'ng tomonga
+                this.ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.canvasWidth - 5, this.centerY);
+                this.ctx.lineTo(this.canvasWidth - arrowSize, this.centerY - 6);
+                this.ctx.lineTo(this.canvasWidth - arrowSize, this.centerY + 6);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Y o'qi yuqoriga
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX, 5);
+                this.ctx.lineTo(this.centerX - 6, arrowSize);
+                this.ctx.lineTo(this.centerX + 6, arrowSize);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Kattaroq harflar
+                this.ctx.fillStyle = '#666';
+                this.ctx.font = 'bold 16px Arial';
+                this.ctx.fillText('X', this.canvasWidth - 30, this.centerY - 15);
+                this.ctx.fillText('Y', this.centerX + 15, 25);
+
+                // Kattaroq markaz nuqta
+                this.ctx.fillStyle = '#333';
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, this.centerY, 5, 0, 2 * Math.PI);
+                this.ctx.fill();
+                
+                // Markaz nuqta atrofida doira
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, this.centerY, 8, 0, 2 * Math.PI);
+                this.ctx.stroke();
+            }
+
+            drawForces() {
+                this.forces.forEach((force, index) => {
                     const rad = force.angle * Math.PI / 180;
                     const len = force.magnitude * this.scale;
                     const endX = this.centerX + len * Math.cos(rad);
                     const endY = this.centerY - len * Math.sin(rad);
 
-                    // Arrow
+                    // Qalinroq chiziq
                     this.ctx.strokeStyle = force.color;
-                    this.ctx.lineWidth = 3;
+                    this.ctx.lineWidth = 5;
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.centerX, this.centerY);
                     this.ctx.lineTo(endX, endY);
                     this.ctx.stroke();
 
-                    // Arrowhead
-                    const headLen = 12;
-                    const angle = Math.atan2(endY - this.centerY, endX - this.centerX);
-                    this.ctx.fillStyle = force.color;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(endX, endY);
-                    this.ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), 
-                                   endY - headLen * Math.sin(angle - Math.PI / 6));
-                    this.ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), 
-                                   endY - headLen * Math.sin(angle + Math.PI / 6));
-                    this.ctx.closePath();
-                    this.ctx.fill();
+                    // Kattaroq o'q boshi
+                    this.drawArrowhead(this.centerX, this.centerY, endX, endY, force.color);
 
-                    // Label
-                    const labelX = this.centerX + (len * 0.6) * Math.cos(rad);
-                    const labelY = this.centerY - (len * 0.6) * Math.sin(rad);
-                    this.ctx.fillStyle = force.color;
-                    this.ctx.font = 'bold 11px Arial';
-                    this.ctx.fillText(force.name, labelX + 5, labelY);
-                });
-
-                // Draw resultant
-                if (this.forces.length > 0) {
-                    const { sumFx, sumFy } = this.calculateComponents();
-                    const resultant = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
+                    // Kattaroq va yorqinroq yozuv
+                    const labelX = this.centerX + (len * 0.65) * Math.cos(rad);
+                    const labelY = this.centerY - (len * 0.65) * Math.sin(rad);
                     
-                    if (resultant > 0.5) {
-                        const angle = Math.atan2(sumFy, sumFx);
-                        const len = resultant * this.scale;
-                        const endX = this.centerX + len * Math.cos(angle);
-                        const endY = this.centerY - len * Math.sin(angle);
+                    // Yozuv foni
+                    this.ctx.fillStyle = 'white';
+                    const textWidth = this.ctx.measureText(force.name).width;
+                    this.ctx.fillRect(labelX - 2, labelY - 18, textWidth + 10, 24);
+                    
+                    // Kattaroq yozuv
+                    this.ctx.fillStyle = force.color;
+                    this.ctx.font = 'bold 14px Arial';
+                    this.ctx.fillText(force.name, labelX + 3, labelY - 2);
+                    
+                    // Kuch qiymatini ham ko'rsatish
+                    this.ctx.font = 'bold 11px Arial';
+                    this.ctx.fillText(`${force.magnitude.toFixed(0)}N`, labelX + 3, labelY + 11);
+                });
+            }
 
-                        this.ctx.strokeStyle = '#dc3545';
-                        this.ctx.lineWidth = 3;
-                        this.ctx.setLineDash([5, 5]);
-                        this.ctx.beginPath();
-                        this.ctx.moveTo(this.centerX, this.centerY);
-                        this.ctx.lineTo(endX, endY);
-                        this.ctx.stroke();
-                        this.ctx.setLineDash([]);
+            drawArrowhead(startX, startY, endX, endY, color) {
+                // Kattaroq o'q boshi
+                const headLen = 18;
+                const headWidth = 8;
+                const angle = Math.atan2(endY - startY, endX - startX);
 
-                        // Arrowhead
-                        const headLen = 12;
-                        this.ctx.fillStyle = '#dc3545';
-                        this.ctx.beginPath();
-                        this.ctx.moveTo(endX, endY);
-                        this.ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), 
-                                       endY - headLen * Math.sin(angle - Math.PI / 6));
-                        this.ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), 
-                                       endY - headLen * Math.sin(angle + Math.PI / 6));
-                        this.ctx.closePath();
-                        this.ctx.fill();
-
-                        // Label
-                        this.ctx.fillStyle = '#dc3545';
-                        this.ctx.font = 'bold 11px Arial';
-                        this.ctx.fillText('R', endX + 5, endY);
-                    }
-                }
-
-                // Center point
-                this.ctx.fillStyle = '#333';
+                this.ctx.fillStyle = color;
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 2;
+                
                 this.ctx.beginPath();
-                this.ctx.arc(this.centerX, this.centerY, 3, 0, 2 * Math.PI);
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(
+                    endX - headLen * Math.cos(angle - Math.PI / 7),
+                    endY - headLen * Math.sin(angle - Math.PI / 7)
+                );
+                this.ctx.lineTo(
+                    endX - headLen * Math.cos(angle + Math.PI / 7),
+                    endY - headLen * Math.sin(angle + Math.PI / 7)
+                );
+                this.ctx.closePath();
                 this.ctx.fill();
+                this.ctx.stroke();
+            }
+
+            drawResultant() {
+                if (this.forces.length === 0) return;
+
+                const { sumFx, sumFy } = this.calculateComponents();
+                const resultant = Math.sqrt(sumFx * sumFx + sumFy * sumFy);
+                
+                if (resultant < this.precision) return;
+
+                const angle = Math.atan2(sumFy, sumFx);
+                const len = resultant * this.scale;
+                const endX = this.centerX + len * Math.cos(angle);
+                const endY = this.centerY - len * Math.sin(angle);
+
+                // Qalinroq va yorqinroq natijaviy vektor
+                this.ctx.strokeStyle = '#dc3545';
+                this.ctx.lineWidth = 6;
+                this.ctx.setLineDash([10, 6]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX, this.centerY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+
+                // Kattaroq o'q boshi
+                const headLen = 20;
+                const headAngle = Math.atan2(endY - this.centerY, endX - this.centerX);
+                this.ctx.fillStyle = '#dc3545';
+                this.ctx.strokeStyle = '#dc3545';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(
+                    endX - headLen * Math.cos(headAngle - Math.PI / 7),
+                    endY - headLen * Math.sin(headAngle - Math.PI / 7)
+                );
+                this.ctx.lineTo(
+                    endX - headLen * Math.cos(headAngle + Math.PI / 7),
+                    endY - headLen * Math.sin(headAngle + Math.PI / 7)
+                );
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+
+                // Kattaroq yozuv
+                const labelX = this.centerX + (len * 0.5) * Math.cos(angle);
+                const labelY = this.centerY - (len * 0.5) * Math.sin(angle);
+                
+                this.ctx.fillStyle = 'white';
+                this.ctx.fillRect(labelX - 2, labelY - 20, 75, 28);
+                
+                this.ctx.fillStyle = '#dc3545';
+                this.ctx.font = 'bold 14px Arial';
+                this.ctx.fillText('Natijaviy', labelX + 2, labelY - 3);
+                this.ctx.font = 'bold 11px Arial';
+                this.ctx.fillText(`${resultant.toFixed(1)}N`, labelX + 2, labelY + 10);
+            }
+
+            animate() {
+                this.draw();
+                requestAnimationFrame(() => this.animate());
             }
 
             showToast(message) {
                 const toast = document.getElementById('toast');
                 toast.textContent = message;
                 toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2500);
+                setTimeout(() => toast.classList.remove('show'), 3000);
             }
 
             loadPreset(type) {
-                this.clearAll();
-                
                 const presets = {
                     triangle: [
                         { magnitude: 100, angle: 0 },
@@ -817,6 +1452,13 @@
                         { magnitude: 80, angle: 180 },
                         { magnitude: 80, angle: 270 }
                     ],
+                    pentagon: [
+                        { magnitude: 70, angle: 0 },
+                        { magnitude: 70, angle: 72 },
+                        { magnitude: 70, angle: 144 },
+                        { magnitude: 70, angle: 216 },
+                        { magnitude: 70, angle: 288 }
+                    ],
                     asymmetric: [
                         { magnitude: 150, angle: 30 },
                         { magnitude: 100, angle: 150 },
@@ -825,25 +1467,31 @@
                     vertical: [
                         { magnitude: 100, angle: 90 },
                         { magnitude: 100, angle: 270 }
+                    ],
+                    horizontal: [
+                        { magnitude: 100, angle: 0 },
+                        { magnitude: 100, angle: 180 }
                     ]
                 };
 
                 const forces = presets[type];
                 if (!forces) return;
 
+                this.clearAll();
+
                 forces.forEach((f, i) => {
                     setTimeout(() => {
                         this.addForce(f.magnitude, f.angle, `F${i + 1}`);
-                    }, i * 300);
+                    }, i * 400);
                 });
 
-                switchTab('list');
-                this.showToast(`✅ ${forces.length} ta kuch yuklandi`);
+                setTimeout(() => {
+                    this.switchTab('list');
+                }, forces.length * 400 + 200);
             }
         }
 
-        let sim;
-
+        // Initialize on load
         window.addEventListener('load', () => {
             sim = new ForceSimulation();
         });
@@ -851,55 +1499,8 @@
         window.addEventListener('resize', () => {
             if (sim) {
                 sim.setupCanvas();
-                sim.draw();
             }
         });
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-        }
-
-        function addForce() {
-            const magnitude = document.getElementById('forceInput').value;
-            const angle = document.getElementById('angleInput').value;
-            sim.addForce(magnitude, angle);
-        }
-
-        function clearAll() {
-            if (confirm('Barcha kuchlarni o\'chirmoqchimisiz?')) {
-                sim.clearAll();
-            }
-        }
-
-        function checkEquilibrium() {
-            if (sim.forces.length === 0) {
-                sim.showToast('⚠️ Avval kuch qo\'shing!');
-                return;
-            }
-            sim.checkEquilibrium();
-        }
-
-        function findEquilibrium() {
-            sim.findEquilibrium();
-        }
-
-        function setForce(value) {
-            document.getElementById('forceInput').value = value;
-            document.getElementById('forceSlider').value = value;
-        }
-
-        function setAngle(value) {
-            document.getElementById('angleInput').value = value;
-            document.getElementById('angleSlider').value = value;
-        }
-
-        function loadPreset(type) {
-            sim.loadPreset(type);
-        }
     </script>
 </body>
 </html>
