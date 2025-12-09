@@ -2,19 +2,18 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4.2 Impuls momenti - Impulse Momentum Simulation</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Impuls Momenti - Simulyatsiya</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
@@ -22,1099 +21,652 @@
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 100%;
+            padding: 10px;
         }
 
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 30px;
+            padding: 20px 10px;
+            margin-bottom: 15px;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 1.6rem;
+            margin-bottom: 8px;
         }
 
         .header p {
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .scenario-card:active {
+            transform: scale(0.95);
+        }
+
+        .scenario-card.active {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .scenario-card .emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card .title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .scenario-card .desc {
+            font-size: 0.75rem;
             opacity: 0.9;
         }
 
-        .simulation-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .control-group {
-            background: #f8f9fa;
-            padding: 20px;
+        .main-canvas-wrapper {
+            background: #1a1a2e;
             border-radius: 15px;
-            border: 2px solid #e9ecef;
-        }
-
-        .control-group h3 {
-            color: #495057;
+            overflow: hidden;
             margin-bottom: 15px;
-            font-size: 1.1rem;
+            border: 3px solid #16213e;
+            position: relative;
         }
 
-        .control-item {
-            margin-bottom: 15px;
-        }
-
-        .control-item label {
+        .main-canvas {
+            width: 100%;
+            height: 350px;
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #495057;
+            background: linear-gradient(to bottom, #0f3460 0%, #16213e 100%);
         }
 
-        .slider-container {
+        .canvas-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .controls-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-start {
+            background: #28a745;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-pause {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+        }
+
+        .slider-section {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label span {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .slider-value {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .slider {
-            flex: 1;
-            height: 8px;
-            border-radius: 5px;
-            background: #ddd;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: #e0e0e0;
             outline: none;
             -webkit-appearance: none;
         }
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #667eea;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #667eea;
             cursor: pointer;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
-        .value-display {
-            min-width: 80px;
-            text-align: center;
-            font-weight: bold;
-            color: #28a745;
-            background: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        .canvas-container {
+        .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .canvas-wrapper {
-            position: relative;
-            background: #f8f9fa;
-            border-radius: 15px;
-            overflow: hidden;
-            border: 2px solid #e9ecef;
-        }
-
-        .canvas-title {
-            background: #495057;
-            color: white;
-            padding: 10px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 300px;
-            background: white;
-        }
-
-        .playback-controls {
-            display: flex;
-            justify-content: center;
             gap: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #1e7e34;
-            transform: translateY(-2px);
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-warning:hover {
-            background: #e0a800;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .info-panels {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .info-panel {
+        .info-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 15px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        .info-panel h3 {
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        .info-panel .value {
-            font-size: 1.5rem;
-            font-weight: bold;
+        .info-card .label {
+            font-size: 0.75rem;
+            opacity: 0.9;
             margin-bottom: 5px;
         }
 
-        .info-panel .unit {
-            font-size: 0.9rem;
-            opacity: 0.8;
+        .info-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 3px;
         }
 
-        .theory-section {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+        .info-card .unit {
+            font-size: 0.75rem;
+            opacity: 0.85;
         }
 
-        .theory-section h2 {
-            color: #495057;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .formula-box {
+        .explanation {
             background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #333;
         }
 
-        .preset-buttons {
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
         }
 
-        .preset-btn {
-            padding: 8px 16px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .preset-btn:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .speed-control {
+        .legend-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
+            gap: 5px;
         }
 
-        .speed-control label {
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .help-icon {
-            display: inline-block;
+        .legend-color {
             width: 20px;
             height: 20px;
-            background: #17a2b8;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 5px;
+            border-radius: 4px;
         }
 
-        .tooltip {
-            position: relative;
-            display: inline-block;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .canvas-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .controls-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .container {
-                padding: 10px;
-            }
-            
-            .simulation-container {
-                padding: 20px;
-            }
-            
-            .playback-controls {
-                flex-wrap: wrap;
-            }
-            
-            .btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .info-panels {
-                grid-template-columns: 1fr;
-            }
-            
-            .preset-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .speed-control {
-                flex-direction: column;
-                gap: 5px;
-            }
+        .pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>4.2 Impuls momenti</h1>
-            <p>Impulse Momentum Simulation - Kuch ta'siri va harakat o'zgarishi</p>
+            <h1>⚛️ Impuls Momenti Simulyatsiyasi</h1>
+            <p>Kuch va harakat orasidagi bog'lanishni ko'ring</p>
         </div>
 
-        <div class="simulation-container">
-            <div class="preset-buttons">
-                <button class="preset-btn" onclick="setPreset('gentle')">Yumshoq ta'sir</button>
-                <button class="preset-btn" onclick="setPreset('normal')">Oddiy ta'sir</button>
-                <button class="preset-btn" onclick="setPreset('impact')">Zarba ta'siri</button>
-                <button class="preset-btn" onclick="setPreset('continuous')">Doimiy kuch</button>
-                <button class="preset-btn" onclick="setPreset('variable')">O'zgaruvchan kuch</button>
-            </div>
-
-            <div class="controls-grid">
-                <div class="control-group">
-                    <h3>Jism parametrlari</h3>
-                    <div class="control-item">
-                        <label>Massa (kg) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Jismning massasi (1-100 kg)</span></span></label>
-                        <div class="slider-container">
-                            <input type="range" id="mass" class="slider" min="1" max="100" value="10" step="0.1">
-                            <div class="value-display" id="massValue">10.0</div>
-                        </div>
-                    </div>
-                    <div class="control-item">
-                        <label>Boshlang'ich tezlik (m/s) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Jismning boshlang'ich tezligi (-20 dan 20 m/s gacha)</span></span></label>
-                        <div class="slider-container">
-                            <input type="range" id="initialVelocity" class="slider" min="-20" max="20" value="0" step="0.1">
-                            <div class="value-display" id="initialVelocityValue">0.0</div>
-                        </div>
-                    </div>
+        <div class="card">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #667eea;">📋 Stsenariyni tanlang</h3>
+            <div class="scenario-grid">
+                <div class="scenario-card active" onclick="selectScenario('football')">
+                    <div class="emoji">⚽</div>
+                    <div class="title">Futbol to'pi</div>
+                    <div class="desc">Zarba urish</div>
                 </div>
-
-                <div class="control-group">
-                    <h3>Kuch parametrlari</h3>
-                    <div class="control-item">
-                        <label>Maksimal kuch (N) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Qo'llaniladigan maksimal kuch (0-1000 N)</span></span></label>
-                        <div class="slider-container">
-                            <input type="range" id="maxForce" class="slider" min="0" max="1000" value="100" step="1">
-                            <div class="value-display" id="maxForceValue">100</div>
-                        </div>
-                    </div>
-                    <div class="control-item">
-                        <label>Ta'sir vaqti (s) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Kuch ta'sir qiladigan vaqt (0.1-5 s)</span></span></label>
-                        <div class="slider-container">
-                            <input type="range" id="forceTime" class="slider" min="0.1" max="5" value="1" step="0.1">
-                            <div class="value-display" id="forceTimeValue">1.0</div>
-                        </div>
-                    </div>
-                    <div class="control-item">
-                        <label>Kuch profili <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Kuch vaqt bo'yicha o'zgarish shakli</span></span></label>
-                        <select id="forceProfile" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                            <option value="constant">Doimiy</option>
-                            <option value="linear">Chiziqli</option>
-                            <option value="quadratic">Kvadratik</option>
-                            <option value="exponential">Eksponensial</option>
-                            <option value="sinusoidal">Sinusoidal</option>
-                        </select>
-                    </div>
+                <div class="scenario-card" onclick="selectScenario('car')">
+                    <div class="emoji">🚗</div>
+                    <div class="title">Mashina</div>
+                    <div class="desc">Tormozlash</div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario('rocket')">
+                    <div class="emoji">🚀</div>
+                    <div class="title">Raketa</div>
+                    <div class="desc">Uchish</div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario('cushion')">
+                    <div class="emoji">🛏️</div>
+                    <div class="title">Yostiq</div>
+                    <div class="desc">Yumshoq to'xtash</div>
                 </div>
             </div>
+        </div>
 
-            <div class="speed-control">
-                <label>Animatsiya tezligi:</label>
-                <input type="range" id="animationSpeed" class="slider" min="0.1" max="5" value="1" step="0.1" style="width: 200px;">
-                <div class="value-display" id="animationSpeedValue">1.0x</div>
-            </div>
-
-            <div class="playback-controls">
-                <button class="btn btn-success" onclick="startAnimation()">Boshlash</button>
-                <button class="btn btn-warning" onclick="pauseAnimation()">Pauza</button>
-                <button class="btn btn-danger" onclick="resetAnimation()">Qayta boshlash</button>
-                <button class="btn btn-primary" onclick="stepAnimation()">Qadam</button>
-            </div>
-
-            <div class="canvas-container">
-                <div class="canvas-wrapper">
-                    <div class="canvas-title">Kuch-Vaqt grafigi</div>
-                    <canvas id="forceCanvas"></canvas>
+        <div class="card">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4CAF50;"></div>
+                    <span>Jism</span>
                 </div>
-                <div class="canvas-wrapper">
-                    <div class="canvas-title">Harakat simulyatsiyasi</div>
-                    <canvas id="motionCanvas"></canvas>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FF9800;"></div>
+                    <span>Tezlik</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #F44336;"></div>
+                    <span>Kuch</span>
                 </div>
             </div>
+        </div>
 
-            <div class="info-panels">
-                <div class="info-panel">
-                    <h3>Impuls momenti</h3>
-                    <div class="value" id="impulseValue">0.0</div>
+        <div class="main-canvas-wrapper">
+            <canvas id="mainCanvas" class="main-canvas"></canvas>
+            <div class="canvas-overlay" id="timeDisplay">Vaqt: 0.00 s</div>
+        </div>
+
+        <div class="controls-bar">
+            <button class="btn btn-start" onclick="toggleAnimation()">
+                <span id="playIcon">▶️</span>
+                <span id="playText">Boshlash</span>
+            </button>
+            <button class="btn btn-pause" onclick="slowMotion()">🐌 Sekin</button>
+            <button class="btn btn-reset" onclick="resetAnimation()">🔄 Qayta</button>
+        </div>
+
+        <div class="card">
+            <div class="slider-section">
+                <div class="slider-label">
+                    <span>🎯 Kuch kuchi</span>
+                    <span class="slider-value" id="forceValue">500 N</span>
+                </div>
+                <input type="range" id="forceSlider" class="slider" min="100" max="2000" value="500" step="50">
+            </div>
+
+            <div class="slider-section">
+                <div class="slider-label">
+                    <span>⏱️ Ta'sir vaqti</span>
+                    <span class="slider-value" id="timeValue">0.5 s</span>
+                </div>
+                <input type="range" id="timeSlider" class="slider" min="0.1" max="3" value="0.5" step="0.1">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="label">Impuls (J)</div>
+                    <div class="value" id="impulseDisplay">0</div>
                     <div class="unit">N⋅s</div>
                 </div>
-                <div class="info-panel">
-                    <h3>Momentum o'zgarishi</h3>
-                    <div class="value" id="momentumChangeValue">0.0</div>
-                    <div class="unit">kg⋅m/s</div>
-                </div>
-                <div class="info-panel">
-                    <h3>Tezlik o'zgarishi</h3>
-                    <div class="value" id="velocityChangeValue">0.0</div>
+                <div class="info-card">
+                    <div class="label">Tezlik o'zgarishi</div>
+                    <div class="value" id="velocityDisplay">0</div>
                     <div class="unit">m/s</div>
                 </div>
-                <div class="info-panel">
-                    <h3>Yakuniy tezlik</h3>
-                    <div class="value" id="finalVelocityValue">0.0</div>
+                <div class="info-card">
+                    <div class="label">Boshlang'ich tezlik</div>
+                    <div class="value" id="initialVDisplay">0</div>
+                    <div class="unit">m/s</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">Yakuniy tezlik</div>
+                    <div class="value" id="finalVDisplay">0</div>
                     <div class="unit">m/s</div>
                 </div>
             </div>
         </div>
 
-        <div class="theory-section">
-            <h2>Nazariy ma'lumotlar</h2>
-            
-            <div class="formula-box">
-                <h3>Impuls momenti formulasi</h3>
-                <p>$$\vec{J} = \vec{F} \cdot \Delta t$$</p>
-                <p>Bu yerda: J - impuls momenti, F - kuch, Δt - vaqt</p>
+        <div class="card">
+            <div class="explanation" id="explanationText">
+                <strong>💡 Impuls-Momentum teoremasi:</strong> Kuch jismga qancha uzoq vaqt ta'sir qilsa, tezlik shuncha ko'p o'zgaradi. Impuls = Kuch × Vaqt. Katta kuch qisqa vaqt yoki kichik kuch uzoq vaqt - natija bir xil bo'lishi mumkin!
             </div>
+        </div>
 
-            <div class="formula-box">
-                <h3>Impulse-Momentum teoremasi</h3>
-                <p>$$\vec{J} = \Delta \vec{p} = m(\vec{v_f} - \vec{v_i})$$</p>
-                <p>Bu yerda: Δp - momentum o'zgarishi, m - massa, v_f - yakuniy tezlik, v_i - boshlang'ich tezlik</p>
+        <div class="card">
+            <h3 style="text-align: center; margin-bottom: 10px; color: #667eea;">📐 Formulalar</h3>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
+                <p style="margin: 10px 0; font-size: 1.1rem;"><strong>J = F × Δt</strong></p>
+                <p style="margin: 10px 0; font-size: 0.85rem; color: #666;">Impuls = Kuch × Vaqt</p>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                <p style="margin: 10px 0; font-size: 1.1rem;"><strong>J = Δp = m × Δv</strong></p>
+                <p style="margin: 10px 0; font-size: 0.85rem; color: #666;">Impuls = Momentum o'zgarishi</p>
             </div>
-
-            <div class="formula-box">
-                <h3>Kuch integrali</h3>
-                <p>$$\vec{J} = \int_{t_1}^{t_2} \vec{F}(t) \, dt$$</p>
-                <p>Impuls momenti kuch-vaqt grafigining maydoni bilan teng</p>
-            </div>
-
-            <div class="formula-box">
-                <h3>Momentum</h3>
-                <p>$$\vec{p} = m\vec{v}$$</p>
-                <p>Bu yerda: p - momentum, m - massa, v - tezlik</p>
-            </div>
-
-            <h3>Muhim tushunchalar:</h3>
-            <ul style="margin-left: 20px; line-height: 1.8;">
-                <li><strong>Impuls momenti</strong> - kuch va vaqtning ko'paytmasi</li>
-                <li><strong>Momentum</strong> - massa va tezlikning ko'paytmasi</li>
-                <li><strong>Kuch profili</strong> - kuchning vaqt bo'yicha o'zgarishi</li>
-                <li><strong>Qisqa ta'sir</strong> - katta kuch, qisqa vaqt</li>
-                <li><strong>Uzun ta'sir</strong> - kichik kuch, uzun vaqt</li>
-                <li><strong>Grafik maydon</strong> - kuch-vaqt grafigi ostidagi maydon impuls momentini beradi</li>
-            </ul>
         </div>
     </div>
 
     <script>
-        // Global variables
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        
         let animationId;
         let isAnimating = false;
         let currentTime = 0;
         let animationSpeed = 1;
-        let forceData = [];
-        let velocityData = [];
-        let positionData = [];
-        let impulseData = [];
-
-        // Canvas elements
-        const forceCanvas = document.getElementById('forceCanvas');
-        const motionCanvas = document.getElementById('motionCanvas');
-        const forceCtx = forceCanvas.getContext('2d');
-        const motionCtx = motionCanvas.getContext('2d');
-
-        // Set canvas size
-        function resizeCanvases() {
-            forceCanvas.width = forceCanvas.offsetWidth;
-            forceCanvas.height = forceCanvas.offsetHeight;
-            motionCanvas.width = motionCanvas.offsetWidth;
-            motionCanvas.height = motionCanvas.offsetHeight;
+        let currentScenario = 'football';
+        
+        const scenarios = {
+            football: {
+                emoji: '⚽',
+                mass: 0.45,
+                initialV: 0,
+                name: 'Futbol to\'pi',
+                color: '#4CAF50',
+                explanation: '⚽ Futbol to\'piga zarba! Oyog\'ingiz to\'pga qisqa vaqt katta kuch bilan ta\'sir qiladi. Natijada to\'p tez uchib ketadi.'
+            },
+            car: {
+                emoji: '🚗',
+                mass: 1000,
+                initialV: 20,
+                name: 'Mashina',
+                color: '#2196F3',
+                explanation: '🚗 Mashina tormozlayapti! Ishqalanish kuchi uzoq vaqt davomida mashinaga ta\'sir qilib, uni sekinlashtiradi.'
+            },
+            rocket: {
+                emoji: '🚀',
+                mass: 500,
+                initialV: 0,
+                name: 'Raketa',
+                color: '#FF5722',
+                explanation: '🚀 Raketa uchmoqda! Dvigatel doimiy kuch bilan raketani tezlashtiradi. Vaqt o\'tgan sari tezlik ortib boradi.'
+            },
+            cushion: {
+                emoji: '🛏️',
+                mass: 5,
+                initialV: 10,
+                name: 'Yostiq',
+                color: '#9C27B0',
+                explanation: '🛏️ Yostiqqa tushish! Yostiq kichik kuch bilan uzoq vaqt ta\'sir qiladi. Shuning uchun yumshoq to\'xtaysiz - xavfsiz!'
+            }
+        };
+        
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
         }
-
-        // Initialize
-        window.addEventListener('resize', resizeCanvases);
-        resizeCanvases();
-
-        // Get simulation parameters
-        function getParameters() {
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        function selectScenario(scenario) {
+            currentScenario = scenario;
+            document.querySelectorAll('.scenario-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.scenario-card').classList.add('active');
+            
+            const s = scenarios[scenario];
+            document.getElementById('explanationText').innerHTML = `<strong>💡 ${s.name}:</strong> ${s.explanation}`;
+            
+            resetAnimation();
+        }
+        
+        function getParams() {
+            const s = scenarios[currentScenario];
             return {
-                mass: parseFloat(document.getElementById('mass').value),
-                initialVelocity: parseFloat(document.getElementById('initialVelocity').value),
-                maxForce: parseFloat(document.getElementById('maxForce').value),
-                forceTime: parseFloat(document.getElementById('forceTime').value),
-                forceProfile: document.getElementById('forceProfile').value,
-                animationSpeed: parseFloat(document.getElementById('animationSpeed').value)
+                mass: s.mass,
+                initialV: s.initialV,
+                force: parseFloat(document.getElementById('forceSlider').value),
+                time: parseFloat(document.getElementById('timeSlider').value),
+                emoji: s.emoji,
+                color: s.color
             };
         }
-
-        // Update display values
-        function updateDisplayValues() {
-            document.getElementById('massValue').textContent = document.getElementById('mass').value;
-            document.getElementById('initialVelocityValue').textContent = document.getElementById('initialVelocity').value;
-            document.getElementById('maxForceValue').textContent = document.getElementById('maxForce').value;
-            document.getElementById('forceTimeValue').textContent = document.getElementById('forceTime').value;
-            document.getElementById('animationSpeedValue').textContent = document.getElementById('animationSpeed').value + 'x';
+        
+        function updateDisplays() {
+            const force = document.getElementById('forceSlider').value;
+            const time = document.getElementById('timeSlider').value;
+            document.getElementById('forceValue').textContent = force + ' N';
+            document.getElementById('timeValue').textContent = time + ' s';
         }
-
-        // Calculate force based on profile
-        function calculateForce(t, maxForce, forceTime, profile) {
-            if (t > forceTime) return 0;
+        
+        function drawScene() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const p = getParams();
             
-            const normalizedTime = t / forceTime;
+            ctx.clearRect(0, 0, w, h);
             
-            switch (profile) {
-                case 'constant':
-                    return maxForce;
-                case 'linear':
-                    return maxForce * (1 - normalizedTime);
-                case 'quadratic':
-                    return maxForce * (1 - normalizedTime * normalizedTime);
-                case 'exponential':
-                    return maxForce * Math.exp(-5 * normalizedTime);
-                case 'sinusoidal':
-                    return maxForce * Math.sin(Math.PI * normalizedTime);
-                default:
-                    return maxForce;
-            }
-        }
-
-        // Calculate simulation data
-        function calculateSimulation() {
-            const params = getParameters();
-            const dt = 0.01; // Time step
-            const totalTime = Math.max(params.forceTime * 2, 5); // Total simulation time
+            // Fon gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, '#0f3460');
+            grad.addColorStop(1, '#16213e');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
             
-            forceData = [];
-            velocityData = [];
-            positionData = [];
-            impulseData = [];
+            // Yer
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, h - 40, w, 40);
             
-            let velocity = params.initialVelocity;
-            let position = 0;
-            let impulse = 0;
-            
-            for (let t = 0; t <= totalTime; t += dt) {
-                const force = calculateForce(t, params.maxForce, params.forceTime, params.forceProfile);
-                const acceleration = force / params.mass;
-                
-                // Update velocity and position
-                velocity += acceleration * dt;
-                position += velocity * dt;
-                impulse += force * dt;
-                
-                // Store data
-                forceData.push({time: t, force: force});
-                velocityData.push({time: t, velocity: velocity});
-                positionData.push({time: t, position: position});
-                impulseData.push({time: t, impulse: impulse});
-            }
-        }
-
-        // Draw force-time graph
-        function drawForceGraph() {
-            const canvas = forceCanvas;
-            const ctx = forceCtx;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grid
-            ctx.strokeStyle = '#e0e0e0';
+            // Grid
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
             ctx.lineWidth = 1;
-            
-            // Vertical grid lines
             for (let i = 0; i < 10; i++) {
-                const x = (i / 9) * canvas.width;
+                const x = (i / 9) * w;
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
+                ctx.lineTo(x, h - 40);
                 ctx.stroke();
             }
             
-            // Horizontal grid lines
-            for (let i = 0; i < 6; i++) {
-                const y = (i / 5) * canvas.height;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
+            // Hisoblash
+            const impulse = currentTime <= p.time ? p.force * currentTime : p.force * p.time;
+            const deltaV = impulse / p.mass;
+            const currentV = p.initialV + deltaV;
+            const position = p.initialV * currentTime + 0.5 * (p.force / p.mass) * Math.min(currentTime, p.time) * Math.min(currentTime, p.time);
             
-            // Draw axes
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height);
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, canvas.height);
-            ctx.stroke();
+            // Jism pozitsiyasi
+            const objX = w * 0.2 + position * 3;
+            const objY = h - 80;
             
-            // Draw force curve
-            if (forceData.length > 0) {
-                const params = getParameters();
-                const maxTime = Math.max(params.forceTime * 2, 5);
-                const maxForce = params.maxForce;
-                
-                ctx.strokeStyle = '#ff6b6b';
-                ctx.lineWidth = 3;
+            // Kuch strelkasi (agar kuch ta'sir qilayotgan bo'lsa)
+            if (currentTime <= p.time) {
+                const forceLength = (p.force / 1000) * 80;
+                ctx.strokeStyle = '#F44336';
+                ctx.lineWidth = 6;
                 ctx.beginPath();
-                
-                for (let i = 0; i < forceData.length; i++) {
-                    const x = (forceData[i].time / maxTime) * canvas.width;
-                    const y = canvas.height - (forceData[i].force / maxForce) * canvas.height;
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
+                ctx.moveTo(objX, objY - 40);
+                ctx.lineTo(objX + forceLength, objY - 40);
                 ctx.stroke();
                 
-                // Fill area under curve (impulse)
-                ctx.fillStyle = 'rgba(255, 107, 107, 0.3)';
+                // Strelka uchi
+                ctx.fillStyle = '#F44336';
                 ctx.beginPath();
-                ctx.moveTo(0, canvas.height);
-                for (let i = 0; i < forceData.length; i++) {
-                    const x = (forceData[i].time / maxTime) * canvas.width;
-                    const y = canvas.height - (forceData[i].force / maxForce) * canvas.height;
-                    ctx.lineTo(x, y);
-                }
-                ctx.lineTo(canvas.width, canvas.height);
+                ctx.moveTo(objX + forceLength, objY - 40);
+                ctx.lineTo(objX + forceLength - 10, objY - 50);
+                ctx.lineTo(objX + forceLength - 10, objY - 30);
                 ctx.closePath();
                 ctx.fill();
                 
-                // Draw current time indicator
-                if (isAnimating) {
-                    const currentX = (currentTime / maxTime) * canvas.width;
-                    ctx.strokeStyle = '#4CAF50';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(currentX, 0);
-                    ctx.lineTo(currentX, canvas.height);
-                    ctx.stroke();
-                }
+                // "KUCH" yozuvi
+                ctx.fillStyle = '#F44336';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText('KUCH', objX + forceLength + 5, objY - 35);
             }
             
-            // Draw labels
-            ctx.fillStyle = '#333';
-            ctx.font = '12px Arial';
-            ctx.fillText('Kuch (N)', 10, 20);
-            ctx.fillText('Vaqt (s)', canvas.width - 60, canvas.height - 10);
-            
-            // Draw scale
-            const params = getParameters();
-            const maxTime = Math.max(params.forceTime * 2, 5);
-            const maxForce = params.maxForce;
-            
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Arial';
-            ctx.fillText('0', 5, canvas.height - 5);
-            ctx.fillText(maxForce.toFixed(0), 5, 15);
-            ctx.fillText(maxTime.toFixed(1), canvas.width - 30, canvas.height - 5);
-        }
-
-        // Draw motion simulation
-        function drawMotionSimulation() {
-            const canvas = motionCanvas;
-            const ctx = motionCtx;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw ground
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
-            
-            // Draw grid
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.lineWidth = 1;
-            
-            for (let i = 0; i < 10; i++) {
-                const x = (i / 9) * canvas.width;
+            // Tezlik strelkasi
+            const velLength = Math.abs(currentV) * 4;
+            if (velLength > 5) {
+                ctx.strokeStyle = '#FF9800';
+                ctx.lineWidth = 5;
                 ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height - 20);
+                ctx.moveTo(objX, objY);
+                ctx.lineTo(objX + velLength, objY);
                 ctx.stroke();
-            }
-            
-            // Draw object
-            if (positionData.length > 0 && currentTime < positionData.length * 0.01) {
-                const index = Math.floor(currentTime / 0.01);
-                const position = positionData[index] ? positionData[index].position : 0;
                 
-                // Scale position to canvas
-                const centerX = canvas.width / 2;
-                const pixelsPerMeter = 2;
-                const objectX = centerX + position * pixelsPerMeter;
-                const objectY = canvas.height - 40;
-                
-                // Draw object
-                ctx.fillStyle = '#4CAF50';
+                // Strelka uchi
+                ctx.fillStyle = '#FF9800';
                 ctx.beginPath();
-                ctx.arc(objectX, objectY, 15, 0, 2 * Math.PI);
+                ctx.moveTo(objX + velLength, objY);
+                ctx.lineTo(objX + velLength - 8, objY - 8);
+                ctx.lineTo(objX + velLength - 8, objY + 8);
+                ctx.closePath();
                 ctx.fill();
                 
-                // Draw velocity vector
-                if (velocityData[index]) {
-                    const velocity = velocityData[index].velocity;
-                    const vectorLength = Math.abs(velocity) * 3;
-                    const vectorX = objectX + (velocity > 0 ? vectorLength : -vectorLength);
-                    
-                    ctx.strokeStyle = '#FF9800';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(objectX, objectY);
-                    ctx.lineTo(vectorX, objectY);
-                    ctx.stroke();
-                    
-                    // Arrow head
-                    if (velocity !== 0) {
-                        const arrowSize = 5;
-                        const arrowX = vectorX;
-                        const arrowY = objectY;
-                        const direction = velocity > 0 ? 1 : -1;
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(arrowX, arrowY);
-                        ctx.lineTo(arrowX - arrowSize * direction, arrowY - arrowSize);
-                        ctx.lineTo(arrowX - arrowSize * direction, arrowY + arrowSize);
-                        ctx.closePath();
-                        ctx.fill();
-                    }
-                }
-                
-                // Draw force vector
-                if (forceData[index] && forceData[index].force > 0) {
-                    const force = forceData[index].force;
-                    const forceVectorLength = (force / 100) * 30;
-                    
-                    ctx.strokeStyle = '#F44336';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(objectX, objectY - 20);
-                    ctx.lineTo(objectX + forceVectorLength, objectY - 20);
-                    ctx.stroke();
-                    
-                    // Arrow head
-                    ctx.fillStyle = '#F44336';
-                    ctx.beginPath();
-                    ctx.moveTo(objectX + forceVectorLength, objectY - 20);
-                    ctx.lineTo(objectX + forceVectorLength - 5, objectY - 25);
-                    ctx.lineTo(objectX + forceVectorLength - 5, objectY - 15);
-                    ctx.closePath();
-                    ctx.fill();
-                }
+                // Tezlik qiymati
+                ctx.fillStyle = '#FF9800';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(currentV.toFixed(1) + ' m/s', objX + velLength + 5, objY + 5);
             }
             
-            // Draw labels
-            ctx.fillStyle = '#333';
-            ctx.font = '12px Arial';
-            ctx.fillText('Harakat', 10, 20);
-            ctx.fillText('Tezlik (sariq)', 10, 40);
-            ctx.fillText('Kuch (qizil)', 10, 60);
+            // Jism (emoji)
+            ctx.font = '50px Arial';
+            ctx.fillText(p.emoji, objX - 25, objY + 15);
             
-            // Draw scale
-            ctx.fillStyle = '#666';
-            ctx.font = '10px Arial';
-            ctx.fillText('0 m', canvas.width / 2 - 10, canvas.height - 5);
+            // Ma'lumotlarni yangilash
+            document.getElementById('impulseDisplay').textContent = impulse.toFixed(1);
+            document.getElementById('velocityDisplay').textContent = deltaV.toFixed(1);
+            document.getElementById('initialVDisplay').textContent = p.initialV.toFixed(1);
+            document.getElementById('finalVDisplay').textContent = currentV.toFixed(1);
+            document.getElementById('timeDisplay').textContent = 'Vaqt: ' + currentTime.toFixed(2) + ' s';
         }
-
-        // Update info panels
-        function updateInfoPanels() {
-            const params = getParameters();
-            
-            if (impulseData.length > 0 && currentTime < impulseData.length * 0.01) {
-                const index = Math.floor(currentTime / 0.01);
-                const impulse = impulseData[index] ? impulseData[index].impulse : 0;
-                const momentumChange = impulse;
-                const velocityChange = momentumChange / params.mass;
-                const finalVelocity = params.initialVelocity + velocityChange;
-                
-                document.getElementById('impulseValue').textContent = impulse.toFixed(2);
-                document.getElementById('momentumChangeValue').textContent = momentumChange.toFixed(2);
-                document.getElementById('velocityChangeValue').textContent = velocityChange.toFixed(2);
-                document.getElementById('finalVelocityValue').textContent = finalVelocity.toFixed(2);
-            } else {
-                document.getElementById('impulseValue').textContent = '0.0';
-                document.getElementById('momentumChangeValue').textContent = '0.0';
-                document.getElementById('velocityChangeValue').textContent = '0.0';
-                document.getElementById('finalVelocityValue').textContent = params.initialVelocity.toFixed(2);
-            }
-        }
-
-        // Animation loop
+        
         function animate() {
             if (!isAnimating) return;
             
-            const params = getParameters();
-            animationSpeed = params.animationSpeed;
+            const p = getParams();
+            currentTime += 0.02 * animationSpeed;
             
-            currentTime += 0.01 * animationSpeed;
+            drawScene();
             
-            drawForceGraph();
-            drawMotionSimulation();
-            updateInfoPanels();
-            
-            // Check if animation should stop
-            const maxTime = Math.max(params.forceTime * 2, 5);
-            if (currentTime >= maxTime) {
+            if (currentTime >= Math.max(p.time * 3, 3)) {
                 pauseAnimation();
             }
             
             animationId = requestAnimationFrame(animate);
         }
-
-        // Control functions
-        function startAnimation() {
-            if (!isAnimating) {
-                calculateSimulation();
-                isAnimating = true;
-                animate();
+        
+        function toggleAnimation() {
+            if (isAnimating) {
+                pauseAnimation();
+            } else {
+                startAnimation();
             }
         }
-
+        
+        function startAnimation() {
+            isAnimating = true;
+            document.getElementById('playIcon').textContent = '⏸️';
+            document.getElementById('playText').textContent = 'To\'xtatish';
+            animate();
+        }
+        
         function pauseAnimation() {
             isAnimating = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+            document.getElementById('playIcon').textContent = '▶️';
+            document.getElementById('playText').textContent = 'Davom ettirish';
+            if (animationId) cancelAnimationFrame(animationId);
         }
-
+        
         function resetAnimation() {
             pauseAnimation();
             currentTime = 0;
-            calculateSimulation();
-            drawForceGraph();
-            drawMotionSimulation();
-            updateInfoPanels();
+            animationSpeed = 1;
+            document.getElementById('playIcon').textContent = '▶️';
+            document.getElementById('playText').textContent = 'Boshlash';
+            drawScene();
         }
-
-        function stepAnimation() {
-            if (!isAnimating) {
-                const params = getParameters();
-                currentTime += 0.01 * params.animationSpeed;
-                
-                if (forceData.length === 0) {
-                    calculateSimulation();
-                }
-                
-                drawForceGraph();
-                drawMotionSimulation();
-                updateInfoPanels();
-                
-                const maxTime = Math.max(params.forceTime * 2, 5);
-                if (currentTime >= maxTime) {
-                    currentTime = maxTime;
-                }
-            }
+        
+        function slowMotion() {
+            animationSpeed = animationSpeed === 1 ? 0.25 : 1;
+            const btn = event.target;
+            btn.textContent = animationSpeed === 1 ? '🐌 Sekin' : '⚡ Tez';
         }
-
-        // Preset scenarios
-        function setPreset(preset) {
-            switch (preset) {
-                case 'gentle':
-                    document.getElementById('mass').value = 10;
-                    document.getElementById('initialVelocity').value = 0;
-                    document.getElementById('maxForce').value = 50;
-                    document.getElementById('forceTime').value = 2;
-                    document.getElementById('forceProfile').value = 'constant';
-                    break;
-                case 'normal':
-                    document.getElementById('mass').value = 10;
-                    document.getElementById('initialVelocity').value = 5;
-                    document.getElementById('maxForce').value = 100;
-                    document.getElementById('forceTime').value = 1;
-                    document.getElementById('forceProfile').value = 'linear';
-                    break;
-                case 'impact':
-                    document.getElementById('mass').value = 10;
-                    document.getElementById('initialVelocity').value = 10;
-                    document.getElementById('maxForce').value = 500;
-                    document.getElementById('forceTime').value = 0.2;
-                    document.getElementById('forceProfile').value = 'exponential';
-                    break;
-                case 'continuous':
-                    document.getElementById('mass').value = 20;
-                    document.getElementById('initialVelocity').value = 0;
-                    document.getElementById('maxForce').value = 80;
-                    document.getElementById('forceTime').value = 3;
-                    document.getElementById('forceProfile').value = 'constant';
-                    break;
-                case 'variable':
-                    document.getElementById('mass').value = 15;
-                    document.getElementById('initialVelocity').value = 2;
-                    document.getElementById('maxForce').value = 200;
-                    document.getElementById('forceTime').value = 1.5;
-                    document.getElementById('forceProfile').value = 'sinusoidal';
-                    break;
-            }
-            updateDisplayValues();
-            resetAnimation();
-        }
-
-        // Event listeners
-        document.getElementById('mass').addEventListener('input', function() {
-            updateDisplayValues();
-            resetAnimation();
+        
+        document.getElementById('forceSlider').addEventListener('input', () => {
+            updateDisplays();
+            if (!isAnimating) drawScene();
         });
-
-        document.getElementById('initialVelocity').addEventListener('input', function() {
-            updateDisplayValues();
-            resetAnimation();
+        
+        document.getElementById('timeSlider').addEventListener('input', () => {
+            updateDisplays();
+            if (!isAnimating) drawScene();
         });
-
-        document.getElementById('maxForce').addEventListener('input', function() {
-            updateDisplayValues();
-            resetAnimation();
-        });
-
-        document.getElementById('forceTime').addEventListener('input', function() {
-            updateDisplayValues();
-            resetAnimation();
-        });
-
-        document.getElementById('forceProfile').addEventListener('change', function() {
-            resetAnimation();
-        });
-
-        document.getElementById('animationSpeed').addEventListener('input', function() {
-            updateDisplayValues();
-        });
-
-        // Touch support for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        document.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('touchend', function(e) {
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
-            
-            // Swipe gestures
-            if (Math.abs(deltaX) > 50) {
-                if (deltaX > 0) {
-                    // Swipe right - increase force
-                    const forceSlider = document.getElementById('maxForce');
-                    forceSlider.value = Math.min(parseInt(forceSlider.value) + 50, 1000);
-                } else {
-                    // Swipe left - decrease force
-                    const forceSlider = document.getElementById('maxForce');
-                    forceSlider.value = Math.max(parseInt(forceSlider.value) - 50, 0);
-                }
-                updateDisplayValues();
-                resetAnimation();
-            }
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            switch(e.key) {
-                case ' ':
-                    e.preventDefault();
-                    if (isAnimating) {
-                        pauseAnimation();
-                    } else {
-                        startAnimation();
-                    }
-                    break;
-                case 'r':
-                    resetAnimation();
-                    break;
-                case 's':
-                    stepAnimation();
-                    break;
-                case '1':
-                    setPreset('gentle');
-                    break;
-                case '2':
-                    setPreset('normal');
-                    break;
-                case '3':
-                    setPreset('impact');
-                    break;
-                case '4':
-                    setPreset('continuous');
-                    break;
-                case '5':
-                    setPreset('variable');
-                    break;
-            }
-        });
-
-        // Initialize
-        updateDisplayValues();
-        calculateSimulation();
-        drawForceGraph();
-        drawMotionSimulation();
-        updateInfoPanels();
-
-        // MathJax configuration
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
+        
+        updateDisplays();
+        drawScene();
     </script>
 </body>
 </html>
