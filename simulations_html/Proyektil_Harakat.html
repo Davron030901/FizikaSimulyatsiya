@@ -2,153 +2,147 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyektil Harakat Simulyatori</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Proyektil Harakat</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
             min-height: 100vh;
+            padding: 10px;
+            font-size: 14px;
         }
         
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 5px solid #3498db;
+            margin-bottom: 12px;
+            font-size: 1.5em;
         }
         
         .control-group {
-            display: flex;
-            flex-direction: column;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
         
         label {
+            display: block;
             font-weight: bold;
             margin-bottom: 5px;
             color: #2c3e50;
+            font-size: 13px;
         }
         
         input[type="range"] {
             width: 100%;
-            margin: 5px 0;
+            margin: 8px 0;
+            height: 35px;
             accent-color: #3498db;
         }
         
-        input[type="number"] {
-            padding: 8px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+        .value-display {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #3498db;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
         }
         
         button {
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 14px 8px;
+            font-size: 15px;
             font-weight: bold;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin: 5px;
+            transition: transform 0.2s;
+            color: white;
+        }
+        
+        button:active {
+            transform: scale(0.95);
         }
         
         .start-btn {
             background: linear-gradient(45deg, #27ae60, #2ecc71);
-            color: white;
         }
         
         .stop-btn {
             background: linear-gradient(45deg, #e74c3c, #c0392b);
-            color: white;
         }
         
         .reset-btn {
             background: linear-gradient(45deg, #f39c12, #e67e22);
-            color: white;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .simulation-area {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
         }
         
         .canvas-container {
             background: #fff;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
         }
         
         canvas {
             border: 2px solid #34495e;
-            border-radius: 8px;
+            border-radius: 6px;
             display: block;
-            max-width: 100%;
-        }
-        
-        .info-panel {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .formula-box {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
+            width: 100%;
+            height: auto;
+            touch-action: none;
         }
         
         .stats {
             background: #f8f9fa;
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
-        .stat-item {
+        .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 5px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
         }
         
         .stat-label {
@@ -161,623 +155,441 @@
             font-weight: bold;
         }
         
+        .formula-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
         .graphs {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 10px;
         }
         
         .graph-container {
             background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 8px;
         }
         
         .graph-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #2c3e50;
-        }
-        
-        .air-resistance-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: #3498db;
-        }
-        
-        @media (max-width: 768px) {
-            .simulation-area {
-                grid-template-columns: 1fr;
-            }
-            
-            .graphs {
-                grid-template-columns: 1fr;
-            }
-            
-            .controls {
-                grid-template-columns: 1fr;
-            }
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Proyektil Harakat Simulyatori</h1>
+        <h1>🚀 Proyektil Harakat</h1>
         
-        <div class="controls">
-            <div class="control-group">
-                <label>Burchak (θ): <span id="angleValue">45°</span></label>
-                <input type="range" id="angleSlider" min="1" max="89" value="45">
-            </div>
-            
-            <div class="control-group">
-                <label>Boshlang'ich tezlik (v₀): <span id="velocityValue">50 m/s</span></label>
-                <input type="range" id="velocitySlider" min="10" max="100" value="50">
-            </div>
-            
-            <div class="control-group">
-                <label>Havo qarshiligi koeffitsienti:</label>
-                <input type="number" id="airResistance" min="0" max="0.1" step="0.001" value="0">
-                <div class="air-resistance-toggle">
-                    <input type="checkbox" id="airResistanceToggle">
-                    <label for="airResistanceToggle">Havo qarshiligi</label>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <button class="start-btn" onclick="startSimulation()">▶️ Boshlash</button>
-                <button class="stop-btn" onclick="stopSimulation()">⏹️ To'xtatish</button>
-                <button class="reset-btn" onclick="resetSimulation()">🔄 Qayta boshlash</button>
+        <div class="control-group">
+            <label>Burchak: <span class="value-display" id="angleValue">45°</span></label>
+            <input type="range" id="angleSlider" min="1" max="89" value="45">
+        </div>
+        
+        <div class="control-group">
+            <label>Tezlik: <span class="value-display" id="velocityValue">50 m/s</span></label>
+            <input type="range" id="velocitySlider" min="10" max="100" value="50">
+        </div>
+        
+        <div class="control-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="airToggle">
+                <label for="airToggle">Havo qarshiligi (k=0.01)</label>
             </div>
         </div>
         
-        <div class="simulation-area">
-            <div class="canvas-container">
-                <canvas id="trajectoryCanvas" width="800" height="400"></canvas>
+        <div class="buttons">
+            <button class="start-btn" onclick="start()">▶️ Start</button>
+            <button class="stop-btn" onclick="stop()">⏹️ Stop</button>
+            <button class="reset-btn" onclick="reset()">🔄 Reset</button>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="canvas" width="400" height="300"></canvas>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-row">
+                <span class="stat-label">Max balandlik:</span>
+                <span class="stat-value" id="maxH">0 m</span>
             </div>
-            
-            <div class="info-panel">
-                <div class="formula-box">
-                    <strong>📐 Proyektil harakat formulalari:</strong><br>
-                    x = v₀ · cos(θ) · t<br>
-                    y = v₀ · sin(θ) · t - ½ · g · t²<br><br>
-                    <strong>Komponentlar:</strong><br>
-                    vₓ = v₀ · cos(θ)<br>
-                    vᵧ = v₀ · sin(θ) - g · t
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Maksimal balandlik:</span>
-                        <span class="stat-value" id="maxHeight">0 m</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Maksimal masofa:</span>
-                        <span class="stat-value" id="maxRange">0 m</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Uchish vaqti:</span>
-                        <span class="stat-value" id="flightTime">0 s</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Joriy vaqt:</span>
-                        <span class="stat-value" id="currentTime">0 s</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Joriy tezlik:</span>
-                        <span class="stat-value" id="currentVelocity">0 m/s</span>
-                    </div>
-                </div>
+            <div class="stat-row">
+                <span class="stat-label">Max masofa:</span>
+                <span class="stat-value" id="maxR">0 m</span>
             </div>
+            <div class="stat-row">
+                <span class="stat-label">Uchish vaqti:</span>
+                <span class="stat-value" id="flightT">0 s</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Joriy vaqt:</span>
+                <span class="stat-value" id="currT">0 s</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Joriy tezlik:</span>
+                <span class="stat-value" id="currV">0 m/s</span>
+            </div>
+        </div>
+        
+        <div class="formula-box">
+            <strong>Formulalar:</strong><br>
+            x = v₀·cos(θ)·t<br>
+            y = v₀·sin(θ)·t - ½·g·t²<br>
+            vₓ = v₀·cos(θ)<br>
+            vᵧ = v₀·sin(θ) - g·t
         </div>
         
         <div class="graphs">
             <div class="graph-container">
                 <div class="graph-title">📈 Horizontal tezlik (Vₓ)</div>
-                <canvas id="vxGraph" width="350" height="200"></canvas>
+                <canvas id="vxGraph" width="350" height="180"></canvas>
             </div>
             
             <div class="graph-container">
                 <div class="graph-title">📊 Vertikal tezlik (Vᵧ)</div>
-                <canvas id="vyGraph" width="350" height="200"></canvas>
+                <canvas id="vyGraph" width="350" height="180"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('trajectoryCanvas');
-        const ctx = canvas.getContext('2d');
-        const vxCanvas = document.getElementById('vxGraph');
-        const vxCtx = vxCanvas.getContext('2d');
-        const vyCanvas = document.getElementById('vyGraph');
-        const vyCtx = vyCanvas.getContext('2d');
+        const c = document.getElementById('canvas');
+        const ctx = c.getContext('2d');
+        const vxC = document.getElementById('vxGraph');
+        const vxCtx = vxC.getContext('2d');
+        const vyC = document.getElementById('vyGraph');
+        const vyCtx = vyC.getContext('2d');
         
-        let animationId;
-        let isRunning = false;
-        let t = 0;
-        let trajectory = [];
-        let vxData = [];
-        let vyData = [];
+        const g = 9.81;
+        let anim, running = false, t = 0, traj = [], vxD = [], vyD = [];
+        let scale = 3, ox = 30, oy = 30;
         
-        const g = 9.81; // gravitatsiya tezlanishi
-        let scale = 4; // dinamik masshtab
-        let offsetX = 50; // chap chetdan masofa
-        let offsetY = 50; // pastki chetdan masofa
+        const aSlider = document.getElementById('angleSlider');
+        const vSlider = document.getElementById('velocitySlider');
+        const airToggle = document.getElementById('airToggle');
         
-        // Boshqaruv elementlari
-        const angleSlider = document.getElementById('angleSlider');
-        const velocitySlider = document.getElementById('velocitySlider');
-        const airResistanceInput = document.getElementById('airResistance');
-        const airResistanceToggle = document.getElementById('airResistanceToggle');
+        aSlider.oninput = vSlider.oninput = () => {
+            update();
+            if (!running) drawGrid();
+        };
+        airToggle.onchange = update;
         
-        // Qiymatlarni yangilash
-        angleSlider.addEventListener('input', () => {
-            updateDisplay();
-            if (!isRunning) drawGrid(); // Faqat simulyatsiya to'xtaganda grid yangilansin
-        });
-        velocitySlider.addEventListener('input', () => {
-            updateDisplay();
-            if (!isRunning) drawGrid();
-        });
-        airResistanceInput.addEventListener('input', updateDisplay);
-        airResistanceToggle.addEventListener('change', updateDisplay);
-        
-        function updateDisplay() {
-            document.getElementById('angleValue').textContent = angleSlider.value + '°';
-            document.getElementById('velocityValue').textContent = velocitySlider.value + ' m/s';
-            calculateParameters();
+        function update() {
+            document.getElementById('angleValue').textContent = aSlider.value + '°';
+            document.getElementById('velocityValue').textContent = vSlider.value + ' m/s';
+            calc();
         }
         
-        function calculateParameters() {
-            const angle = parseFloat(angleSlider.value) * Math.PI / 180;
-            const v0 = parseFloat(velocitySlider.value);
+        function calc() {
+            const a = aSlider.value * Math.PI / 180;
+            const v0 = +vSlider.value;
+            const h = (v0 * Math.sin(a))**2 / (2 * g);
+            const r = v0**2 * Math.sin(2 * a) / g;
+            const ft = 2 * v0 * Math.sin(a) / g;
             
-            // Maksimal balandlik: H = (v₀sinθ)² / (2g)
-            const maxHeight = (v0 * Math.sin(angle))**2 / (2 * g);
+            const sx = (c.width - ox * 2) / (r * 1.1);
+            const sy = (c.height - oy * 2) / (h * 1.2);
+            scale = Math.min(sx, sy, 8);
             
-            // Maksimal masofa: R = v₀²sin(2θ) / g
-            const maxRange = (v0**2 * Math.sin(2 * angle)) / g;
-            
-            // Uchish vaqti: T = 2v₀sinθ / g
-            const flightTime = (2 * v0 * Math.sin(angle)) / g;
-            
-            // Masshtabni avtomatik hisoblash
-            const canvasWidth = canvas.width - offsetX * 2;
-            const canvasHeight = canvas.height - offsetY * 2;
-            
-            // Horizontal va vertikal masshtablarni alohida hisoblash
-            const scaleX = canvasWidth / (maxRange * 1.1); // 10% qo'shimcha joy
-            const scaleY = canvasHeight / (maxHeight * 1.2); // 20% qo'shimcha joy
-            
-            // Kichikroq masshtabni tanlash (butun traektoriya ko'rinishi uchun)
-            scale = Math.min(scaleX, scaleY, 10); // maksimal 10x masshtab
-            
-            document.getElementById('maxHeight').textContent = maxHeight.toFixed(1) + ' m';
-            document.getElementById('maxRange').textContent = maxRange.toFixed(1) + ' m';
-            document.getElementById('flightTime').textContent = flightTime.toFixed(2) + ' s';
+            document.getElementById('maxH').textContent = h.toFixed(1) + ' m';
+            document.getElementById('maxR').textContent = r.toFixed(1) + ' m';
+            document.getElementById('flightT').textContent = ft.toFixed(2) + ' s';
         }
         
         function drawGrid() {
+            ctx.clearRect(0, 0, c.width, c.height);
             ctx.strokeStyle = '#e0e0e0';
             ctx.lineWidth = 1;
             
-            // Grid o'lchamini masshtabga moslashtirish
-            const gridSize = Math.max(20, Math.min(80, 200 / scale));
-            
-            // Vertikal chiziqlar
-            for (let x = offsetX; x < canvas.width - offsetX; x += gridSize) {
+            const gs = Math.max(15, Math.min(50, 150 / scale));
+            for (let x = ox; x < c.width - ox; x += gs) {
                 ctx.beginPath();
-                ctx.moveTo(x, offsetY);
-                ctx.lineTo(x, canvas.height - offsetY);
+                ctx.moveTo(x, oy);
+                ctx.lineTo(x, c.height - oy);
+                ctx.stroke();
+            }
+            for (let y = oy; y < c.height - oy; y += gs) {
+                ctx.beginPath();
+                ctx.moveTo(ox, y);
+                ctx.lineTo(c.width - ox, y);
                 ctx.stroke();
             }
             
-            // Horizontal chiziqlar
-            for (let y = offsetY; y < canvas.height - offsetY; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(offsetX, y);
-                ctx.lineTo(canvas.width - offsetX, y);
-                ctx.stroke();
-            }
-            
-            // Koordinata o'qlari
             ctx.strokeStyle = '#34495e';
             ctx.lineWidth = 2;
-            
-            // X o'qi
             ctx.beginPath();
-            ctx.moveTo(offsetX, canvas.height - offsetY);
-            ctx.lineTo(canvas.width - offsetX, canvas.height - offsetY);
+            ctx.moveTo(ox, c.height - oy);
+            ctx.lineTo(c.width - ox, c.height - oy);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(ox, c.height - oy);
             ctx.stroke();
             
-            // Y o'qi
-            ctx.beginPath();
-            ctx.moveTo(offsetX, offsetY);
-            ctx.lineTo(offsetX, canvas.height - offsetY);
-            ctx.stroke();
-            
-            // O'q ko'rsatkichlari
-            const arrowSize = 8;
-            // X o'qi o'q ko'rsatkichi
-            ctx.beginPath();
-            ctx.moveTo(canvas.width - offsetX, canvas.height - offsetY);
-            ctx.lineTo(canvas.width - offsetX - arrowSize, canvas.height - offsetY - arrowSize/2);
-            ctx.lineTo(canvas.width - offsetX - arrowSize, canvas.height - offsetY + arrowSize/2);
-            ctx.closePath();
             ctx.fillStyle = '#34495e';
-            ctx.fill();
-            
-            // Y o'qi o'q ko'rsatkichi
-            ctx.beginPath();
-            ctx.moveTo(offsetX, offsetY);
-            ctx.lineTo(offsetX - arrowSize/2, offsetY + arrowSize);
-            ctx.lineTo(offsetX + arrowSize/2, offsetY + arrowSize);
-            ctx.closePath();
-            ctx.fill();
-            
-            // O'q yorliqlari
-            ctx.fillStyle = '#2c3e50';
-            ctx.font = '14px Arial';
-            ctx.fillText('X (m)', canvas.width - offsetX - 30, canvas.height - offsetY + 25);
-            ctx.fillText('Y (m)', offsetX - 30, offsetY + 15);
+            ctx.font = '10px Arial';
+            ctx.fillText('X', c.width - ox - 15, c.height - oy + 15);
+            ctx.fillText('Y', ox - 15, oy + 10);
         }
         
-        function drawTrajectory() {
-            if (trajectory.length < 2) return;
-            
+        function drawTraj() {
+            if (traj.length < 2) return;
             ctx.strokeStyle = '#3498db';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            
-            for (let i = 0; i < trajectory.length; i++) {
-                const point = trajectory[i];
-                if (i === 0) {
-                    ctx.moveTo(point.x, point.y);
-                } else {
-                    ctx.lineTo(point.x, point.y);
-                }
-            }
+            traj.forEach((p, i) => {
+                i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+            });
             ctx.stroke();
         }
         
         function drawBall(x, y) {
-            const gradient = ctx.createRadialGradient(x, y, 0, x, y, 15);
-            gradient.addColorStop(0, '#ff6b6b');
-            gradient.addColorStop(0.7, '#ee5a52');
-            gradient.addColorStop(1, '#d63031');
-            
-            ctx.fillStyle = gradient;
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, 10);
+            grad.addColorStop(0, '#ff6b6b');
+            grad.addColorStop(1, '#d63031');
+            ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.arc(x, y, 15, 0, 2 * Math.PI);
-            ctx.fill();
-            
-            // To'pga yaltiroq qo'shish
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            ctx.arc(x - 5, y - 5, 5, 0, 2 * Math.PI);
+            ctx.arc(x, y, 10, 0, 2 * Math.PI);
             ctx.fill();
         }
         
-        function drawVelocityVector(x, y, vx, vy) {
-            const arrowLength = 3;
-            const endX = x + vx * arrowLength;
-            const endY = y - vy * arrowLength;  // Y koordinatasi teskari
-            
-            // Vektor
+        function drawVec(x, y, vx, vy) {
+            const l = 2.5;
+            const ex = x + vx * l;
+            const ey = y - vy * l;
             ctx.strokeStyle = '#e74c3c';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(x, y);
-            ctx.lineTo(endX, endY);
+            ctx.lineTo(ex, ey);
             ctx.stroke();
             
-            // O'q uchi
-            const angle = Math.atan2(-(vy * arrowLength), vx * arrowLength);
-            const arrowHead = 10;
-            
+            const ang = Math.atan2(-(vy * l), vx * l);
+            const ah = 7;
             ctx.beginPath();
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - arrowHead * Math.cos(angle - Math.PI / 6), 
-                      endY + arrowHead * Math.sin(angle - Math.PI / 6));
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - arrowHead * Math.cos(angle + Math.PI / 6), 
-                      endY + arrowHead * Math.sin(angle + Math.PI / 6));
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - ah * Math.cos(ang - Math.PI / 6), ey + ah * Math.sin(ang - Math.PI / 6));
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - ah * Math.cos(ang + Math.PI / 6), ey + ah * Math.sin(ang + Math.PI / 6));
             ctx.stroke();
         }
         
-        function drawGraphAxes(ctx, canvas, title, yMin, yMax, xMax) {
-            const margin = 40;
-            const plotWidth = canvas.width - 2 * margin;
-            const plotHeight = canvas.height - 2 * margin;
+        function drawGAxes(ctx, cnv, yMin, yMax, xMax) {
+            const m = 35;
+            const pw = cnv.width - 2 * m;
+            const ph = cnv.height - 2 * m;
             
-            // Fon
             ctx.fillStyle = '#f8f9fa';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, cnv.width, cnv.height);
             
-            // Grid
             ctx.strokeStyle = '#e0e0e0';
             ctx.lineWidth = 1;
-            
-            // Vertikal grid chiziqlar
             for (let i = 0; i <= 5; i++) {
-                const x = margin + (i * plotWidth) / 5;
+                const x = m + i * pw / 5;
                 ctx.beginPath();
-                ctx.moveTo(x, margin);
-                ctx.lineTo(x, canvas.height - margin);
+                ctx.moveTo(x, m);
+                ctx.lineTo(x, cnv.height - m);
+                ctx.stroke();
+                
+                const y = m + i * ph / 5;
+                ctx.beginPath();
+                ctx.moveTo(m, y);
+                ctx.lineTo(cnv.width - m, y);
                 ctx.stroke();
             }
             
-            // Horizontal grid chiziqlar
-            for (let i = 0; i <= 5; i++) {
-                const y = margin + (i * plotHeight) / 5;
-                ctx.beginPath();
-                ctx.moveTo(margin, y);
-                ctx.lineTo(canvas.width - margin, y);
-                ctx.stroke();
-            }
-            
-            // Asosiy o'qlar
             ctx.strokeStyle = '#2c3e50';
             ctx.lineWidth = 2;
-            
-            // X o'qi
             ctx.beginPath();
-            ctx.moveTo(margin, canvas.height - margin);
-            ctx.lineTo(canvas.width - margin, canvas.height - margin);
+            ctx.moveTo(m, cnv.height - m);
+            ctx.lineTo(cnv.width - m, cnv.height - m);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(m, m);
+            ctx.lineTo(m, cnv.height - m);
             ctx.stroke();
             
-            // Y o'qi
-            ctx.beginPath();
-            ctx.moveTo(margin, margin);
-            ctx.lineTo(margin, canvas.height - margin);
-            ctx.stroke();
-            
-            // Y o'qi raqamlari
             ctx.fillStyle = '#2c3e50';
-            ctx.font = '12px Arial';
+            ctx.font = '10px Arial';
             ctx.textAlign = 'right';
-            
             for (let i = 0; i <= 5; i++) {
-                const y = canvas.height - margin - (i * plotHeight) / 5;
-                const value = yMin + (i * (yMax - yMin)) / 5;
-                ctx.fillText(value.toFixed(1), margin - 5, y + 4);
+                const y = cnv.height - m - i * ph / 5;
+                const v = yMin + i * (yMax - yMin) / 5;
+                ctx.fillText(v.toFixed(1), m - 3, y + 3);
             }
-            
-            // X o'qi raqamlari
-            ctx.textAlign = 'center';
-            for (let i = 0; i <= 5; i++) {
-                const x = margin + (i * plotWidth) / 5;
-                const value = (i * xMax) / 5;
-                ctx.fillText(value.toFixed(1), x, canvas.height - margin + 20);
-            }
-            
-            // Yorliqlar
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 14px Arial';
-            ctx.fillText('Vaqt (s)', canvas.width / 2, canvas.height - 5);
-            
-            ctx.save();
-            ctx.translate(15, canvas.height / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.fillText('Tezlik (m/s)', 0, 0);
-            ctx.restore();
         }
         
         function drawGraphs() {
-            const angle = parseFloat(angleSlider.value) * Math.PI / 180;
-            const v0 = parseFloat(velocitySlider.value);
-            const flightTime = (2 * v0 * Math.sin(angle)) / g;
+            const a = aSlider.value * Math.PI / 180;
+            const v0 = +vSlider.value;
+            const ft = 2 * v0 * Math.sin(a) / g;
             
-            // Vx grafigi
-            vxCtx.clearRect(0, 0, vxCanvas.width, vxCanvas.height);
+            vxCtx.clearRect(0, 0, vxC.width, vxC.height);
+            const vx0 = v0 * Math.cos(a);
+            drawGAxes(vxCtx, vxC, 0, vx0 * 1.2, ft);
             
-            const vx0 = v0 * Math.cos(angle);
-            drawGraphAxes(vxCtx, vxCanvas, 'Vx', 0, vx0 * 1.2, flightTime);
-            
-            if (vxData.length > 1) {
-                const margin = 40;
-                const plotWidth = vxCanvas.width - 2 * margin;
-                const plotHeight = vxCanvas.height - 2 * margin;
+            if (vxD.length > 1) {
+                const m = 35;
+                const pw = vxC.width - 2 * m;
+                const ph = vxC.height - 2 * m;
                 
                 vxCtx.strokeStyle = '#27ae60';
-                vxCtx.lineWidth = 3;
+                vxCtx.lineWidth = 2;
                 vxCtx.beginPath();
-                
-                for (let i = 0; i < vxData.length; i++) {
-                    const currentTime = i * 0.05;
-                    const x = margin + (currentTime / flightTime) * plotWidth;
-                    const y = vxCanvas.height - margin - (vxData[i] / (vx0 * 1.2)) * plotHeight;
-                    
-                    if (i === 0) {
-                        vxCtx.moveTo(x, y);
-                    } else {
-                        vxCtx.lineTo(x, y);
-                    }
-                }
+                vxD.forEach((v, i) => {
+                    const ct = i * 0.05;
+                    const x = m + (ct / ft) * pw;
+                    const y = vxC.height - m - (v / (vx0 * 1.2)) * ph;
+                    i === 0 ? vxCtx.moveTo(x, y) : vxCtx.lineTo(x, y);
+                });
                 vxCtx.stroke();
                 
-                // Joriy nuqta
-                const currentTime = (vxData.length - 1) * 0.05;
-                const currentX = margin + (currentTime / flightTime) * plotWidth;
-                const currentY = vxCanvas.height - margin - (vxData[vxData.length - 1] / (vx0 * 1.2)) * plotHeight;
-                
+                const ct = (vxD.length - 1) * 0.05;
+                const cx = m + (ct / ft) * pw;
+                const cy = vxC.height - m - (vxD[vxD.length - 1] / (vx0 * 1.2)) * ph;
                 vxCtx.fillStyle = '#e74c3c';
                 vxCtx.beginPath();
-                vxCtx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+                vxCtx.arc(cx, cy, 5, 0, 2 * Math.PI);
                 vxCtx.fill();
             }
             
-            // Vy grafigi
-            vyCtx.clearRect(0, 0, vyCanvas.width, vyCanvas.height);
+            vyCtx.clearRect(0, 0, vyC.width, vyC.height);
+            const vy0 = v0 * Math.sin(a);
+            drawGAxes(vyCtx, vyC, -vy0, vy0, ft);
             
-            const vy0 = v0 * Math.sin(angle);
-            const vyMin = -vy0;
-            const vyMax = vy0;
-            drawGraphAxes(vyCtx, vyCanvas, 'Vy', vyMin, vyMax, flightTime);
-            
-            if (vyData.length > 1) {
-                const margin = 40;
-                const plotWidth = vyCanvas.width - 2 * margin;
-                const plotHeight = vyCanvas.height - 2 * margin;
+            if (vyD.length > 1) {
+                const m = 35;
+                const pw = vyC.width - 2 * m;
+                const ph = vyC.height - 2 * m;
                 
                 vyCtx.strokeStyle = '#e74c3c';
-                vyCtx.lineWidth = 3;
+                vyCtx.lineWidth = 2;
                 vyCtx.beginPath();
-                
-                for (let i = 0; i < vyData.length; i++) {
-                    const currentTime = i * 0.05;
-                    const x = margin + (currentTime / flightTime) * plotWidth;
-                    const y = vyCanvas.height - margin - ((vyData[i] - vyMin) / (vyMax - vyMin)) * plotHeight;
-                    
-                    if (i === 0) {
-                        vyCtx.moveTo(x, y);
-                    } else {
-                        vyCtx.lineTo(x, y);
-                    }
-                }
+                vyD.forEach((v, i) => {
+                    const ct = i * 0.05;
+                    const x = m + (ct / ft) * pw;
+                    const y = vyC.height - m - ((v + vy0) / (2 * vy0)) * ph;
+                    i === 0 ? vyCtx.moveTo(x, y) : vyCtx.lineTo(x, y);
+                });
                 vyCtx.stroke();
                 
-                // Nol chizig'i
-                const zeroY = vyCanvas.height - margin - ((0 - vyMin) / (vyMax - vyMin)) * plotHeight;
+                const zy = vyC.height - m - (vy0 / (2 * vy0)) * ph;
                 vyCtx.strokeStyle = '#95a5a6';
-                vyCtx.lineWidth = 2;
-                vyCtx.setLineDash([5, 5]);
+                vyCtx.setLineDash([4, 4]);
                 vyCtx.beginPath();
-                vyCtx.moveTo(margin, zeroY);
-                vyCtx.lineTo(vyCanvas.width - margin, zeroY);
+                vyCtx.moveTo(m, zy);
+                vyCtx.lineTo(vyC.width - m, zy);
                 vyCtx.stroke();
                 vyCtx.setLineDash([]);
                 
-                // Joriy nuqta
-                const currentTime = (vyData.length - 1) * 0.05;
-                const currentX = margin + (currentTime / flightTime) * plotWidth;
-                const currentY = vyCanvas.height - margin - ((vyData[vyData.length - 1] - vyMin) / (vyMax - vyMin)) * plotHeight;
-                
+                const ct = (vyD.length - 1) * 0.05;
+                const cx = m + (ct / ft) * pw;
+                const cy = vyC.height - m - ((vyD[vyD.length - 1] + vy0) / (2 * vy0)) * ph;
                 vyCtx.fillStyle = '#27ae60';
                 vyCtx.beginPath();
-                vyCtx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+                vyCtx.arc(cx, cy, 5, 0, 2 * Math.PI);
                 vyCtx.fill();
             }
         }
         
         function animate() {
-            const angle = parseFloat(angleSlider.value) * Math.PI / 180;
-            const v0 = parseFloat(velocitySlider.value);
-            const k = airResistanceToggle.checked ? parseFloat(airResistanceInput.value) : 0;
+            const a = aSlider.value * Math.PI / 180;
+            const v0 = +vSlider.value;
+            const k = airToggle.checked ? 0.01 : 0;
             
             let vx, vy, x, y;
             
             if (k === 0) {
-                // Havo qarshiliksiz
-                vx = v0 * Math.cos(angle);
-                vy = v0 * Math.sin(angle) - g * t;
-                x = v0 * Math.cos(angle) * t;
-                y = v0 * Math.sin(angle) * t - 0.5 * g * t * t;
+                vx = v0 * Math.cos(a);
+                vy = v0 * Math.sin(a) - g * t;
+                x = v0 * Math.cos(a) * t;
+                y = v0 * Math.sin(a) * t - 0.5 * g * t * t;
             } else {
-                // Havo qarshiligi bilan (soddalashtirilgan)
                 const dt = 0.05;
-                if (trajectory.length === 0) {
-                    vx = v0 * Math.cos(angle);
-                    vy = v0 * Math.sin(angle);
+                if (traj.length === 0) {
+                    vx = v0 * Math.cos(a);
+                    vy = v0 * Math.sin(a);
                     x = 0;
                     y = 0;
                 } else {
-                    const lastPoint = trajectory[trajectory.length - 1];
-                    const lastVx = vxData[vxData.length - 1] || vx;
-                    const lastVy = vyData[vyData.length - 1] || vy;
-                    
-                    const speed = Math.sqrt(lastVx * lastVx + lastVy * lastVy);
-                    vx = lastVx - k * speed * lastVx * dt;
-                    vy = lastVy - g * dt - k * speed * lastVy * dt;
-                    
-                    x = lastPoint.realX + vx * dt;
-                    y = lastPoint.realY + vy * dt;
+                    const lp = traj[traj.length - 1];
+                    const lvx = vxD[vxD.length - 1];
+                    const lvy = vyD[vyD.length - 1];
+                    const spd = Math.sqrt(lvx * lvx + lvy * lvy);
+                    vx = lvx - k * spd * lvx * dt;
+                    vy = lvy - g * dt - k * spd * lvy * dt;
+                    x = lp.rx + vx * dt;
+                    y = lp.ry + vy * dt;
                 }
             }
             
-            // Koordinatalarni ekranga moslashtirish (koordinata tizimi bilan)
-            const screenX = offsetX + x * scale;
-            const screenY = canvas.height - offsetY - y * scale;
+            const sx = ox + x * scale;
+            const sy = c.height - oy - y * scale;
             
-            // Ma'lumotlarni saqlash
-            trajectory.push({x: screenX, y: screenY, realX: x, realY: y});
-            vxData.push(vx);
-            vyData.push(vy);
+            traj.push({x: sx, y: sy, rx: x, ry: y});
+            vxD.push(vx);
+            vyD.push(vy);
             
-            // Ekranni tozalash va chizish
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, c.width, c.height);
             drawGrid();
-            drawTrajectory();
+            drawTraj();
             
-            if (y >= 0 && screenX < canvas.width - offsetX) {
-                drawBall(screenX, screenY);
-                drawVelocityVector(screenX, screenY, vx, vy);
+            if (y >= 0 && sx < c.width - ox) {
+                drawBall(sx, sy);
+                drawVec(sx, sy, vx, vy);
                 
-                // Ma'lumotlarni yangilash
-                document.getElementById('currentTime').textContent = t.toFixed(2) + ' s';
-                const currentSpeed = Math.sqrt(vx * vx + vy * vy);
-                document.getElementById('currentVelocity').textContent = currentSpeed.toFixed(1) + ' m/s';
+                document.getElementById('currT').textContent = t.toFixed(2) + ' s';
+                const cs = Math.sqrt(vx * vx + vy * vy);
+                document.getElementById('currV').textContent = cs.toFixed(1) + ' m/s';
                 
                 drawGraphs();
                 
                 t += 0.05;
-                if (isRunning) {
-                    animationId = requestAnimationFrame(animate);
-                }
+                if (running) anim = requestAnimationFrame(animate);
             } else {
-                isRunning = false;
-                document.getElementById('currentTime').textContent = t.toFixed(2) + ' s (Tugatildi)';
+                running = false;
+                document.getElementById('currT').textContent = t.toFixed(2) + ' s (OK)';
             }
         }
         
-        function startSimulation() {
-            if (!isRunning) {
-                isRunning = true;
+        function start() {
+            if (!running) {
+                running = true;
                 animate();
             }
         }
         
-        function stopSimulation() {
-            isRunning = false;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+        function stop() {
+            running = false;
+            if (anim) cancelAnimationFrame(anim);
         }
         
-        function resetSimulation() {
-            stopSimulation();
+        function reset() {
+            stop();
             t = 0;
-            trajectory = [];
-            vxData = [];
-            vyData = [];
-            
-            // Yangi parametrlar uchun masshtabni qayta hisoblash
-            calculateParameters();
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            traj = [];
+            vxD = [];
+            vyD = [];
+            calc();
+            ctx.clearRect(0, 0, c.width, c.height);
             drawGrid();
-            
-            // Grafiklarni qayta chizish
             drawGraphs();
-            
-            document.getElementById('currentTime').textContent = '0 s';
-            document.getElementById('currentVelocity').textContent = '0 m/s';
+            document.getElementById('currT').textContent = '0 s';
+            document.getElementById('currV').textContent = '0 m/s';
         }
         
-        // Boshlang'ich sozlamalar
-        updateDisplay();
+        update();
         drawGrid();
-        drawGraphs(); // Boshlang'ich grafiklarni chizish
+        drawGraphs();
     </script>
 </body>
 </html>
