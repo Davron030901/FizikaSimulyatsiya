@@ -2,1537 +2,548 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markazga Intiluvchi Kuch Simulyatsiyasi</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Markazga Intiluvchi Kuch</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
-            line-height: 1.6;
             overflow-x: hidden;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 10px;
+            padding: 8px;
         }
 
         .header {
             text-align: center;
-            padding: 20px 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .header h1 {
-            color: white;
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            font-weight: 700;
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 4px;
         }
 
         .header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 300;
+            font-size: 0.75rem;
+            color: #666;
         }
 
-        .main-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .simulation-container {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .controls-sidebar {
-            width: 350px;
-            flex-shrink: 0;
-        }
-
-        .simulation-area {
+        .canvas-container {
             background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .canvas-wrapper {
-            position: relative;
-            background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            border: 2px solid #dee2e6;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 500px;
+        #canvas {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            background: radial-gradient(circle, #f8f9fa 0%, #e9ecef 100%);
+            touch-action: none;
         }
 
-        #simulationCanvas {
-            border: none;
-            border-radius: 15px;
-            touch-action: manipulation;
-            background: transparent;
-            cursor: grab;
-        }
-
-        #simulationCanvas:active {
-            cursor: grabbing;
-        }
-
-        .playback-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .controls-panel {
+        .controls {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .control-group {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(248, 249, 250, 0.8);
-            border-radius: 15px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        .control-group:hover {
-            background: rgba(248, 249, 250, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-group h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-
-        .control-group h3 .help-btn {
-            margin-left: 10px;
-            background: #007bff;
-            color: white;
+        .btn {
+            padding: 12px;
             border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
 
-        .control-group h3 .help-btn:hover {
-            background: #0056b3;
-            transform: scale(1.1);
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
         }
 
-        .slider-container {
-            margin-bottom: 20px;
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .slider-group {
+            margin-bottom: 12px;
         }
 
         .slider-label {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-            color: #6c757d;
-            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #495057;
         }
 
         .slider-value {
             background: #007bff;
             color: white;
-            padding: 4px 8px;
+            padding: 2px 8px;
             border-radius: 12px;
-            font-size: 0.85em;
+            font-size: 0.8rem;
             font-weight: 600;
-            min-width: 60px;
-            text-align: center;
         }
 
         .slider {
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
+            height: 6px;
+            border-radius: 3px;
             background: #ddd;
             outline: none;
             -webkit-appearance: none;
-            appearance: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
         }
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #007bff;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            background: #0056b3;
-            transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
         }
 
         .slider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #007bff;
-            cursor: pointer;
             border: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
-        }
-
-        .slider::-moz-range-thumb:hover {
-            background: #0056b3;
-            transform: scale(1.2);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
         }
 
         .data-display {
-            background: rgba(248, 249, 250, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
         }
 
         .data-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            font-size: 0.95em;
+            padding: 6px 0;
+            font-size: 0.8rem;
+            border-bottom: 1px solid #dee2e6;
         }
 
         .data-row:last-child {
             border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .data-label {
-            color: #495057;
-            font-weight: 500;
         }
 
         .data-value {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-            min-width: 80px;
-            text-align: center;
-        }
-
-        .formula-display {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .formula-display h3 {
-            color: #495057;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.3em;
+            padding: 2px 8px;
+            border-radius: 10px;
             font-weight: 600;
         }
 
-        .formula {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid #007bff;
-            font-size: 0.95em;
-            transition: all 0.3s ease;
-        }
-
-        .formula:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .preset-buttons {
+        .presets {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .preset-btn {
-            padding: 12px 16px;
+            padding: 8px;
             border: 2px solid #007bff;
             background: white;
             color: #007bff;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85em;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            cursor: pointer;
         }
 
-        .preset-btn:hover {
+        .preset-btn:active {
             background: #007bff;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
         }
 
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+        .toggles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 8px;
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 500;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-        }
-
-        .tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            max-width: 250px;
-            line-height: 1.4;
-        }
-
-        .tooltip.show {
-            opacity: 1;
-        }
-
-        .theory-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .theory-section h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            font-weight: 600;
-        }
-
-        .theory-content {
-            color: #6c757d;
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-
-        .keyboard-shortcuts {
-            background: rgba(248, 249, 250, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: #6c757d;
-        }
-
-        .keyboard-shortcuts h4 {
-            margin-bottom: 10px;
-            color: #495057;
-            font-size: 1em;
-        }
-
-        .shortcut-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .shortcut-key {
-            background: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.8em;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .main-layout {
-                flex-direction: column;
-            }
-            
-            .controls-sidebar {
-                width: 100%;
-                order: -1;
-            }
-            
-            .canvas-wrapper {
-                min-height: 400px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 5px;
-            }
-            
-            .header {
-                padding: 15px 0;
-            }
-            
-            .canvas-wrapper {
-                min-height: 350px;
-            }
-            
-            .playback-controls {
-                gap: 10px;
-            }
-            
-            .btn {
-                padding: 10px 20px;
-                font-size: 0.85em;
-            }
-            
-            .control-group {
-                padding: 15px;
-            }
-            
-            .preset-buttons {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                gap: 8px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .canvas-wrapper {
-                min-height: 300px;
-            }
-            
-            .playback-controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                min-width: 120px;
-                justify-content: center;
-            }
-            
-            .legend {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .active {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-
-        .bounce {
-            animation: bounce 1s ease-in-out;
-        }
-
-        /* Loading state */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Vector display styles */
-        .vector-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .vector-toggle {
-            padding: 6px 12px;
+        .toggle {
+            padding: 8px;
             border: 2px solid #28a745;
             background: white;
             color: #28a745;
             border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
 
-        .vector-toggle.active {
+        .toggle.active {
             background: #28a745;
             color: white;
         }
 
-        .vector-toggle:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        .formulas {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Export controls */
-        .export-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+        .formula {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            border-left: 3px solid #007bff;
         }
 
-        .export-btn {
-            padding: 8px 16px;
-            border: 2px solid #ffc107;
-            background: white;
-            color: #ffc107;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .export-btn:hover {
-            background: #ffc107;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        .formula:last-child {
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header fade-in">
-            <h1>🎯 Markazga Intiluvchi Kuch</h1>
-            <p>Doira bo'ylab tekis harakat va markazga intiluvchi kuch simulyatsiyasi</p>
+    <div class="header">
+        <h1>🎯 Markazga Intiluvchi Kuch</h1>
+        <p>Doira bo'ylab harakat simulyatsiyasi</p>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="btn-group">
+            <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">▶️ Boshlash</button>
+            <button class="btn btn-danger" onclick="reset()">🔄 Qayta</button>
         </div>
 
-        <div class="formula-display fade-in">
-            <h3>📐 Asosiy Formulalar</h3>
-            <div class="formula">
-                <strong>Markazga intiluvchi kuch:</strong> 
-                <span>$$F_c = \frac{mv^2}{r} = m\omega^2 r$$</span>
+        <div class="slider-group">
+            <div class="slider-label">
+                <span>Massa (m)</span>
+                <span class="slider-value"><span id="massVal">1.0</span> kg</span>
             </div>
-            <div class="formula">
-                <strong>Markazga intiluvchi tezlanish:</strong> 
-                <span>$$a_c = \frac{v^2}{r} = \omega^2 r$$</span>
+            <input type="range" class="slider" id="mass" min="0.1" max="10" step="0.1" value="1.0" oninput="updateParams()">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-label">
+                <span>Radius (r)</span>
+                <span class="slider-value"><span id="radiusVal">1.0</span> m</span>
             </div>
-            <div class="formula">
-                <strong>Burchak tezligi:</strong> 
-                <span>$$\omega = \frac{v}{r} = \frac{2\pi}{T}$$</span>
+            <input type="range" class="slider" id="radius" min="0.5" max="3" step="0.1" value="1.0" oninput="updateParams()">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-label">
+                <span>Tezlik (v)</span>
+                <span class="slider-value"><span id="velocityVal">2.0</span> m/s</span>
+            </div>
+            <input type="range" class="slider" id="velocity" min="0.5" max="15" step="0.1" value="2.0" oninput="updateParams()">
+        </div>
+
+        <div class="data-display">
+            <div class="data-row">
+                <span>Markazga intiluvchi kuch:</span>
+                <span class="data-value" id="force">4.0 N</span>
+            </div>
+            <div class="data-row">
+                <span>Tezlanish:</span>
+                <span class="data-value" id="accel">4.0 m/s²</span>
+            </div>
+            <div class="data-row">
+                <span>Burchak tezligi:</span>
+                <span class="data-value" id="omega">2.0 rad/s</span>
+            </div>
+            <div class="data-row">
+                <span>Davr:</span>
+                <span class="data-value" id="period">3.14 s</span>
             </div>
         </div>
 
-        <div class="main-layout">
-            <div class="simulation-container">
-                <div class="simulation-area fade-in">
-                    <div class="canvas-wrapper">
-                        <canvas id="simulationCanvas"></canvas>
-                    </div>
-                    
-                    <div class="playback-controls">
-                        <button class="btn btn-primary" id="playBtn">
-                            <span id="playIcon">▶️</span> Boshlash
-                        </button>
-                        <button class="btn btn-secondary" id="pauseBtn">
-                            ⏸️ Pauza
-                        </button>
-                        <button class="btn btn-danger" id="resetBtn">
-                            🔄 Qayta boshlash
-                        </button>
-                        <button class="btn btn-success" id="stepBtn">
-                            ⏭️ Qadam
-                        </button>
-                    </div>
-                    
-                    <div class="vector-controls">
-                        <div class="vector-toggle active" id="velocityToggle">Tezlik vektori</div>
-                        <div class="vector-toggle active" id="forceToggle">Kuch vektori</div>
-                        <div class="vector-toggle active" id="accelerationToggle">Tezlanish</div>
-                        <div class="vector-toggle active" id="trailToggle">Iz qoldirish</div>
-                    </div>
-                    
-                    <div class="export-controls">
-                        <button class="export-btn" id="screenshotBtn">📸 Rasm olish</button>
-                        <button class="export-btn" id="exportDataBtn">📊 Ma'lumot eksport</button>
-                    </div>
-                    
-                    <div class="legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #28a745;"></div>
-                            <span>Tezlik vektori (v)</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #dc3545;"></div>
-                            <span>Markazga intiluvchi kuch (Fc)</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #ffc107;"></div>
-                            <span>Tezlanish (ac)</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #007bff;"></div>
-                            <span>Harakat qilayotgan jism</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="presets">
+            <button class="preset-btn" onclick="setPreset('slow')">Sekin</button>
+            <button class="preset-btn" onclick="setPreset('fast')">Tez</button>
+            <button class="preset-btn" onclick="setPreset('heavy')">Og'ir</button>
+            <button class="preset-btn" onclick="setPreset('light')">Yengil</button>
+            <button class="preset-btn" onclick="setPreset('large')">Katta</button>
+            <button class="preset-btn" onclick="setPreset('small')">Kichik</button>
+        </div>
 
-            <div class="controls-sidebar">
-                <div class="controls-panel fade-in">
-                    <div class="control-group">
-                        <h3>
-                            ⚙️ Parametrlar
-                            <button class="help-btn" title="Simulyatsiya parametrlarini sozlash">?</button>
-                        </h3>
-                        
-                        <div class="slider-container">
-                            <div class="slider-label">
-                                <span>Massa (m)</span>
-                                <span class="slider-value"><span id="massValue">1.0</span> kg</span>
-                            </div>
-                            <input type="range" class="slider" id="massSlider" min="0.1" max="10.0" step="0.1" value="1.0">
-                        </div>
-
-                        <div class="slider-container">
-                            <div class="slider-label">
-                                <span>Radius (r)</span>
-                                <span class="slider-value"><span id="radiusValue">1.0</span> m</span>
-                            </div>
-                            <input type="range" class="slider" id="radiusSlider" min="0.5" max="3.0" step="0.1" value="1.0">
-                        </div>
-
-                        <div class="slider-container">
-                            <div class="slider-label">
-                                <span>Tezlik (v)</span>
-                                <span class="slider-value"><span id="velocityValue">2.0</span> m/s</span>
-                            </div>
-                            <input type="range" class="slider" id="velocitySlider" min="0.5" max="15.0" step="0.1" value="2.0">
-                        </div>
-
-                        <div class="slider-container">
-                            <div class="slider-label">
-                                <span>Simulyatsiya tezligi</span>
-                                <span class="slider-value"><span id="speedValue">1.0</span>x</span>
-                            </div>
-                            <input type="range" class="slider" id="speedSlider" min="0.1" max="5.0" step="0.1" value="1.0">
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <h3>
-                            📊 Joriy qiymatlar
-                            <button class="help-btn" title="Hisoblangan qiymatlar">?</button>
-                        </h3>
-                        <div class="data-display">
-                            <div class="data-row">
-                                <span class="data-label">Markazga intiluvchi kuch:</span>
-                                <span class="data-value" id="forceDisplay">4.0 N</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Markazga intiluvchi tezlanish:</span>
-                                <span class="data-value" id="accelerationDisplay">4.0 m/s²</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Burchak tezligi:</span>
-                                <span class="data-value" id="angularVelocityDisplay">2.0 rad/s</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Davr:</span>
-                                <span class="data-value" id="periodDisplay">3.14 s</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Chastota:</span>
-                                <span class="data-value" id="frequencyDisplay">0.32 Hz</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <h3>🎯 Preset holatlar</h3>
-                        <div class="preset-buttons">
-                            <button class="preset-btn" onclick="setPreset('slow')">Sekin harakat</button>
-                            <button class="preset-btn" onclick="setPreset('fast')">Tez harakat</button>
-                            <button class="preset-btn" onclick="setPreset('heavy')">Og'ir jism</button>
-                            <button class="preset-btn" onclick="setPreset('light')">Yengil jism</button>
-                            <button class="preset-btn" onclick="setPreset('large')">Katta radius</button>
-                            <button class="preset-btn" onclick="setPreset('small')">Kichik radius</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="theory-section fade-in">
-                    <h3>📚 Nazariy ma'lumotlar</h3>
-                    <div class="theory-content">
-                        <p><strong>Markazga intiluvchi kuch</strong> - bu jismni doira bo'ylab harakat qilishda markazga yo'nalgan kuch. Bu kuch jismning yo'nalishini doimiy ravishda o'zgartirib turadi.</p>
-                        
-                        <p><strong>Real hayot misollari:</strong></p>
-                        <ul>
-                            <li>Ip bilan bog'langan toshing aylanishi</li>
-                            <li>Planetalarning Quyosh atrofidagi harakati</li>
-                            <li>Avtomobilning burilishda yo'ldan chiqmaslik uchun kerak bo'lgan kuch</li>
-                            <li>Sentrifuga qurilmasidagi jismlarning harakati</li>
-                            <li>Yer atrofida aylanayotgan sun'iy yo'ldoshlar</li>
-                        </ul>
-                        
-                        <p><strong>Muhim xususiyatlar:</strong></p>
-                        <ul>
-                            <li>Markazga intiluvchi kuch har doim aylanish markaziga yo'nalgan</li>
-                            <li>Bu kuch tezlikning yo'nalishini o'zgartiradi, lekin kattaligini emas</li>
-                            <li>Kuch doira radiusi kamaysa ortadi, radius ko'paysa kamayadi</li>
-                            <li>Tezlik ortishi bilan kuch kvadratik ravishda ortadi</li>
-                        </ul>
-                        
-                        <div class="keyboard-shortcuts">
-                            <h4>⌨️ Klaviatura tugmalari</h4>
-                            <div class="shortcut-item">
-                                <span>Boshlash/To'xtatish:</span>
-                                <span class="shortcut-key">Space</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <span>Qayta boshlash:</span>
-                                <span class="shortcut-key">R</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <span>Tezlik oshirish:</span>
-                                <span class="shortcut-key">↑</span>
-                            </div>
-                            <div class="shortcut-item">
-                                <span>Tezlik kamaytirish:</span>
-                                <span class="shortcut-key">↓</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="toggles">
+            <button class="toggle active" id="velToggle" onclick="toggleVector('vel')">Tezlik</button>
+            <button class="toggle active" id="forceToggle" onclick="toggleVector('force')">Kuch</button>
+            <button class="toggle active" id="accelToggle" onclick="toggleVector('accel')">Tezlanish</button>
+            <button class="toggle active" id="trailToggle" onclick="toggleVector('trail')">Iz</button>
         </div>
     </div>
 
-    <div class="tooltip" id="tooltip"></div>
+    <div class="formulas">
+        <div class="formula">
+            <strong>Kuch:</strong> Fc = mv²/r = mω²r
+        </div>
+        <div class="formula">
+            <strong>Tezlanish:</strong> ac = v²/r = ω²r
+        </div>
+        <div class="formula">
+            <strong>Burchak tezligi:</strong> ω = v/r = 2π/T
+        </div>
+    </div>
 
     <script>
-        class CentripetalForceSimulation {
-            constructor() {
-                this.canvas = document.getElementById('simulationCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.isRunning = false;
-                this.animationId = null;
-                this.time = 0;
-                this.angle = 0;
-                this.trail = [];
-                this.maxTrailLength = 100;
-                
-                // Simulation parameters
-                this.mass = 1.0;
-                this.radius = 1.0;
-                this.velocity = 2.0;
-                this.speed = 1.0;
-                
-                // Display toggles
-                this.showVelocity = true;
-                this.showForce = true;
-                this.showAcceleration = true;
-                this.showTrail = true;
-                
-                // Canvas properties
-                this.centerX = 0;
-                this.centerY = 0;
-                this.scale = 120; // pixels per meter
-                
-                this.init();
-                this.setupEventListeners();
-                this.resizeCanvas();
-                this.updateCalculations();
-            }
-            
-            init() {
-                this.resizeCanvas();
-                this.updateCalculations();
-                this.render();
-            }
-            
-            resizeCanvas() {
-                const wrapper = this.canvas.parentElement;
-                const rect = wrapper.getBoundingClientRect();
-                
-                this.canvas.width = rect.width - 4;
-                this.canvas.height = rect.height - 4;
-                
-                this.centerX = this.canvas.width / 2;
-                this.centerY = this.canvas.height / 2;
-                
-                // Adjust scale based on canvas size
-                const maxRadius = Math.min(this.centerX, this.centerY) - 80;
-                this.scale = maxRadius / 2.5;
-            }
-            
-            setupEventListeners() {
-                // Control buttons
-                document.getElementById('playBtn').addEventListener('click', () => this.togglePlay());
-                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
-                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
-                document.getElementById('stepBtn').addEventListener('click', () => this.step());
-                
-                // Parameter sliders
-                document.getElementById('massSlider').addEventListener('input', (e) => {
-                    this.mass = parseFloat(e.target.value);
-                    document.getElementById('massValue').textContent = this.mass.toFixed(1);
-                    this.updateCalculations();
-                });
-                
-                document.getElementById('radiusSlider').addEventListener('input', (e) => {
-                    this.radius = parseFloat(e.target.value);
-                    document.getElementById('radiusValue').textContent = this.radius.toFixed(1);
-                    this.updateCalculations();
-                });
-                
-                document.getElementById('velocitySlider').addEventListener('input', (e) => {
-                    this.velocity = parseFloat(e.target.value);
-                    document.getElementById('velocityValue').textContent = this.velocity.toFixed(1);
-                    this.updateCalculations();
-                });
-                
-                document.getElementById('speedSlider').addEventListener('input', (e) => {
-                    this.speed = parseFloat(e.target.value);
-                    document.getElementById('speedValue').textContent = this.speed.toFixed(1);
-                });
-                
-                // Vector toggles
-                document.getElementById('velocityToggle').addEventListener('click', () => {
-                    this.showVelocity = !this.showVelocity;
-                    this.toggleButtonState('velocityToggle', this.showVelocity);
-                });
-                
-                document.getElementById('forceToggle').addEventListener('click', () => {
-                    this.showForce = !this.showForce;
-                    this.toggleButtonState('forceToggle', this.showForce);
-                });
-                
-                document.getElementById('accelerationToggle').addEventListener('click', () => {
-                    this.showAcceleration = !this.showAcceleration;
-                    this.toggleButtonState('accelerationToggle', this.showAcceleration);
-                });
-                
-                document.getElementById('trailToggle').addEventListener('click', () => {
-                    this.showTrail = !this.showTrail;
-                    this.toggleButtonState('trailToggle', this.showTrail);
-                    if (!this.showTrail) {
-                        this.trail = [];
-                    }
-                });
-                
-                // Export controls
-                document.getElementById('screenshotBtn').addEventListener('click', () => this.exportScreenshot());
-                document.getElementById('exportDataBtn').addEventListener('click', () => this.exportData());
-                
-                // Keyboard controls
-                document.addEventListener('keydown', (e) => {
-                    switch(e.key) {
-                        case ' ':
-                            e.preventDefault();
-                            this.togglePlay();
-                            break;
-                        case 'r':
-                        case 'R':
-                            this.reset();
-                            break;
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            this.adjustVelocity(0.1);
-                            break;
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            this.adjustVelocity(-0.1);
-                            break;
-                    }
-                });
-                
-                // Window resize
-                window.addEventListener('resize', () => {
-                    this.resizeCanvas();
-                    this.render();
-                });
-                
-                // Touch support
-                this.setupTouchControls();
-            }
-            
-            setupTouchControls() {
-                let touchStartX = 0;
-                let touchStartY = 0;
-                
-                this.canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    touchStartX = touch.clientX;
-                    touchStartY = touch.clientY;
-                });
-                
-                this.canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const deltaX = touch.clientX - touchStartX;
-                    const deltaY = touch.clientY - touchStartY;
-                    
-                    // Horizontal swipe to change velocity
-                    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-                        const velocityChange = deltaX > 0 ? 0.5 : -0.5;
-                        this.adjustVelocity(velocityChange);
-                        touchStartX = touch.clientX;
-                    }
-                    
-                    // Vertical swipe to change radius
-                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
-                        const radiusChange = deltaY > 0 ? -0.1 : 0.1;
-                        this.adjustRadius(radiusChange);
-                        touchStartY = touch.clientY;
-                    }
-                });
-            }
-            
-            toggleButtonState(id, isActive) {
-                const button = document.getElementById(id);
-                if (isActive) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            }
-            
-            adjustVelocity(delta) {
-                const slider = document.getElementById('velocitySlider');
-                const newValue = Math.max(
-                    parseFloat(slider.min),
-                    Math.min(parseFloat(slider.max), this.velocity + delta)
-                );
-                slider.value = newValue;
-                this.velocity = newValue;
-                document.getElementById('velocityValue').textContent = this.velocity.toFixed(1);
-                this.updateCalculations();
-            }
-            
-            adjustRadius(delta) {
-                const slider = document.getElementById('radiusSlider');
-                const newValue = Math.max(
-                    parseFloat(slider.min),
-                    Math.min(parseFloat(slider.max), this.radius + delta)
-                );
-                slider.value = newValue;
-                this.radius = newValue;
-                document.getElementById('radiusValue').textContent = this.radius.toFixed(1);
-                this.updateCalculations();
-            }
-            
-            updateCalculations() {
-                // Calculate derived values
-                const angularVelocity = this.velocity / this.radius;
-                const centripetalAcceleration = (this.velocity * this.velocity) / this.radius;
-                const centripetalForce = this.mass * centripetalAcceleration;
-                const period = (2 * Math.PI) / angularVelocity;
-                const frequency = 1 / period;
-                
-                // Update display
-                document.getElementById('forceDisplay').textContent = centripetalForce.toFixed(2) + ' N';
-                document.getElementById('accelerationDisplay').textContent = centripetalAcceleration.toFixed(2) + ' m/s²';
-                document.getElementById('angularVelocityDisplay').textContent = angularVelocity.toFixed(2) + ' rad/s';
-                document.getElementById('periodDisplay').textContent = period.toFixed(2) + ' s';
-                document.getElementById('frequencyDisplay').textContent = frequency.toFixed(2) + ' Hz';
-                
-                if (!this.isRunning) {
-                    this.render();
-                }
-            }
-            
-            togglePlay() {
-                if (this.isRunning) {
-                    this.pause();
-                } else {
-                    this.play();
-                }
-            }
-            
-            play() {
-                this.isRunning = true;
-                document.getElementById('playIcon').textContent = '⏸️';
-                document.querySelector('#playBtn span:last-child').textContent = 'To\'xtatish';
-                this.animate();
-            }
-            
-            pause() {
-                this.isRunning = false;
-                document.getElementById('playIcon').textContent = '▶️';
-                document.querySelector('#playBtn span:last-child').textContent = 'Boshlash';
-                if (this.animationId) {
-                    cancelAnimationFrame(this.animationId);
-                }
-            }
-            
-            reset() {
-                this.pause();
-                this.time = 0;
-                this.angle = 0;
-                this.trail = [];
-                this.render();
-            }
-            
-            step() {
-                if (!this.isRunning) {
-                    this.updatePosition(0.016); // 16ms step
-                    this.render();
-                }
-            }
-            
-            animate() {
-                if (!this.isRunning) return;
-                
-                this.updatePosition(0.016 * this.speed);
-                this.render();
-                
-                this.animationId = requestAnimationFrame(() => this.animate());
-            }
-            
-            updatePosition(deltaTime) {
-                const angularVelocity = this.velocity / this.radius;
-                this.angle += angularVelocity * deltaTime;
-                this.time += deltaTime;
-                
-                // Add to trail
-                if (this.showTrail) {
-                    const x = this.centerX + this.radius * this.scale * Math.cos(this.angle);
-                    const y = this.centerY + this.radius * this.scale * Math.sin(this.angle);
-                    
-                    this.trail.push({ x, y, alpha: 1.0 });
-                    
-                    // Fade trail points
-                    this.trail.forEach((point, index) => {
-                        point.alpha = Math.max(0, point.alpha - 0.02);
-                    });
-                    
-                    // Remove old trail points
-                    this.trail = this.trail.filter(point => point.alpha > 0);
-                    
-                    if (this.trail.length > this.maxTrailLength) {
-                        this.trail.shift();
-                    }
-                }
-            }
-            
-            render() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // Draw coordinate system
-                this.drawCoordinateSystem();
-                
-                // Draw circular path
-                this.drawCircularPath();
-                
-                // Draw trail
-                if (this.showTrail) {
-                    this.drawTrail();
-                }
-                
-                // Calculate object position
-                const objectX = this.centerX + this.radius * this.scale * Math.cos(this.angle);
-                const objectY = this.centerY + this.radius * this.scale * Math.sin(this.angle);
-                
-                // Draw vectors
-                if (this.showVelocity) {
-                    this.drawVelocityVector(objectX, objectY);
-                }
-                
-                if (this.showForce) {
-                    this.drawForceVector(objectX, objectY);
-                }
-                
-                if (this.showAcceleration) {
-                    this.drawAccelerationVector(objectX, objectY);
-                }
-                
-                // Draw object
-                this.drawObject(objectX, objectY);
-                
-                // Draw center point
-                this.drawCenter();
-                
-                // Draw radius line
-                this.drawRadiusLine(objectX, objectY);
-                
-                // Draw labels
-                this.drawLabels();
-            }
-            
-            drawCoordinateSystem() {
-                this.ctx.strokeStyle = '#e9ecef';
-                this.ctx.lineWidth = 1;
-                this.ctx.setLineDash([5, 5]);
-                
-                // Grid lines
-                const gridSpacing = this.scale;
-                for (let x = gridSpacing; x < this.canvas.width; x += gridSpacing) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(x, 0);
-                    this.ctx.lineTo(x, this.canvas.height);
-                    this.ctx.stroke();
-                }
-                
-                for (let y = gridSpacing; y < this.canvas.height; y += gridSpacing) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(0, y);
-                    this.ctx.lineTo(this.canvas.width, y);
-                    this.ctx.stroke();
-                }
-                
-                this.ctx.setLineDash([]);
-            }
-            
-            drawCircularPath() {
-                this.ctx.strokeStyle = '#dee2e6';
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.arc(this.centerX, this.centerY, this.radius * this.scale, 0, 2 * Math.PI);
-                this.ctx.stroke();
-            }
-            
-            drawTrail() {
-                this.trail.forEach((point, index) => {
-                    this.ctx.fillStyle = `rgba(0, 123, 255, ${point.alpha * 0.5})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
-                    this.ctx.fill();
-                });
-            }
-            
-            drawObject(x, y) {
-                // Object shadow
-                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-                this.ctx.beginPath();
-                this.ctx.arc(x + 3, y + 3, 15, 0, 2 * Math.PI);
-                this.ctx.fill();
-                
-                // Object
-                this.ctx.fillStyle = '#007bff';
-                this.ctx.strokeStyle = '#0056b3';
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, 15, 0, 2 * Math.PI);
-                this.ctx.fill();
-                this.ctx.stroke();
-                
-                // Mass label
-                this.ctx.fillStyle = '#000';
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.textAlign = 'center';
-                this.ctx.fillText(`${this.mass.toFixed(1)}kg`, x, y - 25);
-            }
-            
-            drawCenter() {
-                this.ctx.fillStyle = '#dc3545';
-                this.ctx.beginPath();
-                this.ctx.arc(this.centerX, this.centerY, 8, 0, 2 * Math.PI);
-                this.ctx.fill();
-                
-                this.ctx.strokeStyle = '#dc3545';
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.centerX - 15, this.centerY);
-                this.ctx.lineTo(this.centerX + 15, this.centerY);
-                this.ctx.moveTo(this.centerX, this.centerY - 15);
-                this.ctx.lineTo(this.centerX, this.centerY + 15);
-                this.ctx.stroke();
-            }
-            
-            drawRadiusLine(objectX, objectY) {
-                this.ctx.strokeStyle = '#6c757d';
-                this.ctx.lineWidth = 2;
-                this.ctx.setLineDash([5, 5]);
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.centerX, this.centerY);
-                this.ctx.lineTo(objectX, objectY);
-                this.ctx.stroke();
-                this.ctx.setLineDash([]);
-                
-                // Radius label
-                const midX = (this.centerX + objectX) / 2;
-                const midY = (this.centerY + objectY) / 2;
-                this.ctx.fillStyle = '#495057';
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.textAlign = 'center';
-                this.ctx.fillText(`r = ${this.radius.toFixed(1)}m`, midX, midY - 8);
-            }
-            
-            drawVelocityVector(x, y) {
-                const length = 60;
-                const angle = this.angle + Math.PI / 2; // Tangent to circle
-                const endX = x + length * Math.cos(angle);
-                const endY = y + length * Math.sin(angle);
-                
-                this.drawArrow(x, y, endX, endY, '#28a745', 4);
-                
-                // Label
-                this.ctx.fillStyle = '#28a745';
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.textAlign = 'left';
-                this.ctx.fillText(`v = ${this.velocity.toFixed(1)}m/s`, endX + 5, endY);
-            }
-            
-            drawForceVector(x, y) {
-                const length = 70;
-                const forceAngle = this.angle + Math.PI; // Towards center
-                const endX = x + length * Math.cos(forceAngle);
-                const endY = y + length * Math.sin(forceAngle);
-                
-                this.drawArrow(x, y, endX, endY, '#dc3545', 5);
-                
-                // Label
-                const force = this.mass * (this.velocity * this.velocity) / this.radius;
-                this.ctx.fillStyle = '#dc3545';
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.textAlign = 'left';
-                this.ctx.fillText(`Fc = ${force.toFixed(1)}N`, endX + 5, endY);
-            }
-            
-            drawAccelerationVector(x, y) {
-                const length = 50;
-                const accelAngle = this.angle + Math.PI; // Towards center
-                const endX = x + length * Math.cos(accelAngle);
-                const endY = y + length * Math.sin(accelAngle);
-                
-                this.drawArrow(x, y, endX, endY, '#ffc107', 4);
-                
-                // Label
-                const acceleration = (this.velocity * this.velocity) / this.radius;
-                this.ctx.fillStyle = '#ffc107';
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.textAlign = 'left';
-                this.ctx.fillText(`ac = ${acceleration.toFixed(1)}m/s²`, endX + 5, endY - 15);
-            }
-            
-            drawArrow(fromX, fromY, toX, toY, color, lineWidth) {
-                const headLength = 12;
-                const angle = Math.atan2(toY - fromY, toX - fromX);
-                
-                this.ctx.strokeStyle = color;
-                this.ctx.fillStyle = color;
-                this.ctx.lineWidth = lineWidth;
-                
-                // Arrow line
-                this.ctx.beginPath();
-                this.ctx.moveTo(fromX, fromY);
-                this.ctx.lineTo(toX, toY);
-                this.ctx.stroke();
-                
-                // Arrow head
-                this.ctx.beginPath();
-                this.ctx.moveTo(toX, toY);
-                this.ctx.lineTo(
-                    toX - headLength * Math.cos(angle - Math.PI / 6),
-                    toY - headLength * Math.sin(angle - Math.PI / 6)
-                );
-                this.ctx.lineTo(
-                    toX - headLength * Math.cos(angle + Math.PI / 6),
-                    toY - headLength * Math.sin(angle + Math.PI / 6)
-                );
-                this.ctx.closePath();
-                this.ctx.fill();
-            }
-            
-            drawLabels() {
-                this.ctx.fillStyle = '#495057';
-                this.ctx.font = '14px Arial';
-                this.ctx.textAlign = 'left';
-                
-                // Time display
-                this.ctx.fillText(`Vaqt: ${this.time.toFixed(1)}s`, 10, 25);
-                
-                // Angle display
-                const degrees = (this.angle * 180 / Math.PI) % 360;
-                this.ctx.fillText(`Burchak: ${degrees.toFixed(1)}°`, 10, 45);
-            }
-            
-            exportScreenshot() {
-                const link = document.createElement('a');
-                link.download = 'centripetal-force-simulation.png';
-                link.href = this.canvas.toDataURL();
-                link.click();
-            }
-            
-            exportData() {
-                const data = {
-                    timestamp: new Date().toISOString(),
-                    parameters: {
-                        mass: this.mass,
-                        radius: this.radius,
-                        velocity: this.velocity
-                    },
-                    calculated: {
-                        centripetalForce: this.mass * (this.velocity * this.velocity) / this.radius,
-                        centripetalAcceleration: (this.velocity * this.velocity) / this.radius,
-                        angularVelocity: this.velocity / this.radius,
-                        period: (2 * Math.PI * this.radius) / this.velocity,
-                        frequency: this.velocity / (2 * Math.PI * this.radius)
-                    }
-                };
-                
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.download = 'centripetal-force-data.json';
-                link.href = URL.createObjectURL(blob);
-                link.click();
-            }
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let running = false;
+        let angle = 0;
+        let trail = [];
+        let show = { vel: true, force: true, accel: true, trail: true };
+        
+        let m = 1.0, r = 1.0, v = 2.0;
+        
+        function resize() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            draw();
         }
         
-        // Preset configurations
-        function setPreset(preset) {
-            const simulation = window.simulation;
+        function updateParams() {
+            m = parseFloat(document.getElementById('mass').value);
+            r = parseFloat(document.getElementById('radius').value);
+            v = parseFloat(document.getElementById('velocity').value);
             
-            switch(preset) {
-                case 'slow':
-                    updateSlider('velocitySlider', 1.0);
-                    updateSlider('radiusSlider', 2.0);
-                    updateSlider('massSlider', 1.0);
-                    break;
-                case 'fast':
-                    updateSlider('velocitySlider', 8.0);
-                    updateSlider('radiusSlider', 1.5);
-                    updateSlider('massSlider', 1.0);
-                    break;
-                case 'heavy':
-                    updateSlider('massSlider', 8.0);
-                    updateSlider('velocitySlider', 3.0);
-                    updateSlider('radiusSlider', 1.5);
-                    break;
-                case 'light':
-                    updateSlider('massSlider', 0.2);
-                    updateSlider('velocitySlider', 5.0);
-                    updateSlider('radiusSlider', 1.0);
-                    break;
-                case 'large':
-                    updateSlider('radiusSlider', 2.8);
-                    updateSlider('velocitySlider', 4.0);
-                    updateSlider('massSlider', 2.0);
-                    break;
-                case 'small':
-                    updateSlider('radiusSlider', 0.6);
-                    updateSlider('velocitySlider', 6.0);
-                    updateSlider('massSlider', 1.5);
-                    break;
-            }
+            document.getElementById('massVal').textContent = m.toFixed(1);
+            document.getElementById('radiusVal').textContent = r.toFixed(1);
+            document.getElementById('velocityVal').textContent = v.toFixed(1);
+            
+            const Fc = m * v * v / r;
+            const ac = v * v / r;
+            const omega = v / r;
+            const T = 2 * Math.PI / omega;
+            
+            document.getElementById('force').textContent = Fc.toFixed(2) + ' N';
+            document.getElementById('accel').textContent = ac.toFixed(2) + ' m/s²';
+            document.getElementById('omega').textContent = omega.toFixed(2) + ' rad/s';
+            document.getElementById('period').textContent = T.toFixed(2) + ' s';
+            
+            if (!running) draw();
         }
         
-        function updateSlider(sliderId, value) {
-            const slider = document.getElementById(sliderId);
-            slider.value = value;
-            slider.dispatchEvent(new Event('input'));
+        function togglePlay() {
+            running = !running;
+            const btn = document.getElementById('playBtn');
+            btn.innerHTML = running ? '⏸️ Pauza' : '▶️ Boshlash';
+            if (running) animate();
         }
         
-        // Tooltip functionality
-        document.querySelectorAll('.help-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', (e) => {
-                const tooltip = document.getElementById('tooltip');
-                tooltip.textContent = e.target.title;
-                tooltip.classList.add('show');
-                
-                const rect = e.target.getBoundingClientRect();
-                tooltip.style.left = rect.left + 'px';
-                tooltip.style.top = (rect.bottom + 5) + 'px';
-            });
-            
-            btn.addEventListener('mouseleave', () => {
-                document.getElementById('tooltip').classList.remove('show');
-            });
-        });
-        
-        // Initialize simulation when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            window.simulation = new CentripetalForceSimulation();
-            
-            // Initialize MathJax
-            if (window.MathJax) {
-                MathJax.typesetPromise();
-            }
-        });
-        
-        // Add haptic feedback for mobile
-        function addHapticFeedback() {
-            if ('vibrate' in navigator) {
-                navigator.vibrate(50);
-            }
+        function reset() {
+            running = false;
+            angle = 0;
+            trail = [];
+            document.getElementById('playBtn').innerHTML = '▶️ Boshlash';
+            draw();
         }
         
-        // Add haptic feedback to buttons
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.btn, .preset-btn, .vector-toggle').forEach(btn => {
-                btn.addEventListener('click', addHapticFeedback);
-            });
-        });
+        function toggleVector(type) {
+            show[type] = !show[type];
+            const toggle = document.getElementById(type + 'Toggle');
+            toggle.classList.toggle('active');
+            if (type === 'trail' && !show.trail) trail = [];
+            if (!running) draw();
+        }
+        
+        function setPreset(type) {
+            const presets = {
+                slow: [1.0, 2.0, 1.0],
+                fast: [1.0, 1.5, 8.0],
+                heavy: [8.0, 1.5, 3.0],
+                light: [0.2, 1.0, 5.0],
+                large: [2.0, 2.8, 4.0],
+                small: [1.5, 0.6, 6.0]
+            };
+            
+            const [mass, rad, vel] = presets[type];
+            document.getElementById('mass').value = mass;
+            document.getElementById('radius').value = rad;
+            document.getElementById('velocity').value = vel;
+            updateParams();
+        }
+        
+        function animate() {
+            if (!running) return;
+            
+            const omega = v / r;
+            angle += omega * 0.02;
+            
+            if (show.trail) {
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const scale = Math.min(canvas.width, canvas.height) / 6;
+                const x = cx + r * scale * Math.cos(angle);
+                const y = cy + r * scale * Math.sin(angle);
+                trail.push({ x, y, alpha: 1 });
+                trail = trail.slice(-50).map(p => ({ ...p, alpha: p.alpha - 0.02 })).filter(p => p.alpha > 0);
+            }
+            
+            draw();
+            requestAnimationFrame(animate);
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const scale = Math.min(canvas.width, canvas.height) / 6;
+            const R = r * scale;
+            
+            // Grid
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            for (let i = scale; i < canvas.width; i += scale) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = scale; i < canvas.height; i += scale) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // Circle path
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Trail
+            if (show.trail) {
+                trail.forEach(p => {
+                    ctx.fillStyle = `rgba(0,123,255,${p.alpha * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+            }
+            
+            const x = cx + R * Math.cos(angle);
+            const y = cy + R * Math.sin(angle);
+            
+            // Radius line
+            ctx.strokeStyle = '#6c757d';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Center
+            ctx.fillStyle = '#dc3545';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Vectors
+            if (show.vel) {
+                const vAngle = angle + Math.PI / 2;
+                drawArrow(x, y, x + 40 * Math.cos(vAngle), y + 40 * Math.sin(vAngle), '#28a745', 3);
+            }
+            
+            if (show.force) {
+                const fAngle = angle + Math.PI;
+                drawArrow(x, y, x + 50 * Math.cos(fAngle), y + 50 * Math.sin(fAngle), '#dc3545', 4);
+            }
+            
+            if (show.accel) {
+                const aAngle = angle + Math.PI;
+                drawArrow(x, y, x + 35 * Math.cos(aAngle), y + 35 * Math.sin(aAngle), '#ffc107', 3);
+            }
+            
+            // Object
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.beginPath();
+            ctx.arc(x + 2, y + 2, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#007bff';
+            ctx.strokeStyle = '#0056b3';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+        }
+        
+        function drawArrow(x1, y1, x2, y2, color, width) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLen = 8;
+            
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+        updateParams();
     </script>
 </body>
 </html>
