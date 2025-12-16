@@ -2,185 +2,134 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Qisman Elastik To'qnashish Simulyatsiyasi</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>To'qnashish Simulyatsiyasi</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-            padding: 10px;
+            padding: 8px;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100%;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-
-        .simulation-area {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid #e9ecef;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
 
         #canvas {
             width: 100%;
-            height: 400px;
+            height: 250px;
             border: 2px solid #3498db;
-            border-radius: 10px;
+            border-radius: 8px;
             background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        #canvas:hover {
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+            display: block;
+            touch-action: none;
         }
 
         .controls {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            height: fit-content;
+            margin-top: 15px;
         }
 
         .control-group {
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
             background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
         }
 
         .control-group h3 {
             color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
 
-        .slider-container {
-            margin-bottom: 15px;
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .slider-container label {
-            display: block;
-            margin-bottom: 5px;
+        .slider-row label {
+            min-width: 80px;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #34495e;
         }
 
         .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
             background: #ddd;
             outline: none;
             -webkit-appearance: none;
-            appearance: none;
-            transition: all 0.3s ease;
         }
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: #3498db;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            background: #2980b9;
-            transform: scale(1.1);
         }
 
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: #3498db;
             cursor: pointer;
             border: none;
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
         }
 
         .value-display {
-            display: inline-block;
+            min-width: 45px;
+            text-align: center;
             background: #3498db;
             color: white;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            margin-left: 10px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
         }
 
         .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
             margin-top: 10px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            touch-action: manipulation;
         }
 
         .btn-primary {
@@ -188,19 +137,9 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #27ae60;
+        .btn-secondary {
+            background: #95a5a6;
             color: white;
-        }
-
-        .btn-success:hover {
-            background: #219a52;
-            transform: translateY(-2px);
         }
 
         .btn-danger {
@@ -208,87 +147,26 @@
             color: white;
         }
 
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
-            transform: translateY(-2px);
-        }
-
-        .info-display {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .info-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
-            transition: all 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-card h4 {
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .info-card .value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-
-        .formula-display {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            text-align: center;
-            font-size: 1.1rem;
+        .btn:active {
+            transform: scale(0.95);
         }
 
         .collision-types {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .collision-type {
             background: #ecf0f1;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 0.8rem;
             border: 2px solid transparent;
+            transition: all 0.2s;
         }
 
         .collision-type.active {
@@ -297,28 +175,37 @@
             border-color: #2980b9;
         }
 
-        .collision-type:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        .info-display {
+            margin-top: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
         }
 
-        .trail {
-            opacity: 0.5;
-            transition: opacity 0.3s ease;
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
-        @media (max-width: 480px) {
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+        .info-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+        }
+
+        .info-card h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+
+        .info-card .value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #3498db;
         }
 
         .energy-bar {
@@ -327,14 +214,14 @@
             background: #ecf0f1;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 10px;
             position: relative;
+            margin-top: 10px;
         }
 
         .energy-fill {
             height: 100%;
             background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
-            transition: width 0.5s ease;
+            transition: width 0.3s;
             border-radius: 10px;
         }
 
@@ -344,337 +231,161 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
         .legend {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 10px;
             flex-wrap: wrap;
+            font-size: 0.8rem;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: #f8f9fa;
-            padding: 5px 10px;
-            border-radius: 15px;
+            gap: 5px;
         }
 
         .legend-color {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
         }
 
-        .help-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .help-toggle:hover {
-            background: #2980b9;
-            transform: scale(1.1);
-        }
-
-        .help-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .help-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            margin: 20px;
-        }
-
-        .help-content h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .help-content ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .close-help {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .data-export {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #27ae60;
-        }
-
-        .data-export h4 {
-            margin-bottom: 10px;
-            color: #27ae60;
-        }
-
-        .export-buttons {
+        .status-bar {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-export {
-            background: #27ae60;
+            justify-content: space-between;
+            padding: 8px;
+            background: #2c3e50;
             color: white;
-            border: none;
-            padding: 8px 16px;
             border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-export:hover {
-            background: #219a52;
-            transform: translateY(-1px);
-        }
-
-        .collision-counter {
-            background: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .momentum-display {
-            background: #d1ecf1;
-            color: #0c5460;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .momentum-display h4 {
             margin-bottom: 10px;
-            color: #0c5460;
+            font-size: 0.85rem;
         }
 
-        .preset-scenarios {
-            margin-top: 15px;
+        .scenarios {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .scenario-btn {
             background: #6f42c1;
             color: white;
             border: none;
-            padding: 8px 12px;
-            margin: 3px;
+            padding: 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
+            font-size: 0.75rem;
+            transition: all 0.2s;
         }
 
-        .scenario-btn:hover {
-            background: #5a359a;
-            transform: translateY(-1px);
+        .scenario-btn:active {
+            transform: scale(0.95);
         }
 
-        .time-display {
-            background: #e2e3e5;
-            color: #383d41;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-        }
-
-        .graph-container {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .mini-graph {
-            width: 100%;
-            height: 200px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        .tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .tooltip.visible {
-            opacity: 1;
-        }
-
-        .step-controls {
-            margin-top: 10px;
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .step-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .step-btn:hover {
-            background: #5a6268;
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.1rem;
+            }
+            
+            .slider-row label {
+                min-width: 70px;
+                font-size: 0.75rem;
+            }
+            
+            .value-display {
+                min-width: 40px;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔮 Qisman Elastik To'qnashish Simulyatsiyasi</h1>
+        <h1>🔮 To'qnashish Simulyatsiyasi</h1>
         
-        <div class="main-content">
-            <div class="simulation-area">
-                <canvas id="canvas"></canvas>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #e74c3c;"></div>
-                        <span>Jism 1</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #3498db;"></div>
-                        <span>Jism 2</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #27ae60;"></div>
-                        <span>Tezlik vektori</span>
-                    </div>
+        <canvas id="canvas"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Jism 1</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>Jism 2</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="status-bar">
+                <span id="timeDisplay">Vaqt: 0.0s</span>
+                <span id="collisionCounter">To'qnashish: 0</span>
+            </div>
+
+            <div class="control-group">
+                <h3>⚡ Koeffitsient (e)</h3>
+                <div class="slider-row">
+                    <label>e:</label>
+                    <input type="range" class="slider" id="eSlider" min="0.1" max="1" step="0.1" value="0.8">
+                    <span class="value-display" id="eValue">0.8</span>
+                </div>
+                <div class="collision-types">
+                    <div class="collision-type" data-e="1.0">Elastik (1.0)</div>
+                    <div class="collision-type active" data-e="0.8">Qisman (0.8)</div>
+                    <div class="collision-type" data-e="0.5">O'rtacha (0.5)</div>
+                    <div class="collision-type" data-e="0.2">Kuchsiz (0.2)</div>
                 </div>
             </div>
 
-            <div class="controls">
-                <div class="control-group">
-                    <h3>⚡ Restitution koeffitsienti (e)</h3>
-                    <div class="slider-container">
-                        <label>e = <span class="value-display" id="eValue">0.8</span></label>
-                        <input type="range" class="slider" id="eSlider" min="0.1" max="1" step="0.1" value="0.8">
-                    </div>
-                    <div class="collision-types">
-                        <div class="collision-type active" data-e="1.0">Elastik (e=1)</div>
-                        <div class="collision-type" data-e="0.8">Qisman (e=0.8)</div>
-                        <div class="collision-type" data-e="0.5">O'rtacha (e=0.5)</div>
-                        <div class="collision-type" data-e="0.2">Kuchsiz (e=0.2)</div>
-                    </div>
+            <div class="control-group">
+                <h3>🎯 Jism 1</h3>
+                <div class="slider-row">
+                    <label>Massa (kg):</label>
+                    <input type="range" class="slider" id="m1Slider" min="1" max="10" step="0.5" value="2">
+                    <span class="value-display" id="m1Value">2</span>
                 </div>
+                <div class="slider-row">
+                    <label>Tezlik (m/s):</label>
+                    <input type="range" class="slider" id="v1Slider" min="-10" max="10" step="0.5" value="5">
+                    <span class="value-display" id="v1Value">5</span>
+                </div>
+            </div>
 
-                <div class="control-group">
-                    <h3>🎯 Jism 1 parametrlari</h3>
-                    <div class="slider-container">
-                        <label>Massa (kg): <span class="value-display" id="m1Value">2</span></label>
-                        <input type="range" class="slider" id="m1Slider" min="1" max="10" step="0.5" value="2">
-                    </div>
-                    <div class="slider-container">
-                        <label>Tezlik (m/s): <span class="value-display" id="v1Value">5</span></label>
-                        <input type="range" class="slider" id="v1Slider" min="-10" max="10" step="0.5" value="5">
-                    </div>
+            <div class="control-group">
+                <h3>🎯 Jism 2</h3>
+                <div class="slider-row">
+                    <label>Massa (kg):</label>
+                    <input type="range" class="slider" id="m2Slider" min="1" max="10" step="0.5" value="3">
+                    <span class="value-display" id="m2Value">3</span>
                 </div>
+                <div class="slider-row">
+                    <label>Tezlik (m/s):</label>
+                    <input type="range" class="slider" id="v2Slider" min="-10" max="10" step="0.5" value="0">
+                    <span class="value-display" id="v2Value">0</span>
+                </div>
+            </div>
 
-                <div class="control-group">
-                    <h3>🎯 Jism 2 parametrlari</h3>
-                    <div class="slider-container">
-                        <label>Massa (kg): <span class="value-display" id="m2Value">3</span></label>
-                        <input type="range" class="slider" id="m2Slider" min="1" max="10" step="0.5" value="3">
-                    </div>
-                    <div class="slider-container">
-                        <label>Tezlik (m/s): <span class="value-display" id="v2Value">0</span></label>
-                        <input type="range" class="slider" id="v2Slider" min="-10" max="10" step="0.5" value="0">
-                    </div>
-                </div>
+            <div class="button-group">
+                <button class="btn btn-primary" id="startBtn">▶️ Boshlash</button>
+                <button class="btn btn-secondary" id="pauseBtn">⏸️ Pauza</button>
+                <button class="btn btn-danger" id="resetBtn">🔄 Qayta</button>
+            </div>
 
-                <div class="control-group">
-                    <h3>🎮 Boshqarish</h3>
-                    <div class="time-display" id="timeDisplay">Vaqt: 0.0s</div>
-                    <div class="collision-counter" id="collisionCounter">To'qnashishlar: 0</div>
-                    <div class="button-group">
-                        <button class="btn btn-primary" id="startBtn">▶️ Boshlash</button>
-                        <button class="btn btn-secondary" id="pauseBtn">⏸️ Pauza</button>
-                        <button class="btn btn-danger" id="resetBtn">🔄 Qayta</button>
-                    </div>
-                    <div class="step-controls">
-                        <button class="step-btn" id="stepBtn">↩️ Qadam</button>
-                        <label style="font-size: 0.8rem;">Qadam rejimi</label>
-                    </div>
-                    <div class="slider-container">
-                        <label>Tezlik: <span class="value-display" id="speedValue">1x</span></label>
-                        <input type="range" class="slider" id="speedSlider" min="0.1" max="3" step="0.1" value="1">
-                    </div>
-                    <div class="preset-scenarios">
-                        <h4>🎯 Oldindan belgilangan senariylar:</h4>
-                        <button class="scenario-btn" data-scenario="tennis">Tennis to'pi</button>
-                        <button class="scenario-btn" data-scenario="billiard">Bilyard</button>
-                        <button class="scenario-btn" data-scenario="cars">Avtomobil</button>
-                        <button class="scenario-btn" data-scenario="atoms">Atomlar</button>
-                    </div>
-                </div>
-                
-                <div class="data-export">
-                    <h4>📊 Ma'lumotlarni eksport qilish</h4>
-                    <div class="export-buttons">
-                        <button class="btn-export" id="exportCSV">CSV</button>
-                        <button class="btn-export" id="exportJSON">JSON</button>
-                        <button class="btn-export" id="captureImage">Rasm</button>
-                    </div>
+            <div class="control-group">
+                <h3>🎮 Senariylar</h3>
+                <div class="scenarios">
+                    <button class="scenario-btn" data-scenario="tennis">Tennis</button>
+                    <button class="scenario-btn" data-scenario="billiard">Bilyard</button>
+                    <button class="scenario-btn" data-scenario="cars">Mashina</button>
+                    <button class="scenario-btn" data-scenario="atoms">Atomlar</button>
                 </div>
             </div>
         </div>
@@ -682,19 +393,19 @@
         <div class="info-display">
             <div class="info-grid">
                 <div class="info-card">
-                    <h4>📊 Dastlabki energiya</h4>
+                    <h4>📊 Boshlang'ich E</h4>
                     <div class="value" id="initialEnergy">0 J</div>
                 </div>
                 <div class="info-card">
-                    <h4>📈 Oxirgi energiya</h4>
+                    <h4>📈 Oxirgi E</h4>
                     <div class="value" id="finalEnergy">0 J</div>
                 </div>
                 <div class="info-card">
-                    <h4>⚡ Energiya yo'qolishi</h4>
+                    <h4>⚡ Yo'qolish</h4>
                     <div class="value" id="energyLoss">0 J</div>
                 </div>
                 <div class="info-card">
-                    <h4>📉 Yo'qolish foizi</h4>
+                    <h4>📉 Foiz</h4>
                     <div class="value" id="energyPercent">0%</div>
                 </div>
             </div>
@@ -703,104 +414,20 @@
                 <div class="energy-fill" id="energyBar"></div>
                 <div class="energy-text" id="energyText">100%</div>
             </div>
-
-            <div class="formula-display">
-                <div>$e = \frac{v_2' - v_1'}{v_1 - v_2}$</div>
-                <div style="margin-top: 10px;">Energiya saqlanishi: $E = \frac{1}{2}mv^2$</div>
-                <div style="margin-top: 10px;">Impuls saqlanishi: $p = mv$</div>
-            </div>
-            
-            <div class="momentum-display">
-                <h4>📈 Impuls ma'lumotlari</h4>
-                <div class="info-grid">
-                    <div class="info-card">
-                        <h4>Dastlabki impuls</h4>
-                        <div class="value" id="initialMomentum">0 kg⋅m/s</div>
-                    </div>
-                    <div class="info-card">
-                        <h4>Oxirgi impuls</h4>
-                        <div class="value" id="finalMomentum">0 kg⋅m/s</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="graph-container">
-            <h3>📊 Real vaqtdagi grafiklar</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div>
-                    <h4>Energiya o'zgarishi</h4>
-                    <canvas class="mini-graph" id="energyGraph"></canvas>
-                </div>
-                <div>
-                    <h4>Tezlik o'zgarishi</h4>
-                    <canvas class="mini-graph" id="velocityGraph"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip" id="tooltip"></div>
-    <button class="help-toggle" id="helpBtn">?</button>
-
-    <div class="help-modal" id="helpModal">
-        <div class="help-content">
-            <button class="close-help" id="closeHelp">×</button>
-            <h3>🔬 Qisman Elastik To'qnashish</h3>
-            <p><strong>Restitution koeffitsienti (e):</strong></p>
-            <ul>
-                <li>e = 1: Mukammal elastik to'qnashish</li>
-                <li>0 < e < 1: Qisman elastik to'qnashish</li>
-                <li>e = 0: Mukammal noelastik to'qnashish</li>
-            </ul>
-            
-            <p><strong>Formula:</strong></p>
-            <p>e = (v₂' - v₁') / (v₁ - v₂)</p>
-            
-            <p><strong>Foydalanish:</strong></p>
-            <ul>
-                <li>Slayderlar yordamida parametrlarni o'zgartiring</li>
-                <li>To'qnashish turlarini tanlang</li>
-                <li>Energiya yo'qolishini kuzating</li>
-                <li>Animatsiyani boshqaring</li>
-                <li>Qadam rejimida har bir kadrni ko'ring</li>
-                <li>Ma'lumotlarni CSV/JSON formatida eksport qiling</li>
-            </ul>
-            
-            <p><strong>Klaviatura yorliqlari:</strong></p>
-            <ul>
-                <li>Space: Boshlash/To'xtatish</li>
-                <li>R: Qayta boshlash</li>
-                <li>H: Yordam oynasi</li>
-                <li>Escape: Yordam oynasini yopish</li>
-            </ul>
-            
-            <p><strong>Restitution koeffitsienti qiymatlari:</strong></p>
-            <ul>
-                <li>e = 1.0: Super to'p (95% energiya saqlanadi)</li>
-                <li>e = 0.8: Tennis to'pi (64% energiya saqlanadi)</li>
-                <li>e = 0.5: Basketbol to'pi (25% energiya saqlanadi)</li>
-                <li>e = 0.2: Yog'och to'p (4% energiya saqlanadi)</li>
-            </ul>
         </div>
     </div>
 
     <script>
-        class CollisionSimulation {
+        class CollisionSim {
             constructor() {
                 this.canvas = document.getElementById('canvas');
                 this.ctx = this.canvas.getContext('2d');
-                this.energyGraph = document.getElementById('energyGraph');
-                this.energyCtx = this.energyGraph.getContext('2d');
-                this.velocityGraph = document.getElementById('velocityGraph');
-                this.velocityCtx = this.velocityGraph.getContext('2d');
                 this.resizeCanvas();
                 
                 this.ball1 = {
-                    x: 100,
+                    x: 80,
                     y: 0,
                     vx: 5,
-                    vy: 0,
                     mass: 2,
                     radius: 20,
                     color: '#e74c3c',
@@ -808,10 +435,9 @@
                 };
                 
                 this.ball2 = {
-                    x: 500,
+                    x: 300,
                     y: 0,
                     vx: 0,
-                    vy: 0,
                     mass: 3,
                     radius: 25,
                     color: '#3498db',
@@ -821,22 +447,14 @@
                 this.e = 0.8;
                 this.isRunning = false;
                 this.animationId = null;
-                this.speed = 1;
-                this.collisionOccurred = false;
                 this.collisionCount = 0;
-                this.initialEnergy = 0;
-                this.finalEnergy = 0;
-                this.currentTime = 0;
-                this.stepMode = false;
-                this.dataPoints = [];
-                this.energyData = [];
-                this.velocityData = [];
-                this.maxDataPoints = 200;
+                this.time = 0;
+                this.initialV1 = 5;
+                this.initialV2 = 0;
                 
-                this.setupEventListeners();
+                this.setupEvents();
                 this.updateDisplay();
                 this.draw();
-                this.initializeGraphs();
             }
             
             resizeCanvas() {
@@ -844,504 +462,338 @@
                 this.canvas.width = rect.width;
                 this.canvas.height = rect.height;
                 this.centerY = this.canvas.height / 2;
-                
-                // Resize graphs
-                if (this.energyGraph) {
-                    this.energyGraph.width = this.energyGraph.offsetWidth;
-                    this.energyGraph.height = this.energyGraph.offsetHeight;
-                }
-                if (this.velocityGraph) {
-                    this.velocityGraph.width = this.velocityGraph.offsetWidth;
-                    this.velocityGraph.height = this.velocityGraph.offsetHeight;
-                }
             }
             
-            initializeGraphs() {
-                this.energyGraph.width = this.energyGraph.offsetWidth;
-                this.energyGraph.height = this.energyGraph.offsetHeight;
-                this.velocityGraph.width = this.velocityGraph.offsetWidth;
-                this.velocityGraph.height = this.velocityGraph.offsetHeight;
-            }
-            
-            setupEventListeners() {
-                // Sliders
-                const eSlider = document.getElementById('eSlider');
-                const m1Slider = document.getElementById('m1Slider');
-                const m2Slider = document.getElementById('m2Slider');
-                const v1Slider = document.getElementById('v1Slider');
-                const v2Slider = document.getElementById('v2Slider');
-                const speedSlider = document.getElementById('speedSlider');
+            setupEvents() {
+                const updateSlider = (sliderId, valueId, callback) => {
+                    const slider = document.getElementById(sliderId);
+                    slider.addEventListener('input', (e) => {
+                        const val = parseFloat(e.target.value);
+                        document.getElementById(valueId).textContent = val;
+                        callback(val);
+                        this.updateDisplay();
+                    });
+                };
                 
-                eSlider.addEventListener('input', (e) => {
-                    this.e = parseFloat(e.target.value);
-                    this.updateDisplay();
+                updateSlider('eSlider', 'eValue', v => {
+                    this.e = v;
                     this.updateCollisionTypes();
                 });
-                
-                m1Slider.addEventListener('input', (e) => {
-                    this.ball1.mass = parseFloat(e.target.value);
-                    this.ball1.radius = 15 + this.ball1.mass * 2;
-                    this.updateDisplay();
+                updateSlider('m1Slider', 'm1Value', v => {
+                    this.ball1.mass = v;
+                    this.ball1.radius = 15 + v * 2;
+                });
+                updateSlider('m2Slider', 'm2Value', v => {
+                    this.ball2.mass = v;
+                    this.ball2.radius = 15 + v * 2;
+                });
+                updateSlider('v1Slider', 'v1Value', v => {
+                    this.ball1.vx = v;
+                    this.initialV1 = v;
+                });
+                updateSlider('v2Slider', 'v2Value', v => {
+                    this.ball2.vx = v;
+                    this.initialV2 = v;
                 });
                 
-                m2Slider.addEventListener('input', (e) => {
-                    this.ball2.mass = parseFloat(e.target.value);
-                    this.ball2.radius = 15 + this.ball2.mass * 2;
-                    this.updateDisplay();
-                });
-                
-                v1Slider.addEventListener('input', (e) => {
-                    this.ball1.vx = parseFloat(e.target.value);
-                    this.updateDisplay();
-                });
-                
-                v2Slider.addEventListener('input', (e) => {
-                    this.ball2.vx = parseFloat(e.target.value);
-                    this.updateDisplay();
-                });
-                
-                speedSlider.addEventListener('input', (e) => {
-                    this.speed = parseFloat(e.target.value);
-                    document.getElementById('speedValue').textContent = this.speed + 'x';
-                });
-                
-                // Buttons
                 document.getElementById('startBtn').addEventListener('click', () => this.start());
                 document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
                 document.getElementById('resetBtn').addEventListener('click', () => this.reset());
-                document.getElementById('stepBtn').addEventListener('click', () => this.step());
                 
-                // Export buttons
-                document.getElementById('exportCSV').addEventListener('click', () => this.exportCSV());
-                document.getElementById('exportJSON').addEventListener('click', () => this.exportJSON());
-                document.getElementById('captureImage').addEventListener('click', () => this.captureImage());
-                
-                // Scenario buttons
-                document.querySelectorAll('.scenario-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => this.loadScenario(e.target.dataset.scenario));
-                });
-                
-                // Collision types
-                document.querySelectorAll('.collision-type').forEach(type => {
-                    type.addEventListener('click', (e) => {
-                        const eValue = parseFloat(e.target.dataset.e);
-                        this.e = eValue;
-                        document.getElementById('eSlider').value = eValue;
-                        this.updateDisplay();
+                document.querySelectorAll('.collision-type').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const eVal = parseFloat(e.target.dataset.e);
+                        this.e = eVal;
+                        document.getElementById('eSlider').value = eVal;
+                        document.getElementById('eValue').textContent = eVal;
                         this.updateCollisionTypes();
                     });
                 });
                 
-                // Help modal
-                document.getElementById('helpBtn').addEventListener('click', () => {
-                    document.getElementById('helpModal').style.display = 'flex';
+                document.querySelectorAll('.scenario-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.loadScenario(e.target.dataset.scenario));
                 });
                 
-                document.getElementById('closeHelp').addEventListener('click', () => {
-                    document.getElementById('helpModal').style.display = 'none';
-                });
-                
-                // Resize handler
                 window.addEventListener('resize', () => {
                     this.resizeCanvas();
                     this.draw();
                 });
-                
-                // Touch support
-                this.canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.handleTouch(e);
-                });
-                
-                // Tooltip support
-                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-                this.canvas.addEventListener('mouseleave', () => this.hideTooltip());
-                
-                // Add tooltips to sliders
-                document.querySelectorAll('.slider').forEach(slider => {
-                    slider.addEventListener('mouseenter', (e) => this.showTooltip(e, this.getSliderTooltip(e.target.id)));
-                    slider.addEventListener('mouseleave', () => this.hideTooltip());
+            }
+            
+            updateCollisionTypes() {
+                document.querySelectorAll('.collision-type').forEach(el => {
+                    el.classList.toggle('active', parseFloat(el.dataset.e) === this.e);
                 });
             }
             
-            getSliderTooltip(sliderId) {
-                const tooltips = {
-                    'eSlider': 'Restitution koeffitsienti - to\'qnashishning elastiklik darajasi',
-                    'm1Slider': 'Birinchi jism massasi - og\'irlik',
-                    'm2Slider': 'Ikkinchi jism massasi - og\'irlik',
-                    'v1Slider': 'Birinchi jism tezligi - harakat yo\'nalishi',
-                    'v2Slider': 'Ikkinchi jism tezligi - harakat yo\'nalishi',
-                    'speedSlider': 'Animatsiya tezligi - simulyatsiya sur\'ati'
-                };
-                return tooltips[sliderId] || '';
-            }
-            
-            showTooltip(e, text) {
-                const tooltip = document.getElementById('tooltip');
-                tooltip.textContent = text;
-                tooltip.style.left = e.pageX + 10 + 'px';
-                tooltip.style.top = e.pageY - 10 + 'px';
-                tooltip.classList.add('visible');
-            }
-            
-            hideTooltip() {
-                document.getElementById('tooltip').classList.remove('visible');
-            }
-            
-            handleMouseMove(e) {
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // Check if mouse is over a ball
-                const ball1Distance = Math.sqrt((x - this.ball1.x) ** 2 + (y - (this.ball1.y + this.centerY)) ** 2);
-                const ball2Distance = Math.sqrt((x - this.ball2.x) ** 2 + (y - (this.ball2.y + this.centerY)) ** 2);
-                
-                if (ball1Distance < this.ball1.radius) {
-                    this.showTooltip(e, `Jism 1: ${this.ball1.mass}kg, ${this.ball1.vx.toFixed(1)}m/s`);
-                } else if (ball2Distance < this.ball2.radius) {
-                    this.showTooltip(e, `Jism 2: ${this.ball2.mass}kg, ${this.ball2.vx.toFixed(1)}m/s`);
-                } else {
-                    this.hideTooltip();
-                }
-            }
-            
-            handleTouch(e) {
-                const touch = e.touches[0];
-                const rect = this.canvas.getBoundingClientRect();
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-                
-                // Simple touch interaction - restart simulation
-                if (!this.isRunning) {
-                    this.start();
-                }
-            }
-            
-            step() {
-                if (!this.isRunning) {
-                    this.stepMode = true;
-                    this.update();
-                    this.draw();
-                    this.updateGraphs();
-                    this.stepMode = false;
-                }
-            }
-            
-            loadScenario(scenario) {
+            loadScenario(type) {
                 this.pause();
-                
                 const scenarios = {
                     tennis: { m1: 0.06, v1: 30, m2: 0.06, v2: 0, e: 0.7 },
                     billiard: { m1: 0.16, v1: 5, m2: 0.16, v2: 0, e: 0.95 },
-                    cars: { m1: 1200, v1: 15, m2: 1500, v2: 0, e: 0.2 },
-                    atoms: { m1: 1, v1: 100, m2: 1, v2: -50, e: 1.0 }
+                    cars: { m1: 8, v1: 8, m2: 10, v2: 0, e: 0.2 },
+                    atoms: { m1: 1, v1: 10, m2: 1, v2: -5, e: 1.0 }
                 };
                 
-                const s = scenarios[scenario];
+                const s = scenarios[type];
                 if (s) {
+                    ['m1', 'm2', 'v1', 'v2', 'e'].forEach(key => {
+                        const slider = document.getElementById(key + 'Slider');
+                        const val = s[key];
+                        slider.value = val;
+                        document.getElementById(key + 'Value').textContent = val;
+                    });
+                    
                     this.ball1.mass = s.m1;
                     this.ball2.mass = s.m2;
                     this.ball1.vx = s.v1;
                     this.ball2.vx = s.v2;
                     this.e = s.e;
-                    
-                    // Update sliders
-                    document.getElementById('m1Slider').value = s.m1;
-                    document.getElementById('m2Slider').value = s.m2;
-                    document.getElementById('v1Slider').value = s.v1;
-                    document.getElementById('v2Slider').value = s.v2;
-                    document.getElementById('eSlider').value = s.e;
+                    this.initialV1 = s.v1;
+                    this.initialV2 = s.v2;
                     
                     this.ball1.radius = 15 + this.ball1.mass * 2;
                     this.ball2.radius = 15 + this.ball2.mass * 2;
                     
+                    this.updateCollisionTypes();
                     this.reset();
                 }
             }
             
-            exportCSV() {
-                let csv = 'Time,Ball1_X,Ball1_V,Ball2_X,Ball2_V,Energy,Momentum\n';
-                this.dataPoints.forEach(point => {
-                    csv += `${point.time},${point.ball1X},${point.ball1V},${point.ball2X},${point.ball2V},${point.energy},${point.momentum}\n`;
+            start() {
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.animate();
+                }
+            }
+            
+            pause() {
+                this.isRunning = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+            
+            reset() {
+                this.pause();
+                this.ball1.x = 80;
+                this.ball1.y = 0;
+                this.ball1.vx = this.initialV1;
+                this.ball1.trail = [];
+                
+                this.ball2.x = this.canvas.width - 80;
+                this.ball2.y = 0;
+                this.ball2.vx = this.initialV2;
+                this.ball2.trail = [];
+                
+                this.collisionCount = 0;
+                this.time = 0;
+                
+                this.updateDisplay();
+                this.draw();
+            }
+            
+            animate() {
+                if (!this.isRunning) return;
+                
+                this.update();
+                this.draw();
+                this.updateDisplay();
+                
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+            
+            update() {
+                this.time += 0.016;
+                
+                // Update positions
+                this.ball1.x += this.ball1.vx * 2;
+                this.ball2.x += this.ball2.vx * 2;
+                
+                // Add trail
+                this.ball1.trail.push({ x: this.ball1.x, y: this.ball1.y });
+                this.ball2.trail.push({ x: this.ball2.x, y: this.ball2.y });
+                if (this.ball1.trail.length > 20) this.ball1.trail.shift();
+                if (this.ball2.trail.length > 20) this.ball2.trail.shift();
+                
+                // Wall collision
+                if (this.ball1.x - this.ball1.radius < 0 || this.ball1.x + this.ball1.radius > this.canvas.width) {
+                    this.ball1.vx *= -0.9;
+                    this.ball1.x = Math.max(this.ball1.radius, Math.min(this.canvas.width - this.ball1.radius, this.ball1.x));
+                }
+                if (this.ball2.x - this.ball2.radius < 0 || this.ball2.x + this.ball2.radius > this.canvas.width) {
+                    this.ball2.vx *= -0.9;
+                    this.ball2.x = Math.max(this.ball2.radius, Math.min(this.canvas.width - this.ball2.radius, this.ball2.x));
+                }
+                
+                // Ball collision
+                const dx = this.ball2.x - this.ball1.x;
+                const dist = Math.abs(dx);
+                const minDist = this.ball1.radius + this.ball2.radius;
+                
+                if (dist < minDist) {
+                    const m1 = this.ball1.mass;
+                    const m2 = this.ball2.mass;
+                    const v1 = this.ball1.vx;
+                    const v2 = this.ball2.vx;
+                    
+                    const v1f = ((m1 - this.e * m2) * v1 + m2 * (1 + this.e) * v2) / (m1 + m2);
+                    const v2f = ((m2 - this.e * m1) * v2 + m1 * (1 + this.e) * v1) / (m1 + m2);
+                    
+                    this.ball1.vx = v1f;
+                    this.ball2.vx = v2f;
+                    
+                    // Separate balls
+                    const overlap = minDist - dist;
+                    const total = m1 + m2;
+                    this.ball1.x -= overlap * (m2 / total) * Math.sign(dx);
+                    this.ball2.x += overlap * (m1 / total) * Math.sign(dx);
+                    
+                    this.collisionCount++;
+                }
+            }
+            
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw trails
+                this.drawTrail(this.ball1);
+                this.drawTrail(this.ball2);
+                
+                // Draw balls
+                this.drawBall(this.ball1);
+                this.drawBall(this.ball2);
+                
+                // Draw velocity vectors
+                this.drawVelocity(this.ball1);
+                this.drawVelocity(this.ball2);
+            }
+            
+            drawTrail(ball) {
+                if (ball.trail.length < 2) return;
+                
+                this.ctx.strokeStyle = ball.color;
+                this.ctx.lineWidth = 2;
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.beginPath();
+                
+                ball.trail.forEach((point, i) => {
+                    const x = point.x;
+                    const y = point.y + this.centerY;
+                    if (i === 0) this.ctx.moveTo(x, y);
+                    else this.ctx.lineTo(x, y);
                 });
                 
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'collision_data.csv';
-                a.click();
-                URL.revokeObjectURL(url);
+                this.ctx.stroke();
+                this.ctx.globalAlpha = 1;
             }
             
-            exportJSON() {
-                const data = {
-                    parameters: {
-                        e: this.e,
-                        m1: this.ball1.mass,
-                        m2: this.ball2.mass,
-                        v1_initial: parseFloat(document.getElementById('v1Slider').value),
-                        v2_initial: parseFloat(document.getElementById('v2Slider').value)
-                    },
-                    data: this.dataPoints
-                };
+            drawBall(ball) {
+                const x = ball.x;
+                const y = ball.y + this.centerY;
                 
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'collision_simulation.json';
-                a.click();
-                URL.revokeObjectURL(url);
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, ball.radius, 0, Math.PI * 2);
+                
+                const gradient = this.ctx.createRadialGradient(
+                    x - ball.radius * 0.3, 
+                    y - ball.radius * 0.3, 
+                    0, 
+                    x, 
+                    y, 
+                    ball.radius
+                );
+                gradient.addColorStop(0, this.lightenColor(ball.color, 40));
+                gradient.addColorStop(1, ball.color);
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.fill();
+                
+                this.ctx.strokeStyle = this.darkenColor(ball.color, 20);
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
             }
             
-            captureImage() {
-                const link = document.createElement('a');
-                link.download = 'collision_simulation.png';
-                link.href = this.canvas.toDataURL();
-                link.click();
+            drawVelocity(ball) {
+                const scale = 8;
+                const x = ball.x;
+                const y = ball.y + this.centerY;
+                const vx = ball.vx * scale;
+                
+                if (Math.abs(vx) < 1) return;
+                
+                this.ctx.strokeStyle = '#27ae60';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(x + vx, y);
+                this.ctx.stroke();
+                
+                // Arrow head
+                const angle = Math.atan2(0, vx);
+                const headLen = 8;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x + vx, y);
+                this.ctx.lineTo(
+                    x + vx - headLen * Math.cos(angle - Math.PI / 6),
+                    y - headLen * Math.sin(angle - Math.PI / 6)
+                );
+                this.ctx.lineTo(
+                    x + vx - headLen * Math.cos(angle + Math.PI / 6),
+                    y - headLen * Math.sin(angle + Math.PI / 6)
+                );
+                this.ctx.closePath();
+                this.ctx.fillStyle = '#27ae60';
+                this.ctx.fill();
             }
             
-            recordDataPoint() {
-                const energy = 0.5 * this.ball1.mass * this.ball1.vx * this.ball1.vx + 
-                              0.5 * this.ball2.mass * this.ball2.vx * this.ball2.vx;
-                const momentum = this.ball1.mass * this.ball1.vx + this.ball2.mass * this.ball2.vx;
+            updateDisplay() {
+                const initialE = 0.5 * this.ball1.mass * this.initialV1 * this.initialV1 + 
+                               0.5 * this.ball2.mass * this.initialV2 * this.initialV2;
+                const currentE = 0.5 * this.ball1.mass * this.ball1.vx * this.ball1.vx + 
+                                0.5 * this.ball2.mass * this.ball2.vx * this.ball2.vx;
+                const loss = initialE - currentE;
+                const percent = initialE > 0 ? (currentE / initialE) * 100 : 100;
                 
-                const dataPoint = {
-                    time: this.currentTime,
-                    ball1X: this.ball1.x,
-                    ball1V: this.ball1.vx,
-                    ball2X: this.ball2.x,
-                    ball2V: this.ball2.vx,
-                    energy: energy,
-                    momentum: momentum
-                };
-                
-                this.dataPoints.push(dataPoint);
-                this.energyData.push({ time: this.currentTime, value: energy });
-                this.velocityData.push({ 
-                    time: this.currentTime, 
-                    v1: this.ball1.vx, 
-                    v2: this.ball2.vx 
-                });
-                
-                if (this.dataPoints.length > this.maxDataPoints) {
-                    this.dataPoints.shift();
-                    this.energyData.shift();
-                    this.velocityData.shift();
-                }
+                document.getElementById('initialEnergy').textContent = initialE.toFixed(1) + ' J';
+                document.getElementById('finalEnergy').textContent = currentE.toFixed(1) + ' J';
+                document.getElementById('energyLoss').textContent = loss.toFixed(1) + ' J';
+                document.getElementById('energyPercent').textContent = percent.toFixed(0) + '%';
+                document.getElementById('energyBar').style.width = percent + '%';
+                document.getElementById('energyText').textContent = percent.toFixed(0) + '%';
+                document.getElementById('timeDisplay').textContent = 'Vaqt: ' + this.time.toFixed(1) + 's';
+                document.getElementById('collisionCounter').textContent = 'To\'qnashish: ' + this.collisionCount;
             }
             
-            updateGraphs() {
-                this.drawEnergyGraph();
-                this.drawVelocityGraph();
+            lightenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = Math.min(255, (num >> 16) + amt);
+                const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
+                const B = Math.min(255, (num & 0x0000FF) + amt);
+                return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
             }
             
-            drawEnergyGraph() {
-                if (!this.energyData.length) return;
-                
-                const ctx = this.energyCtx;
-                const width = this.energyGraph.width;
-                const height = this.energyGraph.height;
-                
-                ctx.clearRect(0, 0, width, height);
-                
-                // Background
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, width, height);
-                
-                // Grid
-                ctx.strokeStyle = '#dee2e6';
-                ctx.lineWidth = 1;
-                for (let i = 0; i <= 10; i++) {
-                    const y = (height / 10) * i;
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(width, y);
-                    ctx.stroke();
-                }
-                
-                // Data line
-                if (this.energyData.length > 1) {
-                    const maxEnergy = Math.max(...this.energyData.map(d => d.value));
-                    const minTime = Math.min(...this.energyData.map(d => d.time));
-                    const maxTime = Math.max(...this.energyData.map(d => d.time));
-                    
-                    ctx.strokeStyle = '#e74c3c';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    this.energyData.forEach((point, i) => {
-                        const x = ((point.time - minTime) / (maxTime - minTime)) * width;
-                        const y = height - (point.value / maxEnergy) * height;
-                        
-                        if (i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    });
-                    
-                    ctx.stroke();
-                }
-                
-                // Labels
-                ctx.fillStyle = '#495057';
-                ctx.font = '12px Arial';
-                ctx.fillText('Energiya (J)', 5, 15);
-            }
-            
-            drawVelocityGraph() {
-                if (!this.velocityData.length) return;
-                
-                const ctx = this.velocityCtx;
-                const width = this.velocityGraph.width;
-                const height = this.velocityGraph.height;
-                
-                ctx.clearRect(0, 0, width, height);
-                
-                // Background
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, width, height);
-                
-                // Grid
-                ctx.strokeStyle = '#dee2e6';
-                ctx.lineWidth = 1;
-                for (let i = 0; i <= 10; i++) {
-                    const y = (height / 10) * i;
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(width, y);
-                    ctx.stroke();
-                }
-                
-                // Data lines
-                if (this.velocityData.length > 1) {
-                    const allVelocities = this.velocityData.flatMap(d => [d.v1, d.v2]);
-                    const maxV = Math.max(...allVelocities);
-                    const minV = Math.min(...allVelocities);
-                    const minTime = Math.min(...this.velocityData.map(d => d.time));
-                    const maxTime = Math.max(...this.velocityData.map(d => d.time));
-                    
-                    // Ball 1 velocity
-                    ctx.strokeStyle = '#e74c3c';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    this.velocityData.forEach((point, i) => {
-                        const x = ((point.time - minTime) / (maxTime - minTime)) * width;
-                        const y = height - ((point.v1 - minV) / (maxV - minV)) * height;
-                        
-                        if (i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    });
-                    
-                    ctx.stroke();
-                    
-                    // Ball 2 velocity
-                    ctx.strokeStyle = '#3498db';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    this.velocityData.forEach((point, i) => {
-                        const x = ((point.time - minTime) / (maxTime - minTime)) * width;
-                        const y = height - ((point.v2 - minV) / (maxV - minV)) * height;
-                        
-                        if (i === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    });
-                    
-                    ctx.stroke();
-                }
-                
-                // Labels
-                ctx.fillStyle = '#495057';
-                ctx.font = '12px Arial';
-                ctx.fillText('Tezlik (m/s)', 5, 15);
-            }
-            
-            calculateMomentum() {
-                const initialMomentum = this.ball1.mass * parseFloat(document.getElementById('v1Slider').value) +
-                                      this.ball2.mass * parseFloat(document.getElementById('v2Slider').value);
-                const currentMomentum = this.ball1.mass * this.ball1.vx + this.ball2.mass * this.ball2.vx;
-                
-                document.getElementById('initialMomentum').textContent = initialMomentum.toFixed(2) + ' kg⋅m/s';
-                document.getElementById('finalMomentum').textContent = currentMomentum.toFixed(2) + ' kg⋅m/s';
+            darkenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = Math.max(0, (num >> 16) - amt);
+                const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
+                const B = Math.max(0, (num & 0x0000FF) - amt);
+                return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
             }
         }
         
-        // Initialize simulation when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            const simulation = new CollisionSimulation();
+        // Initialize
+        let sim;
+        window.addEventListener('DOMContentLoaded', () => {
+            sim = new CollisionSim();
             
-            // Add keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                switch(e.key) {
-                    case ' ':
-                        e.preventDefault();
-                        if (simulation.isRunning) {
-                            simulation.pause();
-                        } else {
-                            simulation.start();
-                        }
-                        break;
-                    case 'r':
-                    case 'R':
-                        simulation.reset();
-                        break;
-                    case 'h':
-                    case 'H':
-                        document.getElementById('helpModal').style.display = 'flex';
-                        break;
-                    case 'Escape':
-                        document.getElementById('helpModal').style.display = 'none';
-                        break;
-                }
+            // Touch to start
+            document.getElementById('canvas').addEventListener('touchstart', () => {
+                if (!sim.isRunning) sim.start();
             });
-            
-            // Close modal when clicking outside
-            document.getElementById('helpModal').addEventListener('click', (e) => {
-                if (e.target.id === 'helpModal') {
-                    document.getElementById('helpModal').style.display = 'none';
-                }
-            });
-            
-            // Add touch gestures for mobile
-            let touchStartX = 0;
-            let touchStartY = 0;
-            
-            document.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            });
-            
-            document.addEventListener('touchend', (e) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const touchEndY = e.changedTouches[0].clientY;
-                
-                const deltaX = touchEndX - touchStartX;
-                const deltaY = touchEndY - touchStartY;
-                
-                // Swipe gestures
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-                    if (deltaX > 0) {
-                        // Swipe right - increase e
-                        const eSlider = document.getElementById('eSlider');
-                        eSlider.value = Math.min(1, parseFloat(eSlider.value) + 0.1);
-                        eSlider.dispatchEvent(new Event('input'));
-                    } else {
-                        // Swipe left - decrease e
-                        const eSlider = document.getElementById('eSlider');
-                        eSlider.value = Math.max(0.1, parseFloat(eSlider.value) - 0.1);
-                        eSlider.dispatchEvent(new Event('input'));
-                    }
-                }
-            });
-            
-            // Auto-play on mobile
-            if (window.innerWidth < 768) {
-                setTimeout(() => {
-                    simulation.start();
-                }, 1000);
-            }
         });
     </script>
 </body>
