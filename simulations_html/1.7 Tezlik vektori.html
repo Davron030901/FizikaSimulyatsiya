@@ -1,73 +1,59 @@
-```html
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tezlik Vektori - Interaktiv Simulyatsiya</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tezlik Vektori</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .container { padding: 10px; max-width: 100%; }
         
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            padding: 15px 10px;
             color: white;
         }
         
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .header p { font-size: 1.2em; opacity: 0.9; }
+        .header p { font-size: 0.85em; opacity: 0.9; }
         
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .simulation-area, .control-panel {
+        .canvas-wrapper {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
-        .control-panel { height: fit-content; }
         
         .canvas-container {
             position: relative;
             width: 100%;
-            height: 500px;
+            height: 300px;
             border: 2px solid #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
             background: #f8f9fa;
-            margin-bottom: 15px;
+            touch-action: none;
         }
+        
+        canvas { width: 100%; height: 100%; display: block; }
         
         .status-bar {
             position: absolute;
@@ -76,49 +62,78 @@
             right: 0;
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 5px 10px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            font-family: monospace;
             display: flex;
             justify-content: space-between;
-            font-size: 0.8em;
-            font-family: 'Courier New', monospace;
         }
         
-        canvas { width: 100%; height: 100%; display: block; }
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
         
-        .controls-section { margin-bottom: 25px; }
-        
-        .controls-section h3 {
-            color: #4a5568;
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
             margin-bottom: 15px;
-            font-size: 1.1em;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 5px;
         }
         
-        .control-group { margin-bottom: 20px; }
-        
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
+        .btn {
+            padding: 12px 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
             font-weight: 600;
-            color: #2d3748;
+            cursor: pointer;
+            transition: transform 0.2s;
+            touch-action: manipulation;
         }
         
-        .control-group input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-danger { background: #e53e3e; color: white; }
+        
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
         }
         
-        .control-group label:has(input[type="checkbox"]) {
+        .section:last-child { border-bottom: none; }
+        
+        .section h3 {
+            font-size: 1em;
+            color: #4a5568;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            font-weight: 500;
+            gap: 8px;
+        }
+        
+        .param {
+            margin-bottom: 15px;
+        }
+        
+        .param label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
         }
         
         input[type="range"] {
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
+            height: 8px;
+            border-radius: 4px;
             background: #e2e8f0;
             outline: none;
             -webkit-appearance: none;
@@ -126,138 +141,109 @@
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
-            border: 2px solid white;
+            border: 3px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
-            border: 2px solid white;
+            border: 3px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         
-        .value-display {
+        .value {
             background: #f7fafc;
-            padding: 5px 10px;
+            padding: 8px;
             border-radius: 5px;
-            font-family: 'Courier New', monospace;
+            font-family: monospace;
             font-size: 0.9em;
             text-align: center;
             margin-top: 5px;
             border: 1px solid #e2e8f0;
         }
         
-        .button-group {
-            display: flex;
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 15px;
         }
         
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-        
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
-        .btn-secondary { background: #e2e8f0; color: #4a5568; }
-        .btn-secondary:hover { background: #cbd5e0; transform: translateY(-2px); }
-        .btn-danger { background: #e53e3e; color: white; }
-        .btn-danger:hover { background: #c53030; transform: translateY(-2px); }
-        
-        .data-display {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .data-row {
+        .checkbox {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9em;
+            align-items: center;
+            font-size: 0.85em;
         }
         
-        .data-label { font-weight: 600; color: #2d3748; }
-        .data-value { font-family: 'Courier New', monospace; color: #4a5568; }
+        .checkbox input {
+            margin-right: 6px;
+            transform: scale(1.3);
+        }
         
-        .vector-info {
+        .data-panel {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 15px;
             border-radius: 8px;
+            margin-bottom: 15px;
         }
         
-        .vector-info h4 { margin-bottom: 10px; font-size: 1.1em; }
+        .data-panel h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
         
-        .preset-buttons {
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+        
+        .data-item {
+            background: rgba(255,255,255,0.15);
+            padding: 8px;
+            border-radius: 5px;
+        }
+        
+        .data-label {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+        
+        .data-value {
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        
+        .presets {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
         
         .preset-btn {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: white;
-            color: #4a5568;
-        }
-        
-        .preset-btn:hover {
-            background: #f7fafc;
-            border-color: #667eea;
-            transform: translateY(-1px);
-        }
-        
-        .theory-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .theory-section h2 {
-            color: #2d3748;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-        
-        .formula-box {
-            background: #f7fafc;
-            padding: 15px;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #667eea;
+            background: white;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
         }
         
-        .help-tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-            color: #667eea;
-            font-weight: bold;
+        .preset-btn:active {
+            transform: scale(0.95);
+            border-color: #667eea;
         }
         
         .speed-control {
@@ -266,27 +252,91 @@
             gap: 10px;
         }
         
-        .speed-display {
+        .speed-badge {
             background: #667eea;
             color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
             font-size: 0.9em;
             min-width: 50px;
             text-align: center;
         }
         
-        @media (max-width: 768px) {
-            .main-content { grid-template-columns: 1fr; }
-            .control-panel { order: -1; }
-            .header h1 { font-size: 2em; }
-            .button-group { flex-direction: column; }
+        .theory {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
-        @media (max-width: 480px) {
-            .container { padding: 10px; }
-            .header h1 { font-size: 1.5em; }
-            .preset-buttons { grid-template-columns: 1fr; }
+        .theory h2 {
+            font-size: 1.2em;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .formula {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .formula h4 {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        .formula p {
+            font-size: 0.85em;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+        
+        .examples {
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        
+        .examples li {
+            margin-bottom: 8px;
+            margin-left: 20px;
+        }
+        
+        .collapse-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapse-content.show {
+            max-height: 2000px;
+        }
+        
+        @media (max-width: 360px) {
+            .header h1 { font-size: 1.3em; }
+            .btn { padding: 10px 6px; font-size: 0.75em; }
+            .canvas-container { height: 250px; }
         }
     </style>
 </head>
@@ -294,157 +344,157 @@
     <div class="container">
         <div class="header">
             <h1>🎯 Tezlik Vektori</h1>
-            <p>2D harakat va tezlik vektorining interaktiv simulyatsiyasi</p>
+            <p>Interaktiv Simulyatsiya</p>
         </div>
 
-        <div class="main-content">
-            <div class="simulation-area">
-                <div class="canvas-container">
-                    <canvas id="canvas"></canvas>
-                    <div class="status-bar">
-                        <span id="scaleInfo">Masshtab: 1:1</span>
-                        <span id="mousePos">Kursor: (0, 0)</span>
+        <div class="canvas-wrapper">
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <div class="status-bar">
+                    <span id="scale">1:1</span>
+                    <span id="time">0.0s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn btn-primary" id="playBtn">▶️ Start</button>
+                <button class="btn btn-secondary" id="resetBtn">🔄 Reset</button>
+                <button class="btn btn-danger" id="clearBtn">🧹 Clear</button>
+            </div>
+
+            <div class="data-panel">
+                <h4>📊 Tezlik Ma'lumotlari</h4>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">vₓ:</div>
+                        <div class="data-value" id="dvx">20.0 m/s</div>
                     </div>
-                </div>
-                <div class="button-group">
-                    <button class="btn btn-primary" id="playBtn">▶️ Boshlash</button>
-                    <button class="btn btn-secondary" id="resetBtn">🔄 Qayta</button>
-                    <button class="btn btn-danger" id="clearBtn">🧹 Tozalash</button>
-                </div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" id="zoomIn">🔍+ Kattalashtirish</button>
-                    <button class="btn btn-secondary" id="zoomOut">🔍- Kichiklashtirish</button>
-                    <button class="btn btn-secondary" id="fitView">📐 To'liq ko'rish</button>
+                    <div class="data-item">
+                        <div class="data-label">vᵧ:</div>
+                        <div class="data-value" id="dvy">15.0 m/s</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">|v⃗|:</div>
+                        <div class="data-value" id="dmag">25.0 m/s</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">θ:</div>
+                        <div class="data-value" id="dang">36.9°</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="control-panel">
-                <div class="controls-section">
-                    <h3>⚙️ Harakat Parametrlari</h3>
-                    
-                    <div class="control-group">
-                        <label>Boshlang'ich tezlik vₓ (m/s) <span class="help-tooltip">?</span></label>
-                        <input type="range" id="vxSlider" min="-50" max="50" value="20" step="1">
-                        <div class="value-display" id="vxVal">20 m/s</div>
+            <button class="collapse-btn" id="paramsBtn">
+                ⚙️ Parametrlar
+                <span>▼</span>
+            </button>
+            <div class="collapse-content" id="paramsContent">
+                <div class="section">
+                    <div class="param">
+                        <label>Boshlang'ich tezlik vₓ (m/s)</label>
+                        <input type="range" id="vx" min="-50" max="50" value="20" step="1">
+                        <div class="value" id="vxVal">20 m/s</div>
                     </div>
-
-                    <div class="control-group">
-                        <label>Boshlang'ich tezlik vᵧ (m/s) <span class="help-tooltip">?</span></label>
-                        <input type="range" id="vySlider" min="-50" max="50" value="15" step="1">
-                        <div class="value-display" id="vyVal">15 m/s</div>
+                    <div class="param">
+                        <label>Boshlang'ich tezlik vᵧ (m/s)</label>
+                        <input type="range" id="vy" min="-50" max="50" value="15" step="1">
+                        <div class="value" id="vyVal">15 m/s</div>
                     </div>
-
-                    <div class="control-group">
-                        <label>Tezlanish aₓ (m/s²) <span class="help-tooltip">?</span></label>
-                        <input type="range" id="axSlider" min="-10" max="10" value="0" step="0.1">
-                        <div class="value-display" id="axVal">0.0 m/s²</div>
+                    <div class="param">
+                        <label>Tezlanish aₓ (m/s²)</label>
+                        <input type="range" id="ax" min="-10" max="10" value="0" step="0.1">
+                        <div class="value" id="axVal">0.0 m/s²</div>
                     </div>
-
-                    <div class="control-group">
-                        <label>Tezlanish aᵧ (m/s²) <span class="help-tooltip">?</span></label>
-                        <input type="range" id="aySlider" min="-10" max="10" value="-9.8" step="0.1">
-                        <div class="value-display" id="ayVal">-9.8 m/s²</div>
-                    </div>
-                </div>
-
-                <div class="controls-section">
-                    <h3>👁️ Ko'rish Sozlamalari</h3>
-                    
-                    <div class="control-group">
-                        <label><input type="checkbox" id="autoScale" checked> Avtomatik masshtablash</label>
-                    </div>
-                    <div class="control-group">
-                        <label><input type="checkbox" id="showGrid" checked> Koordinata to'ri</label>
-                    </div>
-                    <div class="control-group">
-                        <label><input type="checkbox" id="showTrail" checked> Harakat izi</label>
-                    </div>
-                    <div class="control-group">
-                        <label><input type="checkbox" id="showComp" checked> Komponentlar</label>
+                    <div class="param">
+                        <label>Tezlanish aᵧ (m/s²)</label>
+                        <input type="range" id="ay" min="-10" max="10" value="-9.8" step="0.1">
+                        <div class="value" id="ayVal">-9.8 m/s²</div>
                     </div>
                 </div>
+            </div>
 
-                <div class="controls-section">
-                    <h3>⏱️ Simulyatsiya Tezligi</h3>
+            <button class="collapse-btn" id="viewBtn">
+                👁️ Ko'rish
+                <span>▼</span>
+            </button>
+            <div class="collapse-content" id="viewContent">
+                <div class="section">
+                    <div class="checkbox-group">
+                        <label class="checkbox">
+                            <input type="checkbox" id="showGrid" checked> To'r
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="showTrail" checked> Iz
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="showComp" checked> Komponent
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="autoScale" checked> Auto
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="collapse-btn" id="speedBtn">
+                ⏱️ Tezlik
+                <span>▼</span>
+            </button>
+            <div class="collapse-content" id="speedContent">
+                <div class="section">
                     <div class="speed-control">
                         <label>Tezlik:</label>
-                        <input type="range" id="speedSlider" min="0.1" max="3" value="1" step="0.1" style="flex:1">
-                        <div class="speed-display" id="speedVal">1.0x</div>
+                        <input type="range" id="speed" min="0.1" max="3" value="1" step="0.1" style="flex:1">
+                        <div class="speed-badge" id="speedVal">1.0x</div>
                     </div>
                 </div>
+            </div>
 
-                <div class="controls-section">
-                    <h3>🎬 Tayyor Stsenariylar</h3>
-                    <div class="preset-buttons">
+            <button class="collapse-btn" id="presetsBtn">
+                🎬 Stsenariylar
+                <span>▼</span>
+            </button>
+            <div class="collapse-content" id="presetsContent">
+                <div class="section">
+                    <div class="presets">
                         <button class="preset-btn" data-preset="projectile">🎯 Proyektil</button>
                         <button class="preset-btn" data-preset="circular">⭕ Aylana</button>
                         <button class="preset-btn" data-preset="uniform">➡️ Tekis</button>
-                        <button class="preset-btn" data-preset="decel">⬇️ Sekinlanish</button>
-                    </div>
-                </div>
-
-                <div class="vector-info">
-                    <h4>📊 Tezlik Ma'lumotlari</h4>
-                    <div class="data-display">
-                        <div class="data-row">
-                            <span class="data-label">vₓ:</span>
-                            <span class="data-value" id="curVx">20.0 m/s</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">vᵧ:</span>
-                            <span class="data-value" id="curVy">15.0 m/s</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">|v⃗|:</span>
-                            <span class="data-value" id="curMag">25.0 m/s</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">θ:</span>
-                            <span class="data-value" id="curAng">36.9°</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Vaqt:</span>
-                            <span class="data-value" id="curTime">0.0 s</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Pozitsiya:</span>
-                            <span class="data-value" id="curPos">(0, 0)</span>
-                        </div>
+                        <button class="preset-btn" data-preset="decel">⬇️ Sekinlash</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="theory-section">
-            <h2>📚 Nazariy Asoslar</h2>
-            
-            <div class="formula-box">
-                <h4>Tezlik Vektori Kattaligi</h4>
-                <p>$$|\vec{v}| = \sqrt{v_x^2 + v_y^2}$$</p>
-                <p>Pifagor teoremasi asosida tezlik vektorining kattaligini hisoblash.</p>
+        <div class="theory">
+            <button class="collapse-btn" id="theoryBtn">
+                📚 Nazariya
+                <span>▼</span>
+            </button>
+            <div class="collapse-content" id="theoryContent">
+                <div class="formula">
+                    <h4>Tezlik Vektori Kattaligi</h4>
+                    <p>$$|\vec{v}| = \sqrt{v_x^2 + v_y^2}$$</p>
+                </div>
+                <div class="formula">
+                    <h4>Yo'nalish</h4>
+                    <p>$$\theta = \arctan\left(\frac{v_y}{v_x}\right)$$</p>
+                </div>
+                <div class="formula">
+                    <h4>Kinematika</h4>
+                    <p>$$v_x(t) = v_{0x} + a_x t$$</p>
+                    <p>$$v_y(t) = v_{0y} + a_y t$$</p>
+                </div>
+                <h3 style="margin-top:15px; font-size:1em;">Misollar:</h3>
+                <ul class="examples">
+                    <li>Top o'qi harakati</li>
+                    <li>Planetalar harakati</li>
+                    <li>Avtomobil harakati</li>
+                    <li>Samolyot harakati</li>
+                </ul>
             </div>
-
-            <div class="formula-box">
-                <h4>Tezlik Vektori Yo'nalishi</h4>
-                <p>$$\theta = \arctan\left(\frac{v_y}{v_x}\right)$$</p>
-                <p>Tezlik vektorining gorizontal o'q bilan hosil qilgan burchagi.</p>
-            </div>
-
-            <div class="formula-box">
-                <h4>Kinematik Tenglamalar</h4>
-                <p>$$v_x(t) = v_{0x} + a_x \cdot t$$</p>
-                <p>$$v_y(t) = v_{0y} + a_y \cdot t$$</p>
-                <p>$$x(t) = x_0 + v_{0x} \cdot t + \frac{1}{2}a_x \cdot t^2$$</p>
-                <p>$$y(t) = y_0 + v_{0y} \cdot t + \frac{1}{2}a_y \cdot t^2$$</p>
-            </div>
-
-            <h3>🌍 Real Hayotdagi Misollar</h3>
-            <ul>
-                <li><strong>Proyektil harakati:</strong> Top o'qi yoki futbol to'pining harakati</li>
-                <li><strong>Aylana harakat:</strong> Planetalarning Quyosh atrofidagi harakati</li>
-                <li><strong>Avtomobil harakati:</strong> Egri yo'lda harakatlanuvchi mashina</li>
-                <li><strong>Samolyot harakati:</strong> Shamol ta'sirida uchayotgan samolyot</li>
-            </ul>
         </div>
     </div>
 
@@ -463,21 +513,23 @@
                 this.x0 = 0; this.y0 = 0;
                 this.vx0 = 20; this.vy0 = 15;
                 this.ax = 0; this.ay = -9.8;
-                
                 this.reset();
                 
                 this.scale = 3;
-                this.minScale = 0.5; this.maxScale = 20;
+                this.minScale = 0.5;
+                this.maxScale = 20;
                 this.ox = this.c.width / 2;
                 this.oy = this.c.height / 2;
+                
                 this.showGrid = true;
                 this.showTrail = true;
-                this.trail = [];
-                this.maxTrail = 200;
-                this.autoScale = true;
-                this.buf = 50;
-                this.vecScale = 5;
                 this.showComp = true;
+                this.autoScale = true;
+                
+                this.trail = [];
+                this.maxTrail = 150;
+                this.vecScale = 5;
+                this.buf = 30;
                 
                 this.bind();
                 this.updateUI();
@@ -490,80 +542,86 @@
                 this.c.width = r.width * dpr;
                 this.c.height = r.height * dpr;
                 this.ctx.scale(dpr, dpr);
-                this.c.style.width = r.width + 'px';
-                this.c.style.height = r.height + 'px';
             }
             
             bind() {
-                document.getElementById('vxSlider').oninput = e => {
+                const get = id => document.getElementById(id);
+                
+                get('vx').oninput = e => {
                     this.vx0 = +e.target.value;
                     this.fitView();
                     this.updateUI();
                 };
                 
-                document.getElementById('vySlider').oninput = e => {
+                get('vy').oninput = e => {
                     this.vy0 = +e.target.value;
                     this.fitView();
                     this.updateUI();
                 };
                 
-                document.getElementById('axSlider').oninput = e => {
+                get('ax').oninput = e => {
                     this.ax = +e.target.value;
                     this.fitView();
                     this.updateUI();
                 };
                 
-                document.getElementById('aySlider').oninput = e => {
+                get('ay').oninput = e => {
                     this.ay = +e.target.value;
                     this.fitView();
                     this.updateUI();
                 };
                 
-                document.getElementById('speedSlider').oninput = e => {
+                get('speed').oninput = e => {
                     this.speed = +e.target.value;
-                    document.getElementById('speedVal').textContent = this.speed.toFixed(1) + 'x';
+                    get('speedVal').textContent = this.speed.toFixed(1) + 'x';
                 };
                 
-                document.getElementById('playBtn').onclick = () => this.toggle();
-                document.getElementById('resetBtn').onclick = () => this.reset();
-                document.getElementById('clearBtn').onclick = () => this.trail = [];
+                get('playBtn').onclick = () => this.toggle();
+                get('resetBtn').onclick = () => this.reset();
+                get('clearBtn').onclick = () => this.trail = [];
                 
-                document.getElementById('zoomIn').onclick = () => this.scale = Math.min(this.maxScale, this.scale * 1.5);
-                document.getElementById('zoomOut').onclick = () => this.scale = Math.max(this.minScale, this.scale / 1.5);
-                document.getElementById('fitView').onclick = () => this.fitView();
-                
-                document.getElementById('autoScale').onchange = e => this.autoScale = e.target.checked;
-                document.getElementById('showGrid').onchange = e => this.showGrid = e.target.checked;
-                document.getElementById('showTrail').onchange = e => this.showTrail = e.target.checked;
-                document.getElementById('showComp').onchange = e => this.showComp = e.target.checked;
+                get('autoScale').onchange = e => this.autoScale = e.target.checked;
+                get('showGrid').onchange = e => this.showGrid = e.target.checked;
+                get('showTrail').onchange = e => this.showTrail = e.target.checked;
+                get('showComp').onchange = e => this.showComp = e.target.checked;
                 
                 document.querySelectorAll('.preset-btn').forEach(b => {
                     b.onclick = e => this.preset(e.target.dataset.preset);
                 });
                 
-                this.c.onclick = e => {
+                // Collapse controls
+                ['params', 'view', 'speed', 'presets', 'theory'].forEach(name => {
+                    const btn = get(name + 'Btn');
+                    const content = get(name + 'Content');
+                    if (btn && content) {
+                        btn.onclick = () => {
+                            content.classList.toggle('show');
+                            btn.querySelector('span').textContent = 
+                                content.classList.contains('show') ? '▲' : '▼';
+                        };
+                    }
+                });
+                
+                // Touch controls
+                let touchStartX = 0;
+                let touchStartY = 0;
+                
+                this.c.ontouchstart = e => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
                     const r = this.c.getBoundingClientRect();
-                    const x = e.clientX - r.left;
-                    const y = e.clientY - r.top;
-                    this.setPos(x, y);
+                    touchStartX = touch.clientX - r.left;
+                    touchStartY = touch.clientY - r.top;
                 };
                 
-                this.c.onmousemove = e => {
-                    const r = this.c.getBoundingClientRect();
-                    const x = (e.clientX - r.left - this.ox) / this.scale;
-                    const y = -(e.clientY - r.top - this.oy) / this.scale;
-                    document.getElementById('mousePos').textContent = `Kursor: (${x.toFixed(1)}, ${y.toFixed(1)})`;
+                this.c.ontouchend = e => {
+                    e.preventDefault();
+                    this.setPos(touchStartX, touchStartY);
                 };
                 
                 window.onresize = () => {
                     this.setup();
                     this.fitView();
-                };
-                
-                document.onkeydown = e => {
-                    if (e.key === ' ') { e.preventDefault(); this.toggle(); }
-                    if (e.key === 'r') this.reset();
-                    if (e.key === 'c') this.trail = [];
                 };
             }
             
@@ -580,7 +638,8 @@
             
             toggle() {
                 this.run = !this.run;
-                document.getElementById('playBtn').textContent = this.run ? '⏸️ Pauza' : '▶️ Boshlash';
+                document.getElementById('playBtn').textContent = 
+                    this.run ? '⏸️ Pauza' : '▶️ Start';
                 if (this.run) this.animate();
             }
             
@@ -594,13 +653,15 @@
                 
                 if (presets[p]) {
                     const pr = presets[p];
-                    this.vx0 = pr.vx0; this.vy0 = pr.vy0;
-                    this.ax = pr.ax; this.ay = pr.ay;
+                    this.vx0 = pr.vx0;
+                    this.vy0 = pr.vy0;
+                    this.ax = pr.ax;
+                    this.ay = pr.ay;
                     
-                    document.getElementById('vxSlider').value = pr.vx0;
-                    document.getElementById('vySlider').value = pr.vy0;
-                    document.getElementById('axSlider').value = pr.ax;
-                    document.getElementById('aySlider').value = pr.ay;
+                    document.getElementById('vx').value = pr.vx0;
+                    document.getElementById('vy').value = pr.vy0;
+                    document.getElementById('ax').value = pr.ax;
+                    document.getElementById('ay').value = pr.ay;
                     
                     this.reset();
                 }
@@ -664,17 +725,18 @@
                 const cx = (minX + maxX) / 2;
                 const cy = (minY + maxY) / 2;
                 
-                const sx = (this.c.width - 2 * this.buf) / rx;
-                const sy = (this.c.height - 2 * this.buf) / ry;
+                const r = this.c.getBoundingClientRect();
+                const sx = (r.width - 2 * this.buf) / rx;
+                const sy = (r.height - 2 * this.buf) / ry;
                 const ts = Math.min(sx, sy);
                 
                 const ns = Math.max(this.minScale, Math.min(this.maxScale, ts));
                 this.scale = this.scale * 0.95 + ns * 0.05;
                 
-                this.ox = this.c.width / 2 - cx * this.scale;
-                this.oy = this.c.height / 2 + cy * this.scale;
+                this.ox = r.width / 2 - cx * this.scale;
+                this.oy = r.height / 2 + cy * this.scale;
                 
-                this.vecScale = Math.max(1, Math.min(20, 50 / Math.max(1, vMag)));
+                this.vecScale = Math.max(1, Math.min(15, 40 / Math.max(1, vMag)));
             }
             
             fitView() {
@@ -689,23 +751,17 @@
                     est = Math.max(hMax, rMax);
                 }
                 
-                if (this.ax !== 0 || this.ay !== 0) {
-                    const te = Math.max(5, vMag / Math.max(1, Math.sqrt(this.ax * this.ax + this.ay * this.ay)));
-                    const xr = Math.abs(this.vx0 * te + 0.5 * this.ax * te * te);
-                    const yr = Math.abs(this.vy0 * te + 0.5 * this.ay * te * te);
-                    est = Math.max(xr, yr);
-                }
-                
                 est *= 1.5;
                 
-                const sx = (this.c.width - 2 * this.buf) / (2 * est);
-                const sy = (this.c.height - 2 * this.buf) / (2 * est);
+                const r = this.c.getBoundingClientRect();
+                const sx = (r.width - 2 * this.buf) / (2 * est);
+                const sy = (r.height - 2 * this.buf) / (2 * est);
                 this.scale = Math.max(this.minScale, Math.min(this.maxScale, Math.min(sx, sy)));
                 
-                this.ox = this.c.width / 2;
-                this.oy = this.c.height / 2;
+                this.ox = r.width / 2;
+                this.oy = r.height / 2;
                 
-                this.vecScale = Math.max(1, Math.min(20, 50 / Math.max(1, vMag)));
+                this.vecScale = Math.max(1, Math.min(15, 40 / Math.max(1, vMag)));
             }
             
             updateUI() {
@@ -714,25 +770,22 @@
                 document.getElementById('axVal').textContent = this.ax.toFixed(1) + ' m/s²';
                 document.getElementById('ayVal').textContent = this.ay.toFixed(1) + ' m/s²';
                 
-                document.getElementById('curVx').textContent = this.vx.toFixed(1) + ' m/s';
-                document.getElementById('curVy').textContent = this.vy.toFixed(1) + ' m/s';
+                document.getElementById('dvx').textContent = this.vx.toFixed(1) + ' m/s';
+                document.getElementById('dvy').textContent = this.vy.toFixed(1) + ' m/s';
                 
                 const mag = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                document.getElementById('curMag').textContent = mag.toFixed(1) + ' m/s';
+                document.getElementById('dmag').textContent = mag.toFixed(1) + ' m/s';
                 
                 const ang = Math.atan2(this.vy, this.vx) * 180 / Math.PI;
-                document.getElementById('curAng').textContent = ang.toFixed(1) + '°';
+                document.getElementById('dang').textContent = ang.toFixed(1) + '°';
                 
-                document.getElementById('curTime').textContent = this.t.toFixed(1) + ' s';
-                document.getElementById('curPos').textContent = `(${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
-                
-                const sr = this.scale.toFixed(2);
-                const mpp = (1 / this.scale).toFixed(2);
-                document.getElementById('scaleInfo').textContent = `Masshtab: ${sr} px/m (${mpp} m/px)`;
+                document.getElementById('time').textContent = this.t.toFixed(1) + 's';
+                document.getElementById('scale').textContent = this.scale.toFixed(1) + 'x';
             }
             
             draw() {
-                this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+                const r = this.c.getBoundingClientRect();
+                this.ctx.clearRect(0, 0, r.width, r.height);
                 
                 if (this.showGrid) this.drawGrid();
                 if (this.showTrail && this.trail.length > 1) this.drawTrail();
@@ -740,10 +793,10 @@
                 this.drawAxes();
                 this.drawParticle();
                 this.drawVectors();
-                this.drawLegend();
             }
             
             drawGrid() {
+                const r = this.c.getBoundingClientRect();
                 const gs = 50;
                 const gps = gs * this.scale;
                 
@@ -753,15 +806,15 @@
                 this.ctx.lineWidth = 1;
                 
                 const minX = Math.floor(-this.ox / gps) * gps;
-                const maxX = Math.ceil((this.c.width - this.ox) / gps) * gps;
+                const maxX = Math.ceil((r.width - this.ox) / gps) * gps;
                 const minY = Math.floor(-this.oy / gps) * gps;
-                const maxY = Math.ceil((this.c.height - this.oy) / gps) * gps;
+                const maxY = Math.ceil((r.height - this.oy) / gps) * gps;
                 
                 for (let x = minX; x <= maxX; x += gps) {
                     const sx = this.ox + x;
                     this.ctx.beginPath();
                     this.ctx.moveTo(sx, 0);
-                    this.ctx.lineTo(sx, this.c.height);
+                    this.ctx.lineTo(sx, r.height);
                     this.ctx.stroke();
                 }
                 
@@ -769,50 +822,25 @@
                     const sy = this.oy + y;
                     this.ctx.beginPath();
                     this.ctx.moveTo(0, sy);
-                    this.ctx.lineTo(this.c.width, sy);
+                    this.ctx.lineTo(r.width, sy);
                     this.ctx.stroke();
-                }
-                
-                this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                this.ctx.font = '10px Arial';
-                
-                for (let x = minX; x <= maxX; x += gps) {
-                    if (x === 0) continue;
-                    const sx = this.ox + x;
-                    const v = Math.round(x / this.scale);
-                    if (sx > 20 && sx < this.c.width - 20) {
-                        this.ctx.fillText(v, sx - 5, this.oy + 15);
-                    }
-                }
-                
-                for (let y = minY; y <= maxY; y += gps) {
-                    if (y === 0) continue;
-                    const sy = this.oy + y;
-                    const v = Math.round(-y / this.scale);
-                    if (sy > 15 && sy < this.c.height - 15) {
-                        this.ctx.fillText(v, this.ox + 5, sy + 3);
-                    }
                 }
             }
             
             drawAxes() {
+                const r = this.c.getBoundingClientRect();
                 this.ctx.strokeStyle = '#333';
                 this.ctx.lineWidth = 2;
                 
                 this.ctx.beginPath();
                 this.ctx.moveTo(0, this.oy);
-                this.ctx.lineTo(this.c.width, this.oy);
+                this.ctx.lineTo(r.width, this.oy);
                 this.ctx.stroke();
                 
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.ox, 0);
-                this.ctx.lineTo(this.ox, this.c.height);
+                this.ctx.lineTo(this.ox, r.height);
                 this.ctx.stroke();
-                
-                this.ctx.fillStyle = '#333';
-                this.ctx.font = '14px Arial';
-                this.ctx.fillText('X', this.c.width - 20, this.oy - 10);
-                this.ctx.fillText('Y', this.ox + 10, 20);
             }
             
             drawTrail() {
@@ -841,7 +869,7 @@
                 
                 this.ctx.fillStyle = '#e53e3e';
                 this.ctx.beginPath();
-                this.ctx.arc(sx, sy, 8, 0, 2 * Math.PI);
+                this.ctx.arc(sx, sy, 6, 0, 2 * Math.PI);
                 this.ctx.fill();
                 
                 this.ctx.strokeStyle = '#fff';
@@ -854,14 +882,14 @@
                 const sy = this.oy - this.y * this.scale;
                 
                 if (this.showComp) {
-                    this.drawVec(sx, sy, this.vx * this.vecScale, 0, '#ff6b6b', 'vₓ');
-                    this.drawVec(sx, sy, 0, -this.vy * this.vecScale, '#4ecdc4', 'vᵧ');
+                    this.drawVec(sx, sy, this.vx * this.vecScale, 0, '#ff6b6b');
+                    this.drawVec(sx, sy, 0, -this.vy * this.vecScale, '#4ecdc4');
                 }
                 
-                this.drawVec(sx, sy, this.vx * this.vecScale, -this.vy * this.vecScale, '#667eea', 'v⃗');
+                this.drawVec(sx, sy, this.vx * this.vecScale, -this.vy * this.vecScale, '#667eea');
             }
             
-            drawVec(sx, sy, dx, dy, col, lbl) {
+            drawVec(sx, sy, dx, dy, col) {
                 if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return;
                 
                 const ex = sx + dx;
@@ -869,7 +897,7 @@
                 
                 this.ctx.strokeStyle = col;
                 this.ctx.fillStyle = col;
-                this.ctx.lineWidth = 3;
+                this.ctx.lineWidth = 2;
                 
                 this.ctx.beginPath();
                 this.ctx.moveTo(sx, sy);
@@ -877,7 +905,7 @@
                 this.ctx.stroke();
                 
                 const ang = Math.atan2(dy, dx);
-                const al = 10;
+                const al = 8;
                 const aa = Math.PI / 6;
                 
                 this.ctx.beginPath();
@@ -886,41 +914,6 @@
                 this.ctx.lineTo(ex - al * Math.cos(ang + aa), ey - al * Math.sin(ang + aa));
                 this.ctx.closePath();
                 this.ctx.fill();
-                
-                this.ctx.fillStyle = col;
-                this.ctx.font = 'bold 14px Arial';
-                this.ctx.fillText(lbl, ex + 5, ey - 5);
-            }
-            
-            drawLegend() {
-                const lx = 10, ly = 10;
-                
-                this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
-                this.ctx.fillRect(lx, ly, 200, 100);
-                
-                this.ctx.strokeStyle = '#ccc';
-                this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(lx, ly, 200, 100);
-                
-                this.ctx.fillStyle = '#333';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('Legendlar:', lx + 10, ly + 20);
-                
-                const items = [
-                    { col: '#ff6b6b', lbl: 'vₓ - Gorizontal tezlik' },
-                    { col: '#4ecdc4', lbl: 'vᵧ - Vertikal tezlik' },
-                    { col: '#667eea', lbl: 'v⃗ - Natija tezlik' }
-                ];
-                
-                items.forEach((it, i) => {
-                    const y = ly + 40 + i * 20;
-                    
-                    this.ctx.fillStyle = it.col;
-                    this.ctx.fillRect(lx + 10, y - 8, 15, 3);
-                    
-                    this.ctx.fillStyle = '#333';
-                    this.ctx.fillText(it.lbl, lx + 30, y);
-                });
             }
             
             animate() {
