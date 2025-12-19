@@ -2,87 +2,263 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tezlanish Vektori - Acceleration Vector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tezlanish Vektori</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {tex: {inlineMath: [['$', '$']], displayMath: [['$$', '$$']]}};</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 8px;
             color: #333;
+            overflow-x: hidden;
         }
         .container {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .header {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             color: white;
         }
-        .header h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .header p { font-size: clamp(0.9rem, 2vw, 1.1rem); opacity: 0.9; }
-        .main-content { display: grid; grid-template-columns: 1fr 350px; gap: 20px; padding: 20px; }
-        @media (max-width: 1024px) { .main-content { grid-template-columns: 1fr; } }
-        .simulation-area { background: #f8f9fa; border-radius: 15px; padding: 20px; }
-        .canvas-container { position: relative; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
-        #canvas { display: block; width: 100%; height: 400px; cursor: crosshair; }
-        .controls-panel { background: #f8f9fa; border-radius: 15px; padding: 20px; height: fit-content; }
-        .control-group { margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .control-group h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1rem; }
-        .control-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .control-row label { flex: 1; font-weight: 500; color: #555; }
-        .slider-container { display: flex; align-items: center; gap: 10px; flex: 2; }
-        .slider { flex: 1; height: 6px; border-radius: 3px; background: #ddd; outline: none; }
-        .slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #4facfe; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: all 0.3s; }
-        .slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
-        .value-display { min-width: 60px; padding: 5px 10px; background: #e9ecef; border-radius: 15px; text-align: center; font-weight: 600; font-size: 0.9rem; color: #495057; }
-        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn { padding: 10px 20px; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.9rem; flex: 1; min-width: 80px; }
-        .btn-primary { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
-        .info-panel { background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .info-panel h4 { color: #2c3e50; margin-bottom: 10px; font-size: 1rem; }
-        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid #eee; }
-        .info-row:last-child { border-bottom: none; margin-bottom: 0; }
-        .info-label { font-weight: 500; color: #666; }
-        .info-value { font-weight: 600; color: #2c3e50; font-family: 'Courier New', monospace; }
-        .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .legend-item { display: flex; align-items: center; gap: 8px; padding: 5px 10px; background: white; border-radius: 20px; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .legend-color { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .motion-type-selector { display: flex; gap: 10px; margin-bottom: 15px; }
-        .motion-type-btn { flex: 1; padding: 8px 12px; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; text-align: center; }
-        .motion-type-btn.active { background: #4facfe; color: white; border-color: #4facfe; }
-        .motion-type-btn:hover { border-color: #4facfe; transform: translateY(-1px); }
-        .formula-display { background: #f8f9fa; border-left: 4px solid #4facfe; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
-        .theory-section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .theory-section h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.2rem; cursor: pointer; user-select: none; }
-        .theory-content { line-height: 1.6; color: #555; }
-        .theory-content ul { margin-left: 20px; margin-bottom: 15px; }
-        .theory-content li { margin-bottom: 5px; }
-        .collapsible::before { content: '▼'; margin-right: 10px; transition: transform 0.3s; }
-        .collapsible.collapsed::before { transform: rotate(-90deg); }
-        .collapsible-content { max-height: 500px; overflow: hidden; transition: max-height 0.3s; }
-        .collapsible-content.collapsed { max-height: 0; }
-        @media (max-width: 768px) {
-            .main-content { padding: 10px; }
-            .control-row { flex-direction: column; align-items: stretch; gap: 5px; }
-            .slider-container { flex-direction: column; }
-            .button-group { flex-direction: column; }
-            .btn { flex: none; }
-            #canvas { height: 300px; }
+        .header h1 { font-size: 1.5rem; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 0.85rem; opacity: 0.95; }
+        
+        .canvas-container {
+            position: relative;
+            background: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 300px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: #f8f9fa;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            background: white;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .motion-tabs {
+            display: flex;
+            background: #f8f9fa;
+            padding: 10px;
+            gap: 8px;
+        }
+        .motion-tab {
+            flex: 1;
+            padding: 10px 5px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .motion-tab.active {
+            background: #4facfe;
+            color: white;
+            border-color: #4facfe;
+        }
+        
+        .controls {
+            padding: 12px;
+            background: #f8f9fa;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .control-item {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .control-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .control-value {
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .info-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .theory {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .theory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 5px 0;
+        }
+        .theory-icon {
+            transition: transform 0.3s;
+        }
+        .theory-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        .theory-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s;
+            margin-top: 10px;
+        }
+        .theory-content.collapsed {
+            max-height: 0;
+            margin-top: 0;
+        }
+        .formula {
+            background: #f8f9fa;
+            border-left: 3px solid #4facfe;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.85rem;
+        }
+        .theory ul {
+            margin: 10px 0 10px 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        .theory li {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -90,94 +266,102 @@
     <div class="container">
         <div class="header">
             <h1>🎯 Tezlanish Vektori</h1>
-            <p>Acceleration Vector Simulation - O'zgaruvchan harakat va vektor tahlili</p>
+            <p>Acceleration Vector Simulation</p>
         </div>
 
-        <div class="main-content">
-            <div class="simulation-area">
-                <div class="legend">
-                    <div class="legend-item"><div class="legend-color" style="background: #ff6b6b;"></div><span>Tezlik vektori (v⃗)</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background: #4ecdc4;"></div><span>Tezlanish vektori (a⃗)</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background: #45b7d1;"></div><span>Normal tezlanish (aₙ)</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background: #f39c12;"></div><span>Tangensial tezlanish (aₜ)</span></div>
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color" style="background: #ff6b6b;"></div><span>Tezlik (v⃗)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #4ecdc4;"></div><span>Tezlanish (a⃗)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #45b7d1;"></div><span>Normal (aₙ)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #f39c12;"></div><span>Tangensial (aₜ)</span></div>
+        </div>
+
+        <div class="motion-tabs">
+            <div class="motion-tab active" data-motion="circular">Aylanma</div>
+            <div class="motion-tab" data-motion="parabolic">Proyektil</div>
+            <div class="motion-tab" data-motion="custom">Maxsus</div>
+        </div>
+
+        <div class="controls">
+            <div class="btn-group">
+                <button class="btn btn-primary" id="playBtn">To'xtatish</button>
+                <button class="btn btn-secondary" id="resetBtn">Qayta</button>
+            </div>
+
+            <div class="control-item">
+                <div class="control-header">
+                    <span class="control-label">Tezlik</span>
+                    <span class="control-value" id="velVal">5.0 m/s</span>
                 </div>
-                <div class="canvas-container"><canvas id="canvas"></canvas></div>
-                <div class="motion-type-selector">
-                    <div class="motion-type-btn active" onclick="app.setMotion('circular')">Aylanma harakat</div>
-                    <div class="motion-type-btn" onclick="app.setMotion('parabolic')">Proyektil harakat</div>
-                    <div class="motion-type-btn" onclick="app.setMotion('custom')">Maxsus yo'l</div>
+                <input type="range" class="slider" id="velSlider" min="1" max="15" step="0.5" value="5">
+            </div>
+
+            <div class="control-item">
+                <div class="control-header">
+                    <span class="control-label">Radius</span>
+                    <span class="control-value" id="radVal">80 px</span>
+                </div>
+                <input type="range" class="slider" id="radSlider" min="30" max="120" step="5" value="80">
+            </div>
+
+            <div class="control-item">
+                <div class="control-header">
+                    <span class="control-label">Animatsiya tezligi</span>
+                    <span class="control-value" id="spdVal">2.0x</span>
+                </div>
+                <input type="range" class="slider" id="spdSlider" min="0.5" max="5" step="0.2" value="2">
+            </div>
+
+            <div class="control-item">
+                <div class="control-header">
+                    <span class="control-label">Vektor o'lchami</span>
+                    <span class="control-value" id="sclVal">1.0x</span>
+                </div>
+                <input type="range" class="slider" id="sclSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-label">Tezlik</div>
+                    <div class="info-value" id="iVel">5.0 m/s</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Markazga</div>
+                    <div class="info-value" id="iCent">0.31 m/s²</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Tangensial</div>
+                    <div class="info-value" id="iTang">0.0 m/s²</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Umumiy</div>
+                    <div class="info-value" id="iTot">0.31 m/s²</div>
                 </div>
             </div>
 
-            <div class="controls-panel">
-                <div class="control-group">
-                    <h3>🎮 Boshqaruv</h3>
-                    <div class="button-group">
-                        <button class="btn btn-primary" onclick="app.toggle()"><span id="playText">To'xtatish</span></button>
-                        <button class="btn btn-secondary" onclick="app.reset()">Qayta boshlash</button>
-                    </div>
+            <div class="theory">
+                <div class="theory-header" id="theoryToggle">
+                    <span>📚 Nazariy ma'lumotlar</span>
+                    <span class="theory-icon">▼</span>
                 </div>
-
-                <div class="control-group">
-                    <h3>⚙️ Parametrlar</h3>
-                    <div class="control-row">
-                        <label>Tezlik:</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" id="vel" min="1" max="15" step="0.5" value="5">
-                            <span class="value-display" id="velVal">5.0 m/s</span>
-                        </div>
+                <div class="theory-content" id="theoryContent">
+                    <div class="formula">
+                        <strong>Asosiy formulalar:</strong><br>
+                        $$\vec{a} = \frac{d\vec{v}}{dt}$$<br>
+                        $$a_n = \frac{v^2}{r}$$<br>
+                        $$a_t = \frac{dv}{dt}$$<br>
+                        $$|\vec{a}| = \sqrt{a_n^2 + a_t^2}$$
                     </div>
-                    <div class="control-row">
-                        <label>Radius:</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" id="rad" min="30" max="150" step="5" value="80">
-                            <span class="value-display" id="radVal">80 px</span>
-                        </div>
-                    </div>
-                    <div class="control-row">
-                        <label>Animatsiya tezligi:</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" id="spd" min="0.5" max="8" step="0.2" value="2">
-                            <span class="value-display" id="spdVal">2.0x</span>
-                        </div>
-                    </div>
-                    <div class="control-row">
-                        <label>Vektor o'lchami:</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" id="scl" min="0.5" max="3" step="0.1" value="1">
-                            <span class="value-display" id="sclVal">1.0x</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="info-panel">
-                    <h4>📊 Joriy qiymatlar</h4>
-                    <div class="info-row"><span class="info-label">Tezlik:</span><span class="info-value" id="iVel">5.0 m/s</span></div>
-                    <div class="info-row"><span class="info-label">Markazga intiluvchi:</span><span class="info-value" id="iCent">0.313 m/s²</span></div>
-                    <div class="info-row"><span class="info-label">Tangensial:</span><span class="info-value" id="iTang">0.0 m/s²</span></div>
-                    <div class="info-row"><span class="info-label">Umumiy tezlanish:</span><span class="info-value" id="iTot">0.313 m/s²</span></div>
-                    <div class="info-row"><span class="info-label">Burchak tezligi:</span><span class="info-value" id="iOmega">0.063 rad/s</span></div>
-                </div>
-
-                <div class="theory-section">
-                    <h3 class="collapsible" onclick="app.toggleTheory()">📚 Nazariy ma'lumotlar</h3>
-                    <div class="collapsible-content" id="theory">
-                        <div class="theory-content">
-                            <div class="formula-display">
-                                <strong>Asosiy formulalar:</strong><br>
-                                $$\vec{a} = \frac{d\vec{v}}{dt}$$
-                                $$a_n = \frac{v^2}{r}$$ (markazga intiluvchi)
-                                $$a_t = \frac{dv}{dt}$$ (tangensial)
-                                $$|\vec{a}| = \sqrt{a_n^2 + a_t^2}$$
-                            </div>
-                            <ul>
-                                <li><strong>Markazga intiluvchi:</strong> Harakat yo'nalishini o'zgartiradi</li>
-                                <li><strong>Tangensial:</strong> Tezlik kattaligini o'zgartiradi</li>
-                                <li><strong>Umumiy tezlanish:</strong> Ikki komponentning vektorial yig'indisi</li>
-                                <li><strong>Egri chiziq harakati:</strong> Har doim markazga intiluvchi tezlanish mavjud</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <ul>
+                        <li><strong>Markazga intiluvchi:</strong> Harakat yo'nalishini o'zgartiradi</li>
+                        <li><strong>Tangensial:</strong> Tezlik kattaligini o'zgartiradi</li>
+                        <li><strong>Umumiy:</strong> Ikki komponentning vektorial yig'indisi</li>
+                        <li><strong>Egri harakat:</strong> Doimo markazga intiluvchi tezlanish mavjud</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -192,47 +376,59 @@
             t: 0,
             motion: 'circular',
             trail: [],
-            maxTrail: 50,
-            
-            // Parameters
+            maxTrail: 40,
             vel: 5, rad: 80, spd: 2, scl: 1,
-            
-            // Vectors
-            pos: {x: 0, y: 0},
-            v: {x: 0, y: 0},
-            a: {x: 0, y: 0},
-            an: {x: 0, y: 0},
-            at: {x: 0, y: 0},
+            pos: {x: 0, y: 0}, v: {x: 0, y: 0}, a: {x: 0, y: 0}, an: {x: 0, y: 0}, at: {x: 0, y: 0},
             
             init() {
                 this.ctx = this.canvas.getContext('2d');
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
-                // Event listeners
-                ['vel', 'rad', 'spd', 'scl'].forEach(id => {
-                    document.getElementById(id).addEventListener('input', e => {
-                        this[id] = parseFloat(e.target.value);
-                        this.updateDisplay();
+                document.getElementById('velSlider').addEventListener('input', e => {
+                    this.vel = parseFloat(e.target.value);
+                    document.getElementById('velVal').textContent = this.vel.toFixed(1) + ' m/s';
+                });
+                document.getElementById('radSlider').addEventListener('input', e => {
+                    this.rad = parseFloat(e.target.value);
+                    document.getElementById('radVal').textContent = this.rad.toFixed(0) + ' px';
+                });
+                document.getElementById('spdSlider').addEventListener('input', e => {
+                    this.spd = parseFloat(e.target.value);
+                    document.getElementById('spdVal').textContent = this.spd.toFixed(1) + 'x';
+                });
+                document.getElementById('sclSlider').addEventListener('input', e => {
+                    this.scl = parseFloat(e.target.value);
+                    document.getElementById('sclVal').textContent = this.scl.toFixed(1) + 'x';
+                });
+                
+                document.getElementById('playBtn').addEventListener('click', () => this.toggle());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                
+                document.querySelectorAll('.motion-tab').forEach(tab => {
+                    tab.addEventListener('click', e => {
+                        this.motion = e.target.dataset.motion;
+                        this.t = 0;
+                        this.trail = [];
+                        document.querySelectorAll('.motion-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
                     });
                 });
                 
-                this.updateDisplay();
+                document.getElementById('theoryToggle').addEventListener('click', () => {
+                    const content = document.getElementById('theoryContent');
+                    const icon = document.querySelector('.theory-icon');
+                    content.classList.toggle('collapsed');
+                    icon.classList.toggle('collapsed');
+                });
+                
                 this.animate();
             },
             
             resize() {
-                const cont = this.canvas.parentElement;
-                this.canvas.width = cont.offsetWidth;
-                this.canvas.height = cont.offsetHeight;
-            },
-            
-            setMotion(type) {
-                this.motion = type;
-                this.t = 0;
-                this.trail = [];
-                document.querySelectorAll('.motion-type-btn').forEach(b => b.classList.remove('active'));
-                event.target.classList.add('active');
+                const w = this.canvas.parentElement.offsetWidth;
+                this.canvas.width = w;
+                this.canvas.height = 300;
             },
             
             calcMotion() {
@@ -248,18 +444,20 @@
                     this.a = {...this.an};
                 } else if (this.motion === 'parabolic') {
                     const t = this.t * 0.3, v0 = this.vel, ang = Math.PI / 4, g = 15;
-                    this.pos = {x: cx - 150 + v0 * Math.cos(ang) * t, y: cy - v0 * Math.sin(ang) * t + 0.5 * g * t * t};
+                    this.pos = {x: cx - 120 + v0 * Math.cos(ang) * t, y: cy - v0 * Math.sin(ang) * t + 0.5 * g * t * t};
                     this.v = {x: v0 * Math.cos(ang), y: -v0 * Math.sin(ang) + g * t};
                     this.a = {x: 0, y: g};
                     
                     const vm = Math.hypot(this.v.x, this.v.y);
-                    const curv = g * this.v.x / (vm * vm);
-                    this.an = {x: curv * this.v.y / vm, y: -curv * this.v.x / vm};
-                    this.at = {x: this.a.x - this.an.x, y: this.a.y - this.an.y};
+                    if (vm > 0) {
+                        const curv = g * this.v.x / (vm * vm);
+                        this.an = {x: curv * this.v.y / vm, y: -curv * this.v.x / vm};
+                        this.at = {x: this.a.x - this.an.x, y: this.a.y - this.an.y};
+                    }
                     
                     if (this.pos.y > this.canvas.height) { this.t = 0; this.trail = []; }
                 } else {
-                    const t = this.t * 0.1, amp = 80;
+                    const t = this.t * 0.1, amp = 60;
                     this.pos = {x: cx + amp * Math.cos(t) * Math.sin(2*t), y: cy + amp * Math.sin(t) * Math.cos(t)};
                     this.v = {x: amp * (-Math.sin(t) * Math.sin(2*t) + Math.cos(t) * 2 * Math.cos(2*t)), y: amp * (Math.cos(t) * Math.cos(t) - Math.sin(t) * Math.sin(t))};
                     this.a = {x: amp * (-Math.cos(t) * Math.sin(2*t) - 4 * Math.sin(t) * Math.cos(2*t) - 4 * Math.cos(t) * Math.sin(2*t)), y: amp * (-4 * Math.sin(t) * Math.cos(t))};
@@ -279,13 +477,13 @@
                 if (Math.abs(sx) < 0.1 && Math.abs(sy) < 0.1) return;
                 
                 this.ctx.strokeStyle = this.ctx.fillStyle = col;
-                this.ctx.lineWidth = 3;
+                this.ctx.lineWidth = 2.5;
                 this.ctx.beginPath();
                 this.ctx.moveTo(x, y);
                 this.ctx.lineTo(x + sx, y + sy);
                 this.ctx.stroke();
                 
-                const ang = Math.atan2(sy, sx), al = 10, aa = Math.PI / 6;
+                const ang = Math.atan2(sy, sx), al = 8, aa = Math.PI / 6;
                 this.ctx.beginPath();
                 this.ctx.moveTo(x + sx, y + sy);
                 this.ctx.lineTo(x + sx - al * Math.cos(ang - aa), y + sy - al * Math.sin(ang - aa));
@@ -294,7 +492,7 @@
                 this.ctx.fill();
                 
                 if (lbl) {
-                    this.ctx.font = '12px Arial';
+                    this.ctx.font = 'bold 11px Arial';
                     this.ctx.fillText(lbl, x + sx + 5, y + sy - 5);
                 }
             },
@@ -302,34 +500,31 @@
             draw() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 
-                // Grid
                 this.ctx.strokeStyle = 'rgba(200,200,200,0.3)';
                 this.ctx.lineWidth = 1;
-                for (let i = 0; i <= this.canvas.width; i += 50) {
+                for (let i = 0; i <= this.canvas.width; i += 40) {
                     this.ctx.beginPath();
                     this.ctx.moveTo(i, 0);
                     this.ctx.lineTo(i, this.canvas.height);
                     this.ctx.stroke();
                 }
-                for (let i = 0; i <= this.canvas.height; i += 50) {
+                for (let i = 0; i <= this.canvas.height; i += 40) {
                     this.ctx.beginPath();
                     this.ctx.moveTo(0, i);
                     this.ctx.lineTo(this.canvas.width, i);
                     this.ctx.stroke();
                 }
                 
-                // Circle path
                 if (this.motion === 'circular') {
                     this.ctx.strokeStyle = 'rgba(79,172,254,0.3)';
                     this.ctx.lineWidth = 2;
                     this.ctx.setLineDash([5, 5]);
                     this.ctx.beginPath();
-                    this.ctx.arc(this.canvas.width / 2, this.canvas.height / 2, this.rad, 0, 2 * Math.PI);
+                    this.ctx.arc(cx = this.canvas.width / 2, cy = this.canvas.height / 2, this.rad, 0, 2 * Math.PI);
                     this.ctx.stroke();
                     this.ctx.setLineDash([]);
                 }
                 
-                // Trail
                 if (this.trail.length > 1) {
                     this.ctx.strokeStyle = 'rgba(108,117,125,0.5)';
                     this.ctx.lineWidth = 2;
@@ -343,17 +538,15 @@
                     this.ctx.globalAlpha = 1;
                 }
                 
-                // Particle
                 this.ctx.fillStyle = '#2c3e50';
                 this.ctx.beginPath();
-                this.ctx.arc(this.pos.x, this.pos.y, 8, 0, 2 * Math.PI);
+                this.ctx.arc(this.pos.x, this.pos.y, 6, 0, 2 * Math.PI);
                 this.ctx.fill();
                 this.ctx.fillStyle = 'rgba(44,62,80,0.3)';
                 this.ctx.beginPath();
-                this.ctx.arc(this.pos.x, this.pos.y, 12, 0, 2 * Math.PI);
+                this.ctx.arc(this.pos.x, this.pos.y, 10, 0, 2 * Math.PI);
                 this.ctx.fill();
                 
-                // Vectors
                 this.drawVec(this.pos.x, this.pos.y, this.v.x, this.v.y, '#ff6b6b', 10, 'v⃗');
                 this.drawVec(this.pos.x, this.pos.y, this.a.x, this.a.y, '#4ecdc4', 50, 'a⃗');
                 this.drawVec(this.pos.x, this.pos.y, this.an.x, this.an.y, '#45b7d1', 50, 'aₙ');
@@ -379,7 +572,7 @@
             
             toggle() {
                 this.playing = !this.playing;
-                document.getElementById('playText').textContent = this.playing ? "To'xtatish" : "Boshlash";
+                document.getElementById('playBtn').textContent = this.playing ? "To'xtatish" : "Boshlash";
                 if (this.playing) this.animate();
                 else cancelAnimationFrame(this.animId);
             },
@@ -388,16 +581,7 @@
                 this.t = 0;
                 this.trail = [];
                 this.calcMotion();
-                this.updateDisplay();
-                this.updateInfo();
                 if (!this.playing) this.draw();
-            },
-            
-            updateDisplay() {
-                document.getElementById('velVal').textContent = this.vel.toFixed(1) + ' m/s';
-                document.getElementById('radVal').textContent = this.rad.toFixed(0) + ' px';
-                document.getElementById('spdVal').textContent = this.spd.toFixed(1) + 'x';
-                document.getElementById('sclVal').textContent = this.scl.toFixed(1) + 'x';
             },
             
             updateInfo() {
@@ -407,17 +591,9 @@
                 const atm = Math.hypot(this.at.x, this.at.y);
                 
                 document.getElementById('iVel').textContent = (vm * 0.2).toFixed(2) + ' m/s';
-                document.getElementById('iCent').textContent = (anm * 0.02).toFixed(3) + ' m/s²';
-                document.getElementById('iTang').textContent = (atm * 0.02).toFixed(3) + ' m/s²';
-                document.getElementById('iTot').textContent = (am * 0.02).toFixed(3) + ' m/s²';
-                document.getElementById('iOmega').textContent = this.motion === 'circular' ? (this.vel / this.rad).toFixed(3) + ' rad/s' : 'N/A';
-            },
-            
-            toggleTheory() {
-                const content = document.getElementById('theory');
-                const header = document.querySelector('.collapsible');
-                content.classList.toggle('collapsed');
-                header.classList.toggle('collapsed');
+                document.getElementById('iCent').textContent = (anm * 0.02).toFixed(2) + ' m/s²';
+                document.getElementById('iTang').textContent = (atm * 0.02).toFixed(2) + ' m/s²';
+                document.getElementById('iTot').textContent = (am * 0.02).toFixed(2) + ' m/s²';
             }
         };
         
