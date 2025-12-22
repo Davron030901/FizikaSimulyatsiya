@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematik Mayatnik Simulyatsiyasi</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00d9ff;
+            --secondary: #ff00ff;
+            --accent: #ffff00;
+            --dark: #0a0e27;
+            --darker: #050814;
+            --grid: #1a1e3a;
+        }
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 3em;
+            text-align: center;
+            margin: 30px 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px var(--primary)); }
+            to { filter: drop-shadow(0 0 30px var(--secondary)); }
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .panel {
+            background: rgba(26, 30, 58, 0.6);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: borderRotate 3s linear infinite;
+        }
+        
+        .panel:hover::before {
+            opacity: 0.3;
+        }
+        
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4em;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        
+        canvas {
+            background: var(--darker);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            display: block;
+            width: 100%;
+            box-shadow: inset 0 0 30px rgba(0, 217, 255, 0.1);
+        }
+        
+        .controls-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            background: rgba(10, 14, 39, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--grid);
+        }
+        
+        label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .value {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--grid);
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--primary);
+            transition: all 0.2s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 25px var(--secondary);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            font-family: 'Orbitron', sans-serif;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 0, 255, 0.1));
+            color: var(--primary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            font-weight: 700;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(255, 0, 255, 0.3));
+            box-shadow: 0 0 20px var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .info-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-box {
+            background: rgba(10, 14, 39, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .info-label {
+            font-size: 0.85em;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3em;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .formula-box {
+            background: rgba(10, 14, 39, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .formula {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+        
+        .angle-mode {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--grid);
+            background: rgba(10, 14, 39, 0.7);
+            color: var(--primary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            border-color: var(--accent);
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--accent);
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+        }
+        
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚛️ Matematik Mayatnik ⚛️</h1>
+        
+        <div class="main-grid">
+            <!-- Mayatnik vizualizatsiyasi -->
+            <div class="panel">
+                <div class="panel-title">📊 Mayatnik Harakati</div>
+                <canvas id="pendulumCanvas" width="600" height="500"></canvas>
+                
+                <div class="button-group">
+                    <button onclick="toggleAnimation()">▶️ Start/Stop</button>
+                    <button onclick="resetPendulum()">🔄 Reset</button>
+                </div>
+            </div>
+            
+            <!-- Fazali diagramma -->
+            <div class="panel">
+                <div class="panel-title">🌀 Fazali Diagramma (θ vs ω)</div>
+                <canvas id="phaseCanvas" width="600" height="500"></canvas>
+            </div>
+            
+            <!-- Boshqaruv paneli -->
+            <div class="panel">
+                <div class="panel-title">⚙️ Parametrlar</div>
+                
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label>
+                            <span>Uzunlik (l)</span>
+                            <span class="value" id="lengthValue">2.0 m</span>
+                        </label>
+                        <input type="range" id="length" min="0.5" max="5" step="0.1" value="2">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Boshlang'ich Burchak (θ₀)</span>
+                            <span class="value" id="angleValue">45°</span>
+                        </label>
+                        <input type="range" id="angle" min="5" max="170" step="5" value="45">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Tortishish Tezlanishi (g)</span>
+                            <span class="value" id="gravityValue">9.81 m/s²</span>
+                        </label>
+                        <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.81">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Damping (So'nish)</span>
+                            <span class="value" id="dampingValue">0.00</span>
+                        </label>
+                        <input type="range" id="damping" min="0" max="0.5" step="0.01" value="0">
+                    </div>
+                </div>
+                
+                <div class="formula-box">
+                    <div class="info-label">Period Formulasi:</div>
+                    <div class="formula">T = 2π√(l/g)</div>
+                </div>
+                
+                <div class="angle-mode">
+                    <button class="mode-btn active" onclick="setAngleMode('small')">Kichik Burchak</button>
+                    <button class="mode-btn" onclick="setAngleMode('large')">Katta Burchak</button>
+                </div>
+            </div>
+            
+            <!-- Ma'lumotlar paneli -->
+            <div class="panel">
+                <div class="panel-title">📈 Haqiqiy Vaqtda Ma'lumotlar</div>
+                
+                <div class="info-display">
+                    <div class="info-box">
+                        <div class="info-label">Period (T)</div>
+                        <div class="info-value" id="period">0.00 s</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Chastota (f)</div>
+                        <div class="info-value" id="frequency">0.00 Hz</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Hozirgi Burchak (θ)</div>
+                        <div class="info-value" id="currentAngle">0.0°</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Burchak Tezligi (ω)</div>
+                        <div class="info-value" id="angularVelocity">0.00 rad/s</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Kinetik Energiya (Ek)</div>
+                        <div class="info-value" id="kineticEnergy">0.00 J</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Potensial Energiya (Ep)</div>
+                        <div class="info-value" id="potentialEnergy">0.00 J</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Umumiy Energiya (E)</div>
+                        <div class="info-value" id="totalEnergy">0.00 J</div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-label">Tezlik (v)</div>
+                        <div class="info-value" id="velocity">0.00 m/s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas elementlari
+        const pendulumCanvas = document.getElementById('pendulumCanvas');
+        const phaseCanvas = document.getElementById('phaseCanvas');
+        const pendulumCtx = pendulumCanvas.getContext('2d');
+        const phaseCtx = phaseCanvas.getContext('2d');
+        
+        // Mayatnik parametrlari
+        let length = 2.0; // metr
+        let angle = Math.PI / 4; // radian (45°)
+        let initialAngle = Math.PI / 4;
+        let angularVelocity = 0;
+        let gravity = 9.81; // m/s²
+        let damping = 0.0;
+        let mass = 1.0; // kg
+        let angleMode = 'small'; // 'small' yoki 'large'
+        
+        // Animatsiya parametrlari
+        let isAnimating = false;
+        let lastTime = 0;
+        
+        // Fazali diagramma uchun ma'lumotlar
+        let phaseHistory = [];
+        const maxPhaseHistory = 500;
+        
+        // Canvas o'lchamlari
+        const pendulumWidth = pendulumCanvas.width;
+        const pendulumHeight = pendulumCanvas.height;
+        const phaseWidth = phaseCanvas.width;
+        const phaseHeight = phaseCanvas.height;
+        
+        // Mayatnik markazi
+        const pivotX = pendulumWidth / 2;
+        const pivotY = 80;
+        const scale = 80; // pixels per meter
+        
+        // Event listeners
+        document.getElementById('length').addEventListener('input', function(e) {
+            length = parseFloat(e.target.value);
+            document.getElementById('lengthValue').textContent = length.toFixed(1) + ' m';
+            updatePeriod();
+        });
+        
+        document.getElementById('angle').addEventListener('input', function(e) {
+            const degrees = parseFloat(e.target.value);
+            initialAngle = degrees * Math.PI / 180;
+            document.getElementById('angleValue').textContent = degrees + '°';
+            resetPendulum();
+        });
+        
+        document.getElementById('gravity').addEventListener('input', function(e) {
+            gravity = parseFloat(e.target.value);
+            document.getElementById('gravityValue').textContent = gravity.toFixed(2) + ' m/s²';
+            updatePeriod();
+        });
+        
+        document.getElementById('damping').addEventListener('input', function(e) {
+            damping = parseFloat(e.target.value);
+            document.getElementById('dampingValue').textContent = damping.toFixed(2);
+        });
+        
+        function setAngleMode(mode) {
+            angleMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'small') {
+                document.getElementById('angle').max = 30;
+                document.getElementById('angle').value = 15;
+                initialAngle = 15 * Math.PI / 180;
+                document.getElementById('angleValue').textContent = '15°';
+            } else {
+                document.getElementById('angle').max = 170;
+                document.getElementById('angle').value = 90;
+                initialAngle = 90 * Math.PI / 180;
+                document.getElementById('angleValue').textContent = '90°';
+            }
+            resetPendulum();
+        }
+        
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            if (isAnimating) {
+                lastTime = performance.now();
+                animate();
+            }
+        }
+        
+        function resetPendulum() {
+            angle = initialAngle;
+            angularVelocity = 0;
+            phaseHistory = [];
+            updateDisplay();
+            drawPendulum();
+            drawPhase();
+        }
+        
+        function updatePeriod() {
+            const period = 2 * Math.PI * Math.sqrt(length / gravity);
+            const frequency = 1 / period;
+            document.getElementById('period').textContent = period.toFixed(2) + ' s';
+            document.getElementById('frequency').textContent = frequency.toFixed(2) + ' Hz';
+        }
+        
+        function calculateEnergies() {
+            // Potensial energiya: Ep = mgl(1 - cos(θ))
+            const potentialEnergy = mass * gravity * length * (1 - Math.cos(angle));
+            
+            // Kinetik energiya: Ek = (1/2)ml²ω²
+            const kineticEnergy = 0.5 * mass * length * length * angularVelocity * angularVelocity;
+            
+            // Umumiy energiya
+            const totalEnergy = potentialEnergy + kineticEnergy;
+            
+            // Chiziqli tezlik: v = lω
+            const velocity = length * Math.abs(angularVelocity);
+            
+            return { potentialEnergy, kineticEnergy, totalEnergy, velocity };
+        }
+        
+        function updateDisplay() {
+            const energies = calculateEnergies();
+            
+            document.getElementById('currentAngle').textContent = (angle * 180 / Math.PI).toFixed(1) + '°';
+            document.getElementById('angularVelocity').textContent = angularVelocity.toFixed(2) + ' rad/s';
+            document.getElementById('kineticEnergy').textContent = energies.kineticEnergy.toFixed(2) + ' J';
+            document.getElementById('potentialEnergy').textContent = energies.potentialEnergy.toFixed(2) + ' J';
+            document.getElementById('totalEnergy').textContent = energies.totalEnergy.toFixed(2) + ' J';
+            document.getElementById('velocity').textContent = energies.velocity.toFixed(2) + ' m/s';
+        }
+        
+        function updatePhysics(dt) {
+            // Burchak tezlanishi: α = -(g/l)sin(θ) - b*ω
+            // Kichik burchak uchun: sin(θ) ≈ θ
+            // Katta burchak uchun: to'liq sin(θ)
+            
+            let angularAcceleration;
+            if (angleMode === 'small' && Math.abs(angle) < 0.5) {
+                // Kichik burchak approksimatsiyasi
+                angularAcceleration = -(gravity / length) * angle - damping * angularVelocity;
+            } else {
+                // To'liq tenglamа
+                angularAcceleration = -(gravity / length) * Math.sin(angle) - damping * angularVelocity;
+            }
+            
+            // NaN va Infinity tekshiruvi
+            if (!isFinite(angularAcceleration)) {
+                resetPendulum();
+                return;
+            }
+            
+            // Verlet integratsiya (aniqroq)
+            angularVelocity += angularAcceleration * dt;
+            angle += angularVelocity * dt;
+            
+            // Qiymatlarni tekshirish
+            if (!isFinite(angle) || !isFinite(angularVelocity)) {
+                resetPendulum();
+                return;
+            }
+            
+            // Fazali diagramma uchun ma'lumotlarni saqlash
+            phaseHistory.push({ angle: angle, velocity: angularVelocity });
+            if (phaseHistory.length > maxPhaseHistory) {
+                phaseHistory.shift();
+            }
+        }
+        
+        function drawPendulum() {
+            pendulumCtx.clearRect(0, 0, pendulumWidth, pendulumHeight);
+            
+            // Grid chizish
+            pendulumCtx.strokeStyle = 'rgba(0, 217, 255, 0.1)';
+            pendulumCtx.lineWidth = 1;
+            for (let i = 0; i < pendulumWidth; i += 50) {
+                pendulumCtx.beginPath();
+                pendulumCtx.moveTo(i, 0);
+                pendulumCtx.lineTo(i, pendulumHeight);
+                pendulumCtx.stroke();
+            }
+            for (let i = 0; i < pendulumHeight; i += 50) {
+                pendulumCtx.beginPath();
+                pendulumCtx.moveTo(0, i);
+                pendulumCtx.lineTo(pendulumWidth, i);
+                pendulumCtx.stroke();
+            }
+            
+            // Mayatnik koordinatalari
+            const bobX = pivotX + length * scale * Math.sin(angle);
+            const bobY = pivotY + length * scale * Math.cos(angle);
+            
+            // NaN va Infinity tekshiruvi
+            if (!isFinite(bobX) || !isFinite(bobY)) {
+                resetPendulum();
+                return;
+            }
+            
+            // Traektoriya yoyi
+            pendulumCtx.strokeStyle = 'rgba(255, 0, 255, 0.3)';
+            pendulumCtx.lineWidth = 2;
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(pivotX, pivotY, length * scale, 0, Math.PI);
+            pendulumCtx.stroke();
+            
+            // Ip
+            const gradient = pendulumCtx.createLinearGradient(pivotX, pivotY, bobX, bobY);
+            gradient.addColorStop(0, '#00d9ff');
+            gradient.addColorStop(1, '#ff00ff');
+            pendulumCtx.strokeStyle = gradient;
+            pendulumCtx.lineWidth = 3;
+            pendulumCtx.beginPath();
+            pendulumCtx.moveTo(pivotX, pivotY);
+            pendulumCtx.lineTo(bobX, bobY);
+            pendulumCtx.stroke();
+            
+            // Pivot nuqta
+            pendulumCtx.fillStyle = '#ffff00';
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(pivotX, pivotY, 8, 0, Math.PI * 2);
+            pendulumCtx.fill();
+            pendulumCtx.strokeStyle = '#00d9ff';
+            pendulumCtx.lineWidth = 2;
+            pendulumCtx.stroke();
+            
+            // Mayatnik to'pi
+            const energies = calculateEnergies();
+            const energyRatio = energies.kineticEnergy / (energies.totalEnergy + 0.001);
+            
+            const bobGradient = pendulumCtx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 25);
+            bobGradient.addColorStop(0, `rgba(255, 255, 0, ${0.8 + energyRatio * 0.2})`);
+            bobGradient.addColorStop(0.5, `rgba(255, 0, 255, ${0.6 + energyRatio * 0.4})`);
+            bobGradient.addColorStop(1, `rgba(0, 217, 255, ${0.4 + energyRatio * 0.6})`);
+            
+            pendulumCtx.fillStyle = bobGradient;
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(bobX, bobY, 25, 0, Math.PI * 2);
+            pendulumCtx.fill();
+            
+            // To'p konturi
+            pendulumCtx.strokeStyle = '#ffff00';
+            pendulumCtx.lineWidth = 3;
+            pendulumCtx.stroke();
+            
+            // Glow effekt
+            pendulumCtx.shadowBlur = 20;
+            pendulumCtx.shadowColor = '#ffff00';
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(bobX, bobY, 25, 0, Math.PI * 2);
+            pendulumCtx.stroke();
+            pendulumCtx.shadowBlur = 0;
+            
+            // Tezlik vektori
+            if (Math.abs(angularVelocity) > 0.01) {
+                const velocityScale = 20;
+                const vx = -angularVelocity * length * Math.cos(angle) * velocityScale;
+                const vy = angularVelocity * length * Math.sin(angle) * velocityScale;
+                
+                // Finite tekshiruvi
+                if (isFinite(vx) && isFinite(vy)) {
+                    pendulumCtx.strokeStyle = '#00ff00';
+                    pendulumCtx.lineWidth = 3;
+                    pendulumCtx.beginPath();
+                    pendulumCtx.moveTo(bobX, bobY);
+                    pendulumCtx.lineTo(bobX + vx, bobY + vy);
+                    pendulumCtx.stroke();
+                    
+                    // O'q
+                    const arrowSize = 10;
+                    const arrowAngle = Math.atan2(vy, vx);
+                    pendulumCtx.beginPath();
+                    pendulumCtx.moveTo(bobX + vx, bobY + vy);
+                    pendulumCtx.lineTo(
+                        bobX + vx - arrowSize * Math.cos(arrowAngle - Math.PI / 6),
+                        bobY + vy - arrowSize * Math.sin(arrowAngle - Math.PI / 6)
+                    );
+                    pendulumCtx.moveTo(bobX + vx, bobY + vy);
+                    pendulumCtx.lineTo(
+                        bobX + vx - arrowSize * Math.cos(arrowAngle + Math.PI / 6),
+                        bobY + vy - arrowSize * Math.sin(arrowAngle + Math.PI / 6)
+                    );
+                    pendulumCtx.stroke();
+                }
+            }
+            
+            // Energiya indikatorlari
+            const barWidth = 20;
+            const barMaxHeight = 150;
+            const barX = 30;
+            const barY = pendulumHeight - 170;
+            
+            const maxEnergy = mass * gravity * length * 2;
+            const epHeight = (energies.potentialEnergy / maxEnergy) * barMaxHeight;
+            const ekHeight = (energies.kineticEnergy / maxEnergy) * barMaxHeight;
+            
+            // Ep
+            pendulumCtx.fillStyle = 'rgba(255, 0, 255, 0.7)';
+            pendulumCtx.fillRect(barX, barY + barMaxHeight - epHeight, barWidth, epHeight);
+            pendulumCtx.strokeStyle = '#ff00ff';
+            pendulumCtx.lineWidth = 2;
+            pendulumCtx.strokeRect(barX, barY, barWidth, barMaxHeight);
+            pendulumCtx.fillStyle = '#ff00ff';
+            pendulumCtx.font = '12px Space Mono';
+            pendulumCtx.fillText('Ep', barX + 3, barY - 5);
+            
+            // Ek
+            pendulumCtx.fillStyle = 'rgba(0, 217, 255, 0.7)';
+            pendulumCtx.fillRect(barX + 30, barY + barMaxHeight - ekHeight, barWidth, ekHeight);
+            pendulumCtx.strokeStyle = '#00d9ff';
+            pendulumCtx.strokeRect(barX + 30, barY, barWidth, barMaxHeight);
+            pendulumCtx.fillStyle = '#00d9ff';
+            pendulumCtx.fillText('Ek', barX + 33, barY - 5);
+        }
+        
+        function drawPhase() {
+            phaseCtx.clearRect(0, 0, phaseWidth, phaseHeight);
+            
+            // Grid
+            phaseCtx.strokeStyle = 'rgba(0, 217, 255, 0.1)';
+            phaseCtx.lineWidth = 1;
+            for (let i = 0; i < phaseWidth; i += 50) {
+                phaseCtx.beginPath();
+                phaseCtx.moveTo(i, 0);
+                phaseCtx.lineTo(i, phaseHeight);
+                phaseCtx.stroke();
+            }
+            for (let i = 0; i < phaseHeight; i += 50) {
+                phaseCtx.beginPath();
+                phaseCtx.moveTo(0, i);
+                phaseCtx.lineTo(phaseWidth, i);
+                phaseCtx.stroke();
+            }
+            
+            // O'qlar
+            const centerX = phaseWidth / 2;
+            const centerY = phaseHeight / 2;
+            
+            phaseCtx.strokeStyle = '#00d9ff';
+            phaseCtx.lineWidth = 2;
+            
+            // X o'qi (θ)
+            phaseCtx.beginPath();
+            phaseCtx.moveTo(20, centerY);
+            phaseCtx.lineTo(phaseWidth - 20, centerY);
+            phaseCtx.stroke();
+            phaseCtx.fillStyle = '#00d9ff';
+            phaseCtx.font = '14px Orbitron';
+            phaseCtx.fillText('θ', phaseWidth - 30, centerY - 10);
+            
+            // Y o'qi (ω)
+            phaseCtx.beginPath();
+            phaseCtx.moveTo(centerX, phaseHeight - 20);
+            phaseCtx.lineTo(centerX, 20);
+            phaseCtx.stroke();
+            phaseCtx.fillText('ω', centerX + 10, 30);
+            
+            // Fazali traektoriya
+            if (phaseHistory.length > 1) {
+                const angleScale = (phaseWidth - 80) / (2 * Math.max(Math.abs(initialAngle), 0.1));
+                const velocityScale = (phaseHeight - 80) / 10;
+                
+                for (let i = 1; i < phaseHistory.length; i++) {
+                    const prev = phaseHistory[i - 1];
+                    const curr = phaseHistory[i];
+                    
+                    const x1 = centerX + prev.angle * angleScale;
+                    const y1 = centerY - prev.velocity * velocityScale;
+                    const x2 = centerX + curr.angle * angleScale;
+                    const y2 = centerY - curr.velocity * velocityScale;
+                    
+                    // Finite tekshiruvi
+                    if (!isFinite(x1) || !isFinite(y1) || !isFinite(x2) || !isFinite(y2)) {
+                        continue;
+                    }
+                    
+                    const gradient = phaseCtx.createLinearGradient(x1, y1, x2, y2);
+                    const alpha = i / phaseHistory.length;
+                    gradient.addColorStop(0, `rgba(255, 0, 255, ${alpha * 0.5})`);
+                    gradient.addColorStop(1, `rgba(0, 217, 255, ${alpha})`);
+                    
+                    phaseCtx.strokeStyle = gradient;
+                    phaseCtx.lineWidth = 2;
+                    phaseCtx.beginPath();
+                    phaseCtx.moveTo(x1, y1);
+                    phaseCtx.lineTo(x2, y2);
+                    phaseCtx.stroke();
+                }
+                
+                // Hozirgi nuqta
+                const curr = phaseHistory[phaseHistory.length - 1];
+                const x = centerX + curr.angle * angleScale;
+                const y = centerY - curr.velocity * velocityScale;
+                
+                // Finite tekshiruvi
+                if (isFinite(x) && isFinite(y)) {
+                    phaseCtx.fillStyle = '#ffff00';
+                    phaseCtx.beginPath();
+                    phaseCtx.arc(x, y, 6, 0, Math.PI * 2);
+                    phaseCtx.fill();
+                    
+                    phaseCtx.shadowBlur = 15;
+                    phaseCtx.shadowColor = '#ffff00';
+                    phaseCtx.strokeStyle = '#ffff00';
+                    phaseCtx.lineWidth = 2;
+                    phaseCtx.stroke();
+                    phaseCtx.shadowBlur = 0;
+                }
+            }
+        }
+        
+        function animate(currentTime) {
+            if (!isAnimating) return;
+            
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.02); // 20ms max
+            lastTime = currentTime;
+            
+            updatePhysics(dt);
+            updateDisplay();
+            drawPendulum();
+            drawPhase();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Boshlang'ich qiymatlarni o'rnatish
+        updatePeriod();
+        updateDisplay();
+        drawPendulum();
+        drawPhase();
+    </script>
+</body>
+</html>
