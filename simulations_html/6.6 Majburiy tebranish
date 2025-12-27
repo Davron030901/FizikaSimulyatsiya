@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Majburiy Tebranish Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f4c75;
+            --highlight: #3282b8;
+            --bright: #00d9ff;
+            --warning: #ff6b6b;
+            --success: #4ecdc4;
+            --text: #f0f0f0;
+            --text-dim: #a0a0a0;
+            --card-bg: rgba(22, 33, 62, 0.9);
+            --glass: rgba(255, 255, 255, 0.05);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--bright), var(--highlight));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-top: 10px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--bright);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .control-value {
+            color: var(--bright);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            margin: 8px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bright);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 217, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 12px rgba(0, 217, 255, 0.8);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bright);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 217, 255, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--highlight), var(--bright));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .info-box {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 4px solid var(--bright);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .info-box p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--bright);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--bright);
+        }
+
+        .help-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: unset;
+            padding: 0;
+        }
+
+        .help-btn:hover {
+            background: var(--bright);
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--secondary);
+            color: var(--text);
+            text-align: left;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 20px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            background: var(--highlight);
+            color: white;
+            box-shadow: 0 2px 8px rgba(50, 130, 184, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .formula-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid var(--highlight);
+            overflow-x: auto;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-dim);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .speed-label {
+            min-width: 80px;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+        }
+
+        /* Touch feedback */
+        @media (hover: none) {
+            button:active {
+                transform: scale(0.95);
+            }
+
+            .preset-btn:active {
+                transform: scale(0.95);
+            }
+        }
+
+        /* Accessibility */
+        *:focus-visible {
+            outline: 2px solid var(--bright);
+            outline-offset: 2px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Phase space canvas specific */
+        #lissajousCanvas {
+            aspect-ratio: 1;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Majburiy Tebranish Simulyatsiyasi</h1>
+            <p class="subtitle">Tashqi kuch ta'sirida tizim harakati va rezonans hodisasi</p>
+        </header>
+
+        <div class="main-grid">
+            <div>
+                <!-- Main visualization -->
+                <div class="card">
+                    <div class="card-title">
+                        📊 Asosiy Grafik
+                        <div class="tooltip">
+                            <button class="help-btn" aria-label="Yordam">?</button>
+                            <span class="tooltiptext">Bu grafik tizimning vaqt bo'yicha tebranishini ko'rsatadi. Ko'k chiziq - steady state, och ko'k - transient.</span>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="mainCanvas" width="800" height="400"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #00d9ff;"></div>
+                            <span>Steady State</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: rgba(0, 217, 255, 0.3);"></div>
+                            <span>Transient</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff6b6b;"></div>
+                            <span>Tashqi Kuch</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amplitude-Frequency Response -->
+                <div class="card">
+                    <div class="card-title">
+                        📈 Amplituda-Chastota Xarakteristikasi
+                        <div class="tooltip">
+                            <button class="help-btn" aria-label="Yordam">?</button>
+                            <span class="tooltiptext">Rezonans egri chizig'i: turli haydovchi chastotalarda tizim amplitudasini ko'rsatadi. Tepalik - rezonans nuqtasi.</span>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="responseCanvas" width="800" height="350"></canvas>
+                    </div>
+                </div>
+
+                <!-- Phase-Frequency Response -->
+                <div class="card">
+                    <div class="card-title">
+                        🔄 Faza-Chastota Xarakteristikasi
+                        <div class="tooltip">
+                            <button class="help-btn" aria-label="Yordam">?</button>
+                            <span class="tooltiptext">Fazoviy kechikish tashqi kuch chastotasiga bog'liqligini ko'rsatadi. Rezonansda faza ≈ π/2.</span>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="phaseCanvas" width="800" height="350"></canvas>
+                    </div>
+                </div>
+
+                <!-- Lissajous Figures -->
+                <div class="card">
+                    <div class="card-title">
+                        🌀 Lissajous Figuralari
+                        <div class="tooltip">
+                            <button class="help-btn" aria-label="Yordam">?</button>
+                            <span class="tooltiptext">Tizim harakatini fazoviy fazoda ko'rsatadi. Figura shakli tizim xatti-harakatini bildiradi.</span>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="lissajousCanvas" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <!-- Controls -->
+                <div class="card">
+                    <div class="card-title">🎛️ Boshqaruv</div>
+                    
+                    <div class="button-group">
+                        <button id="playPauseBtn" class="btn-primary">▶️ Boshlash</button>
+                        <button id="resetBtn" class="btn-secondary">🔄 Reset</button>
+                    </div>
+
+                    <div class="speed-control">
+                        <span class="speed-label">Tezlik:</span>
+                        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                        <span class="control-value" id="speedValue">1.0x</span>
+                    </div>
+
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Natural chastota (ω₀)</span>
+                                <span class="control-value" id="omega0Value">5.0</span>
+                            </div>
+                            <input type="range" id="omega0Slider" min="1" max="10" step="0.1" value="5">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Haydovchi chastota (ωₑ)</span>
+                                <span class="control-value" id="omegaEValue">5.0</span>
+                            </div>
+                            <input type="range" id="omegaESlider" min="0.5" max="15" step="0.1" value="5">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>So'nish koeffitsienti (γ)</span>
+                                <span class="control-value" id="gammaValue">0.5</span>
+                            </div>
+                            <input type="range" id="gammaSlider" min="0.1" max="3" step="0.1" value="0.5">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Kuch amplitudasi (F₀)</span>
+                                <span class="control-value" id="f0Value">10.0</span>
+                            </div>
+                            <input type="range" id="f0Slider" min="1" max="30" step="0.5" value="10">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Massa (m)</span>
+                                <span class="control-value" id="massValue">1.0</span>
+                            </div>
+                            <input type="range" id="massSlider" min="0.5" max="5" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="resonance">🎯 Rezonans</button>
+                        <button class="preset-btn" data-preset="underdamped">📉 Kam so'nish</button>
+                        <button class="preset-btn" data-preset="overdamped">📊 Katta so'nish</button>
+                        <button class="preset-btn" data-preset="lowfreq">⬇️ Past chastota</button>
+                        <button class="preset-btn" data-preset="highfreq">⬆️ Yuqori chastota</button>
+                        <button class="preset-btn" data-preset="strong">💪 Kuchli ta'sir</button>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card">
+                    <div class="card-title">📊 Statistika</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Amplituda (A)</div>
+                            <div class="stat-value" id="amplitudeValue">-</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Faza (φ)</div>
+                            <div class="stat-value" id="phaseValue">-</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Rezonans ω</div>
+                            <div class="stat-value" id="resonanceFreq">-</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Q-faktor</div>
+                            <div class="stat-value" id="qFactor">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory -->
+                <div class="card">
+                    <div class="card-title">📚 Nazariya</div>
+                    
+                    <div class="tabs">
+                        <button class="tab active" data-tab="equation">Tenglama</button>
+                        <button class="tab" data-tab="solution">Yechim</button>
+                        <button class="tab" data-tab="resonance">Rezonans</button>
+                    </div>
+
+                    <div class="tab-content active" id="equation">
+                        <p style="margin-bottom: 10px;">Majburiy tebranish tenglamasi:</p>
+                        <div class="formula-box">
+                            $$m\ddot{x} + \gamma\dot{x} + kx = F_0\cos(\omega_e t)$$
+                        </div>
+                        <p style="margin-top: 10px; line-height: 1.6; color: var(--text-dim);">
+                            Bu yerda: m - massa, γ - ishqalanish, k - bikrlik, F₀ - tashqi kuch amplitudasi, ωₑ - haydovchi chastota
+                        </p>
+                    </div>
+
+                    <div class="tab-content" id="solution">
+                        <p style="margin-bottom: 10px;">Steady-state yechim:</p>
+                        <div class="formula-box">
+                            $$x(t) = A\cos(\omega_e t - \phi)$$
+                        </div>
+                        <p style="margin-top: 10px; margin-bottom: 10px;">Amplituda:</p>
+                        <div class="formula-box">
+                            $$A = \frac{F_0/m}{\sqrt{(\omega_0^2 - \omega_e^2)^2 + (\gamma\omega_e)^2}}$$
+                        </div>
+                        <p style="margin-top: 10px; margin-bottom: 10px;">Faza kechikishi:</p>
+                        <div class="formula-box">
+                            $$\tan\phi = \frac{\gamma\omega_e}{\omega_0^2 - \omega_e^2}$$
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="resonance">
+                        <p style="margin-bottom: 10px;">Rezonans chastota:</p>
+                        <div class="formula-box">
+                            $$\omega_{res} = \sqrt{\omega_0^2 - \frac{\gamma^2}{2}}$$
+                        </div>
+                        <p style="margin-top: 10px; margin-bottom: 10px;">Maksimal amplituda:</p>
+                        <div class="formula-box">
+                            $$A_{max} = \frac{F_0}{m\gamma\omega_{res}}$$
+                        </div>
+                        <p style="margin-top: 10px; margin-bottom: 10px;">Q-faktor:</p>
+                        <div class="formula-box">
+                            $$Q = \frac{\omega_0}{\gamma}$$
+                        </div>
+                        <div class="info-box">
+                            <p><strong>Rezonans:</strong> ωₑ ≈ ω₀ bo'lganda amplituda maksimal bo'ladi</p>
+                            <p><strong>Q-faktor:</strong> Rezonans "o'tkirligi"ni bildiradi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="card">
+                    <div class="card-title">ℹ️ Ma'lumot</div>
+                    <div class="info-box">
+                        <p><strong>Transient:</strong> Boshlang'ich jarayon, so'nib boruvchi tebranish</p>
+                        <p><strong>Steady State:</strong> Barqaror holat, doimiy amplituda</p>
+                        <p><strong>Lissajous:</strong> Fazoviy trajektoriya, tizim holatini ko'rsatadi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration and state
+        const config = {
+            omega0: 5,
+            omegaE: 5,
+            gamma: 0.5,
+            F0: 10,
+            mass: 1,
+            speed: 1,
+            playing: false,
+            time: 0,
+            dt: 0.02,
+            historyLength: 500
+        };
+
+        const state = {
+            position: 0,
+            velocity: 0,
+            history: [],
+            forceHistory: []
+        };
+
+        // Canvas contexts
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const responseCanvas = document.getElementById('responseCanvas');
+        const responseCtx = responseCanvas.getContext('2d');
+        const phaseCanvas = document.getElementById('phaseCanvas');
+        const phaseCtx = phaseCanvas.getContext('2d');
+        const lissajousCanvas = document.getElementById('lissajousCanvas');
+        const lissajousCtx = lissajousCanvas.getContext('2d');
+
+        // Set canvas size for retina displays
+        function setupCanvas(canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { width: rect.width, height: rect.height };
+        }
+
+        let mainSize = setupCanvas(mainCanvas);
+        let responseSize = setupCanvas(responseCanvas);
+        let phaseSize = setupCanvas(phaseCanvas);
+        let lissajousSize = setupCanvas(lissajousCanvas);
+
+        window.addEventListener('resize', () => {
+            mainSize = setupCanvas(mainCanvas);
+            responseSize = setupCanvas(responseCanvas);
+            phaseSize = setupCanvas(phaseCanvas);
+            lissajousSize = setupCanvas(lissajousCanvas);
+            drawAll();
+        });
+
+        // Physics calculations
+        function calculateSteadyStateAmplitude(omegaE) {
+            const omega02 = config.omega0 * config.omega0;
+            const omegaE2 = omegaE * omegaE;
+            const denominator = Math.sqrt(
+                Math.pow(omega02 - omegaE2, 2) + 
+                Math.pow(config.gamma * omegaE, 2)
+            );
+            return (config.F0 / config.mass) / denominator;
+        }
+
+        function calculatePhase(omegaE) {
+            const omega02 = config.omega0 * config.omega0;
+            const omegaE2 = omegaE * omegaE;
+            return Math.atan2(
+                config.gamma * omegaE,
+                omega02 - omegaE2
+            );
+        }
+
+        function calculateResonanceFrequency() {
+            const gamma2 = config.gamma * config.gamma;
+            const omega02 = config.omega0 * config.omega0;
+            const res = omega02 - gamma2 / 2;
+            return res > 0 ? Math.sqrt(res) : config.omega0;
+        }
+
+        function calculateQFactor() {
+            return config.omega0 / config.gamma;
+        }
+
+        // Differential equation solver (RK4)
+        function updatePhysics() {
+            const k = config.omega0 * config.omega0;
+            const force = config.F0 * Math.cos(config.omegaE * config.time);
+            
+            // RK4 method
+            const dt = config.dt * config.speed;
+            
+            function derivatives(x, v, t) {
+                const f = config.F0 * Math.cos(config.omegaE * t);
+                const ax = (f - config.gamma * v - k * x) / config.mass;
+                return { dx: v, dv: ax };
+            }
+            
+            const k1 = derivatives(state.position, state.velocity, config.time);
+            const k2 = derivatives(
+                state.position + 0.5 * dt * k1.dx,
+                state.velocity + 0.5 * dt * k1.dv,
+                config.time + 0.5 * dt
+            );
+            const k3 = derivatives(
+                state.position + 0.5 * dt * k2.dx,
+                state.velocity + 0.5 * dt * k2.dv,
+                config.time + 0.5 * dt
+            );
+            const k4 = derivatives(
+                state.position + dt * k3.dx,
+                state.velocity + dt * k3.dv,
+                config.time + dt
+            );
+            
+            state.position += (dt / 6) * (k1.dx + 2 * k2.dx + 2 * k3.dx + k4.dx);
+            state.velocity += (dt / 6) * (k1.dv + 2 * k2.dv + 2 * k3.dv + k4.dv);
+            
+            config.time += dt;
+            
+            // Store history
+            state.history.push({ t: config.time, x: state.position });
+            state.forceHistory.push({ t: config.time, f: force });
+            
+            if (state.history.length > config.historyLength) {
+                state.history.shift();
+                state.forceHistory.shift();
+            }
+        }
+
+        // Drawing functions
+        function drawMainGraph() {
+            const ctx = mainCtx;
+            const w = mainSize.width;
+            const h = mainSize.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = (h / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+            
+            const padding = 40;
+            const graphW = w - 2 * padding;
+            const graphH = h - 2 * padding;
+            
+            if (state.history.length < 2) return;
+            
+            // Calculate scales
+            const timeRange = Math.max(20, state.history[state.history.length - 1].t - state.history[0].t);
+            const maxX = Math.max(...state.history.map(p => Math.abs(p.x)), 1);
+            const maxF = Math.max(...state.forceHistory.map(p => Math.abs(p.f)), 1);
+            const maxVal = Math.max(maxX, maxF);
+            
+            // Calculate steady state amplitude
+            const steadyAmp = calculateSteadyStateAmplitude(config.omegaE);
+            const phase = calculatePhase(config.omegaE);
+            
+            // Draw steady state envelope
+            ctx.strokeStyle = 'rgba(0, 217, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            for (let i = 0; i < graphW; i++) {
+                const t = config.time - timeRange + (i / graphW) * timeRange;
+                const y = steadyAmp * Math.cos(config.omegaE * t - phase);
+                const x = padding + i;
+                const yPos = padding + graphH / 2 - (y / maxVal) * (graphH / 2) * 0.8;
+                if (i === 0) ctx.moveTo(x, yPos);
+                else ctx.lineTo(x, yPos);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw transient (actual response)
+            ctx.strokeStyle = '#00d9ff';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            state.history.forEach((point, i) => {
+                const x = padding + ((point.t - state.history[0].t) / timeRange) * graphW;
+                const y = padding + graphH / 2 - (point.x / maxVal) * (graphH / 2) * 0.8;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Draw driving force
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            state.forceHistory.forEach((point, i) => {
+                const x = padding + ((point.t - state.forceHistory[0].t) / timeRange) * graphW;
+                const y = padding + graphH / 2 - (point.f / maxVal) * (graphH / 2) * 0.8;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            
+            // Axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding + graphH / 2);
+            ctx.lineTo(w - padding, padding + graphH / 2);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#a0a0a0';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('Vaqt (t)', w / 2, h - 10);
+            ctx.save();
+            ctx.translate(15, h / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('x(t)', 0, 0);
+            ctx.restore();
+        }
+
+        function drawAmplitudeResponse() {
+            const ctx = responseCtx;
+            const w = responseSize.width;
+            const h = responseSize.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            const padding = 50;
+            const graphW = w - 2 * padding;
+            const graphH = h - 2 * padding;
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (graphH / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(w - padding, y);
+                ctx.stroke();
+            }
+            
+            // Calculate response curve
+            const points = [];
+            const omegaMin = 0.1;
+            const omegaMax = config.omega0 * 3;
+            const steps = 200;
+            
+            let maxAmp = 0;
+            for (let i = 0; i < steps; i++) {
+                const omega = omegaMin + (omegaMax - omegaMin) * (i / steps);
+                const amp = calculateSteadyStateAmplitude(omega);
+                points.push({ omega, amp });
+                maxAmp = Math.max(maxAmp, amp);
+            }
+            
+            // Draw curve
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            points.forEach((point, i) => {
+                const x = padding + ((point.omega - omegaMin) / (omegaMax - omegaMin)) * graphW;
+                const y = padding + graphH - (point.amp / maxAmp) * graphH * 0.9;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Mark current frequency
+            const currentX = padding + ((config.omegaE - omegaMin) / (omegaMax - omegaMin)) * graphW;
+            const currentAmp = calculateSteadyStateAmplitude(config.omegaE);
+            const currentY = padding + graphH - (currentAmp / maxAmp) * graphH * 0.9;
+            
+            ctx.fillStyle = '#00d9ff';
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mark resonance frequency
+            const resFreq = calculateResonanceFrequency();
+            const resX = padding + ((resFreq - omegaMin) / (omegaMax - omegaMin)) * graphW;
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(resX, padding);
+            ctx.lineTo(resX, padding + graphH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + graphH);
+            ctx.lineTo(w - padding, padding + graphH);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#a0a0a0';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('ωₑ (Haydovchi chastota)', w / 2, h - 10);
+            ctx.save();
+            ctx.translate(15, h / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Amplituda (A)', 0, 0);
+            ctx.restore();
+            
+            // Legend
+            ctx.font = '11px Segoe UI';
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillText('ω₀ = ' + config.omega0.toFixed(1), resX, padding - 5);
+        }
+
+        function drawPhaseResponse() {
+            const ctx = phaseCtx;
+            const w = phaseSize.width;
+            const h = phaseSize.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            const padding = 50;
+            const graphW = w - 2 * padding;
+            const graphH = h - 2 * padding;
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (graphH / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(w - padding, y);
+                ctx.stroke();
+            }
+            
+            // Calculate phase curve
+            const points = [];
+            const omegaMin = 0.1;
+            const omegaMax = config.omega0 * 3;
+            const steps = 200;
+            
+            for (let i = 0; i < steps; i++) {
+                const omega = omegaMin + (omegaMax - omegaMin) * (i / steps);
+                const phase = calculatePhase(omega);
+                points.push({ omega, phase });
+            }
+            
+            // Draw curve
+            ctx.strokeStyle = '#bb86fc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            points.forEach((point, i) => {
+                const x = padding + ((point.omega - omegaMin) / (omegaMax - omegaMin)) * graphW;
+                const y = padding + graphH - ((point.phase + Math.PI / 2) / Math.PI) * graphH * 0.9;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Mark current frequency
+            const currentX = padding + ((config.omegaE - omegaMin) / (omegaMax - omegaMin)) * graphW;
+            const currentPhase = calculatePhase(config.omegaE);
+            const currentY = padding + graphH - ((currentPhase + Math.PI / 2) / Math.PI) * graphH * 0.9;
+            
+            ctx.fillStyle = '#00d9ff';
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mark π/2 line
+            const piHalfY = padding + graphH / 2;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, piHalfY);
+            ctx.lineTo(w - padding, piHalfY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + graphH);
+            ctx.lineTo(w - padding, padding + graphH);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#a0a0a0';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('ωₑ (Haydovchi chastota)', w / 2, h - 10);
+            ctx.save();
+            ctx.translate(15, h / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Faza (φ)', 0, 0);
+            ctx.restore();
+            
+            // Phase markers
+            ctx.textAlign = 'right';
+            ctx.fillText('π', padding - 5, padding + 10);
+            ctx.fillText('π/2', padding - 5, piHalfY + 5);
+            ctx.fillText('0', padding - 5, padding + graphH + 5);
+        }
+
+        function drawLissajous() {
+            const ctx = lissajousCtx;
+            const w = lissajousSize.width;
+            const h = lissajousSize.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            const centerX = w / 2;
+            const centerY = h / 2;
+            const scale = Math.min(w, h) * 0.35;
+            
+            // Grid and axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Circles
+            for (let i = 1; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, scale * i / 3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, h);
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(w, centerY);
+            ctx.stroke();
+            
+            if (state.history.length < 2) return;
+            
+            // Calculate max values for scaling
+            const maxX = Math.max(...state.history.map(p => Math.abs(p.x)), 1);
+            const maxV = Math.max(...state.history.map((p, i) => {
+                if (i === 0) return 0;
+                return Math.abs((state.history[i].x - state.history[i-1].x) / 
+                    (state.history[i].t - state.history[i-1].t));
+            }), 1);
+            
+            // Draw trajectory with gradient
+            const gradient = ctx.createLinearGradient(0, 0, w, h);
+            gradient.addColorStop(0, 'rgba(0, 217, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 217, 255, 1)');
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            state.history.forEach((point, i) => {
+                if (i === 0) return;
+                const x = centerX + (point.x / maxX) * scale;
+                const v = (point.x - state.history[i-1].x) / (point.t - state.history[i-1].t);
+                const y = centerY - (v / maxV) * scale;
+                
+                if (i === 1) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Current position marker
+            if (state.history.length > 0) {
+                const lastPoint = state.history[state.history.length - 1];
+                const x = centerX + (lastPoint.x / maxX) * scale;
+                const v = state.velocity;
+                const y = centerY - (v / maxV) * scale;
+                
+                ctx.fillStyle = '#00d9ff';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#00d9ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Labels
+            ctx.fillStyle = '#a0a0a0';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('Pozitsiya (x)', centerX, h - 10);
+            ctx.save();
+            ctx.translate(15, centerY);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Tezlik (v)', 0, 0);
+            ctx.restore();
+        }
+
+        function drawAll() {
+            drawMainGraph();
+            drawAmplitudeResponse();
+            drawPhaseResponse();
+            drawLissajous();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const amp = calculateSteadyStateAmplitude(config.omegaE);
+            const phase = calculatePhase(config.omegaE);
+            const resFreq = calculateResonanceFrequency();
+            const q = calculateQFactor();
+            
+            document.getElementById('amplitudeValue').textContent = amp.toFixed(3);
+            document.getElementById('phaseValue').textContent = (phase * 180 / Math.PI).toFixed(1) + '°';
+            document.getElementById('resonanceFreq').textContent = resFreq.toFixed(2);
+            document.getElementById('qFactor').textContent = q.toFixed(2);
+        }
+
+        // Animation loop
+        let animationId = null;
+        function animate() {
+            if (!config.playing) return;
+            
+            updatePhysics();
+            drawAll();
+            updateStats();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Controls
+        document.getElementById('playPauseBtn').addEventListener('click', function() {
+            config.playing = !config.playing;
+            this.textContent = config.playing ? '⏸️ Pauza' : '▶️ Boshlash';
+            if (config.playing) {
+                animate();
+            } else if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            config.time = 0;
+            state.position = 0;
+            state.velocity = 0;
+            state.history = [];
+            state.forceHistory = [];
+            drawAll();
+            updateStats();
+        });
+
+        // Sliders
+        const sliders = {
+            omega0: document.getElementById('omega0Slider'),
+            omegaE: document.getElementById('omegaESlider'),
+            gamma: document.getElementById('gammaSlider'),
+            f0: document.getElementById('f0Slider'),
+            mass: document.getElementById('massSlider'),
+            speed: document.getElementById('speedSlider')
+        };
+
+        const values = {
+            omega0: document.getElementById('omega0Value'),
+            omegaE: document.getElementById('omegaEValue'),
+            gamma: document.getElementById('gammaValue'),
+            f0: document.getElementById('f0Value'),
+            mass: document.getElementById('massValue'),
+            speed: document.getElementById('speedValue')
+        };
+
+        sliders.omega0.addEventListener('input', function() {
+            config.omega0 = parseFloat(this.value);
+            values.omega0.textContent = config.omega0.toFixed(1);
+            drawAll();
+            updateStats();
+        });
+
+        sliders.omegaE.addEventListener('input', function() {
+            config.omegaE = parseFloat(this.value);
+            values.omegaE.textContent = config.omegaE.toFixed(1);
+            drawAll();
+            updateStats();
+        });
+
+        sliders.gamma.addEventListener('input', function() {
+            config.gamma = parseFloat(this.value);
+            values.gamma.textContent = config.gamma.toFixed(1);
+            drawAll();
+            updateStats();
+        });
+
+        sliders.f0.addEventListener('input', function() {
+            config.F0 = parseFloat(this.value);
+            values.f0.textContent = config.F0.toFixed(1);
+            drawAll();
+            updateStats();
+        });
+
+        sliders.mass.addEventListener('input', function() {
+            config.mass = parseFloat(this.value);
+            values.mass.textContent = config.mass.toFixed(1);
+            drawAll();
+            updateStats();
+        });
+
+        sliders.speed.addEventListener('input', function() {
+            config.speed = parseFloat(this.value);
+            values.speed.textContent = config.speed.toFixed(1) + 'x';
+        });
+
+        // Presets
+        const presets = {
+            resonance: { omega0: 5, omegaE: 5, gamma: 0.5, F0: 10, mass: 1 },
+            underdamped: { omega0: 5, omegaE: 5, gamma: 0.3, F0: 10, mass: 1 },
+            overdamped: { omega0: 5, omegaE: 5, gamma: 2.5, F0: 10, mass: 1 },
+            lowfreq: { omega0: 5, omegaE: 2, gamma: 0.5, F0: 10, mass: 1 },
+            highfreq: { omega0: 5, omegaE: 12, gamma: 0.5, F0: 10, mass: 1 },
+            strong: { omega0: 5, omegaE: 5, gamma: 0.5, F0: 25, mass: 1 }
+        };
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const preset = presets[this.dataset.preset];
+                if (preset) {
+                    Object.assign(config, preset);
+                    
+                    sliders.omega0.value = config.omega0;
+                    sliders.omegaE.value = config.omegaE;
+                    sliders.gamma.value = config.gamma;
+                    sliders.f0.value = config.F0;
+                    sliders.mass.value = config.mass;
+                    
+                    values.omega0.textContent = config.omega0.toFixed(1);
+                    values.omegaE.textContent = config.omegaE.toFixed(1);
+                    values.gamma.textContent = config.gamma.toFixed(1);
+                    values.f0.textContent = config.F0.toFixed(1);
+                    values.mass.textContent = config.mass.toFixed(1);
+                    
+                    config.time = 0;
+                    state.position = 0;
+                    state.velocity = 0;
+                    state.history = [];
+                    state.forceHistory = [];
+                    
+                    drawAll();
+                    updateStats();
+                }
+            });
+        });
+
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+                
+                // Retrigger MathJax rendering
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
+            });
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        mainCanvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        mainCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                document.getElementById('playPauseBtn').click();
+            } else if (e.code === 'KeyR') {
+                document.getElementById('resetBtn').click();
+            }
+        });
+
+        // Initial render
+        drawAll();
+        updateStats();
+        
+        // Trigger MathJax
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
