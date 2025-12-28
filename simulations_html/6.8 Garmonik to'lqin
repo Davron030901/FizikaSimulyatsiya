@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Garmonik To'lqin Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #00d9ff;
+            --secondary: #ff006e;
+            --tertiary: #ffbe0b;
+            --bg-dark: #0a0e27;
+            --bg-medium: #1a1f3a;
+            --bg-light: #2a2f4a;
+            --text-primary: #e8eaf6;
+            --text-secondary: #9fa8da;
+            --accent-glow: rgba(0, 217, 255, 0.3);
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1129 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            touch-action: pan-y;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(180deg, rgba(0,217,255,0.1) 0%, transparent 100%);
+            border-bottom: 2px solid rgba(0,217,255,0.2);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,217,255,0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+        
+        .controls-panel {
+            background: var(--bg-medium);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+        }
+        
+        .control-section h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .control-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--bg-light), var(--bg-dark));
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            position: relative;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), #0099cc);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: 'Sora', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,217,255,0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,217,255,0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, var(--bg-light), var(--bg-medium));
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button.secondary:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .visualization-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .visualization-area {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .canvas-container {
+            background: var(--bg-medium);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--grid-color) 0px,
+                transparent 1px,
+                transparent 50px,
+                var(--grid-color) 51px
+            ),
+            repeating-linear-gradient(
+                0deg,
+                var(--grid-color) 0px,
+                transparent 1px,
+                transparent 50px,
+                var(--grid-color) 51px
+            );
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        
+        .canvas-title {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .canvas-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background: rgba(10, 14, 39, 0.5);
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .info-panel {
+            background: linear-gradient(135deg, rgba(0,217,255,0.05), rgba(255,0,110,0.05));
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            background: rgba(255,255,255,0.02);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .info-item-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-item-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .formula-display {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            overflow-x: auto;
+        }
+        
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .help-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            font-family: 'Sora', sans-serif;
+            font-weight: 400;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border: 1px solid var(--primary);
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .preset-btn {
+            background: linear-gradient(135deg, rgba(255,190,11,0.2), rgba(255,0,110,0.2));
+            color: var(--text-primary);
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255,190,11,0.3);
+        }
+        
+        .preset-btn:hover {
+            background: linear-gradient(135deg, rgba(255,190,11,0.3), rgba(255,0,110,0.3));
+            border-color: rgba(255,190,11,0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px 10px;
+            }
+            
+            .controls-panel {
+                position: static;
+                padding: 20px;
+            }
+            
+            .visualization-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .canvas-container {
+                padding: 15px;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .canvas-container, .controls-panel, .info-panel {
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+        
+        .canvas-container:nth-child(1) { animation-delay: 0.1s; }
+        .canvas-container:nth-child(2) { animation-delay: 0.2s; }
+        .canvas-container:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Garmonik To'lqin Simulyatsiyasi</h1>
+            <p class="subtitle">To'lqin tenglamasi: y = A sin(kx - ωt + φ)</p>
+        </header>
+        
+        <div class="main-grid">
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3>
+                        <span class="canvas-icon">⚡</span>
+                        Asosiy Parametrlar
+                    </h3>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Amplituda (A) <span class="help-tooltip" data-tooltip="To'lqinning maksimal og'ishi">?</span></span>
+                            <span class="control-value" id="amplitudeValue">1.00</span>
+                        </div>
+                        <input type="range" id="amplitude" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>To'lqin soni (k) <span class="help-tooltip" data-tooltip="k = 2π/λ">?</span></span>
+                            <span class="control-value" id="waveNumberValue">1.00</span>
+                        </div>
+                        <input type="range" id="waveNumber" min="0.1" max="5" step="0.1" value="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Burchak chastota (ω) <span class="help-tooltip" data-tooltip="ω = 2πf">?</span></span>
+                            <span class="control-value" id="omegaValue">2.00</span>
+                        </div>
+                        <input type="range" id="omega" min="0.5" max="10" step="0.1" value="2">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Faza (φ) <span class="help-tooltip" data-tooltip="Boshlang'ich faza">?</span></span>
+                            <span class="control-value" id="phaseValue">0.00</span>
+                        </div>
+                        <input type="range" id="phase" min="0" max="6.28" step="0.1" value="0">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>
+                        <span class="canvas-icon">🎮</span>
+                        Boshqaruv
+                    </h3>
+                    
+                    <div class="button-group">
+                        <button id="playPauseBtn">Play</button>
+                        <button id="resetBtn" class="secondary">Reset</button>
+                    </div>
+                    
+                    <div class="control-group" style="margin-top: 15px;">
+                        <div class="control-label">
+                            <span>Tezlik <span class="help-tooltip" data-tooltip="Animatsiya tezligi">?</span></span>
+                            <span class="control-value" id="speedValue">1.0x</span>
+                        </div>
+                        <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>
+                        <span class="canvas-icon">📊</span>
+                        Lissajous Parametrlari
+                    </h3>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>X o'qi chastota (fx)</span>
+                            <span class="control-value" id="freqXValue">1.00</span>
+                        </div>
+                        <input type="range" id="freqX" min="1" max="5" step="1" value="1">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Y o'qi chastota (fy)</span>
+                            <span class="control-value" id="freqYValue">2.00</span>
+                        </div>
+                        <input type="range" id="freqY" min="1" max="5" step="1" value="2">
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Faza farqi (δ)</span>
+                            <span class="control-value" id="phaseDeltaValue">1.57</span>
+                        </div>
+                        <input type="range" id="phaseDelta" min="0" max="6.28" step="0.1" value="1.57">
+                    </div>
+                    
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setLissajous(1,1,0)">Chiziq</button>
+                        <button class="preset-btn" onclick="setLissajous(1,1,1.57)">Doira</button>
+                        <button class="preset-btn" onclick="setLissajous(1,2,1.57)">8-raqam</button>
+                        <button class="preset-btn" onclick="setLissajous(3,2,0)">Kompleks</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="visualization-area">
+                    <div class="canvas-container">
+                        <div class="canvas-title">
+                            <span class="canvas-icon">〰️</span>
+                            To'lqin tarqalishi (vaqt bo'yicha)
+                        </div>
+                        <canvas id="waveCanvas" width="600" height="300"></canvas>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <div class="canvas-title">
+                            <span class="canvas-icon">📈</span>
+                            To'lqin fazosi (x-y)
+                        </div>
+                        <canvas id="spaceCanvas" width="600" height="300"></canvas>
+                    </div>
+                    
+                    <div class="canvas-container full-width">
+                        <div class="canvas-title">
+                            <span class="canvas-icon">🎨</span>
+                            Lissajous figuralari
+                        </div>
+                        <canvas id="lissajousCanvas" width="600" height="400"></canvas>
+                    </div>
+                </div>
+                
+                <div class="info-panel">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">Hisoblangan qiymatlar</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-item-label">To'lqin uzunligi (λ)</div>
+                            <div class="info-item-value" id="wavelength">6.28</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-item-label">Chastota (f)</div>
+                            <div class="info-item-value" id="frequency">0.32 Hz</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-item-label">Faza tezligi (v)</div>
+                            <div class="info-item-value" id="phaseVelocity">2.00</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-item-label">Davr (T)</div>
+                            <div class="info-item-value" id="period">3.14 s</div>
+                        </div>
+                    </div>
+                    
+                    <div class="formula-display">
+                        <strong>To'lqin tenglamasi:</strong><br>
+                        y = <span id="formulaA">1.00</span> sin(<span id="formulaK">1.00</span>x - <span id="formulaOmega">2.00</span>t + <span id="formulaPhi">0.00</span>)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Canvas elementlari
+        const waveCanvas = document.getElementById('waveCanvas');
+        const spaceCanvas = document.getElementById('spaceCanvas');
+        const lissajousCanvas = document.getElementById('lissajousCanvas');
+        
+        const waveCtx = waveCanvas.getContext('2d');
+        const spaceCtx = spaceCanvas.getContext('2d');
+        const lissajousCtx = lissajousCanvas.getContext('2d');
+        
+        // Parametrlar
+        let params = {
+            A: 1,
+            k: 1,
+            omega: 2,
+            phi: 0,
+            speed: 1,
+            freqX: 1,
+            freqY: 2,
+            phaseDelta: Math.PI / 2
+        };
+        
+        let time = 0;
+        let isPlaying = true;
+        let animationId = null;
+        
+        // Canvas o'lchamlarini sozlash
+        function resizeCanvases() {
+            const containers = document.querySelectorAll('.canvas-container');
+            containers.forEach(container => {
+                const canvas = container.querySelector('canvas');
+                if (canvas) {
+                    const rect = container.getBoundingClientRect();
+                    const width = Math.min(rect.width - 40, canvas.id === 'lissajousCanvas' ? 600 : 600);
+                    const height = canvas.id === 'lissajousCanvas' ? 400 : 300;
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                }
+            });
+        }
+        
+        // Control bilan ishlash
+        function setupControls() {
+            const controls = [
+                { id: 'amplitude', param: 'A', display: 'amplitudeValue', decimals: 2 },
+                { id: 'waveNumber', param: 'k', display: 'waveNumberValue', decimals: 2 },
+                { id: 'omega', param: 'omega', display: 'omegaValue', decimals: 2 },
+                { id: 'phase', param: 'phi', display: 'phaseValue', decimals: 2 },
+                { id: 'speed', param: 'speed', display: 'speedValue', decimals: 1, suffix: 'x' },
+                { id: 'freqX', param: 'freqX', display: 'freqXValue', decimals: 2 },
+                { id: 'freqY', param: 'freqY', display: 'freqYValue', decimals: 2 },
+                { id: 'phaseDelta', param: 'phaseDelta', display: 'phaseDeltaValue', decimals: 2 }
+            ];
+            
+            controls.forEach(ctrl => {
+                const element = document.getElementById(ctrl.id);
+                const display = document.getElementById(ctrl.display);
+                
+                element.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    params[ctrl.param] = value;
+                    display.textContent = value.toFixed(ctrl.decimals) + (ctrl.suffix || '');
+                    updateCalculations();
+                    
+                    // Haptic feedback for mobile
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                });
+            });
+        }
+        
+        // Play/Pause button
+        document.getElementById('playPauseBtn').addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            this.textContent = isPlaying ? 'Pause' : 'Play';
+            if (isPlaying) {
+                animate();
+            }
+        });
+        
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            time = 0;
+            lissajousCtx.clearRect(0, 0, lissajousCanvas.width, lissajousCanvas.height);
+        });
+        
+        // Lissajous preset
+        window.setLissajous = function(fx, fy, delta) {
+            params.freqX = fx;
+            params.freqY = fy;
+            params.phaseDelta = delta;
+            
+            document.getElementById('freqX').value = fx;
+            document.getElementById('freqY').value = fy;
+            document.getElementById('phaseDelta').value = delta;
+            
+            document.getElementById('freqXValue').textContent = fx.toFixed(2);
+            document.getElementById('freqYValue').textContent = fy.toFixed(2);
+            document.getElementById('phaseDeltaValue').textContent = delta.toFixed(2);
+            
+            lissajousCtx.clearRect(0, 0, lissajousCanvas.width, lissajousCanvas.height);
+            time = 0;
+        };
+        
+        // Hisoblashlarni yangilash
+        function updateCalculations() {
+            const wavelength = (2 * Math.PI) / params.k;
+            const frequency = params.omega / (2 * Math.PI);
+            const phaseVelocity = params.omega / params.k;
+            const period = (2 * Math.PI) / params.omega;
+            
+            document.getElementById('wavelength').textContent = wavelength.toFixed(2);
+            document.getElementById('frequency').textContent = frequency.toFixed(2) + ' Hz';
+            document.getElementById('phaseVelocity').textContent = phaseVelocity.toFixed(2);
+            document.getElementById('period').textContent = period.toFixed(2) + ' s';
+            
+            document.getElementById('formulaA').textContent = params.A.toFixed(2);
+            document.getElementById('formulaK').textContent = params.k.toFixed(2);
+            document.getElementById('formulaOmega').textContent = params.omega.toFixed(2);
+            document.getElementById('formulaPhi').textContent = params.phi.toFixed(2);
+        }
+        
+        // To'lqin chizish (vaqt bo'yicha)
+        function drawWave() {
+            const canvas = waveCanvas;
+            const ctx = waveCtx;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // O'q
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            // To'lqin
+            const scale = height / 4 / Math.max(params.A, 3);
+            ctx.strokeStyle = '#00d9ff';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00d9ff';
+            
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const realX = (x / width) * 4 * Math.PI;
+                const y = params.A * Math.sin(params.k * realX - params.omega * time + params.phi);
+                const canvasY = height / 2 - y * scale;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, canvasY);
+                } else {
+                    ctx.lineTo(x, canvasY);
+                }
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // Nuqta
+            const pointX = (time % (2 * Math.PI / params.omega)) / (2 * Math.PI / params.omega) * width;
+            const pointY = params.A * Math.sin(params.k * (pointX / width * 4 * Math.PI) - params.omega * time + params.phi);
+            const canvasPointY = height / 2 - pointY * scale;
+            
+            ctx.fillStyle = '#ff006e';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff006e';
+            ctx.beginPath();
+            ctx.arc(pointX, canvasPointY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        // To'lqin fazosi (x-y)
+        function drawSpace() {
+            const canvas = spaceCanvas;
+            const ctx = spaceCtx;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // O'q
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            // Snapshot
+            const scale = height / 4 / Math.max(params.A, 3);
+            
+            // To'lqin
+            ctx.strokeStyle = '#ffbe0b';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ffbe0b';
+            
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const realX = (x / width) * 4 * Math.PI;
+                const y = params.A * Math.sin(params.k * realX - params.omega * time + params.phi);
+                const canvasY = height / 2 - y * scale;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, canvasY);
+                } else {
+                    ctx.lineTo(x, canvasY);
+                }
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        // Lissajous figuralari
+        let lissajousTrail = [];
+        const maxTrailLength = 500;
+        
+        function drawLissajous() {
+            const canvas = lissajousCanvas;
+            const ctx = lissajousCtx;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Faqat har 3-frameда tozalash (trail effekti)
+            if (Math.floor(time * 60) % 3 === 0) {
+                ctx.fillStyle = 'rgba(10, 14, 39, 0.05)';
+                ctx.fillRect(0, 0, width, height);
+            }
+            
+            // Grid
+            if (lissajousTrail.length === 0) {
+                ctx.clearRect(0, 0, width, height);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, height);
+                    ctx.stroke();
+                }
+                for (let i = 0; i < height; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(width, i);
+                    ctx.stroke();
+                }
+                
+                // O'qlar
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+                ctx.lineTo(width, height / 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(width / 2, 0);
+                ctx.lineTo(width / 2, height);
+                ctx.stroke();
+            }
+            
+            // Lissajous hisoblash
+            const scale = Math.min(width, height) / 2.5;
+            const x = scale * Math.sin(params.freqX * time + params.phi);
+            const y = scale * Math.sin(params.freqY * time + params.phaseDelta);
+            
+            lissajousTrail.push({ x, y });
+            if (lissajousTrail.length > maxTrailLength) {
+                lissajousTrail.shift();
+            }
+            
+            // Trail chizish
+            for (let i = 1; i < lissajousTrail.length; i++) {
+                const point = lissajousTrail[i];
+                const prevPoint = lissajousTrail[i - 1];
+                const alpha = i / lissajousTrail.length;
+                
+                const hue = (i / lissajousTrail.length) * 360;
+                ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${alpha * 0.8})`;
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(width / 2 + prevPoint.x, height / 2 + prevPoint.y);
+                ctx.lineTo(width / 2 + point.x, height / 2 + point.y);
+                ctx.stroke();
+            }
+            
+            // Joriy nuqta
+            ctx.fillStyle = '#ff006e';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff006e';
+            ctx.beginPath();
+            ctx.arc(width / 2 + x, height / 2 + y, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        // Animatsiya
+        function animate() {
+            if (!isPlaying) return;
+            
+            time += 0.016 * params.speed;
+            
+            drawWave();
+            drawSpace();
+            drawLissajous();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Initialization
+        window.addEventListener('load', () => {
+            resizeCanvases();
+            setupControls();
+            updateCalculations();
+            animate();
+        });
+        
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+        });
+        
+        // Touch support
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
