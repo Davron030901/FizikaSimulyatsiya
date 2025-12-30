@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>To'lqin Xususiyatlari Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f4c81;
+            --secondary: #1e88e5;
+            --accent: #ff6b6b;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --text: #2c3e50;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --wave-trans: #3498db;
+            --wave-long: #e74c3c;
+            --particle: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: clamp(0.875rem, 2vw, 1rem);
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        .controls-panel {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .control-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .control-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .unit {
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            border-color: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .wave-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wave-type-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .wave-type-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .visualization-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .canvas-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: #fafafa;
+            touch-action: none;
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .info-unit {
+            font-size: 0.875rem;
+            color: #888;
+            margin-left: 0.25rem;
+        }
+
+        .theory-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .theory-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theory-content {
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .formula-box {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--secondary);
+            overflow-x: auto;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .preset-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .controls-panel {
+                position: static;
+                padding: 1rem;
+            }
+
+            .info-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .canvas-container {
+                padding: 1rem;
+            }
+
+            header {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.75rem;
+            cursor: help;
+            font-weight: bold;
+        }
+
+        .medium-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .medium-btn {
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .medium-btn.active {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .playing {
+            animation: pulse 1s infinite;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary);
+        }
+
+        .export-info {
+            font-size: 0.75rem;
+            color: #666;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌊 To'lqin Xususiyatlari Simulyatsiyasi</h1>
+            <p class="subtitle">Transversal va Longitudinal To'lqinlarni O'rganing</p>
+        </header>
+
+        <div class="main-content">
+            <aside class="controls-panel">
+                <div class="control-section">
+                    <h3 class="section-title">
+                        🎯 To'lqin Turi
+                        <span class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltip-text">To'lqin turini tanlang</span>
+                        </span>
+                    </h3>
+                    <div class="wave-type-selector">
+                        <button class="wave-type-btn active" data-type="transverse">Transversal</button>
+                        <button class="wave-type-btn" data-type="longitudinal">Longitudinal</button>
+                    </div>
+                    <div class="wave-type-selector">
+                        <button class="wave-type-btn" data-type="lissajous">Lissajous</button>
+                        <button class="wave-type-btn" data-type="combined">Kombinatsiya</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">⚙️ Parametrlar</h3>
+                    
+                    <div class="control-group">
+                        <label>
+                            Amplituda (A)
+                            <span class="tooltip">
+                                <span class="help-icon">?</span>
+                                <span class="tooltip-text">To'lqinning maksimal og'ishi</span>
+                            </span>
+                        </label>
+                        <input type="range" id="amplitude" min="10" max="100" value="50" step="5">
+                        <div class="value-display">
+                            <span id="amplitude-value">50</span>
+                            <span class="unit">px</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            Chastota (f)
+                            <span class="tooltip">
+                                <span class="help-icon">?</span>
+                                <span class="tooltip-text">Sekundda to'lqin soni</span>
+                            </span>
+                        </label>
+                        <input type="range" id="frequency" min="0.1" max="5" value="1" step="0.1">
+                        <div class="value-display">
+                            <span id="frequency-value">1.0</span>
+                            <span class="unit">Hz</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            To'lqin Uzunligi (λ)
+                            <span class="tooltip">
+                                <span class="help-icon">?</span>
+                                <span class="tooltip-text">Bir to'lqin sikli uzunligi</span>
+                            </span>
+                        </label>
+                        <input type="range" id="wavelength" min="50" max="400" value="200" step="10">
+                        <div class="value-display">
+                            <span id="wavelength-value">200</span>
+                            <span class="unit">px</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            Tezlik
+                            <span class="tooltip">
+                                <span class="help-icon">?</span>
+                                <span class="tooltip-text">Animatsiya tezligi</span>
+                            </span>
+                        </label>
+                        <input type="range" id="speed" min="0.1" max="5" value="1" step="0.1">
+                        <div class="value-display">
+                            <span id="speed-value">1.0</span>
+                            <span class="unit">x</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            Fazalar Soni
+                        </label>
+                        <input type="range" id="phase" min="0" max="360" value="0" step="15">
+                        <div class="value-display">
+                            <span id="phase-value">0</span>
+                            <span class="unit">°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">🌍 Muhit</h3>
+                    <div class="medium-selector">
+                        <button class="medium-btn active" data-medium="vacuum">Vakuum</button>
+                        <button class="medium-btn" data-medium="air">Havo</button>
+                        <button class="medium-btn" data-medium="water">Suv</button>
+                        <button class="medium-btn" data-medium="solid">Qattiq jism</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">🎮 Boshqaruv</h3>
+                    <div class="btn-group">
+                        <button class="btn-primary" id="playPause">
+                            <span id="playIcon">⏸️</span>
+                            <span id="playText">Pauza</span>
+                        </button>
+                        <button class="btn-secondary" id="reset">🔄 Reset</button>
+                    </div>
+                    <button class="btn-success" id="exportData">📊 Excel Eksport</button>
+                    <button class="btn-secondary" id="copyData">📋 Nusxalash</button>
+                    <button class="btn-secondary" id="screenshot">📷 Screenshot</button>
+                    <button class="btn-secondary" id="openImage">🖼️ Rasmni Ochish</button>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">⚡ Tayyor Namunalar</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="low">Past chastota</button>
+                        <button class="preset-btn" data-preset="high">Yuqori chastota</button>
+                        <button class="preset-btn" data-preset="large">Katta amplituda</button>
+                        <button class="preset-btn" data-preset="small">Kichik amplituda</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="visualization-area">
+                <div class="info-panel">
+                    <div class="info-card">
+                        <div class="info-label">Period (T)</div>
+                        <div class="info-value">
+                            <span id="period-display">1.00</span>
+                            <span class="info-unit">s</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Chastota (f)</div>
+                        <div class="info-value">
+                            <span id="freq-display">1.0</span>
+                            <span class="info-unit">Hz</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">To'lqin Tezligi (v)</div>
+                        <div class="info-value">
+                            <span id="velocity-display">200</span>
+                            <span class="info-unit">m/s</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Energiya (E)</div>
+                        <div class="info-value">
+                            <span id="energy-display">100</span>
+                            <span class="info-unit">J</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <div class="canvas-header">
+                        <h3 class="canvas-title" id="canvasTitle">Transversal To'lqin</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--wave-trans);"></div>
+                                <span>To'lqin</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--particle);"></div>
+                                <span>Zarrachalar</span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="mainCanvas" width="800" height="300"></canvas>
+                </div>
+
+                <div class="canvas-container">
+                    <div class="canvas-header">
+                        <h3 class="canvas-title">Zarrachalar Harakati</h3>
+                    </div>
+                    <canvas id="particleCanvas" width="800" height="300"></canvas>
+                </div>
+
+                <div class="canvas-container">
+                    <div class="canvas-header">
+                        <h3 class="canvas-title">Energiya Uzatish</h3>
+                    </div>
+                    <canvas id="energyCanvas" width="800" height="200"></canvas>
+                </div>
+
+                <div class="theory-section">
+                    <h3 class="theory-title">📚 Nazariy Ma'lumot</h3>
+                    <div class="theory-content">
+                        <p><strong>To'lqin</strong> - muhitda energiya uzatish jarayoni bo'lib, muhit zarrachalari o'z o'rni atrofida tebranishda.</p>
+                        
+                        <div class="formula-box">
+                            <strong>Asosiy formulalar:</strong><br>
+                            \(v = \lambda \cdot f\) - To'lqin tezligi<br>
+                            \(T = \frac{1}{f}\) - Period va chastota<br>
+                            \(E \propto A^2 \cdot f^2\) - Energiya<br>
+                            \(\omega = 2\pi f\) - Burchak chastotasi<br>
+                            \(k = \frac{2\pi}{\lambda}\) - To'lqin soni
+                        </div>
+
+                        <p><strong>Transversal to'lqin:</strong> Zarrachalar tarqalish yo'nalishiga perpendikulyar harakat qiladi. Misol: yorug'lik, suv to'lqinlari.</p>
+
+                        <p><strong>Longitudinal to'lqin:</strong> Zarrachalar tarqalish yo'nalishi bo'ylab harakat qiladi. Misol: tovush to'lqinlari.</p>
+
+                        <p><strong>Lissajous figuralari:</strong> Ikki perpendikulyar harmonik tebranishlar natijasida hosil bo'ladigan murakkab траекториялар.</p>
+
+                        <div class="formula-box">
+                            <strong>Muhitda to'lqin tezligi:</strong><br>
+                            Vakuum: \(c = 3 \times 10^8\) m/s<br>
+                            Havo: \(v \approx 343\) m/s<br>
+                            Suv: \(v \approx 1500\) m/s<br>
+                            Qattiq jism: \(v > 2000\) m/s
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isPlaying = true;
+        let animationFrame = null;
+        let time = 0;
+        let waveType = 'transverse';
+        let medium = 'vacuum';
+
+        // Parameters
+        let amplitude = 50;
+        let frequency = 1;
+        let wavelength = 200;
+        let speed = 1;
+        let phase = 0;
+
+        // Medium properties
+        const mediumProperties = {
+            vacuum: { velocity: 299792458, color: '#3498db', damping: 0 },
+            air: { velocity: 343, color: '#87ceeb', damping: 0.01 },
+            water: { velocity: 1500, color: '#1e90ff', damping: 0.05 },
+            solid: { velocity: 5000, color: '#2c3e50', damping: 0.02 }
+        };
+
+        // Canvas setup
+        const mainCanvas = document.getElementById('mainCanvas');
+        const particleCanvas = document.getElementById('particleCanvas');
+        const energyCanvas = document.getElementById('energyCanvas');
+        
+        const mainCtx = mainCanvas.getContext('2d');
+        const particleCtx = particleCanvas.getContext('2d');
+        const energyCtx = energyCanvas.getContext('2d');
+
+        // Responsive canvas
+        function resizeCanvases() {
+            const containers = document.querySelectorAll('.canvas-container canvas');
+            containers.forEach(canvas => {
+                const parent = canvas.parentElement;
+                const rect = parent.getBoundingClientRect();
+                const width = Math.min(rect.width - 32, 800);
+                
+                if (canvas.id === 'mainCanvas' || canvas.id === 'particleCanvas') {
+                    canvas.width = width;
+                    canvas.height = Math.min(300, width * 0.375);
+                } else {
+                    canvas.width = width;
+                    canvas.height = Math.min(200, width * 0.25);
+                }
+            });
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // Control handlers
+        document.querySelectorAll('.wave-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.wave-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                waveType = this.dataset.type;
+                updateCanvasTitle();
+                time = 0;
+            });
+        });
+
+        document.querySelectorAll('.medium-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.medium-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                medium = this.dataset.medium;
+                updateDisplay();
+            });
+        });
+
+        // Slider handlers
+        document.getElementById('amplitude').addEventListener('input', function() {
+            amplitude = parseFloat(this.value);
+            document.getElementById('amplitude-value').textContent = amplitude;
+            updateDisplay();
+        });
+
+        document.getElementById('frequency').addEventListener('input', function() {
+            frequency = parseFloat(this.value);
+            document.getElementById('frequency-value').textContent = frequency.toFixed(1);
+            updateDisplay();
+        });
+
+        document.getElementById('wavelength').addEventListener('input', function() {
+            wavelength = parseFloat(this.value);
+            document.getElementById('wavelength-value').textContent = wavelength;
+            updateDisplay();
+        });
+
+        document.getElementById('speed').addEventListener('input', function() {
+            speed = parseFloat(this.value);
+            document.getElementById('speed-value').textContent = speed.toFixed(1);
+        });
+
+        document.getElementById('phase').addEventListener('input', function() {
+            phase = parseFloat(this.value);
+            document.getElementById('phase-value').textContent = phase;
+        });
+
+        // Play/Pause button
+        document.getElementById('playPause').addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+            if (isPlaying) {
+                icon.textContent = '⏸️';
+                text.textContent = 'Pauza';
+                this.classList.add('playing');
+                animate();
+            } else {
+                icon.textContent = '▶️';
+                text.textContent = 'Davom';
+                this.classList.remove('playing');
+            }
+        });
+
+        // Reset button
+        document.getElementById('reset').addEventListener('click', function() {
+            time = 0;
+            amplitude = 50;
+            frequency = 1;
+            wavelength = 200;
+            speed = 1;
+            phase = 0;
+            
+            document.getElementById('amplitude').value = 50;
+            document.getElementById('frequency').value = 1;
+            document.getElementById('wavelength').value = 200;
+            document.getElementById('speed').value = 1;
+            document.getElementById('phase').value = 0;
+            
+            updateDisplay();
+            
+            // Vibrate on mobile
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        });
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const preset = this.dataset.preset;
+                
+                switch(preset) {
+                    case 'low':
+                        frequency = 0.5;
+                        wavelength = 300;
+                        break;
+                    case 'high':
+                        frequency = 3;
+                        wavelength = 100;
+                        break;
+                    case 'large':
+                        amplitude = 90;
+                        break;
+                    case 'small':
+                        amplitude = 20;
+                        break;
+                }
+                
+                document.getElementById('amplitude').value = amplitude;
+                document.getElementById('frequency').value = frequency;
+                document.getElementById('wavelength').value = wavelength;
+                
+                updateDisplay();
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(30);
+                }
+            });
+        });
+
+        // Export to Excel button
+        document.getElementById('exportData').addEventListener('click', function() {
+            try {
+                // Create Excel workbook data
+                const timestamp = new Date().toLocaleString('uz-UZ');
+                
+                // Create CSV content (Excel can open CSV files)
+                let csvContent = '\uFEFF'; // BOM for UTF-8
+                
+                // Title
+                csvContent += 'TO\'LQIN SIMULYATSIYASI MA\'LUMOTLARI\n';
+                csvContent += `Sana va vaqt:,${timestamp}\n\n`;
+                
+                // Wave type and medium
+                const waveTypes = {
+                    transverse: 'Transversal',
+                    longitudinal: 'Longitudinal',
+                    lissajous: 'Lissajous',
+                    combined: 'Kombinatsiya'
+                };
+                const mediumTypes = {
+                    vacuum: 'Vakuum',
+                    air: 'Havo',
+                    water: 'Suv',
+                    solid: 'Qattiq jism'
+                };
+                
+                csvContent += 'ASOSIY MA\'LUMOTLAR\n';
+                csvContent += 'To\'lqin turi:,' + waveTypes[waveType] + '\n';
+                csvContent += 'Muhit:,' + mediumTypes[medium] + '\n\n';
+                
+                // Parameters
+                csvContent += 'PARAMETRLAR\n';
+                csvContent += 'Parametr,Qiymat,Birlik\n';
+                csvContent += `Amplituda (A),${amplitude},px\n`;
+                csvContent += `Chastota (f),${frequency.toFixed(2)},Hz\n`;
+                csvContent += `To\'lqin uzunligi (λ),${wavelength},px\n`;
+                csvContent += `Faza,${phase},°\n`;
+                csvContent += `Animatsiya tezligi,${speed.toFixed(1)},x\n\n`;
+                
+                // Calculations
+                const period = (1 / frequency).toFixed(3);
+                const velocity = (wavelength * frequency).toFixed(2);
+                const energy = (amplitude * amplitude * frequency * frequency).toFixed(2);
+                const angularFreq = (2 * Math.PI * frequency).toFixed(3);
+                const waveNumber = (2 * Math.PI / wavelength).toFixed(4);
+                
+                csvContent += 'HISOBLANGAN QIYMATLAR\n';
+                csvContent += 'Parametr,Qiymat,Birlik,Formula\n';
+                csvContent += `Period (T),${period},s,T = 1/f\n`;
+                csvContent += `Chastota (f),${frequency.toFixed(2)},Hz,f = 1/T\n`;
+                csvContent += `To\'lqin tezligi (v),${velocity},m/s,v = λ × f\n`;
+                csvContent += `Energiya (E),${energy},J,E ∝ A² × f²\n`;
+                csvContent += `Burchak chastotasi (ω),${angularFreq},rad/s,ω = 2πf\n`;
+                csvContent += `To\'lqin soni (k),${waveNumber},rad/m,k = 2π/λ\n\n`;
+                
+                // Medium properties
+                csvContent += 'MUHIT XUSUSIYATLARI\n';
+                csvContent += 'Xususiyat,Qiymat\n';
+                csvContent += `To\'lqin tezligi,${mediumProperties[medium].velocity} m/s\n`;
+                csvContent += `Damping,${mediumProperties[medium].damping}\n\n`;
+                
+                // Formulas
+                csvContent += 'ASOSIY FORMULALAR\n';
+                csvContent += 'Formula,Tavsif\n';
+                csvContent += 'y(x,t) = A sin(kx - ωt + φ),To\'lqin tenglamasi\n';
+                csvContent += 'v = λf,To\'lqin tezligi\n';
+                csvContent += 'T = 1/f,Period\n';
+                csvContent += 'ω = 2πf,Burchak chastotasi\n';
+                csvContent += 'k = 2π/λ,To\'lqin soni\n';
+                csvContent += 'E ∝ A²f²,Energiya\n';
+                
+                // Create blob and download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tolqin_malumotlari_${Date.now()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Saqlandi!';
+                btn.style.background = '#4caf50';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Eksport xatosi. Nusxalash tugmasini ishlating.');
+            }
+        });
+
+        // Copy data button
+        document.getElementById('copyData').addEventListener('click', async function() {
+            try {
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    waveType: waveType,
+                    medium: medium,
+                    parameters: {
+                        amplitude: amplitude,
+                        frequency: frequency,
+                        wavelength: wavelength,
+                        speed: speed,
+                        phase: phase
+                    },
+                    calculations: {
+                        period: (1 / frequency).toFixed(3),
+                        velocity: (wavelength * frequency).toFixed(2),
+                        energy: (amplitude * amplitude * frequency * frequency).toFixed(2)
+                    }
+                };
+                
+                const jsonString = JSON.stringify(data, null, 2);
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(jsonString);
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = jsonString;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                }
+                
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Nusxalandi!';
+                btn.style.background = '#4caf50';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            } catch (error) {
+                console.error('Copy error:', error);
+                alert('Nusxalash xatosi.');
+            }
+        });
+
+        // Screenshot button
+        document.getElementById('screenshot').addEventListener('click', function() {
+            try {
+                const compositeCanvas = document.createElement('canvas');
+                compositeCanvas.width = mainCanvas.width;
+                compositeCanvas.height = mainCanvas.height + particleCanvas.height + energyCanvas.height + 60;
+                const compositeCtx = compositeCanvas.getContext('2d');
+                
+                compositeCtx.fillStyle = 'white';
+                compositeCtx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                
+                compositeCtx.fillStyle = '#0f4c81';
+                compositeCtx.font = 'bold 24px sans-serif';
+                compositeCtx.fillText('To\'lqin Simulyatsiyasi', 20, 30);
+                
+                compositeCtx.drawImage(mainCanvas, 0, 60);
+                compositeCtx.drawImage(particleCanvas, 0, 60 + mainCanvas.height + 5);
+                compositeCtx.drawImage(energyCanvas, 0, 60 + mainCanvas.height + particleCanvas.height + 10);
+                
+                compositeCanvas.toBlob(blob => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `wave_${Date.now()}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        const btn = document.getElementById('screenshot');
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '✅ Saqlandi!';
+                        btn.style.background = '#4caf50';
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.style.background = '';
+                        }, 2000);
+                        
+                        if ('vibrate' in navigator) {
+                            navigator.vibrate(50);
+                        }
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('Screenshot error:', error);
+                alert('Screenshot xatosi. "Rasmni ochish" tugmasini ishlating.');
+            }
+        });
+
+        // Open image button
+        document.getElementById('openImage').addEventListener('click', function() {
+            try {
+                const compositeCanvas = document.createElement('canvas');
+                compositeCanvas.width = mainCanvas.width;
+                compositeCanvas.height = mainCanvas.height + particleCanvas.height + energyCanvas.height + 80;
+                const compositeCtx = compositeCanvas.getContext('2d');
+                
+                compositeCtx.fillStyle = 'white';
+                compositeCtx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                
+                compositeCtx.fillStyle = '#0f4c81';
+                compositeCtx.font = 'bold 28px sans-serif';
+                compositeCtx.fillText('To\'lqin Simulyatsiyasi', 20, 35);
+                
+                compositeCtx.fillStyle = '#666';
+                compositeCtx.font = '14px sans-serif';
+                const dateStr = new Date().toLocaleString('uz-UZ');
+                compositeCtx.fillText(dateStr, 20, 55);
+                
+                compositeCtx.drawImage(mainCanvas, 0, 70);
+                compositeCtx.drawImage(particleCanvas, 0, 70 + mainCanvas.height + 5);
+                compositeCtx.drawImage(energyCanvas, 0, 70 + mainCanvas.height + particleCanvas.height + 10);
+                
+                const dataUrl = compositeCanvas.toDataURL('image/png');
+                const win = window.open();
+                if (win) {
+                    win.document.write(`<!DOCTYPE html>
+<html><head><title>To'lqin Screenshot</title>
+<style>
+body{margin:0;padding:20px;background:#f5f5f5;display:flex;justify-content:center;align-items:center;min-height:100vh;flex-direction:column}
+img{max-width:100%;height:auto;box-shadow:0 4px 12px rgba(0,0,0,0.1);border-radius:8px;background:white}
+.controls{margin-bottom:20px}
+button{padding:10px 20px;margin:5px;border:none;background:#1e88e5;color:white;border-radius:6px;cursor:pointer;font-size:14px}
+button:hover{background:#0f4c81}
+</style></head><body>
+<div class="controls">
+<button onclick="document.querySelector('a').click()">💾 Yuklab olish</button>
+<button onclick="window.print()">🖨️ Chop etish</button>
+<button onclick="window.close()">❌ Yopish</button>
+</div>
+<img src="${dataUrl}" alt="Wave">
+<a href="${dataUrl}" download="wave_${Date.now()}.png" style="display:none"></a>
+</body></html>`);
+                    win.document.close();
+                    
+                    const btn = this;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ Ochildi!';
+                    btn.style.background = '#4caf50';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                } else {
+                    alert('Pop-up bloklangan. Brauzer sozlamalarini tekshiring.');
+                }
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            } catch (error) {
+                console.error('Open error:', error);
+                alert('Xato yuz berdi.');
+            }
+        });
+
+        // Update canvas title
+        function updateCanvasTitle() {
+            const titles = {
+                transverse: 'Transversal To\'lqin',
+                longitudinal: 'Longitudinal To\'lqin',
+                lissajous: 'Lissajous Figuralari',
+                combined: 'Kombinatsiyalangan To\'lqinlar'
+            };
+            document.getElementById('canvasTitle').textContent = titles[waveType];
+        }
+
+        // Update display values
+        function updateDisplay() {
+            const period = 1 / frequency;
+            const velocity = wavelength * frequency;
+            const energy = amplitude * amplitude * frequency * frequency;
+            
+            document.getElementById('amplitude-value').textContent = amplitude;
+            document.getElementById('frequency-value').textContent = frequency.toFixed(1);
+            document.getElementById('wavelength-value').textContent = wavelength;
+            document.getElementById('speed-value').textContent = speed.toFixed(1);
+            document.getElementById('phase-value').textContent = phase;
+            
+            document.getElementById('period-display').textContent = period.toFixed(2);
+            document.getElementById('freq-display').textContent = frequency.toFixed(1);
+            document.getElementById('velocity-display').textContent = velocity.toFixed(0);
+            document.getElementById('energy-display').textContent = energy.toFixed(0);
+        }
+
+        // Draw functions
+        function drawTransverse() {
+            const ctx = mainCtx;
+            const canvas = mainCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerY = canvas.height / 2;
+            const numPoints = canvas.width;
+            
+            // Draw axis
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+            
+            // Draw wave
+            ctx.strokeStyle = mediumProperties[medium].color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let x = 0; x < numPoints; x++) {
+                const k = (2 * Math.PI) / wavelength;
+                const omega = 2 * Math.PI * frequency;
+                const phaseRad = (phase * Math.PI) / 180;
+                const y = amplitude * Math.sin(k * x - omega * time + phaseRad);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, centerY + y);
+                } else {
+                    ctx.lineTo(x, centerY + y);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw particles
+            const numParticles = 20;
+            for (let i = 0; i < numParticles; i++) {
+                const x = (i * canvas.width) / numParticles;
+                const k = (2 * Math.PI) / wavelength;
+                const omega = 2 * Math.PI * frequency;
+                const phaseRad = (phase * Math.PI) / 180;
+                const y = amplitude * Math.sin(k * x - omega * time + phaseRad);
+                
+                ctx.fillStyle = 'rgba(243, 156, 18, 0.8)';
+                ctx.beginPath();
+                ctx.arc(x, centerY + y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw particle trail
+                ctx.strokeStyle = 'rgba(243, 156, 18, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, centerY);
+                ctx.lineTo(x, centerY + y);
+                ctx.stroke();
+            }
+        }
+
+        function drawLongitudinal() {
+            const ctx = mainCtx;
+            const canvas = mainCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerY = canvas.height / 2;
+            const numParticles = 40;
+            const baseSpacing = canvas.width / numParticles;
+            
+            // Draw particles
+            for (let i = 0; i < numParticles; i++) {
+                const baseX = i * baseSpacing;
+                const k = (2 * Math.PI) / wavelength;
+                const omega = 2 * Math.PI * frequency;
+                const phaseRad = (phase * Math.PI) / 180;
+                const displacement = amplitude * 0.3 * Math.sin(k * baseX - omega * time + phaseRad);
+                
+                const x = baseX + displacement;
+                
+                // Color based on compression/rarefaction
+                const density = Math.abs(displacement) / (amplitude * 0.3);
+                const r = Math.floor(255 - density * 100);
+                const b = Math.floor(150 + density * 105);
+                
+                ctx.fillStyle = `rgba(${r}, 100, ${b}, 0.8)`;
+                ctx.beginPath();
+                ctx.arc(x, centerY, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Draw density visualization
+            ctx.strokeStyle = mediumProperties[medium].color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const k = (2 * Math.PI) / wavelength;
+                const omega = 2 * Math.PI * frequency;
+                const phaseRad = (phase * Math.PI) / 180;
+                const density = Math.sin(k * x - omega * time + phaseRad);
+                const y = centerY + density * amplitude;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        function drawLissajous() {
+            const ctx = mainCtx;
+            const canvas = mainCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Draw axes
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+            
+            // Draw Lissajous figure
+            const omega1 = 2 * Math.PI * frequency;
+            const omega2 = 2 * Math.PI * frequency * 1.5;
+            const phaseRad = (phase * Math.PI) / 180;
+            
+            ctx.strokeStyle = mediumProperties[medium].color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const numPoints = 1000;
+            for (let i = 0; i < numPoints; i++) {
+                const t = (i / numPoints) * 4 * Math.PI + time;
+                const x = centerX + amplitude * Math.sin(omega1 * t);
+                const y = centerY + amplitude * Math.sin(omega2 * t + phaseRad);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw current point
+            const currentT = time;
+            const currentX = centerX + amplitude * Math.sin(omega1 * currentT);
+            const currentY = centerY + amplitude * Math.sin(omega2 * currentT + phaseRad);
+            
+            ctx.fillStyle = 'rgba(243, 156, 18, 0.8)';
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function drawCombined() {
+            const ctx = mainCtx;
+            const canvas = mainCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerY = canvas.height / 2;
+            
+            // Draw both waves
+            const k = (2 * Math.PI) / wavelength;
+            const omega = 2 * Math.PI * frequency;
+            const phaseRad = (phase * Math.PI) / 180;
+            
+            // Wave 1
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const y = amplitude * 0.5 * Math.sin(k * x - omega * time);
+                if (x === 0) ctx.moveTo(x, centerY + y);
+                else ctx.lineTo(x, centerY + y);
+            }
+            ctx.stroke();
+            
+            // Wave 2
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const y = amplitude * 0.5 * Math.sin(k * x - omega * time + phaseRad);
+                if (x === 0) ctx.moveTo(x, centerY + y);
+                else ctx.lineTo(x, centerY + y);
+            }
+            ctx.stroke();
+            
+            // Combined wave
+            ctx.strokeStyle = '#2ecc71';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 0; x < canvas.width; x++) {
+                const y1 = amplitude * 0.5 * Math.sin(k * x - omega * time);
+                const y2 = amplitude * 0.5 * Math.sin(k * x - omega * time + phaseRad);
+                const y = y1 + y2;
+                if (x === 0) ctx.moveTo(x, centerY + y);
+                else ctx.lineTo(x, centerY + y);
+            }
+            ctx.stroke();
+        }
+
+        function drawParticleMotion() {
+            const ctx = particleCtx;
+            const canvas = particleCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerY = canvas.height / 2;
+            const numParticles = 8;
+            
+            // Draw particle trajectories
+            for (let i = 0; i < numParticles; i++) {
+                const baseX = ((i + 0.5) * canvas.width) / numParticles;
+                const k = (2 * Math.PI) / wavelength;
+                const omega = 2 * Math.PI * frequency;
+                
+                // Draw trajectory
+                ctx.strokeStyle = 'rgba(52, 152, 219, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                
+                for (let t = time - 2; t <= time; t += 0.05) {
+                    let x, y;
+                    if (waveType === 'transverse' || waveType === 'lissajous' || waveType === 'combined') {
+                        x = baseX;
+                        y = amplitude * Math.sin(k * baseX - omega * t);
+                    } else {
+                        x = baseX + amplitude * 0.3 * Math.sin(k * baseX - omega * t);
+                        y = 0;
+                    }
+                    
+                    if (t === time - 2) {
+                        ctx.moveTo(x, centerY + y);
+                    } else {
+                        ctx.lineTo(x, centerY + y);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw current particle position
+                let currentX, currentY;
+                if (waveType === 'transverse' || waveType === 'lissajous' || waveType === 'combined') {
+                    currentX = baseX;
+                    currentY = amplitude * Math.sin(k * baseX - omega * time);
+                } else {
+                    currentX = baseX + amplitude * 0.3 * Math.sin(k * baseX - omega * time);
+                    currentY = 0;
+                }
+                
+                ctx.fillStyle = 'rgba(243, 156, 18, 0.9)';
+                ctx.beginPath();
+                ctx.arc(currentX, centerY + currentY, 7, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw velocity vector
+                const dt = 0.01;
+                let nextX, nextY;
+                if (waveType === 'transverse' || waveType === 'lissajous' || waveType === 'combined') {
+                    nextX = baseX;
+                    nextY = amplitude * Math.sin(k * baseX - omega * (time + dt));
+                } else {
+                    nextX = baseX + amplitude * 0.3 * Math.sin(k * baseX - omega * (time + dt));
+                    nextY = 0;
+                }
+                
+                const vx = (nextX - currentX) / dt;
+                const vy = (nextY - currentY) / dt;
+                const scale = 0.5;
+                
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(currentX, centerY + currentY);
+                ctx.lineTo(currentX + vx * scale, centerY + currentY + vy * scale);
+                ctx.stroke();
+                
+                // Arrowhead
+                const angle = Math.atan2(vy, vx);
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.moveTo(currentX + vx * scale, centerY + currentY + vy * scale);
+                ctx.lineTo(
+                    currentX + vx * scale - 5 * Math.cos(angle - Math.PI / 6),
+                    centerY + currentY + vy * scale - 5 * Math.sin(angle - Math.PI / 6)
+                );
+                ctx.lineTo(
+                    currentX + vx * scale - 5 * Math.cos(angle + Math.PI / 6),
+                    centerY + currentY + vy * scale - 5 * Math.sin(angle + Math.PI / 6)
+                );
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Legend
+            ctx.fillStyle = '#333';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('🔴 Tezlik vektori', 10, 20);
+            ctx.fillText('🟡 Zarracha', 10, 40);
+        }
+
+        function drawEnergyTransfer() {
+            const ctx = energyCtx;
+            const canvas = energyCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerY = canvas.height / 2;
+            const k = (2 * Math.PI) / wavelength;
+            const omega = 2 * Math.PI * frequency;
+            
+            // Draw energy density
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(46, 204, 113, 0.3)');
+            gradient.addColorStop(0.5, 'rgba(46, 204, 113, 0.6)');
+            gradient.addColorStop(1, 'rgba(46, 204, 113, 0.3)');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            
+            for (let x = 0; x < canvas.width; x++) {
+                const energy = Math.abs(amplitude * Math.sin(k * x - omega * time));
+                const y = centerY - energy;
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw energy flow arrows
+            const numArrows = 10;
+            for (let i = 0; i < numArrows; i++) {
+                const x = ((i + 0.5) * canvas.width) / numArrows + (time * 50) % (canvas.width / numArrows);
+                const normalizedX = x % canvas.width;
+                
+                ctx.strokeStyle = '#2ecc71';
+                ctx.fillStyle = '#2ecc71';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(normalizedX - 15, centerY);
+                ctx.lineTo(normalizedX + 15, centerY);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(normalizedX + 15, centerY);
+                ctx.lineTo(normalizedX + 10, centerY - 5);
+                ctx.lineTo(normalizedX + 10, centerY + 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px sans-serif';
+            ctx.fillText('Energiya oqimi →', 10, 25);
+            
+            const totalEnergy = (amplitude * amplitude * frequency * frequency).toFixed(0);
+            ctx.fillText(`Umumiy energiya: ${totalEnergy} J`, canvas.width - 200, 25);
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+            
+            time += 0.02 * speed;
+            
+            // Draw based on wave type
+            switch(waveType) {
+                case 'transverse':
+                    drawTransverse();
+                    break;
+                case 'longitudinal':
+                    drawLongitudinal();
+                    break;
+                case 'lissajous':
+                    drawLissajous();
+                    break;
+                case 'combined':
+                    drawCombined();
+                    break;
+            }
+            
+            drawParticleMotion();
+            drawEnergyTransfer();
+            
+            animationFrame = requestAnimationFrame(animate);
+        }
+
+        // Touch support
+        let touchStartX = 0;
+        let touchStartValue = 0;
+        let activeSlider = null;
+
+        mainCanvas.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        mainCanvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const deltaX = touchX - touchStartX;
+            
+            if (Math.abs(deltaX) > 50) {
+                phase = (phase + (deltaX > 0 ? 15 : -15)) % 360;
+                if (phase < 0) phase += 360;
+                document.getElementById('phase').value = phase;
+                document.getElementById('phase-value').textContent = phase;
+                touchStartX = touchX;
+                
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(10);
+                }
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    document.getElementById('playPause').click();
+                    break;
+                case 'r':
+                    document.getElementById('reset').click();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    amplitude = Math.min(100, amplitude + 5);
+                    document.getElementById('amplitude').value = amplitude;
+                    updateDisplay();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    amplitude = Math.max(10, amplitude - 5);
+                    document.getElementById('amplitude').value = amplitude;
+                    updateDisplay();
+                    break;
+            }
+        });
+
+        // Initialize MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            }
+        };
+
+        // Initial setup
+        updateDisplay();
+        animate();
+
+        // Announce ready
+        console.log('🌊 To\'lqin simulyatsiyasi tayyor!');
+        console.log('Klaviatura yorliqlari:');
+        console.log('  Space - Play/Pause');
+        console.log('  R - Reset');
+        console.log('  ↑↓ - Amplitudani o\'zgartirish');
+    </script>
+</body>
+</html>
