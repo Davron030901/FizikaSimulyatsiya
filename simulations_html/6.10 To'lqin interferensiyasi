@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>To'lqin Interferensiyasi Simulyatori</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0066ff;
+            --secondary: #00d4ff;
+            --accent: #ff3366;
+            --bg-dark: #0a0e1a;
+            --bg-medium: #151b2e;
+            --bg-light: #1e2842;
+            --text-primary: #e8edf5;
+            --text-secondary: #8b95ab;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1628 50%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 300;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+        
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--bg-medium);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(0, 102, 255, 0.3);
+            box-shadow: 0 12px 48px rgba(0, 102, 255, 0.15);
+        }
+        
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .control-group {
+            background: var(--bg-light);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .control-group h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-group h3::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        .control-item {
+            margin-bottom: 16px;
+        }
+        
+        .control-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .value-display {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, var(--primary) 0%, var(--primary) var(--value, 50%), rgba(255,255,255,0.1) var(--value, 50%), rgba(255,255,255,0.1) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.7);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.7);
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background: var(--bg-light);
+            box-shadow: none;
+        }
+        
+        button.secondary:hover {
+            background: var(--bg-dark);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+        
+        .visualization-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .canvas-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 102, 255, 0.2);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background: var(--bg-dark);
+            cursor: crosshair;
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .info-item {
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .theory-section {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
+        }
+        
+        .theory-section h3 {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--secondary);
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        
+        .theory-section p {
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .formula-box {
+            background: var(--bg-dark);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        
+        .formula-box .MathJax {
+            color: var(--text-primary);
+        }
+        
+        .help-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0, 102, 255, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-size: 0.7rem;
+            cursor: help;
+            margin-left: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .help-button:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            text-align: left;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            border: 1px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.85rem;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Touch enhancements */
+        @media (hover: none) {
+            button:hover {
+                transform: none;
+            }
+            
+            button:active {
+                transform: scale(0.95);
+            }
+            
+            input[type="range"]::-webkit-slider-thumb:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚛️ To'lqin Interferensiyasi Simulyatori</h1>
+            <p class="subtitle">Ikki to'lqin superpozitsiyasi, interferensiya va Lissajous figuralari</p>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <div class="card control-group">
+                    <h3>🌊 To'lqin 1 Parametrlari</h3>
+                    <div class="control-item">
+                        <label>
+                            <span>Amplituda (A₁) <span class="tooltip"><span class="help-button">?</span><span class="tooltiptext">To'lqinning maksimal og'ishi</span></span></span>
+                            <span class="value-display" id="amp1-value">1.0 m</span>
+                        </label>
+                        <input type="range" id="amp1" min="0.1" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>To'lqin uzunligi (λ₁) <span class="tooltip"><span class="help-button">?</span><span class="tooltiptext">To'lqin periodining uzunligi</span></span></span>
+                            <span class="value-display" id="lambda1-value">2.0 m</span>
+                        </label>
+                        <input type="range" id="lambda1" min="0.5" max="5" step="0.1" value="2">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>Chastota (f₁) <span class="tooltip"><span class="help-button">?</span><span class="tooltiptext">Sekundiga tebranishlar soni</span></span></span>
+                            <span class="value-display" id="freq1-value">1.0 Hz</span>
+                        </label>
+                        <input type="range" id="freq1" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>Faza (φ₁)</span>
+                            <span class="value-display" id="phase1-value">0°</span>
+                        </label>
+                        <input type="range" id="phase1" min="0" max="360" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="card control-group">
+                    <h3>🌊 To'lqin 2 Parametrlari</h3>
+                    <div class="control-item">
+                        <label>
+                            <span>Amplituda (A₂)</span>
+                            <span class="value-display" id="amp2-value">1.0 m</span>
+                        </label>
+                        <input type="range" id="amp2" min="0.1" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>To'lqin uzunligi (λ₂)</span>
+                            <span class="value-display" id="lambda2-value">2.0 m</span>
+                        </label>
+                        <input type="range" id="lambda2" min="0.5" max="5" step="0.1" value="2">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>Chastota (f₂)</span>
+                            <span class="value-display" id="freq2-value">1.0 Hz</span>
+                        </label>
+                        <input type="range" id="freq2" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                    <div class="control-item">
+                        <label>
+                            <span>Faza (φ₂)</span>
+                            <span class="value-display" id="phase2-value">0°</span>
+                        </label>
+                        <input type="range" id="phase2" min="0" max="360" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="card control-group">
+                    <h3>⚙️ Simulyatsiya Sozlamalari</h3>
+                    <div class="control-item">
+                        <label>
+                            <span>Tezlik</span>
+                            <span class="value-display" id="speed-value">1.0x</span>
+                        </label>
+                        <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+                    </div>
+                    <div class="control-item">
+                        <label for="mode">Vizualizatsiya rejimi</label>
+                        <select id="mode">
+                            <option value="waves">Alohida to'lqinlar</option>
+                            <option value="interference">Interferensiya</option>
+                            <option value="standing">Turg'un to'lqin</option>
+                            <option value="lissajous">Lissajous figurasi</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label for="preset">Tayyor stsenariylar</label>
+                        <select id="preset">
+                            <option value="custom">Maxsus</option>
+                            <option value="constructive">Konstruktiv interferensiya</option>
+                            <option value="destructive">Destruktiv interferensiya</option>
+                            <option value="standing">Turg'un to'lqin</option>
+                            <option value="beat">Urish hodisasi</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button id="playPause">⏸️ Pauza</button>
+                        <button id="reset" class="secondary">🔄 Reset</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visualization Area -->
+            <div class="visualization-area">
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="main">Asosiy</div>
+                        <div class="tab" data-tab="theory">Nazariya</div>
+                        <div class="tab" data-tab="analysis">Tahlil</div>
+                    </div>
+                    
+                    <div id="tab-main" class="tab-content">
+                        <div class="canvas-container">
+                            <div class="canvas-header">
+                                <span class="canvas-title">To'lqin Interferensiyasi</span>
+                                <span class="info-badge" id="interference-type">Tekshirilmoqda...</span>
+                            </div>
+                            <canvas id="mainCanvas"></canvas>
+                            <div class="legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #00d4ff;"></div>
+                                    <span>To'lqin 1</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ff3366;"></div>
+                                    <span>To'lqin 2</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #00ff88;"></div>
+                                    <span>Superpozitsiya</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-panel">
+                            <div class="info-item">
+                                <div class="info-label">Fazalar farqi</div>
+                                <div class="info-value" id="phase-diff">0°</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Yo'l farqi</div>
+                                <div class="info-value" id="path-diff">0.00 λ</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Maksimal amplituda</div>
+                                <div class="info-value" id="max-amp">2.00 m</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Interferensiya turi</div>
+                                <div class="info-value" id="interference-label">Konstruktiv</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-theory" class="tab-content" style="display: none;">
+                        <div class="theory-section">
+                            <h3>To'lqin Interferensiyasi</h3>
+                            <p>Interferensiya - ikki yoki undan ortiq to'lqinlar bir-biri bilan qo'shilganda yuzaga keladigan hodisa. To'lqinlar superpozitsiya prinsipi bo'yicha qo'shiladi.</p>
+                            
+                            <div class="formula-box">
+                                <strong>Superpozitsiya tenglamasi:</strong><br>
+                                $$y(x,t) = y_1(x,t) + y_2(x,t)$$
+                                $$y_1 = A_1 \sin(k_1x - \omega_1t + \phi_1)$$
+                                $$y_2 = A_2 \sin(k_2x - \omega_2t + \phi_2)$$
+                            </div>
+                            
+                            <h3>Konstruktiv Interferensiya</h3>
+                            <p>To'lqinlar bir xil fazada bo'lganda kuchayish yuz beradi:</p>
+                            <div class="formula-box">
+                                $$\Delta\phi = 2\pi m, \quad m = 0, \pm1, \pm2, ...$$
+                                $$\delta = m\lambda$$
+                            </div>
+                            
+                            <h3>Destruktiv Interferensiya</h3>
+                            <p>To'lqinlar qarama-qarshi fazada bo'lganda susayish yuz beradi:</p>
+                            <div class="formula-box">
+                                $$\Delta\phi = \pi(2m+1), \quad m = 0, \pm1, \pm2, ...$$
+                                $$\delta = (m + \frac{1}{2})\lambda$$
+                            </div>
+                            
+                            <h3>Turg'un To'lqin</h3>
+                            <p>Qarama-qarshi yo'nalishda tarqaladigan ikkita bir xil to'lqin interferensiyasi natijasida hosil bo'ladi:</p>
+                            <div class="formula-box">
+                                $$y = 2A\cos(kx)\sin(\omega t)$$
+                            </div>
+                            <p><strong>Nodlar:</strong> $x = \frac{m\lambda}{2}$ - tebranish amplitudasi nolga teng bo'lgan nuqtalar</p>
+                            <p><strong>Antinodlar:</strong> $x = \frac{(2m+1)\lambda}{4}$ - maksimal amplitudali nuqtalar</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-analysis" class="tab-content" style="display: none;">
+                        <div class="canvas-container">
+                            <div class="canvas-header">
+                                <span class="canvas-title">Lissajous Figurasi</span>
+                            </div>
+                            <canvas id="lissajousCanvas"></canvas>
+                        </div>
+                        
+                        <div class="canvas-container" style="margin-top: 20px;">
+                            <div class="canvas-header">
+                                <span class="canvas-title">Amplituda Spektri</span>
+                            </div>
+                            <canvas id="spectrumCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Canvas setup
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const lissajousCanvas = document.getElementById('lissajousCanvas');
+        const lissajousCtx = lissajousCanvas.getContext('2d');
+        const spectrumCanvas = document.getElementById('spectrumCanvas');
+        const spectrumCtx = spectrumCanvas.getContext('2d');
+        
+        // Responsive canvas sizing
+        function resizeCanvases() {
+            const container = mainCanvas.parentElement;
+            const width = container.clientWidth - 32;
+            
+            mainCanvas.width = width;
+            mainCanvas.height = Math.min(400, width * 0.5);
+            
+            lissajousCanvas.width = width;
+            lissajousCanvas.height = Math.min(400, width * 0.5);
+            
+            spectrumCanvas.width = width;
+            spectrumCanvas.height = Math.min(300, width * 0.375);
+        }
+        
+        resizeCanvases();
+        window.addEventListener('resize', resizeCanvases);
+        
+        // Simulation state
+        let state = {
+            amp1: 1, lambda1: 2, freq1: 1, phase1: 0,
+            amp2: 1, lambda2: 2, freq2: 1, phase2: 0,
+            speed: 1,
+            time: 0,
+            playing: true,
+            mode: 'waves',
+            lissajousPoints: []
+        };
+        
+        // Control elements
+        const controls = {
+            amp1: document.getElementById('amp1'),
+            lambda1: document.getElementById('lambda1'),
+            freq1: document.getElementById('freq1'),
+            phase1: document.getElementById('phase1'),
+            amp2: document.getElementById('amp2'),
+            lambda2: document.getElementById('lambda2'),
+            freq2: document.getElementById('freq2'),
+            phase2: document.getElementById('phase2'),
+            speed: document.getElementById('speed'),
+            mode: document.getElementById('mode'),
+            preset: document.getElementById('preset'),
+            playPause: document.getElementById('playPause'),
+            reset: document.getElementById('reset')
+        };
+        
+        // Update display values
+        function updateDisplays() {
+            document.getElementById('amp1-value').textContent = state.amp1.toFixed(1) + ' m';
+            document.getElementById('lambda1-value').textContent = state.lambda1.toFixed(1) + ' m';
+            document.getElementById('freq1-value').textContent = state.freq1.toFixed(1) + ' Hz';
+            document.getElementById('phase1-value').textContent = state.phase1.toFixed(0) + '°';
+            
+            document.getElementById('amp2-value').textContent = state.amp2.toFixed(1) + ' m';
+            document.getElementById('lambda2-value').textContent = state.lambda2.toFixed(1) + ' m';
+            document.getElementById('freq2-value').textContent = state.freq2.toFixed(1) + ' Hz';
+            document.getElementById('phase2-value').textContent = state.phase2.toFixed(0) + '°';
+            
+            document.getElementById('speed-value').textContent = state.speed.toFixed(1) + 'x';
+            
+            // Update range slider backgrounds
+            updateSliderBackground(controls.amp1, state.amp1, 0.1, 2);
+            updateSliderBackground(controls.lambda1, state.lambda1, 0.5, 5);
+            updateSliderBackground(controls.freq1, state.freq1, 0.1, 3);
+            updateSliderBackground(controls.phase1, state.phase1, 0, 360);
+            updateSliderBackground(controls.amp2, state.amp2, 0.1, 2);
+            updateSliderBackground(controls.lambda2, state.lambda2, 0.5, 5);
+            updateSliderBackground(controls.freq2, state.freq2, 0.1, 3);
+            updateSliderBackground(controls.phase2, state.phase2, 0, 360);
+            updateSliderBackground(controls.speed, state.speed, 0.1, 5);
+        }
+        
+        function updateSliderBackground(slider, value, min, max) {
+            const percent = ((value - min) / (max - min)) * 100;
+            slider.style.setProperty('--value', percent + '%');
+        }
+        
+        // Event listeners
+        controls.amp1.addEventListener('input', (e) => { state.amp1 = parseFloat(e.target.value); updateDisplays(); });
+        controls.lambda1.addEventListener('input', (e) => { state.lambda1 = parseFloat(e.target.value); updateDisplays(); });
+        controls.freq1.addEventListener('input', (e) => { state.freq1 = parseFloat(e.target.value); updateDisplays(); });
+        controls.phase1.addEventListener('input', (e) => { state.phase1 = parseFloat(e.target.value); updateDisplays(); });
+        controls.amp2.addEventListener('input', (e) => { state.amp2 = parseFloat(e.target.value); updateDisplays(); });
+        controls.lambda2.addEventListener('input', (e) => { state.lambda2 = parseFloat(e.target.value); updateDisplays(); });
+        controls.freq2.addEventListener('input', (e) => { state.freq2 = parseFloat(e.target.value); updateDisplays(); });
+        controls.phase2.addEventListener('input', (e) => { state.phase2 = parseFloat(e.target.value); updateDisplays(); });
+        controls.speed.addEventListener('input', (e) => { state.speed = parseFloat(e.target.value); updateDisplays(); });
+        controls.mode.addEventListener('change', (e) => { state.mode = e.target.value; });
+        
+        controls.playPause.addEventListener('click', () => {
+            state.playing = !state.playing;
+            controls.playPause.textContent = state.playing ? '⏸️ Pauza' : '▶️ Boshlash';
+        });
+        
+        controls.reset.addEventListener('click', () => {
+            state.time = 0;
+            state.lissajousPoints = [];
+        });
+        
+        // Presets
+        const presets = {
+            constructive: { amp1: 1, lambda1: 2, freq1: 1, phase1: 0, amp2: 1, lambda2: 2, freq2: 1, phase2: 0 },
+            destructive: { amp1: 1, lambda1: 2, freq1: 1, phase1: 0, amp2: 1, lambda2: 2, freq2: 1, phase2: 180 },
+            standing: { amp1: 1, lambda1: 2, freq1: 1, phase1: 0, amp2: 1, lambda2: 2, freq2: 1, phase2: 180 },
+            beat: { amp1: 1, lambda1: 2, freq1: 1, phase1: 0, amp2: 1, lambda2: 2, freq2: 1.2, phase2: 0 }
+        };
+        
+        controls.preset.addEventListener('change', (e) => {
+            const preset = presets[e.target.value];
+            if (preset) {
+                Object.assign(state, preset);
+                controls.amp1.value = state.amp1;
+                controls.lambda1.value = state.lambda1;
+                controls.freq1.value = state.freq1;
+                controls.phase1.value = state.phase1;
+                controls.amp2.value = state.amp2;
+                controls.lambda2.value = state.lambda2;
+                controls.freq2.value = state.freq2;
+                controls.phase2.value = state.phase2;
+                updateDisplays();
+                state.time = 0;
+                state.lissajousPoints = [];
+            }
+        });
+        
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+            });
+        });
+        
+        // Wave functions
+        function wave1(x, t) {
+            const k = 2 * Math.PI / state.lambda1;
+            const omega = 2 * Math.PI * state.freq1;
+            const phi = state.phase1 * Math.PI / 180;
+            return state.amp1 * Math.sin(k * x - omega * t + phi);
+        }
+        
+        function wave2(x, t) {
+            const k = 2 * Math.PI / state.lambda2;
+            const omega = 2 * Math.PI * state.freq2;
+            const phi = state.phase2 * Math.PI / 180;
+            return state.amp2 * Math.sin(k * x - omega * t + phi);
+        }
+        
+        // Calculate interference info
+        function calculateInterference() {
+            const phaseDiff = ((state.phase2 - state.phase1 + 360) % 360);
+            const pathDiff = phaseDiff / 360;
+            const maxAmp = Math.abs(state.amp1 + state.amp2);
+            
+            let interferenceType = '';
+            let typeLabel = '';
+            
+            if (Math.abs(phaseDiff - 0) < 10 || Math.abs(phaseDiff - 360) < 10) {
+                interferenceType = 'Konstruktiv (m = 0)';
+                typeLabel = 'Konstruktiv';
+            } else if (Math.abs(phaseDiff - 180) < 10) {
+                interferenceType = 'Destruktiv (m = 0.5)';
+                typeLabel = 'Destruktiv';
+            } else if (phaseDiff < 90) {
+                interferenceType = 'Ko\'proq konstruktiv';
+                typeLabel = 'Qisman konstruktiv';
+            } else if (phaseDiff < 270) {
+                interferenceType = 'Ko\'proq destruktiv';
+                typeLabel = 'Qisman destruktiv';
+            } else {
+                interferenceType = 'Ko\'proq konstruktiv';
+                typeLabel = 'Qisman konstruktiv';
+            }
+            
+            document.getElementById('phase-diff').textContent = phaseDiff.toFixed(1) + '°';
+            document.getElementById('path-diff').textContent = pathDiff.toFixed(2) + ' λ';
+            document.getElementById('max-amp').textContent = maxAmp.toFixed(2) + ' m';
+            document.getElementById('interference-type').textContent = interferenceType;
+            document.getElementById('interference-label').textContent = typeLabel;
+        }
+        
+        // Draw main canvas
+        function drawMain() {
+            const ctx = mainCtx;
+            const width = mainCanvas.width;
+            const height = mainCanvas.height;
+            
+            // Clear
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // Draw axis
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            const scale = height / 6;
+            const centerY = height / 2;
+            
+            if (state.mode === 'waves' || state.mode === 'interference') {
+                // Draw wave 1
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const worldX = x / 50;
+                    const y1 = wave1(worldX, state.time);
+                    const screenY = centerY - y1 * scale;
+                    if (x === 0) ctx.moveTo(x, screenY);
+                    else ctx.lineTo(x, screenY);
+                }
+                ctx.stroke();
+                
+                // Draw wave 2
+                ctx.strokeStyle = '#ff3366';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const worldX = x / 50;
+                    const y2 = wave2(worldX, state.time);
+                    const screenY = centerY - y2 * scale;
+                    if (x === 0) ctx.moveTo(x, screenY);
+                    else ctx.lineTo(x, screenY);
+                }
+                ctx.stroke();
+                
+                if (state.mode === 'interference') {
+                    // Draw superposition
+                    ctx.strokeStyle = '#00ff88';
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#00ff88';
+                    ctx.beginPath();
+                    for (let x = 0; x < width; x++) {
+                        const worldX = x / 50;
+                        const y = wave1(worldX, state.time) + wave2(worldX, state.time);
+                        const screenY = centerY - y * scale;
+                        if (x === 0) ctx.moveTo(x, screenY);
+                        else ctx.lineTo(x, screenY);
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+            } else if (state.mode === 'standing') {
+                // Standing wave
+                const A = state.amp1;
+                const lambda = state.lambda1;
+                const k = 2 * Math.PI / lambda;
+                const omega = 2 * Math.PI * state.freq1;
+                
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00ff88';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const worldX = x / 50;
+                    const y = 2 * A * Math.cos(k * worldX) * Math.sin(omega * state.time);
+                    const screenY = centerY - y * scale;
+                    if (x === 0) ctx.moveTo(x, screenY);
+                    else ctx.lineTo(x, screenY);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                // Draw nodes and antinodes
+                ctx.fillStyle = '#ff3366';
+                for (let m = 0; m <= 10; m++) {
+                    const nodeX = (m * lambda / 2) * 50;
+                    if (nodeX < width) {
+                        ctx.beginPath();
+                        ctx.arc(nodeX, centerY, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                
+                ctx.fillStyle = '#00d4ff';
+                for (let m = 0; m <= 10; m++) {
+                    const antinodeX = ((2 * m + 1) * lambda / 4) * 50;
+                    if (antinodeX < width) {
+                        ctx.beginPath();
+                        ctx.arc(antinodeX, centerY - 2 * A * Math.cos(omega * state.time) * scale, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            } else if (state.mode === 'lissajous') {
+                // Oscillator visualization
+                const x1 = wave1(0, state.time);
+                const x2 = wave2(0, state.time);
+                
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(width / 4, centerY);
+                ctx.lineTo(width / 4, centerY - x1 * scale);
+                ctx.stroke();
+                
+                ctx.strokeStyle = '#ff3366';
+                ctx.beginPath();
+                ctx.moveTo(3 * width / 4, centerY);
+                ctx.lineTo(3 * width / 4, centerY - x2 * scale);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#00d4ff';
+                ctx.beginPath();
+                ctx.arc(width / 4, centerY - x1 * scale, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ff3366';
+                ctx.beginPath();
+                ctx.arc(3 * width / 4, centerY - x2 * scale, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Draw Lissajous figure
+        function drawLissajous() {
+            const ctx = lissajousCtx;
+            const width = lissajousCanvas.width;
+            const height = lissajousCanvas.height;
+            
+            // Clear
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            ctx.stroke();
+            
+            const scale = Math.min(width, height) / 5;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Add current point
+            const x = wave1(0, state.time);
+            const y = wave2(0, state.time);
+            state.lissajousPoints.push({ x, y });
+            
+            // Keep only last 500 points
+            if (state.lissajousPoints.length > 500) {
+                state.lissajousPoints.shift();
+            }
+            
+            // Draw Lissajous curve
+            if (state.lissajousPoints.length > 1) {
+                for (let i = 1; i < state.lissajousPoints.length; i++) {
+                    const alpha = i / state.lissajousPoints.length;
+                    const p1 = state.lissajousPoints[i - 1];
+                    const p2 = state.lissajousPoints[i];
+                    
+                    ctx.strokeStyle = `rgba(0, 255, 136, ${alpha * 0.8})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + p1.x * scale, centerY - p1.y * scale);
+                    ctx.lineTo(centerX + p2.x * scale, centerY - p2.y * scale);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw current point
+            ctx.fillStyle = '#00ff88';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ff88';
+            ctx.beginPath();
+            ctx.arc(centerX + x * scale, centerY - y * scale, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        // Draw spectrum
+        function drawSpectrum() {
+            const ctx = spectrumCtx;
+            const width = spectrumCanvas.width;
+            const height = spectrumCanvas.height;
+            
+            // Clear
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // Frequency components
+            const freqs = [
+                { f: state.freq1, a: state.amp1, color: '#00d4ff', label: 'f₁' },
+                { f: state.freq2, a: state.amp2, color: '#ff3366', label: 'f₂' }
+            ];
+            
+            const maxFreq = Math.max(state.freq1, state.freq2) * 1.5;
+            const barWidth = (width - 100) / freqs.length;
+            
+            freqs.forEach((freq, i) => {
+                const x = 50 + i * barWidth + barWidth / 2 - 30;
+                const barHeight = (freq.a / 2) * (height - 60);
+                const y = height - 30 - barHeight;
+                
+                ctx.fillStyle = freq.color;
+                ctx.fillRect(x, y, 60, barHeight);
+                
+                ctx.fillStyle = freq.color;
+                ctx.font = '14px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText(freq.label, x + 30, height - 10);
+                ctx.fillText(freq.f.toFixed(1) + ' Hz', x + 30, y - 10);
+                ctx.fillText('A: ' + freq.a.toFixed(1), x + 30, y - 25);
+            });
+        }
+        
+        // Animation loop
+        function animate() {
+            if (state.playing) {
+                state.time += 0.016 * state.speed;
+            }
+            
+            drawMain();
+            drawLissajous();
+            drawSpectrum();
+            calculateInterference();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Initialize
+        updateDisplays();
+        animate();
+        
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        mainCanvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        mainCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                state.phase1 = (state.phase1 + deltaX * 0.5) % 360;
+                if (state.phase1 < 0) state.phase1 += 360;
+                controls.phase1.value = state.phase1;
+            } else {
+                state.amp1 = Math.max(0.1, Math.min(2, state.amp1 + deltaY * 0.01));
+                controls.amp1.value = state.amp1;
+            }
+            
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            updateDisplays();
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                controls.playPause.click();
+            } else if (e.code === 'KeyR') {
+                controls.reset.click();
+            }
+        });
+    </script>
+</body>
+</html>
