@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turgun To'lqin Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0A4D68;
+            --secondary: #088395;
+            --accent: #05C3DD;
+            --bg-dark: #0A1828;
+            --bg-light: #BFD8E9;
+            --text-light: #E8F4F8;
+            --text-dark: #1A2332;
+            --node-color: #FF6B6B;
+            --antinode-color: #4ECDC4;
+            --wave-color: #05C3DD;
+            --envelope-color: rgba(255, 107, 107, 0.3);
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #152238 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, rgba(8, 131, 149, 0.1) 0%, rgba(5, 195, 221, 0.05) 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-light);
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr 350px;
+            }
+        }
+        
+        .canvas-container {
+            background: linear-gradient(135deg, rgba(10, 77, 104, 0.2) 0%, rgba(8, 131, 149, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(10, 24, 40, 0.8) 0%, rgba(26, 35, 50, 0.6) 100%);
+            cursor: crosshair;
+            border: 2px solid rgba(5, 195, 221, 0.2);
+        }
+        
+        .controls-panel {
+            background: linear-gradient(135deg, rgba(10, 77, 104, 0.2) 0%, rgba(8, 131, 149, 0.1) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) transparent;
+        }
+        
+        .controls-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .controls-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+        
+        .control-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+        
+        .value-display {
+            float: right;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            margin: 10px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(5, 195, 221, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 16px rgba(5, 195, 221, 0.6);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(5, 195, 221, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 16px rgba(5, 195, 221, 0.6);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(8, 131, 149, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(8, 131, 149, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.active {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            box-shadow: 0 6px 20px rgba(5, 195, 221, 0.5);
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        
+        .preset-btn {
+            background: linear-gradient(135deg, rgba(8, 131, 149, 0.3) 0%, rgba(5, 195, 221, 0.2) 100%);
+            border: 1px solid rgba(5, 195, 221, 0.3);
+        }
+        
+        .preset-btn:hover {
+            background: linear-gradient(135deg, rgba(8, 131, 149, 0.5) 0%, rgba(5, 195, 221, 0.3) 100%);
+            border-color: var(--accent);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, rgba(5, 195, 221, 0.1) 0%, rgba(8, 131, 149, 0.05) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        
+        .formula {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .theory-section {
+            background: linear-gradient(135deg, rgba(10, 77, 104, 0.2) 0%, rgba(8, 131, 149, 0.1) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .theory-section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .theory-section h3 {
+            color: var(--secondary);
+            margin: 20px 0 10px 0;
+            font-size: 1.2rem;
+        }
+        
+        .theory-section p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .theory-section ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: var(--accent);
+            font-weight: 600;
+            border-bottom: 1px dashed var(--accent);
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: rgba(10, 24, 40, 0.95);
+            color: var(--text-light);
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid rgba(5, 195, 221, 0.3);
+            font-size: 0.85rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .canvas-container {
+                padding: 15px;
+            }
+            
+            .controls-panel {
+                padding: 15px;
+                max-height: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg-dark);
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: help;
+            margin-left: 5px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+        
+        .recording {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌊 Turgun To'lqin Simulyatsiyasi</h1>
+            <p class="subtitle">Qaytgan to'lqinlar interferensiyasi va garmonik modlar</p>
+        </header>
+        
+        <div class="main-grid">
+            <div class="canvas-container">
+                <canvas id="waveCanvas" width="1000" height="500"></canvas>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--wave-color);"></div>
+                        <span>Turgun to'lqin</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--envelope-color);"></div>
+                        <span>Amplituda konverti</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--node-color);"></div>
+                        <span>Nodlar</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--antinode-color);"></div>
+                        <span>Antinodlar</span>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">To'lqin uzunligi (λ)</div>
+                        <div class="stat-value" id="wavelengthDisplay">2.00 m</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Chastota (f)</div>
+                        <div class="stat-value" id="frequencyDisplay">1.00 Hz</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Nodlar soni</div>
+                        <div class="stat-value" id="nodesDisplay">3</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Antinodlar soni</div>
+                        <div class="stat-value" id="antinodesDisplay">2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="control-section">
+                    <div class="section-title">🎮 Animatsiya boshqaruvi</div>
+                    <div class="button-group">
+                        <button id="playBtn" class="active">▶ Play</button>
+                        <button id="pauseBtn">⏸ Pause</button>
+                        <button id="resetBtn">↻ Reset</button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">⚙️ To'lqin parametrlari</div>
+                    
+                    <div class="control-group">
+                        <label>
+                            Amplituda (A):
+                            <span class="value-display" id="amplitudeValue">0.50</span>
+                            <span class="tooltip help-icon">?
+                                <span class="tooltiptext">To'lqinning maksimal og'ish qiymati</span>
+                            </span>
+                        </label>
+                        <input type="range" id="amplitudeSlider" min="0.1" max="1" step="0.05" value="0.5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            Chastota (ω):
+                            <span class="value-display" id="frequencyValue">6.28 rad/s</span>
+                            <span class="tooltip help-icon">?
+                                <span class="tooltiptext">Vaqt birligi ichida to'lqinning tebranishlari soni</span>
+                            </span>
+                        </label>
+                        <input type="range" id="frequencySlider" min="1" max="20" step="0.5" value="6.28">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            To'lqin soni (k):
+                            <span class="value-display" id="wavenumberValue">3.14</span>
+                            <span class="tooltip help-icon">?
+                                <span class="tooltiptext">2π uzunlikdagi to'lqinlar soni</span>
+                            </span>
+                        </label>
+                        <input type="range" id="wavenumberSlider" min="1" max="20" step="0.2" value="3.14">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            Animatsiya tezligi:
+                            <span class="value-display" id="speedValue">1.0x</span>
+                        </label>
+                        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">🎵 Garmonik modlar</div>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setHarmonic(1)">1-mod</button>
+                        <button class="preset-btn" onclick="setHarmonic(2)">2-mod</button>
+                        <button class="preset-btn" onclick="setHarmonic(3)">3-mod</button>
+                        <button class="preset-btn" onclick="setHarmonic(4)">4-mod</button>
+                        <button class="preset-btn" onclick="setHarmonic(5)">5-mod</button>
+                        <button class="preset-btn" onclick="setHarmonic(6)">6-mod</button>
+                    </div>
+                    <div class="info-box">
+                        <strong>Garmonik mod:</strong> n-chi garmonik modda tor uzunligi n×λ/2 ga teng bo'ladi. Har bir mod o'zining xarakterli chastotasiga ega.
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">🎨 Vizualizatsiya</div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showNodesCheck" checked> Nodlarni ko'rsatish
+                        </label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showAntinodesCheck" checked> Antinodlarni ko'rsatish
+                        </label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showEnvelopeCheck" checked> Konvertni ko'rsatish
+                        </label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="showGridCheck"> Grid ko'rsatish
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="section-title">📐 Formula</div>
+                    <div class="formula">
+                        \[ y(x,t) = 2A \sin(kx) \cos(\omega t) \]
+                    </div>
+                    <div class="info-box">
+                        <strong>Nodlar:</strong> \( x = n\frac{\lambda}{2} \) (n = 0, 1, 2, ...)<br>
+                        <strong>Antinodlar:</strong> \( x = (2n+1)\frac{\lambda}{4} \) (n = 0, 1, 2, ...)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="theory-section">
+            <h2>📚 Nazariy Ma'lumot</h2>
+            
+            <h3>Turgun To'lqin Nima?</h3>
+            <p>
+                Turgun to'lqin - bu bir xil amplituda, chastota va to'lqin uzunligiga ega bo'lgan, qarama-qarshi yo'nalishda tarqalayotgan ikki to'lqinning superpozitsiyasi natijasida hosil bo'ladigan to'lqin. Bunday to'lqinda energiya bir joydan ikkinchi joyga o'tmaydi, balki nodlar va antinodlar orasida taqsimlanadi.
+            </p>
+            
+            <h3>Asosiy Xususiyatlar</h3>
+            <ul>
+                <li><strong>Nodlar:</strong> To'lqinning amplitudasi nolga teng bo'lgan nuqtalar. Bu nuqtalar tebranmaydi va doimo bir xil holatda qoladi.</li>
+                <li><strong>Antinodlar:</strong> To'lqinning amplitudasi maksimal bo'lgan nuqtalar. Bu nuqtalarda tebranish eng kuchli bo'ladi.</li>
+                <li><strong>To'lqin uzunligi (λ):</strong> Ketma-ket ikki nod yoki antinoj orasidagi masofa λ/2 ga teng.</li>
+                <li><strong>Garmonik modlar:</strong> Chegaralangan muhitda (masalan, tor) faqat ma'lum to'lqin uzunliklarida turgun to'lqinlar hosil bo'ladi.</li>
+            </ul>
+            
+            <h3>Matematik Tavsif</h3>
+            <p>
+                Turgun to'lqin tenglamasi quyidagi shaklda yoziladi:
+            </p>
+            <div class="formula">
+                \[ y(x,t) = 2A \sin(kx) \cos(\omega t) \]
+            </div>
+            <p>
+                Bu yerda:
+            </p>
+            <ul>
+                <li><strong>A</strong> - to'lqin amplitudasi</li>
+                <li><strong>k = 2π/λ</strong> - to'lqin soni</li>
+                <li><strong>ω = 2πf</strong> - burchak chastotasi</li>
+                <li><strong>x</strong> - fazoviy koordinata</li>
+                <li><strong>t</strong> - vaqt</li>
+            </ul>
+            
+            <h3>Amaliy Tatbiqlar</h3>
+            <ul>
+                <li><strong>Musiqa asboblari:</strong> Gitara, skripka va boshqa torli asboblarda turgun to'lqinlar hosil bo'ladi.</li>
+                <li><strong>Akustika:</strong> Xonalarda va konsert zallarida tovush to'lqinlarining rezonans hodisalari.</li>
+                <li><strong>Mikroto'lqinli pechlar:</strong> Ovqatni isitish uchun turgun elektromagnit to'lqinlardan foydalaniladi.</li>
+                <li><strong>Lazer texnologiyasi:</strong> Optik rezonatorlarda turgun yorug'lik to'lqinlari.</li>
+            </ul>
+            
+            <h3>Garmonik Modlar</h3>
+            <p>
+                Uzunligi L bo'lgan torda hosil bo'ladigan garmonik modlar uchun:
+            </p>
+            <div class="formula">
+                \[ L = n\frac{\lambda}{2} \quad \text{yoki} \quad \lambda_n = \frac{2L}{n} \]
+            </div>
+            <p>
+                Bu yerda n = 1, 2, 3, ... - garmonik tartib raqami. Birinchi garmonik (n=1) asosiy chastota deb ataladi.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let params = {
+            amplitude: 0.5,
+            omega: 2 * Math.PI,
+            k: Math.PI,
+            time: 0,
+            speed: 1,
+            isPlaying: true,
+            showNodes: true,
+            showAntinodes: true,
+            showEnvelope: true,
+            showGrid: false
+        };
+        
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
+        const CENTER_Y = HEIGHT / 2;
+        const SCALE = 150;
+        const LENGTH = 10;
+        
+        // Control listeners
+        document.getElementById('amplitudeSlider').addEventListener('input', (e) => {
+            params.amplitude = parseFloat(e.target.value);
+            document.getElementById('amplitudeValue').textContent = params.amplitude.toFixed(2);
+            updateStats();
+        });
+        
+        document.getElementById('frequencySlider').addEventListener('input', (e) => {
+            params.omega = parseFloat(e.target.value);
+            document.getElementById('frequencyValue').textContent = params.omega.toFixed(2) + ' rad/s';
+            updateStats();
+        });
+        
+        document.getElementById('wavenumberSlider').addEventListener('input', (e) => {
+            params.k = parseFloat(e.target.value);
+            document.getElementById('wavenumberValue').textContent = params.k.toFixed(2);
+            updateStats();
+        });
+        
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            params.speed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = params.speed.toFixed(1) + 'x';
+        });
+        
+        document.getElementById('playBtn').addEventListener('click', () => {
+            params.isPlaying = true;
+            document.getElementById('playBtn').classList.add('active');
+            document.getElementById('pauseBtn').classList.remove('active');
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            params.isPlaying = false;
+            document.getElementById('pauseBtn').classList.add('active');
+            document.getElementById('playBtn').classList.remove('active');
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            params.time = 0;
+        });
+        
+        document.getElementById('showNodesCheck').addEventListener('change', (e) => {
+            params.showNodes = e.target.checked;
+        });
+        
+        document.getElementById('showAntinodesCheck').addEventListener('change', (e) => {
+            params.showAntinodes = e.target.checked;
+        });
+        
+        document.getElementById('showEnvelopeCheck').addEventListener('change', (e) => {
+            params.showEnvelope = e.target.checked;
+        });
+        
+        document.getElementById('showGridCheck').addEventListener('change', (e) => {
+            params.showGrid = e.target.checked;
+        });
+        
+        function setHarmonic(n) {
+            params.k = n * Math.PI / 5;
+            params.omega = n * Math.PI;
+            document.getElementById('wavenumberValue').textContent = params.k.toFixed(2);
+            document.getElementById('frequencyValue').textContent = params.omega.toFixed(2) + ' rad/s';
+            updateStats();
+        }
+        
+        function updateStats() {
+            const wavelength = (2 * Math.PI / params.k);
+            const frequency = params.omega / (2 * Math.PI);
+            const nodes = Math.floor(LENGTH / (wavelength / 2)) + 1;
+            const antinodes = Math.floor(LENGTH / (wavelength / 2));
+            
+            document.getElementById('wavelengthDisplay').textContent = wavelength.toFixed(2) + ' m';
+            document.getElementById('frequencyDisplay').textContent = frequency.toFixed(2) + ' Hz';
+            document.getElementById('nodesDisplay').textContent = nodes;
+            document.getElementById('antinodesDisplay').textContent = antinodes;
+        }
+        
+        function drawGrid() {
+            if (!params.showGrid) return;
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let x = 0; x <= WIDTH; x += WIDTH / 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, HEIGHT);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y <= HEIGHT; y += HEIGHT / 10) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(WIDTH, y);
+                ctx.stroke();
+            }
+        }
+        
+        function drawAxes() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, CENTER_Y);
+            ctx.lineTo(WIDTH, CENTER_Y);
+            ctx.stroke();
+            
+            // Tick marks
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.font = '12px JetBrains Mono';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            
+            for (let i = 0; i <= LENGTH; i += 2) {
+                const x = (i / LENGTH) * WIDTH;
+                ctx.beginPath();
+                ctx.moveTo(x, CENTER_Y - 5);
+                ctx.lineTo(x, CENTER_Y + 5);
+                ctx.stroke();
+                
+                ctx.fillText(i.toFixed(0), x - 10, CENTER_Y + 20);
+            }
+        }
+        
+        function standingWave(x, t) {
+            return 2 * params.amplitude * Math.sin(params.k * x) * Math.cos(params.omega * t);
+        }
+        
+        function envelope(x) {
+            return 2 * params.amplitude * Math.abs(Math.sin(params.k * x));
+        }
+        
+        function drawEnvelope() {
+            if (!params.showEnvelope) return;
+            
+            ctx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            
+            // Upper envelope
+            ctx.beginPath();
+            for (let px = 0; px <= WIDTH; px++) {
+                const x = (px / WIDTH) * LENGTH;
+                const y = CENTER_Y - envelope(x) * SCALE;
+                if (px === 0) ctx.moveTo(px, y);
+                else ctx.lineTo(px, y);
+            }
+            ctx.stroke();
+            
+            // Lower envelope
+            ctx.beginPath();
+            for (let px = 0; px <= WIDTH; px++) {
+                const x = (px / WIDTH) * LENGTH;
+                const y = CENTER_Y + envelope(x) * SCALE;
+                if (px === 0) ctx.moveTo(px, y);
+                else ctx.lineTo(px, y);
+            }
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+        }
+        
+        function drawWave() {
+            ctx.strokeStyle = '#05C3DD';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#05C3DD';
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            for (let px = 0; px <= WIDTH; px++) {
+                const x = (px / WIDTH) * LENGTH;
+                const y = CENTER_Y - standingWave(x, params.time) * SCALE;
+                
+                if (px === 0) ctx.moveTo(px, y);
+                else ctx.lineTo(px, y);
+            }
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawNodes() {
+            if (!params.showNodes) return;
+            
+            const wavelength = (2 * Math.PI / params.k);
+            
+            for (let n = 0; n <= Math.ceil(LENGTH / (wavelength / 2)); n++) {
+                const x = n * (wavelength / 2);
+                if (x > LENGTH) break;
+                
+                const px = (x / LENGTH) * WIDTH;
+                
+                // Draw node marker
+                ctx.fillStyle = '#FF6B6B';
+                ctx.shadowColor = '#FF6B6B';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(px, CENTER_Y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw vertical line
+                ctx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(px, CENTER_Y - 100);
+                ctx.lineTo(px, CENTER_Y + 100);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function drawAntinodes() {
+            if (!params.showAntinodes) return;
+            
+            const wavelength = (2 * Math.PI / params.k);
+            
+            for (let n = 0; n <= Math.ceil(LENGTH / (wavelength / 2)); n++) {
+                const x = (2 * n + 1) * (wavelength / 4);
+                if (x > LENGTH) break;
+                
+                const px = (x / LENGTH) * WIDTH;
+                const amplitude = envelope(x);
+                const currentY = CENTER_Y - standingWave(x, params.time) * SCALE;
+                
+                // Draw antinode marker
+                ctx.fillStyle = '#4ECDC4';
+                ctx.shadowColor = '#4ECDC4';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(px, currentY, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            
+            drawGrid();
+            drawAxes();
+            drawEnvelope();
+            drawNodes();
+            drawWave();
+            drawAntinodes();
+            
+            if (params.isPlaying) {
+                params.time += 0.03 * params.speed;
+            }
+            
+            requestAnimationFrame(draw);
+        }
+        
+        // Initialize
+        updateStats();
+        draw();
+        
+        // Responsive canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            const scale = window.devicePixelRatio || 1;
+            
+            canvas.style.width = '100%';
+            canvas.style.height = 'auto';
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // MathJax render
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
