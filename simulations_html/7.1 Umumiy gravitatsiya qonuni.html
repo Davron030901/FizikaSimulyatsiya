@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umumiy Gravitatsiya Qonuni Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        .controls-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas {
+            width: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #0a0a0a 0%, #1a1a2e 100%);
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .value-display {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 10px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .preset-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            min-width: 100px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .theory-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .theory-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .help-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            cursor: help;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .help-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 80px;
+            }
+
+            .preset-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading::after {
+            content: '...';
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 Umumiy Gravitatsiya Qonuni 🌙</h1>
+            <p class="subtitle">Newton's Law of Universal Gravitation</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Massa 1 (m₁)
+                            <span class="tooltip">
+                                <span class="help-btn">?</span>
+                                <span class="tooltiptext">Birinchi jismning massasi kilogrammda</span>
+                            </span>
+                        </span>
+                        <span class="value-display" id="mass1Display">5.00e+24 kg</span>
+                    </div>
+                    <input type="range" id="mass1" min="20" max="30" value="24.7" step="0.1">
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setMass1Preset(24.7)">Yer</button>
+                        <button class="preset-btn" onclick="setMass1Preset(22.3)">Oy</button>
+                        <button class="preset-btn" onclick="setMass1Preset(27)">Quyosh</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Massa 2 (m₂)
+                            <span class="tooltip">
+                                <span class="help-btn">?</span>
+                                <span class="tooltiptext">Ikkinchi jismning massasi kilogrammda</span>
+                            </span>
+                        </span>
+                        <span class="value-display" id="mass2Display">1.00e+20 kg</span>
+                    </div>
+                    <input type="range" id="mass2" min="15" max="25" value="20" step="0.1">
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setMass2Preset(20)">Kichik</button>
+                        <button class="preset-btn" onclick="setMass2Preset(22)">O'rta</button>
+                        <button class="preset-btn" onclick="setMass2Preset(24)">Katta</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Masofa (r)
+                            <span class="tooltip">
+                                <span class="help-btn">?</span>
+                                <span class="tooltiptext">Jismlar markazi orasidagi masofa metrda</span>
+                            </span>
+                        </span>
+                        <span class="value-display" id="distanceDisplay">1.00e+7 m</span>
+                    </div>
+                    <input type="range" id="distance" min="5" max="9" value="7" step="0.01">
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setDistancePreset(6)">Yaqin</button>
+                        <button class="preset-btn" onclick="setDistancePreset(7)">O'rta</button>
+                        <button class="preset-btn" onclick="setDistancePreset(8)">Uzoq</button>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-row">
+                        <span class="info-label">Gravitatsiya kuchi (F):</span>
+                        <span class="info-value" id="forceValue">0 N</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">G konstanta:</span>
+                        <span class="info-value">6.674×10⁻¹¹ N·m²/kg²</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">r² (masofa kvadrati):</span>
+                        <span class="info-value" id="r2Value">0 m²</span>
+                    </div>
+                </div>
+
+                <div class="playback-controls">
+                    <button class="control-btn" onclick="animateDistance()">Animatsiya</button>
+                    <button class="control-btn secondary" onclick="resetSimulation()">Reset</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="gravityCanvas" width="800" height="600"></canvas>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff6b6b;"></div>
+                        <span>Massa 1 (m₁)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4ecdc4;"></div>
+                        <span>Massa 2 (m₂)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffd93d;"></div>
+                        <span>Gravitatsiya kuchi (F)</span>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h2>📚 Nazariy Ma'lumot</h2>
+                    
+                    <div class="formula-box">
+                        <p style="font-size: 1.8rem; font-weight: bold; color: #667eea;">
+                            \( F = G \frac{m_1 m_2}{r^2} \)
+                        </p>
+                    </div>
+
+                    <p style="line-height: 1.8; color: #555;">
+                        <strong>Umumiy gravitatsiya qonuni</strong> - har qanday ikki jism bir-birini o'ziga tortadigan kuch bilan ta'sir qiladi. Bu kuch jismlarning massalari ko'paytmasiga to'g'ri proporsional va ular orasidagi masofaning kvadratiga teskari proporsionaldir.
+                    </p>
+
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">Asosiy Parametrlar:</h3>
+                    <ul style="line-height: 2; color: #555; padding-left: 20px;">
+                        <li><strong>F</strong> - gravitatsiya kuchi (Nyuton, N)</li>
+                        <li><strong>G</strong> - gravitatsiya doimiysi (6.674×10⁻¹¹ N·m²/kg²)</li>
+                        <li><strong>m₁, m₂</strong> - jismlarning massalari (kg)</li>
+                        <li><strong>r</strong> - jismlar markazi orasidagi masofa (m)</li>
+                    </ul>
+
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">Xususiyatlari:</h3>
+                    <ul style="line-height: 2; color: #555; padding-left: 20px;">
+                        <li>Kuch har doim tortishish kuchi (attractive)</li>
+                        <li>Massalar oshganda kuch ortadi</li>
+                        <li>Masofa oshganda kuch kamayadi (r² ga teskari proporsional)</li>
+                        <li>Newton ning uchinchi qonuniga bo'ysunadi (F₁₂ = -F₂₁)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gravityCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Constants
+        const G = 6.674e-11; // Gravitational constant
+
+        // Variables
+        let mass1Exp = 24.7; // log10 of mass1
+        let mass2Exp = 20;   // log10 of mass2
+        let distanceExp = 7; // log10 of distance
+        let animating = false;
+        let animationId = null;
+
+        // Get elements
+        const mass1Slider = document.getElementById('mass1');
+        const mass2Slider = document.getElementById('mass2');
+        const distanceSlider = document.getElementById('distance');
+
+        // Responsive canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            const size = Math.min(rect.width - 40, 800);
+            canvas.width = size;
+            canvas.height = size * 0.75;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Event listeners
+        mass1Slider.addEventListener('input', updateSimulation);
+        mass2Slider.addEventListener('input', updateSimulation);
+        distanceSlider.addEventListener('input', updateSimulation);
+
+        // Touch support
+        canvas.addEventListener('touchstart', handleTouch, {passive: false});
+        canvas.addEventListener('touchmove', handleTouch, {passive: false});
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Calculate distance from center
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+            
+            // Update distance based on touch
+            const maxDist = Math.min(canvas.width, canvas.height) * 0.4;
+            const normalizedDist = Math.max(0.1, Math.min(1, dist / maxDist));
+            distanceExp = 5 + normalizedDist * 4;
+            distanceSlider.value = distanceExp;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            mass1Exp = parseFloat(mass1Slider.value);
+            mass2Exp = parseFloat(mass2Slider.value);
+            distanceExp = parseFloat(distanceSlider.value);
+            
+            const mass1 = Math.pow(10, mass1Exp);
+            const mass2 = Math.pow(10, mass2Exp);
+            const distance = Math.pow(10, distanceExp);
+            
+            // Update displays
+            document.getElementById('mass1Display').textContent = formatScientific(mass1) + ' kg';
+            document.getElementById('mass2Display').textContent = formatScientific(mass2) + ' kg';
+            document.getElementById('distanceDisplay').textContent = formatScientific(distance) + ' m';
+            
+            // Calculate force
+            const force = G * (mass1 * mass2) / (distance * distance);
+            document.getElementById('forceValue').textContent = formatScientific(force) + ' N';
+            
+            // Calculate r²
+            const r2 = distance * distance;
+            document.getElementById('r2Value').textContent = formatScientific(r2) + ' m²';
+            
+            draw();
+        }
+
+        function formatScientific(num) {
+            if (num === 0) return '0';
+            const exp = Math.floor(Math.log10(Math.abs(num)));
+            const mantissa = num / Math.pow(10, exp);
+            return mantissa.toFixed(2) + 'e' + (exp >= 0 ? '+' : '') + exp;
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(10, 10, 10, 1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars background
+            drawStars();
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            const mass1 = Math.pow(10, mass1Exp);
+            const mass2 = Math.pow(10, mass2Exp);
+            const distance = Math.pow(10, distanceExp);
+            
+            // Calculate visual parameters
+            const maxRadius = Math.min(canvas.width, canvas.height) * 0.15;
+            const radius1 = Math.max(20, Math.min(maxRadius, Math.pow(mass1Exp / 30, 1.5) * 100));
+            const radius2 = Math.max(15, Math.min(maxRadius * 0.7, Math.pow(mass2Exp / 25, 1.5) * 80));
+            
+            // Position masses
+            const scale = Math.min(canvas.width, canvas.height) * 0.35 / Math.pow(10, 8);
+            const visualDist = Math.min(distance * scale, canvas.width * 0.4);
+            
+            const x1 = centerX - visualDist / 2;
+            const x2 = centerX + visualDist / 2;
+            
+            // Draw connection line
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x1, centerY);
+            ctx.lineTo(x2, centerY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw distance label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('r = ' + formatScientific(distance) + ' m', centerX, centerY - 10);
+            
+            // Draw mass 1
+            drawMass(x1, centerY, radius1, '#ff6b6b', mass1, 'm₁');
+            
+            // Draw mass 2
+            drawMass(x2, centerY, radius2, '#4ecdc4', mass2, 'm₂');
+            
+            // Draw force vectors
+            const force = G * (mass1 * mass2) / (distance * distance);
+            drawForceVector(x1, centerY, radius1, 'right', force, mass1);
+            drawForceVector(x2, centerY, radius2, 'left', force, mass2);
+            
+            // Draw force info
+            drawForceInfo(force);
+        }
+
+        function drawStars() {
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 2;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawMass(x, y, radius, color, mass, label) {
+            // Glow effect
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius * 1.5);
+            gradient.addColorStop(0, color + 'aa');
+            gradient.addColorStop(0.5, color + '44');
+            gradient.addColorStop(1, color + '00');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Main mass
+            const massGradient = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, 0, x, y, radius);
+            massGradient.addColorStop(0, color);
+            massGradient.addColorStop(1, color + 'aa');
+            ctx.fillStyle = massGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Border
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+            
+            // Mass value
+            ctx.font = '12px Arial';
+            ctx.fillText(formatScientific(mass) + ' kg', x, y + radius + 20);
+        }
+
+        function drawForceVector(x, y, radius, direction, force, mass) {
+            const arrowLength = Math.min(150, Math.log10(force) * 10 + 50);
+            const startX = direction === 'right' ? x + radius : x - radius;
+            const endX = direction === 'right' ? startX + arrowLength : startX - arrowLength;
+            
+            // Arrow shaft
+            ctx.strokeStyle = '#ffd93d';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(startX, y);
+            ctx.lineTo(endX, y);
+            ctx.stroke();
+            
+            // Arrow head
+            const headSize = 15;
+            ctx.fillStyle = '#ffd93d';
+            ctx.beginPath();
+            if (direction === 'right') {
+                ctx.moveTo(endX, y);
+                ctx.lineTo(endX - headSize, y - headSize/2);
+                ctx.lineTo(endX - headSize, y + headSize/2);
+            } else {
+                ctx.moveTo(endX, y);
+                ctx.lineTo(endX + headSize, y - headSize/2);
+                ctx.lineTo(endX + headSize, y + headSize/2);
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Force label
+            ctx.fillStyle = '#ffd93d';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('F', (startX + endX) / 2, y - 15);
+        }
+
+        function drawForceInfo(force) {
+            const padding = 20;
+            const boxWidth = 280;
+            const boxHeight = 100;
+            const x = canvas.width - boxWidth - padding;
+            const y = padding;
+            
+            // Background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(x, y, boxWidth, boxHeight);
+            
+            // Border
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, boxWidth, boxHeight);
+            
+            // Title
+            ctx.fillStyle = '#ffd93d';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Gravitatsiya Kuchi:', x + 15, y + 25);
+            
+            // Force value
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText(formatScientific(force) + ' N', x + 15, y + 55);
+            
+            // Formula
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#aaa';
+            ctx.fillText('F = G(m₁m₂)/r²', x + 15, y + 80);
+        }
+
+        function setMass1Preset(value) {
+            mass1Slider.value = value;
+            updateSimulation();
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function setMass2Preset(value) {
+            mass2Slider.value = value;
+            updateSimulation();
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function setDistancePreset(value) {
+            distanceSlider.value = value;
+            updateSimulation();
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function animateDistance() {
+            if (animating) {
+                animating = false;
+                if (animationId) cancelAnimationFrame(animationId);
+                return;
+            }
+            
+            animating = true;
+            const startDist = 5;
+            const endDist = 9;
+            let currentDist = startDist;
+            let direction = 1;
+            
+            function animate() {
+                if (!animating) return;
+                
+                currentDist += direction * 0.02;
+                
+                if (currentDist >= endDist) {
+                    currentDist = endDist;
+                    direction = -1;
+                } else if (currentDist <= startDist) {
+                    currentDist = startDist;
+                    direction = 1;
+                }
+                
+                distanceSlider.value = currentDist;
+                updateSimulation();
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        function resetSimulation() {
+            animating = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            mass1Slider.value = 24.7;
+            mass2Slider.value = 20;
+            distanceSlider.value = 7;
+            updateSimulation();
+            
+            if (navigator.vibrate) navigator.vibrate(20);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    animateDistance();
+                    break;
+                case 'r':
+                case 'R':
+                    resetSimulation();
+                    break;
+                case 'ArrowUp':
+                    distanceExp = Math.min(9, distanceExp + 0.1);
+                    distanceSlider.value = distanceExp;
+                    updateSimulation();
+                    break;
+                case 'ArrowDown':
+                    distanceExp = Math.max(5, distanceExp - 0.1);
+                    distanceSlider.value = distanceExp;
+                    updateSimulation();
+                    break;
+            }
+        });
+
+        // Initialize
+        resizeCanvas();
+        updateSimulation();
+    </script>
+</body>
+</html>
