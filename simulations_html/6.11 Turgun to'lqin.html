@@ -59,6 +59,7 @@
             background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 10px;
             letter-spacing: -1px;
         }
@@ -98,6 +99,7 @@
             background: linear-gradient(135deg, rgba(10, 24, 40, 0.8) 0%, rgba(26, 35, 50, 0.6) 100%);
             cursor: crosshair;
             border: 2px solid rgba(5, 195, 221, 0.2);
+            display: block;
         }
         
         .controls-panel {
@@ -212,6 +214,11 @@
         input[type="range"]::-moz-range-thumb:hover {
             transform: scale(1.2);
             box-shadow: 0 6px 16px rgba(5, 195, 221, 0.6);
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
         }
         
         .button-group {
@@ -446,12 +453,8 @@
         }
         
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
         
         .recording {
@@ -567,12 +570,12 @@
                 <div class="control-section">
                     <div class="section-title">🎵 Garmonik modlar</div>
                     <div class="preset-buttons">
-                        <button class="preset-btn" onclick="setHarmonic(1)">1-mod</button>
-                        <button class="preset-btn" onclick="setHarmonic(2)">2-mod</button>
-                        <button class="preset-btn" onclick="setHarmonic(3)">3-mod</button>
-                        <button class="preset-btn" onclick="setHarmonic(4)">4-mod</button>
-                        <button class="preset-btn" onclick="setHarmonic(5)">5-mod</button>
-                        <button class="preset-btn" onclick="setHarmonic(6)">6-mod</button>
+                        <button class="preset-btn" data-harmonic="1">1-mod</button>
+                        <button class="preset-btn" data-harmonic="2">2-mod</button>
+                        <button class="preset-btn" data-harmonic="3">3-mod</button>
+                        <button class="preset-btn" data-harmonic="4">4-mod</button>
+                        <button class="preset-btn" data-harmonic="5">5-mod</button>
+                        <button class="preset-btn" data-harmonic="6">6-mod</button>
                     </div>
                     <div class="info-box">
                         <strong>Garmonik mod:</strong> n-chi garmonik modda tor uzunligi n×λ/2 ga teng bo'ladi. Har bir mod o'zining xarakterli chastotasiga ega.
@@ -676,10 +679,12 @@
     </div>
     
     <script>
+        // Canvas va kontekstni olish
         const canvas = document.getElementById('waveCanvas');
         const ctx = canvas.getContext('2d');
         
-        let params = {
+        // Simulyatsiya parametrlari
+        const params = {
             amplitude: 0.5,
             omega: 2 * Math.PI,
             k: Math.PI,
@@ -692,95 +697,137 @@
             showGrid: false
         };
         
+        // Canvas o'lchamlari
         const WIDTH = canvas.width;
         const HEIGHT = canvas.height;
         const CENTER_Y = HEIGHT / 2;
         const SCALE = 150;
         const LENGTH = 10;
         
-        // Control listeners
-        document.getElementById('amplitudeSlider').addEventListener('input', (e) => {
-            params.amplitude = parseFloat(e.target.value);
-            document.getElementById('amplitudeValue').textContent = params.amplitude.toFixed(2);
-            updateStats();
-        });
+        // Element referenslarini olish
+        const elements = {
+            amplitudeSlider: document.getElementById('amplitudeSlider'),
+            amplitudeValue: document.getElementById('amplitudeValue'),
+            frequencySlider: document.getElementById('frequencySlider'),
+            frequencyValue: document.getElementById('frequencyValue'),
+            wavenumberSlider: document.getElementById('wavenumberSlider'),
+            wavenumberValue: document.getElementById('wavenumberValue'),
+            speedSlider: document.getElementById('speedSlider'),
+            speedValue: document.getElementById('speedValue'),
+            playBtn: document.getElementById('playBtn'),
+            pauseBtn: document.getElementById('pauseBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            showNodesCheck: document.getElementById('showNodesCheck'),
+            showAntinodesCheck: document.getElementById('showAntinodesCheck'),
+            showEnvelopeCheck: document.getElementById('showEnvelopeCheck'),
+            showGridCheck: document.getElementById('showGridCheck'),
+            wavelengthDisplay: document.getElementById('wavelengthDisplay'),
+            frequencyDisplay: document.getElementById('frequencyDisplay'),
+            nodesDisplay: document.getElementById('nodesDisplay'),
+            antinodesDisplay: document.getElementById('antinodesDisplay')
+        };
         
-        document.getElementById('frequencySlider').addEventListener('input', (e) => {
-            params.omega = parseFloat(e.target.value);
-            document.getElementById('frequencyValue').textContent = params.omega.toFixed(2) + ' rad/s';
-            updateStats();
-        });
+        // Event listener'lar
+        function setupEventListeners() {
+            // Parametr boshqarish
+            elements.amplitudeSlider.addEventListener('input', (e) => {
+                params.amplitude = parseFloat(e.target.value);
+                elements.amplitudeValue.textContent = params.amplitude.toFixed(2);
+                updateStats();
+            });
+            
+            elements.frequencySlider.addEventListener('input', (e) => {
+                params.omega = parseFloat(e.target.value);
+                elements.frequencyValue.textContent = params.omega.toFixed(2) + ' rad/s';
+                updateStats();
+            });
+            
+            elements.wavenumberSlider.addEventListener('input', (e) => {
+                params.k = parseFloat(e.target.value);
+                elements.wavenumberValue.textContent = params.k.toFixed(2);
+                updateStats();
+            });
+            
+            elements.speedSlider.addEventListener('input', (e) => {
+                params.speed = parseFloat(e.target.value);
+                elements.speedValue.textContent = params.speed.toFixed(1) + 'x';
+            });
+            
+            // Animatsiya boshqaruvi
+            elements.playBtn.addEventListener('click', () => {
+                params.isPlaying = true;
+                elements.playBtn.classList.add('active');
+                elements.pauseBtn.classList.remove('active');
+            });
+            
+            elements.pauseBtn.addEventListener('click', () => {
+                params.isPlaying = false;
+                elements.pauseBtn.classList.add('active');
+                elements.playBtn.classList.remove('active');
+            });
+            
+            elements.resetBtn.addEventListener('click', () => {
+                params.time = 0;
+            });
+            
+            // Vizualizatsiya boshqaruvi
+            elements.showNodesCheck.addEventListener('change', (e) => {
+                params.showNodes = e.target.checked;
+            });
+            
+            elements.showAntinodesCheck.addEventListener('change', (e) => {
+                params.showAntinodes = e.target.checked;
+            });
+            
+            elements.showEnvelopeCheck.addEventListener('change', (e) => {
+                params.showEnvelope = e.target.checked;
+            });
+            
+            elements.showGridCheck.addEventListener('change', (e) => {
+                params.showGrid = e.target.checked;
+            });
+            
+            // Garmonik mod tugmalari
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const n = parseInt(btn.dataset.harmonic);
+                    setHarmonic(n);
+                });
+            });
+        }
         
-        document.getElementById('wavenumberSlider').addEventListener('input', (e) => {
-            params.k = parseFloat(e.target.value);
-            document.getElementById('wavenumberValue').textContent = params.k.toFixed(2);
-            updateStats();
-        });
-        
-        document.getElementById('speedSlider').addEventListener('input', (e) => {
-            params.speed = parseFloat(e.target.value);
-            document.getElementById('speedValue').textContent = params.speed.toFixed(1) + 'x';
-        });
-        
-        document.getElementById('playBtn').addEventListener('click', () => {
-            params.isPlaying = true;
-            document.getElementById('playBtn').classList.add('active');
-            document.getElementById('pauseBtn').classList.remove('active');
-        });
-        
-        document.getElementById('pauseBtn').addEventListener('click', () => {
-            params.isPlaying = false;
-            document.getElementById('pauseBtn').classList.add('active');
-            document.getElementById('playBtn').classList.remove('active');
-        });
-        
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            params.time = 0;
-        });
-        
-        document.getElementById('showNodesCheck').addEventListener('change', (e) => {
-            params.showNodes = e.target.checked;
-        });
-        
-        document.getElementById('showAntinodesCheck').addEventListener('change', (e) => {
-            params.showAntinodes = e.target.checked;
-        });
-        
-        document.getElementById('showEnvelopeCheck').addEventListener('change', (e) => {
-            params.showEnvelope = e.target.checked;
-        });
-        
-        document.getElementById('showGridCheck').addEventListener('change', (e) => {
-            params.showGrid = e.target.checked;
-        });
-        
+        // Garmonik modlarni o'rnatish
         function setHarmonic(n) {
             params.k = n * Math.PI / 5;
             params.omega = n * Math.PI;
-            document.getElementById('wavenumberValue').textContent = params.k.toFixed(2);
-            document.getElementById('frequencyValue').textContent = params.omega.toFixed(2) + ' rad/s';
+            elements.wavenumberValue.textContent = params.k.toFixed(2);
+            elements.frequencyValue.textContent = params.omega.toFixed(2) + ' rad/s';
+            elements.wavenumberSlider.value = params.k;
+            elements.frequencySlider.value = params.omega;
             updateStats();
         }
         
+        // Statistika yangilash
         function updateStats() {
             const wavelength = (2 * Math.PI / params.k);
             const frequency = params.omega / (2 * Math.PI);
             const nodes = Math.floor(LENGTH / (wavelength / 2)) + 1;
             const antinodes = Math.floor(LENGTH / (wavelength / 2));
             
-            document.getElementById('wavelengthDisplay').textContent = wavelength.toFixed(2) + ' m';
-            document.getElementById('frequencyDisplay').textContent = frequency.toFixed(2) + ' Hz';
-            document.getElementById('nodesDisplay').textContent = nodes;
-            document.getElementById('antinodesDisplay').textContent = antinodes;
+            elements.wavelengthDisplay.textContent = wavelength.toFixed(2) + ' m';
+            elements.frequencyDisplay.textContent = frequency.toFixed(2) + ' Hz';
+            elements.nodesDisplay.textContent = nodes;
+            elements.antinodesDisplay.textContent = antinodes;
         }
         
+        // Grid chizish
         function drawGrid() {
             if (!params.showGrid) return;
             
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 1;
             
-            // Vertical lines
+            // Vertikal chiziqlar
             for (let x = 0; x <= WIDTH; x += WIDTH / 20) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
@@ -788,7 +835,7 @@
                 ctx.stroke();
             }
             
-            // Horizontal lines
+            // Gorizontal chiziqlar
             for (let y = 0; y <= HEIGHT; y += HEIGHT / 10) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
@@ -797,17 +844,18 @@
             }
         }
         
+        // O'qlarni chizish
         function drawAxes() {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.lineWidth = 2;
             
-            // X-axis
+            // X o'qi
             ctx.beginPath();
             ctx.moveTo(0, CENTER_Y);
             ctx.lineTo(WIDTH, CENTER_Y);
             ctx.stroke();
             
-            // Tick marks
+            // Belgilar
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.lineWidth = 1;
             ctx.font = '12px JetBrains Mono';
@@ -819,19 +867,21 @@
                 ctx.moveTo(x, CENTER_Y - 5);
                 ctx.lineTo(x, CENTER_Y + 5);
                 ctx.stroke();
-                
                 ctx.fillText(i.toFixed(0), x - 10, CENTER_Y + 20);
             }
         }
         
+        // Turgun to'lqin funksiyasi
         function standingWave(x, t) {
             return 2 * params.amplitude * Math.sin(params.k * x) * Math.cos(params.omega * t);
         }
         
+        // Konvert funksiyasi
         function envelope(x) {
             return 2 * params.amplitude * Math.abs(Math.sin(params.k * x));
         }
         
+        // Konvertni chizish
         function drawEnvelope() {
             if (!params.showEnvelope) return;
             
@@ -839,7 +889,7 @@
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
             
-            // Upper envelope
+            // Yuqori konvert
             ctx.beginPath();
             for (let px = 0; px <= WIDTH; px++) {
                 const x = (px / WIDTH) * LENGTH;
@@ -849,7 +899,7 @@
             }
             ctx.stroke();
             
-            // Lower envelope
+            // Pastki konvert
             ctx.beginPath();
             for (let px = 0; px <= WIDTH; px++) {
                 const x = (px / WIDTH) * LENGTH;
@@ -862,6 +912,7 @@
             ctx.setLineDash([]);
         }
         
+        // To'lqinni chizish
         function drawWave() {
             ctx.strokeStyle = '#05C3DD';
             ctx.lineWidth = 3;
@@ -877,10 +928,10 @@
                 else ctx.lineTo(px, y);
             }
             ctx.stroke();
-            
             ctx.shadowBlur = 0;
         }
         
+        // Nodlarni chizish
         function drawNodes() {
             if (!params.showNodes) return;
             
@@ -892,7 +943,7 @@
                 
                 const px = (x / LENGTH) * WIDTH;
                 
-                // Draw node marker
+                // Nod belgisi
                 ctx.fillStyle = '#FF6B6B';
                 ctx.shadowColor = '#FF6B6B';
                 ctx.shadowBlur = 15;
@@ -900,7 +951,7 @@
                 ctx.arc(px, CENTER_Y, 6, 0, 2 * Math.PI);
                 ctx.fill();
                 
-                // Draw vertical line
+                // Vertikal chiziq
                 ctx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([3, 3]);
@@ -914,6 +965,7 @@
             }
         }
         
+        // Antinodlarni chizish
         function drawAntinodes() {
             if (!params.showAntinodes) return;
             
@@ -924,21 +976,20 @@
                 if (x > LENGTH) break;
                 
                 const px = (x / LENGTH) * WIDTH;
-                const amplitude = envelope(x);
                 const currentY = CENTER_Y - standingWave(x, params.time) * SCALE;
                 
-                // Draw antinode marker
+                // Antinoj belgisi
                 ctx.fillStyle = '#4ECDC4';
                 ctx.shadowColor = '#4ECDC4';
                 ctx.shadowBlur = 15;
                 ctx.beginPath();
                 ctx.arc(px, currentY, 6, 0, 2 * Math.PI);
                 ctx.fill();
-                
                 ctx.shadowBlur = 0;
             }
         }
         
+        // Asosiy chizish funksiyasi
         function draw() {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             
@@ -956,27 +1007,32 @@
             requestAnimationFrame(draw);
         }
         
-        // Initialize
-        updateStats();
-        draw();
-        
-        // Responsive canvas
+        // Canvas o'lchamlarini moslash
         function resizeCanvas() {
             const container = canvas.parentElement;
-            const rect = container.getBoundingClientRect();
-            const scale = window.devicePixelRatio || 1;
+            const containerWidth = container.clientWidth;
+            const aspectRatio = HEIGHT / WIDTH;
             
             canvas.style.width = '100%';
             canvas.style.height = 'auto';
         }
         
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        
-        // MathJax render
-        if (window.MathJax) {
-            MathJax.typesetPromise();
+        // Boshlang'ich sozlash
+        function init() {
+            setupEventListeners();
+            updateStats();
+            draw();
+            resizeCanvas();
+            
+            // MathJax render
+            if (window.MathJax) {
+                MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+            }
         }
+        
+        // Window event listeners
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
