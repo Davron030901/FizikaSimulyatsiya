@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gravitatsion Maydon Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            touch-action: pan-x pan-y;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            color: #a0a0ff;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .main-content {
+                grid-template-columns: 350px 1fr 300px;
+            }
+        }
+
+        .panel {
+            background: rgba(30, 30, 60, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            min-height: 400px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #00d4ff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .value-display {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 212, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            touch-action: pan-y;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+            min-width: 44px;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .preset-btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .mass-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .mass-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mass-item button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #00d4ff;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .theory-section {
+            margin-top: 20px;
+        }
+
+        .theory-section h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .theory-section p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 767px) {
+            .panel {
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            .preset-btn {
+                min-width: 100px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #00d4ff;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.1);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        #info-panel {
+            order: 3;
+        }
+
+        @media (max-width: 1199px) {
+            #info-panel {
+                order: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚛️ Gravitatsion Maydon Simulyatsiyasi</h1>
+            <p class="subtitle">Gravitatsion maydon kuchlanganligini va maydon chiziqlarini o'rganing</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="panel" id="control-panel">
+                <h2 style="color: #00d4ff; margin-bottom: 20px;">⚙️ Boshqaruv</h2>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Test massa (kg)
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Maydon ta'sirini tekshirish uchun ishlatiladigan massa</span>
+                            </span>
+                        </span>
+                        <span class="value-display" id="test-mass-value">1.0</span>
+                    </div>
+                    <input type="range" id="test-mass" min="0.1" max="10" step="0.1" value="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Tezlik (px/s)</span>
+                        <span class="value-display" id="speed-value">1.0x</span>
+                    </div>
+                    <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+                </div>
+
+                <div class="control-group">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">Ko'rinish</h3>
+                    
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-field-lines" checked>
+                        <span>Maydon chiziqlari</span>
+                    </label>
+
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-equipotential" checked>
+                        <span>Ekvipotensial sirtlar</span>
+                    </label>
+
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-vectors">
+                        <span>Vektor maydon</span>
+                    </label>
+
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-values">
+                        <span>Qiymatlar ko'rsatish</span>
+                    </label>
+
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="show-grid">
+                        <span>Koordinata tarmog'i</span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">Massalar</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="addMass()">+ Massa qo'shish</button>
+                        <button class="btn btn-secondary" onclick="clearMasses()">Tozalash</button>
+                    </div>
+                    <div class="mass-list" id="mass-list"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="toggleAnimation()">
+                        <span id="play-btn-text">▶ Boshlash</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetSimulation()">🔄 Reset</button>
+                </div>
+
+                <div class="control-group">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">Preset Stsenariylar</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-primary preset-btn" onclick="loadPreset('single')">Bitta massa</button>
+                        <button class="btn btn-primary preset-btn" onclick="loadPreset('binary')">Ikki massa</button>
+                        <button class="btn btn-primary preset-btn" onclick="loadPreset('triple')">Uch massa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="panel" id="info-panel">
+                <h2 style="color: #00d4ff; margin-bottom: 20px;">📊 Ma'lumot</h2>
+
+                <div class="info-box">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">Joriy qiymatlar</h3>
+                    <p><strong>Maydon kuchlanganligi:</strong> <span id="field-strength">0</span> N/kg</p>
+                    <p><strong>Potensial:</strong> <span id="potential">0</span> J/kg</p>
+                    <p><strong>Test massa:</strong> <span id="current-test-mass">1.0</span> kg</p>
+                    <p><strong>Massalar soni:</strong> <span id="mass-count">0</span></p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>📚 Nazariya</h3>
+                    <p><strong>Gravitatsion maydon kuchlanganligi:</strong></p>
+                    <div class="formula">
+                        $$g = \frac{GM}{r^2}$$
+                    </div>
+                    <p>Bu yerda:</p>
+                    <ul style="padding-left: 20px; line-height: 1.8;">
+                        <li><strong>g</strong> - maydon kuchlanganligi (N/kg)</li>
+                        <li><strong>G</strong> - gravitatsion doimiy (6.67×10⁻¹¹)</li>
+                        <li><strong>M</strong> - massa (kg)</li>
+                        <li><strong>r</strong> - masofa (m)</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Superpozitsiya printsipi:</strong></p>
+                    <div class="formula">
+                        $$\vec{g}_{total} = \sum_{i=1}^{n} \vec{g}_i$$
+                    </div>
+
+                    <p style="margin-top: 15px;"><strong>Gravitatsion potensial:</strong></p>
+                    <div class="formula">
+                        $$\phi = -\frac{GM}{r}$$
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff4444;"></div>
+                        <span>Massa</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00ff00;"></div>
+                        <span>Test massa</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00d4ff;"></div>
+                        <span>Maydon chiziqlari</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255, 255, 0, 0.3);"></div>
+                        <span>Ekvipotensial</span>
+                    </div>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h3 style="color: #00d4ff; margin-bottom: 10px;">💡 Foydalanish</h3>
+                    <p><strong>Sichqoncha:</strong> Bosing va massa qo'shing</p>
+                    <p><strong>Touch:</strong> Ekranga teging va massa qo'shing</p>
+                    <p><strong>Massa o'chirish:</strong> Massa ustiga o'ng tugma</p>
+                    <p><strong>Test massa:</strong> Maydon ta'sirini ko'rish uchun</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const G = 1; // Simplified gravitational constant for visualization
+
+        let masses = [];
+        let testMass = { x: 0, y: 0, mass: 1, vx: 0, vy: 0 };
+        let trajectory = []; // Store trajectory points
+        let maxTrajectoryPoints = 100;
+        let isAnimating = false;
+        let animationId = null;
+        let mousePos = { x: 0, y: 0 };
+        let lastTouchDistance = 0;
+
+        // Settings
+        let settings = {
+            showFieldLines: true,
+            showEquipotential: true,
+            showVectors: false,
+            showValues: false,
+            showGrid: false,
+            speed: 1,
+            testMassValue: 1
+        };
+
+        // Resize canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = Math.max(400, window.innerHeight * 0.6);
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Initialize with preset
+        loadPreset('single');
+
+        // Event Listeners
+        document.getElementById('test-mass').addEventListener('input', (e) => {
+            settings.testMassValue = parseFloat(e.target.value);
+            testMass.mass = settings.testMassValue;
+            document.getElementById('test-mass-value').textContent = settings.testMassValue.toFixed(1);
+            document.getElementById('current-test-mass').textContent = settings.testMassValue.toFixed(1);
+        });
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            settings.speed = parseFloat(e.target.value);
+            document.getElementById('speed-value').textContent = settings.speed.toFixed(1) + 'x';
+        });
+
+        document.getElementById('show-field-lines').addEventListener('change', (e) => {
+            settings.showFieldLines = e.target.checked;
+        });
+
+        document.getElementById('show-equipotential').addEventListener('change', (e) => {
+            settings.showEquipotential = e.target.checked;
+        });
+
+        document.getElementById('show-vectors').addEventListener('change', (e) => {
+            settings.showVectors = e.target.checked;
+        });
+
+        document.getElementById('show-values').addEventListener('change', (e) => {
+            settings.showValues = e.target.checked;
+        });
+
+        document.getElementById('show-grid').addEventListener('change', (e) => {
+            settings.showGrid = e.target.checked;
+        });
+
+        // Canvas interactions
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (!isClickOnMass(x, y)) {
+                addMassAt(x, y);
+            }
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            removeMassAt(x, y);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+        });
+
+        // Touch support
+        let touchStartTime = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartTime = Date.now();
+            if (e.touches.length === 1) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mousePos.x = touch.clientX - rect.left;
+                mousePos.y = touch.clientY - rect.top;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchDuration = Date.now() - touchStartTime;
+            if (e.changedTouches.length === 1 && touchDuration < 500) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.changedTouches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                if (isClickOnMass(x, y)) {
+                    removeMassAt(x, y);
+                } else {
+                    addMassAt(x, y);
+                }
+            }
+        }, { passive: false });
+
+        function isClickOnMass(x, y) {
+            for (let mass of masses) {
+                const dx = x - mass.x;
+                const dy = y - mass.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 20) return true;
+            }
+            return false;
+        }
+
+        function addMassAt(x, y) {
+            masses.push({
+                x: x,
+                y: y,
+                mass: 50 + Math.random() * 150,
+                id: Date.now()
+            });
+            updateMassList();
+            if (masses.length === 1) {
+                testMass.x = canvas.width / 2;
+                testMass.y = canvas.height / 2;
+            }
+        }
+
+        function removeMassAt(x, y) {
+            masses = masses.filter(mass => {
+                const dx = x - mass.x;
+                const dy = y - mass.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                return dist >= 20;
+            });
+            updateMassList();
+        }
+
+        function addMass() {
+            const x = canvas.width / 2 + (Math.random() - 0.5) * 200;
+            const y = canvas.height / 2 + (Math.random() - 0.5) * 200;
+            addMassAt(x, y);
+        }
+
+        function clearMasses() {
+            masses = [];
+            updateMassList();
+            resetSimulation();
+        }
+
+        function updateMassList() {
+            const list = document.getElementById('mass-list');
+            list.innerHTML = '';
+            document.getElementById('mass-count').textContent = masses.length;
+            
+            masses.forEach((mass, index) => {
+                const item = document.createElement('div');
+                item.className = 'mass-item';
+                item.innerHTML = `
+                    <span>Massa ${index + 1}: ${mass.mass.toFixed(0)} kg</span>
+                    <button class="btn btn-secondary" onclick="removeMassByIndex(${index})">×</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function removeMassByIndex(index) {
+            masses.splice(index, 1);
+            updateMassList();
+        }
+
+        function loadPreset(type) {
+            masses = [];
+            trajectory = [];
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            switch(type) {
+                case 'single':
+                    masses.push({ x: centerX, y: centerY, mass: 200, id: Date.now() });
+                    testMass.x = centerX + 150;
+                    testMass.y = centerY;
+                    // Give initial perpendicular velocity for orbit
+                    testMass.vx = 0;
+                    testMass.vy = -2;
+                    break;
+                case 'binary':
+                    masses.push({ x: centerX - 100, y: centerY, mass: 150, id: Date.now() });
+                    masses.push({ x: centerX + 100, y: centerY, mass: 150, id: Date.now() + 1 });
+                    testMass.x = centerX;
+                    testMass.y = centerY - 150;
+                    testMass.vx = 2;
+                    testMass.vy = 0;
+                    break;
+                case 'triple':
+                    masses.push({ x: centerX, y: centerY - 100, mass: 120, id: Date.now() });
+                    masses.push({ x: centerX - 100, y: centerY + 50, mass: 120, id: Date.now() + 1 });
+                    masses.push({ x: centerX + 100, y: centerY + 50, mass: 120, id: Date.now() + 2 });
+                    testMass.x = centerX;
+                    testMass.y = centerY + 20;
+                    testMass.vx = 1.5;
+                    testMass.vy = 0;
+                    break;
+            }
+
+            updateMassList();
+            draw();
+        }
+
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            document.getElementById('play-btn-text').textContent = isAnimating ? '⏸ Pauza' : '▶ Boshlash';
+            if (isAnimating) {
+                animate();
+            }
+        }
+
+        function resetSimulation() {
+            isAnimating = false;
+            document.getElementById('play-btn-text').textContent = '▶ Boshlash';
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            testMass.vx = 0;
+            testMass.vy = 0;
+            trajectory = []; // Clear trajectory
+            draw();
+        }
+
+        function calculateField(x, y) {
+            let fx = 0, fy = 0;
+            
+            for (let mass of masses) {
+                const dx = x - mass.x;
+                const dy = y - mass.y;
+                const distSq = dx * dx + dy * dy;
+                
+                // Minimum distance to avoid singularity
+                const minDistSq = 400; // 20 pixels
+                if (distSq < minDistSq) continue;
+                
+                const dist = Math.sqrt(distSq);
+                
+                // Increased gravitational constant for better visualization
+                const force = (G * mass.mass * 0.5) / distSq;
+                
+                // Force components point toward the mass (attractive)
+                fx -= force * dx / dist;
+                fy -= force * dy / dist;
+            }
+            
+            const magnitude = Math.sqrt(fx * fx + fy * fy);
+            return { fx, fy, magnitude };
+        }
+
+        function calculatePotential(x, y) {
+            let potential = 0;
+            
+            for (let mass of masses) {
+                const dx = x - mass.x;
+                const dy = y - mass.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist > 10) {
+                    potential -= G * mass.mass / dist;
+                }
+            }
+            
+            return potential;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            if (settings.showGrid) {
+                drawGrid();
+            }
+
+            // Equipotential surfaces
+            if (settings.showEquipotential) {
+                drawEquipotentialSurfaces();
+            }
+
+            // Field lines
+            if (settings.showFieldLines) {
+                drawFieldLines();
+            }
+
+            // Vector field
+            if (settings.showVectors) {
+                drawVectorField();
+            }
+
+            // Draw trajectory trail
+            if (trajectory.length > 1) {
+                ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(trajectory[0].x, trajectory[0].y);
+                for (let i = 1; i < trajectory.length; i++) {
+                    const alpha = i / trajectory.length;
+                    ctx.strokeStyle = `rgba(0, 255, 0, ${alpha * 0.5})`;
+                    ctx.lineTo(trajectory[i].x, trajectory[i].y);
+                }
+                ctx.stroke();
+            }
+
+            // Masses
+            masses.forEach((mass, index) => {
+                const radius = Math.max(10, Math.sqrt(mass.mass) * 2);
+                
+                // Glow effect
+                const gradient = ctx.createRadialGradient(mass.x, mass.y, 0, mass.x, mass.y, radius * 2);
+                gradient.addColorStop(0, 'rgba(255, 68, 68, 0.3)');
+                gradient.addColorStop(1, 'rgba(255, 68, 68, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(mass.x - radius * 2, mass.y - radius * 2, radius * 4, radius * 4);
+
+                // Mass body
+                ctx.fillStyle = '#ff4444';
+                ctx.beginPath();
+                ctx.arc(mass.x, mass.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Border
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                if (settings.showValues) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`M${index + 1}: ${mass.mass.toFixed(0)}kg`, mass.x, mass.y - radius - 10);
+                }
+            });
+
+            // Test mass
+            if (masses.length > 0) {
+                const field = calculateField(testMass.x, testMass.y);
+                
+                // Field vector
+                if (field.magnitude > 0.01) {
+                    const arrowLength = Math.min(50, field.magnitude * 10);
+                    const angle = Math.atan2(field.fy, field.fx);
+                    
+                    ctx.strokeStyle = '#00ff00';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(testMass.x, testMass.y);
+                    ctx.lineTo(testMass.x + arrowLength * Math.cos(angle), 
+                              testMass.y + arrowLength * Math.sin(angle));
+                    ctx.stroke();
+
+                    // Arrow head
+                    const headLen = 10;
+                    const endX = testMass.x + arrowLength * Math.cos(angle);
+                    const endY = testMass.y + arrowLength * Math.sin(angle);
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6),
+                              endY - headLen * Math.sin(angle - Math.PI / 6));
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6),
+                              endY - headLen * Math.sin(angle + Math.PI / 6));
+                    ctx.stroke();
+                }
+
+                // Test mass with glow
+                const glowGradient = ctx.createRadialGradient(testMass.x, testMass.y, 0, testMass.x, testMass.y, 20);
+                glowGradient.addColorStop(0, 'rgba(0, 255, 0, 0.5)');
+                glowGradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(testMass.x - 20, testMass.y - 20, 40, 40);
+
+                ctx.fillStyle = '#00ff00';
+                ctx.beginPath();
+                ctx.arc(testMass.x, testMass.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Update info
+                document.getElementById('field-strength').textContent = field.magnitude.toFixed(3);
+                const potential = calculatePotential(testMass.x, testMass.y);
+                document.getElementById('potential').textContent = potential.toFixed(2);
+            }
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            const spacing = 50;
+            for (let x = 0; x < canvas.width; x += spacing) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y < canvas.height; y += spacing) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawFieldLines() {
+            if (masses.length === 0) return;
+
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.6)';
+            ctx.lineWidth = 1.5;
+
+            masses.forEach(mass => {
+                const numLines = 16;
+                for (let i = 0; i < numLines; i++) {
+                    const angle = (i / numLines) * Math.PI * 2;
+                    const startDist = Math.max(15, Math.sqrt(mass.mass) * 2 + 5);
+                    
+                    let x = mass.x + Math.cos(angle) * startDist;
+                    let y = mass.y + Math.sin(angle) * startDist;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    
+                    for (let step = 0; step < 100; step++) {
+                        const field = calculateField(x, y);
+                        if (field.magnitude < 0.01) break;
+                        
+                        const stepSize = 2;
+                        const angle = Math.atan2(field.fy, field.fx);
+                        x += stepSize * Math.cos(angle);
+                        y += stepSize * Math.sin(angle);
+                        
+                        if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) break;
+                        
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function drawEquipotentialSurfaces() {
+            if (masses.length === 0) return;
+
+            const levels = [-50, -40, -30, -20, -15, -10, -5];
+            
+            levels.forEach((level, index) => {
+                const opacity = 0.15 + (index / levels.length) * 0.3;
+                ctx.strokeStyle = `rgba(255, 255, 0, ${opacity})`;
+                ctx.lineWidth = 1;
+
+                for (let y = 10; y < canvas.height; y += 10) {
+                    let points = [];
+                    for (let x = 0; x < canvas.width; x += 5) {
+                        const potential = calculatePotential(x, y);
+                        if (Math.abs(potential - level) < 2) {
+                            points.push({ x, y });
+                        }
+                    }
+
+                    if (points.length > 1) {
+                        ctx.beginPath();
+                        ctx.moveTo(points[0].x, points[0].y);
+                        points.forEach(p => ctx.lineTo(p.x, p.y));
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+
+        function drawVectorField() {
+            const spacing = 40;
+            const arrowSize = 15;
+
+            for (let x = spacing; x < canvas.width; x += spacing) {
+                for (let y = spacing; y < canvas.height; y += spacing) {
+                    const field = calculateField(x, y);
+                    
+                    if (field.magnitude < 0.01) continue;
+
+                    const len = Math.min(arrowSize, field.magnitude * 3);
+                    const angle = Math.atan2(field.fy, field.fx);
+
+                    const brightness = Math.min(255, field.magnitude * 50);
+                    ctx.strokeStyle = `rgba(0, ${brightness}, 255, 0.6)`;
+                    ctx.lineWidth = 1.5;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + len * Math.cos(angle), y + len * Math.sin(angle));
+                    ctx.stroke();
+
+                    // Arrow head
+                    const endX = x + len * Math.cos(angle);
+                    const endY = y + len * Math.sin(angle);
+                    const headLen = 5;
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6),
+                              endY - headLen * Math.sin(angle - Math.PI / 6));
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6),
+                              endY - headLen * Math.sin(angle + Math.PI / 6));
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function updatePhysics() {
+            if (masses.length === 0) return;
+
+            const field = calculateField(testMass.x, testMass.y);
+            
+            // Calculate acceleration (F = ma, a = F/m, but for visualization we use F directly)
+            const ax = field.fx / testMass.mass;
+            const ay = field.fy / testMass.mass;
+            
+            // Update velocity with time step
+            const dt = settings.speed * 0.5;
+            testMass.vx += ax * dt;
+            testMass.vy += ay * dt;
+
+            // Apply damping to prevent runaway velocities
+            const damping = 0.98;
+            testMass.vx *= damping;
+            testMass.vy *= damping;
+
+            // Limit maximum velocity
+            const maxVel = 10;
+            const velMag = Math.sqrt(testMass.vx * testMass.vx + testMass.vy * testMass.vy);
+            if (velMag > maxVel) {
+                testMass.vx = (testMass.vx / velMag) * maxVel;
+                testMass.vy = (testMass.vy / velMag) * maxVel;
+            }
+
+            // Update position
+            testMass.x += testMass.vx * dt;
+            testMass.y += testMass.vy * dt;
+
+            // Boundary check with bounce
+            const margin = 20;
+            if (testMass.x < margin) {
+                testMass.x = margin;
+                testMass.vx = Math.abs(testMass.vx) * 0.5;
+            }
+            if (testMass.x > canvas.width - margin) {
+                testMass.x = canvas.width - margin;
+                testMass.vx = -Math.abs(testMass.vx) * 0.5;
+            }
+            if (testMass.y < margin) {
+                testMass.y = margin;
+                testMass.vy = Math.abs(testMass.vy) * 0.5;
+            }
+            if (testMass.y > canvas.height - margin) {
+                testMass.y = canvas.height - margin;
+                testMass.vy = -Math.abs(testMass.vy) * 0.5;
+            }
+
+            // Check collision with masses
+            masses.forEach(mass => {
+                const dx = testMass.x - mass.x;
+                const dy = testMass.y - mass.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const minDist = Math.max(15, Math.sqrt(mass.mass) * 2 + 10);
+                
+                if (dist < minDist) {
+                    // Push away from mass
+                    const angle = Math.atan2(dy, dx);
+                    testMass.x = mass.x + Math.cos(angle) * minDist;
+                    testMass.y = mass.y + Math.sin(angle) * minDist;
+                    
+                    // Bounce effect
+                    const dot = testMass.vx * dx + testMass.vy * dy;
+                    testMass.vx -= 1.5 * dot * dx / (dist * dist);
+                    testMass.vy -= 1.5 * dot * dy / (dist * dist);
+                }
+            });
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+
+            updatePhysics();
+            
+            // Add current position to trajectory
+            trajectory.push({ x: testMass.x, y: testMass.y });
+            if (trajectory.length > maxTrajectoryPoints) {
+                trajectory.shift();
+            }
+            
+            draw();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Initial draw
+        draw();
+
+        // Haptic feedback for mobile
+        function vibrate(duration = 10) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(duration);
+            }
+        }
+
+        // Add vibration to button clicks
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => vibrate(10));
+        });
+    </script>
+</body>
+</html>
