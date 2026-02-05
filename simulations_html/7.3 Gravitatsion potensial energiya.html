@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitatsion Potensial Energiya Simulyatsiyasi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #81c784;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h2 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #81c784;
+            font-weight: 500;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #81d4fa;
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .value-display {
+            min-width: 120px;
+            padding: 8px 12px;
+            background: rgba(79, 195, 247, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #4fc3f7;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(129, 199, 132, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 115, 115, 0.4);
+        }
+
+        .info-box {
+            background: rgba(79, 195, 247, 0.1);
+            border-left: 4px solid #4fc3f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .info-box h3 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #4fc3f7;
+        }
+
+        .data-item .label {
+            color: #81c784;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .data-item .value {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(129, 199, 132, 0.2);
+            border: 1px solid #81c784;
+            border-radius: 8px;
+            color: #81c784;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+        }
+
+        .preset-btn:hover {
+            background: rgba(129, 199, 132, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .help-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #4fc3f7;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 0.8rem;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .status-indicator {
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-bound {
+            background: rgba(229, 115, 115, 0.2);
+            color: #e57373;
+        }
+
+        .status-unbound {
+            background: rgba(129, 199, 132, 0.2);
+            color: #81c784;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚛️ Gravitatsion Potensial Energiya</h1>
+            <p class="subtitle">Gravitatsiya maydonidagi potensial energiya simulyatsiyasi</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Visualization Section -->
+            <div class="card" style="grid-column: span 2;">
+                <h2>🎯 Vizualizatsiya</h2>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="toggleAnimation()">
+                        <span id="playBtn">▶️ Boshlash</span>
+                    </button>
+                    <button class="btn-secondary" onclick="resetSimulation()">🔄 Reset</button>
+                    <button class="btn-danger" onclick="exportData()">💾 Ma'lumotni saqlash</button>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="mainCanvas" width="800" height="500"></canvas>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="energyCanvas" width="800" height="400"></canvas>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4fc3f7;"></div>
+                        <span>Massa 1 (M₁)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e57373;"></div>
+                        <span>Massa 2 (M₂)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #81c784;"></div>
+                        <span>Potensial energiya</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffd54f;"></div>
+                        <span>Kinetik energiya</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="card">
+                <h2>⚙️ Boshqaruv paneli</h2>
+
+                <div class="control-group">
+                    <label>
+                        Massa 1 (M₁): kg
+                        <span class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">Birinchi jismning massasi</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="mass1" min="1" max="100" value="50" step="1">
+                        <span class="value-display" id="mass1Value">5.0×10²⁴ kg</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Massa 2 (M₂): kg
+                        <span class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">Ikkinchi jismning massasi</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="mass2" min="1" max="50" value="10" step="1">
+                        <span class="value-display" id="mass2Value">1.0×10²⁴ kg</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Masofa (r): km
+                        <span class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">Massalar orasidagi masofa</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="distance" min="1" max="100" value="20" step="1">
+                        <span class="value-display" id="distanceValue">2.0×10⁷ m</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Boshlang'ich tezlik (v₀): km/s
+                        <span class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">Ikkinchi jismning boshlang'ich tezligi</span>
+                        </span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="velocity" min="0" max="20" value="5" step="0.5">
+                        <span class="value-display" id="velocityValue">5.0 km/s</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Simulyatsiya tezligi</label>
+                    <div class="slider-container">
+                        <input type="range" id="speed" min="1" max="50" value="10" step="1">
+                        <span class="value-display" id="speedValue">1.0x</span>
+                    </div>
+                </div>
+
+                <h3 style="color: #81c784; margin-top: 20px; margin-bottom: 10px;">📋 Tayyor stsenariylar</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset('earth-moon')">🌍 Yer-Oy</button>
+                    <button class="preset-btn" onclick="loadPreset('earth-satellite')">🛰️ Sun'iy yo'ldosh</button>
+                    <button class="preset-btn" onclick="loadPreset('escape')">🚀 Qochish</button>
+                    <button class="preset-btn" onclick="loadPreset('bound-orbit')">🔗 Bog'langan orbita</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Data and Theory -->
+        <div class="main-grid">
+            <div class="card">
+                <h2>📊 Energiya ma'lumotlari</h2>
+                
+                <div id="statusIndicator" class="status-indicator status-bound">
+                    ⛓️ Bog'langan holat
+                </div>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="label">Potensial energiya (U)</div>
+                        <div class="value" id="potentialEnergy">0 J</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="label">Kinetik energiya (K)</div>
+                        <div class="value" id="kineticEnergy">0 J</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="label">To'liq energiya (E)</div>
+                        <div class="value" id="totalEnergy">0 J</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="label">Bog'lanish energiyasi</div>
+                        <div class="value" id="bindingEnergy">0 J</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="label">Qochish tezligi</div>
+                        <div class="value" id="escapeVelocity">0 km/s</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="label">Joriy tezlik</div>
+                        <div class="value" id="currentVelocity">0 km/s</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📚 Nazariya</h2>
+                
+                <div class="info-box">
+                    <h3>Gravitatsion potensial energiya</h3>
+                    <p>Gravitatsion potensial energiya - bu massalar orasidagi tortishish kuchi tufayli mavjud bo'lgan energiya.</p>
+                </div>
+
+                <div class="formula">
+                    <strong>Asosiy formula:</strong>
+                    $$U = -\frac{Gm_1m_2}{r}$$
+                    <p style="margin-top: 10px; font-size: 0.9rem;">
+                        G = 6.674×10⁻¹¹ N·m²/kg² (gravitatsion doimiylik)
+                    </p>
+                </div>
+
+                <div class="info-box">
+                    <h3>❓ Nima uchun manfiy?</h3>
+                    <p>Potensial energiya manfiy, chunki cheksizlikdagi energiya nol deb qabul qilingan. Massalarni bir-biridan ajratish uchun ish bajarish kerak.</p>
+                </div>
+
+                <div class="formula">
+                    <strong>To'liq energiya:</strong>
+                    $$E = K + U = \frac{1}{2}mv^2 - \frac{Gm_1m_2}{r}$$
+                </div>
+
+                <div class="info-box">
+                    <h3>🔗 Bog'lanish energiyasi</h3>
+                    <p>Jismni gravitatsiya maydonidan chiqarish uchun zarur bo'lgan minimal energiya:</p>
+                    <div class="formula">
+                        $$E_b = -U = \frac{Gm_1m_2}{r}$$
+                    </div>
+                </div>
+
+                <div class="formula">
+                    <strong>Qochish tezligi:</strong>
+                    $$v_{escape} = \sqrt{\frac{2Gm_1}{r}}$$
+                </div>
+
+                <div class="info-box">
+                    <h3>⚡ Energiya holatlari</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>E < 0:</strong> Bog'langan orbita (elliptik)</li>
+                        <li><strong>E = 0:</strong> Parabolik traektoriya</li>
+                        <li><strong>E > 0:</strong> Giperbolik traektoriya</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const G = 6.674e-11; // Gravitational constant
+        const SCALE_FACTOR = 1e24; // For display purposes
+
+        // Canvas setup
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const energyCanvas = document.getElementById('energyCanvas');
+        const energyCtx = energyCanvas.getContext('2d');
+
+        // Simulation state
+        let isAnimating = false;
+        let animationId = null;
+        let time = 0;
+
+        // Physical parameters
+        let mass1 = 5.0e24; // kg (Earth-like)
+        let mass2 = 1.0e24; // kg
+        let distance = 2.0e7; // m
+        let velocity = 5000; // m/s
+        let simulationSpeed = 1.0;
+
+        // Position and velocity for animation
+        let pos = { x: 0, y: 0 };
+        let vel = { x: 0, y: 0 };
+
+        // Energy history for plotting
+        let energyHistory = [];
+        const MAX_HISTORY = 200;
+
+        // Initialize
+        function init() {
+            updateValues();
+            resetSimulation();
+            draw();
+            drawEnergyDiagram();
+        }
+
+        // Update all values from sliders
+        function updateValues() {
+            const m1Val = document.getElementById('mass1').value;
+            const m2Val = document.getElementById('mass2').value;
+            const distVal = document.getElementById('distance').value;
+            const velVal = document.getElementById('velocity').value;
+            const speedVal = document.getElementById('speed').value;
+
+            mass1 = parseFloat(m1Val) * 1e23;
+            mass2 = parseFloat(m2Val) * 1e23;
+            distance = parseFloat(distVal) * 1e6;
+            velocity = parseFloat(velVal) * 1000;
+            simulationSpeed = parseFloat(speedVal) / 10;
+
+            document.getElementById('mass1Value').textContent = 
+                (mass1 / 1e24).toFixed(1) + '×10²⁴ kg';
+            document.getElementById('mass2Value').textContent = 
+                (mass2 / 1e24).toFixed(1) + '×10²⁴ kg';
+            document.getElementById('distanceValue').textContent = 
+                (distance / 1e6).toFixed(1) + '×10⁶ m';
+            document.getElementById('velocityValue').textContent = 
+                (velocity / 1000).toFixed(1) + ' km/s';
+            document.getElementById('speedValue').textContent = 
+                simulationSpeed.toFixed(1) + 'x';
+
+            calculateEnergies();
+        }
+
+        // Calculate energies
+        function calculateEnergies() {
+            const r = Math.sqrt(pos.x * pos.x + pos.y * pos.y) || distance;
+            const v = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+
+            const U = -G * mass1 * mass2 / r;
+            const K = 0.5 * mass2 * v * v;
+            const E = K + U;
+            const Eb = Math.abs(U);
+            const vEscape = Math.sqrt(2 * G * mass1 / r);
+
+            document.getElementById('potentialEnergy').textContent = 
+                formatEnergy(U);
+            document.getElementById('kineticEnergy').textContent = 
+                formatEnergy(K);
+            document.getElementById('totalEnergy').textContent = 
+                formatEnergy(E);
+            document.getElementById('bindingEnergy').textContent = 
+                formatEnergy(Eb);
+            document.getElementById('escapeVelocity').textContent = 
+                (vEscape / 1000).toFixed(2) + ' km/s';
+            document.getElementById('currentVelocity').textContent = 
+                (v / 1000).toFixed(2) + ' km/s';
+
+            // Update status
+            const statusDiv = document.getElementById('statusIndicator');
+            if (E < 0) {
+                statusDiv.textContent = '⛓️ Bog\'langan holat (E < 0)';
+                statusDiv.className = 'status-indicator status-bound';
+            } else {
+                statusDiv.textContent = '🚀 Bog\'lanmagan holat (E ≥ 0)';
+                statusDiv.className = 'status-indicator status-unbound';
+            }
+
+            // Store history
+            energyHistory.push({ time: time, U: U, K: K, E: E });
+            if (energyHistory.length > MAX_HISTORY) {
+                energyHistory.shift();
+            }
+        }
+
+        // Format energy for display
+        function formatEnergy(energy) {
+            const absE = Math.abs(energy);
+            if (absE >= 1e30) {
+                return (energy / 1e30).toFixed(2) + '×10³⁰ J';
+            } else if (absE >= 1e27) {
+                return (energy / 1e27).toFixed(2) + '×10²⁷ J';
+            } else {
+                return energy.toExponential(2) + ' J';
+            }
+        }
+
+        // Reset simulation
+        function resetSimulation() {
+            time = 0;
+            energyHistory = [];
+            
+            // Initial position (distance along x-axis)
+            pos.x = distance;
+            pos.y = 0;
+            
+            // Initial velocity (perpendicular to position)
+            vel.x = 0;
+            vel.y = velocity;
+            
+            calculateEnergies();
+            draw();
+            drawEnergyDiagram();
+        }
+
+        // Toggle animation
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            const btn = document.getElementById('playBtn');
+            
+            if (isAnimating) {
+                btn.textContent = '⏸️ Pauza';
+                animate();
+            } else {
+                btn.textContent = '▶️ Boshlash';
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            if (!isAnimating) return;
+
+            const dt = 0.01 * simulationSpeed * 3600; // time step in seconds
+            
+            // Calculate gravitational acceleration
+            const r = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+            const a = -G * mass1 / (r * r * r); // acceleration magnitude / r
+            
+            // Update velocity (Verlet integration)
+            vel.x += a * pos.x * dt;
+            vel.y += a * pos.y * dt;
+            
+            // Update position
+            pos.x += vel.x * dt;
+            pos.y += vel.y * dt;
+            
+            time += dt;
+            
+            calculateEnergies();
+            draw();
+            drawEnergyDiagram();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Draw main visualization
+        function draw() {
+            const width = mainCanvas.width;
+            const height = mainCanvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Clear canvas
+            mainCtx.fillStyle = '#0a0e27';
+            mainCtx.fillRect(0, 0, width, height);
+            
+            // Calculate scale
+            const maxDist = distance * 3;
+            const scale = Math.min(width, height) * 0.4 / maxDist;
+            
+            // Draw grid
+            mainCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            mainCtx.lineWidth = 1;
+            for (let i = -5; i <= 5; i++) {
+                const gridDist = maxDist * i / 5;
+                const gridSize = gridDist * scale;
+                
+                mainCtx.beginPath();
+                mainCtx.arc(centerX, centerY, Math.abs(gridSize), 0, Math.PI * 2);
+                mainCtx.stroke();
+            }
+            
+            // Draw potential well visualization
+            mainCtx.strokeStyle = 'rgba(129, 199, 132, 0.3)';
+            mainCtx.lineWidth = 2;
+            mainCtx.beginPath();
+            const steps = 100;
+            for (let i = 0; i <= steps; i++) {
+                const angle = (i / steps) * Math.PI * 2;
+                const r = distance * 0.5 + distance * 2 * (i / steps);
+                const U = -G * mass1 * mass2 / r;
+                const wellDepth = Math.min(100, Math.abs(U) / 1e30 * 50);
+                const radius = r * scale - wellDepth;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                if (i === 0) {
+                    mainCtx.moveTo(x, y);
+                } else {
+                    mainCtx.lineTo(x, y);
+                }
+            }
+            mainCtx.stroke();
+            
+            // Draw mass 1 (central mass)
+            const r1 = Math.max(15, Math.pow(mass1 / 1e24, 0.3) * 10);
+            mainCtx.fillStyle = '#4fc3f7';
+            mainCtx.beginPath();
+            mainCtx.arc(centerX, centerY, r1, 0, Math.PI * 2);
+            mainCtx.fill();
+            
+            // Draw glow
+            const grd1 = mainCtx.createRadialGradient(centerX, centerY, r1, centerX, centerY, r1 * 2);
+            grd1.addColorStop(0, 'rgba(79, 195, 247, 0.3)');
+            grd1.addColorStop(1, 'rgba(79, 195, 247, 0)');
+            mainCtx.fillStyle = grd1;
+            mainCtx.beginPath();
+            mainCtx.arc(centerX, centerY, r1 * 2, 0, Math.PI * 2);
+            mainCtx.fill();
+            
+            // Draw mass 2 (orbiting mass)
+            const posX = centerX + pos.x * scale;
+            const posY = centerY + pos.y * scale;
+            const r2 = Math.max(8, Math.pow(mass2 / 1e24, 0.3) * 8);
+            
+            mainCtx.fillStyle = '#e57373';
+            mainCtx.beginPath();
+            mainCtx.arc(posX, posY, r2, 0, Math.PI * 2);
+            mainCtx.fill();
+            
+            // Draw glow
+            const grd2 = mainCtx.createRadialGradient(posX, posY, r2, posX, posY, r2 * 2);
+            grd2.addColorStop(0, 'rgba(229, 115, 115, 0.3)');
+            grd2.addColorStop(1, 'rgba(229, 115, 115, 0)');
+            mainCtx.fillStyle = grd2;
+            mainCtx.beginPath();
+            mainCtx.arc(posX, posY, r2 * 2, 0, Math.PI * 2);
+            mainCtx.fill();
+            
+            // Draw connection line
+            mainCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            mainCtx.lineWidth = 2;
+            mainCtx.setLineDash([5, 5]);
+            mainCtx.beginPath();
+            mainCtx.moveTo(centerX, centerY);
+            mainCtx.lineTo(posX, posY);
+            mainCtx.stroke();
+            mainCtx.setLineDash([]);
+            
+            // Draw velocity vector
+            const velScale = 5e-3;
+            const velEndX = posX + vel.x * velScale;
+            const velEndY = posY + vel.y * velScale;
+            
+            mainCtx.strokeStyle = '#ffd54f';
+            mainCtx.lineWidth = 3;
+            mainCtx.beginPath();
+            mainCtx.moveTo(posX, posY);
+            mainCtx.lineTo(velEndX, velEndY);
+            mainCtx.stroke();
+            
+            // Draw arrow head
+            const angle = Math.atan2(vel.y, vel.x);
+            const arrowSize = 10;
+            mainCtx.fillStyle = '#ffd54f';
+            mainCtx.beginPath();
+            mainCtx.moveTo(velEndX, velEndY);
+            mainCtx.lineTo(
+                velEndX - arrowSize * Math.cos(angle - Math.PI / 6),
+                velEndY - arrowSize * Math.sin(angle - Math.PI / 6)
+            );
+            mainCtx.lineTo(
+                velEndX - arrowSize * Math.cos(angle + Math.PI / 6),
+                velEndY - arrowSize * Math.sin(angle + Math.PI / 6)
+            );
+            mainCtx.closePath();
+            mainCtx.fill();
+            
+            // Draw distance label
+            mainCtx.fillStyle = '#ffffff';
+            mainCtx.font = '14px Arial';
+            mainCtx.textAlign = 'center';
+            const r = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+            const midX = (centerX + posX) / 2;
+            const midY = (centerY + posY) / 2;
+            mainCtx.fillText(`r = ${(r / 1e6).toFixed(1)} × 10⁶ m`, midX, midY - 10);
+        }
+
+        // Draw energy diagram
+        function drawEnergyDiagram() {
+            const width = energyCanvas.width;
+            const height = energyCanvas.height;
+            const padding = 60;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            
+            // Clear canvas
+            energyCtx.fillStyle = '#0a0e27';
+            energyCtx.fillRect(0, 0, width, height);
+            
+            // Draw axes
+            energyCtx.strokeStyle = '#ffffff';
+            energyCtx.lineWidth = 2;
+            energyCtx.beginPath();
+            energyCtx.moveTo(padding, padding);
+            energyCtx.lineTo(padding, height - padding);
+            energyCtx.lineTo(width - padding, height - padding);
+            energyCtx.stroke();
+            
+            // Labels
+            energyCtx.fillStyle = '#ffffff';
+            energyCtx.font = '14px Arial';
+            energyCtx.textAlign = 'center';
+            energyCtx.fillText('Masofa (r)', width / 2, height - 20);
+            
+            energyCtx.save();
+            energyCtx.translate(20, height / 2);
+            energyCtx.rotate(-Math.PI / 2);
+            energyCtx.fillText('Energiya (J)', 0, 0);
+            energyCtx.restore();
+            
+            // Calculate potential energy curve
+            const minR = distance * 0.1;
+            const maxR = distance * 5;
+            const numPoints = 200;
+            
+            const energyValues = [];
+            let minE = 0;
+            let maxE = 0;
+            
+            for (let i = 0; i < numPoints; i++) {
+                const r = minR + (maxR - minR) * i / (numPoints - 1);
+                const U = -G * mass1 * mass2 / r;
+                energyValues.push({ r: r, U: U });
+                minE = Math.min(minE, U);
+                maxE = Math.max(maxE, U * 0.1);
+            }
+            
+            // Add total energy line
+            const currentR = Math.sqrt(pos.x * pos.x + pos.y * pos.y) || distance;
+            const currentV = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+            const currentK = 0.5 * mass2 * currentV * currentV;
+            const currentU = -G * mass1 * mass2 / currentR;
+            const totalE = currentK + currentU;
+            
+            maxE = Math.max(maxE, totalE);
+            
+            // Scale for y-axis
+            const energyRange = maxE - minE;
+            const yScale = graphHeight / energyRange;
+            
+            // Draw zero line
+            const zeroY = padding + (maxE - 0) * yScale;
+            energyCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            energyCtx.lineWidth = 1;
+            energyCtx.setLineDash([5, 5]);
+            energyCtx.beginPath();
+            energyCtx.moveTo(padding, zeroY);
+            energyCtx.lineTo(width - padding, zeroY);
+            energyCtx.stroke();
+            energyCtx.setLineDash([]);
+            
+            energyCtx.fillStyle = '#ffffff';
+            energyCtx.font = '12px Arial';
+            energyCtx.textAlign = 'right';
+            energyCtx.fillText('U = 0', padding - 10, zeroY + 5);
+            
+            // Draw potential energy curve
+            energyCtx.strokeStyle = '#81c784';
+            energyCtx.lineWidth = 3;
+            energyCtx.beginPath();
+            
+            for (let i = 0; i < energyValues.length; i++) {
+                const x = padding + (energyValues[i].r - minR) / (maxR - minR) * graphWidth;
+                const y = padding + (maxE - energyValues[i].U) * yScale;
+                
+                if (i === 0) {
+                    energyCtx.moveTo(x, y);
+                } else {
+                    energyCtx.lineTo(x, y);
+                }
+            }
+            energyCtx.stroke();
+            
+            // Draw total energy line
+            const totalEY = padding + (maxE - totalE) * yScale;
+            energyCtx.strokeStyle = '#4fc3f7';
+            energyCtx.lineWidth = 2;
+            energyCtx.setLineDash([10, 5]);
+            energyCtx.beginPath();
+            energyCtx.moveTo(padding, totalEY);
+            energyCtx.lineTo(width - padding, totalEY);
+            energyCtx.stroke();
+            energyCtx.setLineDash([]);
+            
+            // Draw current position
+            const currentX = padding + (currentR - minR) / (maxR - minR) * graphWidth;
+            const currentUY = padding + (maxE - currentU) * yScale;
+            
+            // Draw kinetic energy bar
+            energyCtx.fillStyle = 'rgba(255, 213, 79, 0.5)';
+            energyCtx.fillRect(currentX - 5, totalEY, 10, currentUY - totalEY);
+            
+            // Draw current position marker
+            energyCtx.fillStyle = '#e57373';
+            energyCtx.beginPath();
+            energyCtx.arc(currentX, currentUY, 6, 0, Math.PI * 2);
+            energyCtx.fill();
+            
+            // Legend
+            const legendX = width - padding - 150;
+            const legendY = padding + 20;
+            
+            energyCtx.strokeStyle = '#81c784';
+            energyCtx.lineWidth = 3;
+            energyCtx.beginPath();
+            energyCtx.moveTo(legendX, legendY);
+            energyCtx.lineTo(legendX + 30, legendY);
+            energyCtx.stroke();
+            energyCtx.fillStyle = '#ffffff';
+            energyCtx.font = '12px Arial';
+            energyCtx.textAlign = 'left';
+            energyCtx.fillText('Potensial energiya (U)', legendX + 40, legendY + 5);
+            
+            energyCtx.strokeStyle = '#4fc3f7';
+            energyCtx.lineWidth = 2;
+            energyCtx.setLineDash([10, 5]);
+            energyCtx.beginPath();
+            energyCtx.moveTo(legendX, legendY + 20);
+            energyCtx.lineTo(legendX + 30, legendY + 20);
+            energyCtx.stroke();
+            energyCtx.setLineDash([]);
+            energyCtx.fillText('To\'liq energiya (E)', legendX + 40, legendY + 25);
+            
+            energyCtx.fillStyle = 'rgba(255, 213, 79, 0.5)';
+            energyCtx.fillRect(legendX, legendY + 35, 30, 10);
+            energyCtx.fillStyle = '#ffffff';
+            energyCtx.fillText('Kinetik energiya (K)', legendX + 40, legendY + 45);
+        }
+
+        // Load preset scenarios
+        function loadPreset(preset) {
+            switch(preset) {
+                case 'earth-moon':
+                    document.getElementById('mass1').value = 60;
+                    document.getElementById('mass2').value = 7;
+                    document.getElementById('distance').value = 38;
+                    document.getElementById('velocity').value = 1.0;
+                    break;
+                case 'earth-satellite':
+                    document.getElementById('mass1').value = 60;
+                    document.getElementById('mass2').value = 1;
+                    document.getElementById('distance').value = 7;
+                    document.getElementById('velocity').value = 7.8;
+                    break;
+                case 'escape':
+                    document.getElementById('mass1').value = 60;
+                    document.getElementById('mass2').value = 10;
+                    document.getElementById('distance').value = 20;
+                    document.getElementById('velocity').value = 11.2;
+                    break;
+                case 'bound-orbit':
+                    document.getElementById('mass1').value = 50;
+                    document.getElementById('mass2').value = 10;
+                    document.getElementById('distance').value = 20;
+                    document.getElementById('velocity').value = 5;
+                    break;
+            }
+            updateValues();
+            resetSimulation();
+        }
+
+        // Export data
+        function exportData() {
+            const data = {
+                parameters: {
+                    mass1: mass1,
+                    mass2: mass2,
+                    distance: distance,
+                    velocity: velocity
+                },
+                energyHistory: energyHistory
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'gravitational_energy_data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('mass1').addEventListener('input', updateValues);
+        document.getElementById('mass2').addEventListener('input', updateValues);
+        document.getElementById('distance').addEventListener('input', () => {
+            updateValues();
+            resetSimulation();
+        });
+        document.getElementById('velocity').addEventListener('input', () => {
+            updateValues();
+            resetSimulation();
+        });
+        document.getElementById('speed').addEventListener('input', updateValues);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            draw();
+            drawEnergyDiagram();
+        });
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
