@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Birinchi Kosmik Tezlik - Professional Simulyatsiya</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-medium: #1a1f3a;
+            --bg-light: #2a2f4a;
+            --primary: #4da8ff;
+            --secondary: #a855f7;
+            --success: #10b981;
+            --warning: #f97316;
+            --danger: #ef4444;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --border: rgba(77, 168, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* Starfield Background */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(77, 168, 255, 0.4);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
+            opacity: 0.95;
+        }
+
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 2.5fr 1fr;
+            }
+        }
+
+        /* Panel Styles */
+        .panel {
+            background: rgba(26, 31, 58, 0.95);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-2px);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Canvas */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 550px;
+            background: radial-gradient(circle at 50% 50%, var(--bg-medium), var(--bg-dark));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(42, 47, 74, 0.6);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.paused {
+            background: var(--warning);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .fps-counter {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Controls */
+        .control-group {
+            margin-bottom: 18px;
+            background: rgba(42, 47, 74, 0.5);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(77, 168, 255, 0.1);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .control-value {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            cursor: grab;
+            box-shadow: 0 0 15px rgba(77, 168, 255, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(77, 168, 255, 0.8);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            cursor: grab;
+            border: none;
+            box-shadow: 0 0 15px rgba(77, 168, 255, 0.6);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            min-width: 110px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(77, 168, 255, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-medium);
+            border-color: var(--primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ea580c);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            min-width: 90px;
+        }
+
+        /* Planet Grid */
+        .planet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .planet-card {
+            padding: 16px;
+            background: var(--bg-light);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .planet-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(77, 168, 255, 0.3);
+        }
+
+        .planet-card.active {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(77, 168, 255, 0.1));
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+        }
+
+        .planet-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .planet-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .planet-velocity {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Data Display */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .data-card {
+            background: rgba(42, 47, 74, 0.6);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateX(4px);
+            border-left-width: 6px;
+        }
+
+        .data-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .data-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        /* Formula Display */
+        .formula-box {
+            background: rgba(42, 47, 74, 0.8);
+            padding: 20px;
+            border-radius: 14px;
+            border: 2px solid var(--secondary);
+            margin: 12px 0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .formula-box:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(77, 168, 255, 0.2);
+        }
+
+        .formula-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .formula {
+            font-size: 1.6rem;
+            color: var(--primary);
+            font-family: 'Courier New', 'SF Mono', Monaco, monospace;
+            margin: 12px 0;
+            font-weight: 600;
+        }
+
+        .formula-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        /* Theory Section */
+        .theory-box {
+            background: rgba(42, 47, 74, 0.4);
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 12px;
+            line-height: 1.7;
+        }
+
+        .theory-box h3 {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .theory-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .theory-box ul {
+            margin-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .theory-box li {
+            margin-bottom: 6px;
+        }
+
+        /* Help Tooltip */
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .help-icon:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltiptext {
+            visibility: hidden;
+            width: 260px;
+            background: var(--bg-medium);
+            color: var(--text-primary);
+            text-align: left;
+            border-radius: 10px;
+            padding: 14px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -130px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Preset Scenarios */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            background: var(--bg-light);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary);
+            background: rgba(77, 168, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid var(--bg-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .canvas-container {
+                height: 400px;
+            }
+
+            .data-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .planet-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Print */
+        @media print {
+            #starfield, .btn-group, .controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield Background -->
+    <div id="starfield"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🚀 Birinchi Kosmik Tezlik Simulyatsiyasi</h1>
+            <p class="subtitle">Orbital Mexanika • Sun'iy Yo'ldosh Harakati • Interaktiv Ta'lim</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left Column: Visualization -->
+            <div>
+                <!-- Main Canvas Panel -->
+                <div class="panel">
+                    <div class="panel-title">
+                        🌍 Orbital Harakat Vizualizatsiyasi
+                        <div class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">
+                                Sun'iy yo'ldosh planeta atrofida orbital harakat qiladi. 
+                                Yashil vektor - tezlik (v), Qizil vektor - gravitatsiya kuchi (Fg).
+                                Touch/swipe yordamida yo'ldoshni harakatlantiring.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="status-bar">
+                        <div class="status-left">
+                            <div class="status-dot" id="statusDot"></div>
+                            <span id="statusText">Harakatlanmoqda</span>
+                        </div>
+                        <div class="fps-counter" id="fpsCounter">60 FPS</div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="canvas-container">
+                        <canvas id="mainCanvas"></canvas>
+                    </div>
+
+                    <!-- Playback Controls -->
+                    <div class="btn-group">
+                        <button class="btn-primary" id="playPauseBtn">
+                            <span id="playIcon">⏸️</span> <span id="playText">Pauza</span>
+                        </button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <button class="btn-success btn-small" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary btn-small" id="screenshotBtn">📸</button>
+                        <button class="btn-secondary btn-small" id="exportBtn">💾 Export</button>
+                    </div>
+
+                    <!-- Speed Control -->
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>⚡ Simulyatsiya tezligi</span>
+                            <span class="control-value" id="speedValue">1.0x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                    </div>
+
+                    <!-- Altitude Control -->
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>📏 Balandlik (h)</span>
+                            <span class="control-value" id="altitudeValue">0 km</span>
+                        </div>
+                        <input type="range" id="altitudeSlider" min="0" max="5000" step="50" value="0">
+                    </div>
+
+                    <!-- Satellite Mass Control -->
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>⚖️ Yo'ldosh massasi (m)</span>
+                            <span class="control-value" id="massValue">1000 kg</span>
+                        </div>
+                        <input type="range" id="massSlider" min="100" max="10000" step="100" value="1000">
+                    </div>
+                </div>
+
+                <!-- Formulas Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-title">📐 Fizik Formulalar</div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Birinchi Kosmik Tezlik</div>
+                        <div class="formula">v = √(GM/R)</div>
+                        <div class="formula-desc">
+                            G = 6.674×10⁻¹¹ m³/(kg·s²) - Gravitatsiya doimiysi<br>
+                            M = Planeta massasi (kg)<br>
+                            R = Orbital radius (m) = R₀ + h
+                        </div>
+                    </div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Muvozanat Sharti</div>
+                        <div class="formula">Fc = Fg → mv²/R = GMm/R²</div>
+                        <div class="formula-desc">
+                            Markazga intiluvchi kuch gravitatsiya kuchiga teng
+                        </div>
+                    </div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Orbital Davr</div>
+                        <div class="formula">T = 2πR/v</div>
+                        <div class="formula-desc">
+                            To'liq aylanish uchun zarur vaqt
+                        </div>
+                    </div>
+
+                    <div class="formula-box">
+                        <div class="formula-title">Orbital Tezlik</div>
+                        <div class="formula">ω = v/R = √(GM/R³)</div>
+                        <div class="formula-desc">
+                            Burchak tezligi (rad/s)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-title">📚 Nazariy Ma'lumot</div>
+                    
+                    <div class="theory-box">
+                        <h3>Birinchi Kosmik Tezlik nima?</h3>
+                        <p>
+                            Birinchi kosmik tezlik - bu jismni planeta yuzasiga parallel otilganda, 
+                            u planetaga tushmasdan uning atrofida doiraviy orbita bo'ylab harakatlanishi 
+                            uchun zarur bo'lgan minimal tezlik.
+                        </p>
+
+                        <h3>Asosiy Tamoyillar:</h3>
+                        <ul>
+                            <li><strong>Markazga intiluvchi kuch (Fc):</strong> mv²/R - Yo'ldoshni orbitada ushlab turadi</li>
+                            <li><strong>Gravitatsiya kuchi (Fg):</strong> GMm/R² - Planeta va yo'ldosh o'rtasidagi tortishish</li>
+                            <li><strong>Dinamik muvozanat:</strong> Fc = Fg - Bu ikki kuch muvozanati orbital harakatni ta'minlaydi</li>
+                            <li><strong>Orbital tezlik:</strong> Balandlik ortishi bilan kamayadi</li>
+                        </ul>
+
+                        <h3>Amaliy Qo'llanishlar:</h3>
+                        <ul>
+                            <li>🛰️ <strong>Sun'iy yo'ldoshlar:</strong> Aloqa, GPS, meteorologiya</li>
+                            <li>🚀 <strong>Kosmik stansiyalar:</strong> XKS 400 km balandlikda</li>
+                            <li>📡 <strong>Geostationar orbitalar:</strong> 35,786 km balandlik</li>
+                            <li>🌐 <strong>Navigatsiya tizimlari:</strong> GPS, GLONASS, Galileo</li>
+                        </ul>
+
+                        <h3>Real Misollar (Yuzada):</h3>
+                        <ul>
+                            <li><strong>Yer:</strong> v ≈ 7.9 km/s, T ≈ 84.4 daqiqa</li>
+                            <li><strong>Oy:</strong> v ≈ 1.68 km/s, T ≈ 109 daqiqa</li>
+                            <li><strong>Mars:</strong> v ≈ 3.55 km/s, T ≈ 100 daqiqa</li>
+                            <li><strong>Yupiter:</strong> v ≈ 42.1 km/s, T ≈ 175 daqiqa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Controls & Data -->
+            <div>
+                <!-- Planet Selection Panel -->
+                <div class="panel">
+                    <div class="panel-title">
+                        🪐 Planeta Tanlash
+                        <div class="tooltip">
+                            <span class="help-icon">?</span>
+                            <span class="tooltiptext">
+                                Turli planetalar uchun orbital tezlikni solishtiring. 
+                                Har bir planeta o'zining massa va radiusiga ega.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="planet-grid" id="planetGrid"></div>
+                </div>
+
+                <!-- Live Data Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-title">📊 Jonli Ma'lumotlar</div>
+                    <div class="data-grid">
+                        <div class="data-card">
+                            <div class="data-label">Orbital Tezlik</div>
+                            <div class="data-value" id="velocityDisplay">0<span class="data-unit">km/s</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Balandlik</div>
+                            <div class="data-value" id="altDisplay">0<span class="data-unit">km</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Orbital Davr</div>
+                            <div class="data-value" id="periodDisplay">0<span class="data-unit">daq</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Markazga Kuch</div>
+                            <div class="data-value" id="centripetalDisplay">0<span class="data-unit">N</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Gravitatsiya</div>
+                            <div class="data-value" id="gravityDisplay">0<span class="data-unit">N</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Orbital Radius</div>
+                            <div class="data-value" id="radiusDisplay">0<span class="data-unit">km</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Burchak Tezligi</div>
+                            <div class="data-value" id="angularVelDisplay">0<span class="data-unit">rad/s</span></div>
+                        </div>
+                        <div class="data-card">
+                            <div class="data-label">Kinetik Energiya</div>
+                            <div class="data-value" id="kineticDisplay">0<span class="data-unit">J</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preset Scenarios Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-title">⚙️ Tayyor Stsenariylar</div>
+                    <div class="preset-grid">
+                        <button class="preset-btn" onclick="loadPreset('iss')">
+                            🛰️<br>XKS<br><small>~400km</small>
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('gps')">
+                            📡<br>GPS<br><small>~20200km</small>
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('geo')">
+                            🌍<br>GEO<br><small>~35786km</small>
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('hubble')">
+                            🔭<br>Hubble<br><small>~540km</small>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Keyboard Shortcuts Panel -->
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-title">⌨️ Klaviatura</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2;">
+                        <strong>Space</strong> - Play/Pause<br>
+                        <strong>R</strong> - Reset<br>
+                        <strong>S</strong> - Step Forward<br>
+                        <strong>↑/↓</strong> - Balandlikni o'zgartirish<br>
+                        <strong>+/-</strong> - Tezlikni o'zgartirish<br>
+                        <strong>1-6</strong> - Planetalarni tanlash
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONSTANTS ====================
+        const G = 6.674e-11; // m³/(kg·s²)
+
+        // Planet Database
+        const PLANETS = {
+            earth: {
+                name: "Yer",
+                icon: "🌍",
+                mass: 5.972e24,
+                radius: 6371000,
+                color: "#4da8ff",
+                atmosphere: 100000
+            },
+            moon: {
+                name: "Oy",
+                icon: "🌙",
+                mass: 7.342e22,
+                radius: 1737000,
+                color: "#9ca3af",
+                atmosphere: 0
+            },
+            mars: {
+                name: "Mars",
+                icon: "🔴",
+                mass: 6.417e23,
+                radius: 3390000,
+                color: "#f97316",
+                atmosphere: 11000
+            },
+            jupiter: {
+                name: "Yupiter",
+                icon: "🪐",
+                mass: 1.898e27,
+                radius: 69911000,
+                color: "#fbbf24",
+                atmosphere: 0
+            },
+            venus: {
+                name: "Venera",
+                icon: "💫",
+                mass: 4.867e24,
+                radius: 6052000,
+                color: "#ec4899",
+                atmosphere: 250000
+            },
+            mercury: {
+                name: "Merkuriy",
+                icon: "⚡",
+                mass: 3.285e23,
+                radius: 2439700,
+                color: "#a855f7",
+                atmosphere: 0
+            }
+        };
+
+        // ==================== STATE ====================
+        let state = {
+            currentPlanet: 'earth',
+            altitude: 0,
+            satelliteMass: 1000,
+            simulationSpeed: 1.0,
+            isPlaying: true,
+            angle: 0,
+            showVectors: true,
+            showOrbit: true,
+            trailPoints: []
+        };
+
+        // ==================== CANVAS SETUP ====================
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        let canvasWidth, canvasHeight, centerX, centerY, scale;
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            
+            canvasWidth = rect.width;
+            canvasHeight = rect.height;
+            centerX = canvasWidth / 2;
+            centerY = canvasHeight / 2;
+            scale = Math.min(canvasWidth, canvasHeight) / 5;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // ==================== STARFIELD ====================
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            starfield.innerHTML = '';
+            
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                const size = Math.random() * 2.5 + 0.5;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starfield.appendChild(star);
+            }
+        }
+
+        createStarfield();
+
+        // ==================== PLANET UI ====================
+        function renderPlanetGrid() {
+            const grid = document.getElementById('planetGrid');
+            grid.innerHTML = '';
+
+            Object.entries(PLANETS).forEach(([key, planet]) => {
+                const v = calculateVelocity(planet, 0);
+                const card = document.createElement('div');
+                card.className = 'planet-card' + (key === state.currentPlanet ? ' active' : '');
+                card.innerHTML = `
+                    <span class="planet-icon">${planet.icon}</span>
+                    <div class="planet-name">${planet.name}</div>
+                    <div class="planet-velocity">${(v/1000).toFixed(2)} km/s</div>
+                `;
+                card.onclick = () => selectPlanet(key);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectPlanet(key) {
+            state.currentPlanet = key;
+            state.angle = 0;
+            state.trailPoints = [];
+            renderPlanetGrid();
+            updateAllData();
+        }
+
+        // ==================== PHYSICS CALCULATIONS ====================
+        function calculateVelocity(planet, altitude) {
+            const r = planet.radius + altitude;
+            return Math.sqrt(G * planet.mass / r);
+        }
+
+        function calculatePeriod(velocity, radius) {
+            return (2 * Math.PI * radius) / velocity;
+        }
+
+        function calculateCentripetalForce(mass, velocity, radius) {
+            return (mass * velocity * velocity) / radius;
+        }
+
+        function calculateGravityForce(planetMass, satMass, radius) {
+            return (G * planetMass * satMass) / (radius * radius);
+        }
+
+        function calculateAngularVelocity(velocity, radius) {
+            return velocity / radius;
+        }
+
+        function calculateKineticEnergy(mass, velocity) {
+            return 0.5 * mass * velocity * velocity;
+        }
+
+        // ==================== DATA UPDATE ====================
+        function updateAllData() {
+            const planet = PLANETS[state.currentPlanet];
+            const r = planet.radius + state.altitude;
+            const v = calculateVelocity(planet, state.altitude);
+            const T = calculatePeriod(v, r);
+            const Fc = calculateCentripetalForce(state.satelliteMass, v, r);
+            const Fg = calculateGravityForce(planet.mass, state.satelliteMass, r);
+            const omega = calculateAngularVelocity(v, r);
+            const KE = calculateKineticEnergy(state.satelliteMass, v);
+
+            // Update displays
+            setDataValue('velocityDisplay', (v/1000).toFixed(3), 'km/s');
+            setDataValue('altDisplay', (state.altitude/1000).toFixed(0), 'km');
+            setDataValue('periodDisplay', (T/60).toFixed(2), 'daq');
+            setDataValue('centripetalDisplay', formatScientific(Fc), 'N');
+            setDataValue('gravityDisplay', formatScientific(Fg), 'N');
+            setDataValue('radiusDisplay', (r/1000).toFixed(0), 'km');
+            setDataValue('angularVelDisplay', formatScientific(omega), 'rad/s');
+            setDataValue('kineticDisplay', formatScientific(KE), 'J');
+        }
+
+        function setDataValue(id, value, unit) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = value + '<span class="data-unit">' + unit + '</span>';
+            }
+        }
+
+        function formatScientific(num) {
+            if (num === 0) return '0.00';
+            if (num < 1000 && num > -1000) return num.toFixed(2);
+            
+            const exp = Math.floor(Math.log10(Math.abs(num)));
+            const mantissa = num / Math.pow(10, exp);
+            return mantissa.toFixed(2) + 'e' + exp;
+        }
+
+        // ==================== DRAWING ====================
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#0a0e27';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            const planet = PLANETS[state.currentPlanet];
+            const planetRadius = scale * 0.7;
+            const orbitRadius = scale * 1.5 + (state.altitude / planet.radius) * scale * 0.6;
+
+            // Draw orbital trail
+            if (state.showOrbit) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, orbitRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(77, 168, 255, 0.25)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 8]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw trail points
+            if (state.trailPoints.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(state.trailPoints[0].x, state.trailPoints[0].y);
+                for (let i = 1; i < state.trailPoints.length; i++) {
+                    ctx.lineTo(state.trailPoints[i].x, state.trailPoints[i].y);
+                }
+                ctx.strokeStyle = 'rgba(77, 168, 255, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw planet
+            const planetGrad = ctx.createRadialGradient(
+                centerX - planetRadius * 0.3, 
+                centerY - planetRadius * 0.3, 
+                0, 
+                centerX, 
+                centerY, 
+                planetRadius
+            );
+            planetGrad.addColorStop(0, planet.color);
+            planetGrad.addColorStop(0.7, planet.color);
+            planetGrad.addColorStop(1, '#0a0e27');
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, planetRadius, 0, Math.PI * 2);
+            ctx.fillStyle = planetGrad;
+            ctx.fill();
+            ctx.strokeStyle = planet.color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Planet label
+            ctx.font = 'bold 18px sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(planet.icon, centerX, centerY);
+
+            // Planet name
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillStyle = planet.color;
+            ctx.fillText(planet.name, centerX, centerY - planetRadius - 25);
+
+            // Satellite position
+            const satX = centerX + orbitRadius * Math.cos(state.angle);
+            const satY = centerY + orbitRadius * Math.sin(state.angle);
+
+            // Add to trail
+            if (state.isPlaying && state.trailPoints.length < 200) {
+                state.trailPoints.push({ x: satX, y: satY });
+            } else if (state.isPlaying) {
+                state.trailPoints.shift();
+                state.trailPoints.push({ x: satX, y: satY });
+            }
+
+            // Draw satellite
+            const satGrad = ctx.createRadialGradient(satX, satY, 0, satX, satY, 12);
+            satGrad.addColorStop(0, '#ffffff');
+            satGrad.addColorStop(1, '#4da8ff');
+            
+            ctx.beginPath();
+            ctx.arc(satX, satY, 10, 0, Math.PI * 2);
+            ctx.fillStyle = satGrad;
+            ctx.fill();
+            ctx.strokeStyle = '#4da8ff';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Satellite label
+            ctx.font = '20px sans-serif';
+            ctx.fillText('🛰️', satX, satY);
+
+            if (state.showVectors) {
+                // Velocity vector (tangent to orbit)
+                const vLen = 65;
+                const vAngle = state.angle + Math.PI / 2;
+                const vEndX = satX + vLen * Math.cos(vAngle);
+                const vEndY = satY + vLen * Math.sin(vAngle);
+
+                drawVector(satX, satY, vEndX, vEndY, '#10b981', 3.5);
+                
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillStyle = '#10b981';
+                ctx.fillText('v', vEndX + 18, vEndY);
+
+                // Gravity vector (towards center)
+                const gLen = 55;
+                const gAngle = Math.atan2(centerY - satY, centerX - satX);
+                const gEndX = satX + gLen * Math.cos(gAngle);
+                const gEndY = satY + gLen * Math.sin(gAngle);
+
+                drawVector(satX, satY, gEndX, gEndY, '#f97316', 3.5);
+                
+                ctx.fillStyle = '#f97316';
+                ctx.fillText('Fg', gEndX - 22, gEndY);
+            }
+
+            // Draw info overlay
+            const v = calculateVelocity(planet, state.altitude);
+            ctx.font = '14px sans-serif';
+            ctx.fillStyle = '#9ca3af';
+            ctx.textAlign = 'left';
+            ctx.fillText(`v = ${(v/1000).toFixed(3)} km/s`, 15, 28);
+            ctx.fillText(`h = ${(state.altitude/1000).toFixed(0)} km`, 15, 50);
+            ctx.fillText(`R = ${((planet.radius + state.altitude)/1000).toFixed(0)} km`, 15, 72);
+        }
+
+        function drawVector(x1, y1, x2, y2, color, width) {
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+
+            // Draw arrowhead
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLen = 12;
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(
+                x2 - headLen * Math.cos(angle - Math.PI / 6),
+                y2 - headLen * Math.sin(angle - Math.PI / 6)
+            );
+            ctx.lineTo(
+                x2 - headLen * Math.cos(angle + Math.PI / 6),
+                y2 - headLen * Math.sin(angle + Math.PI / 6)
+            );
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // ==================== ANIMATION ====================
+        let lastTime = 0;
+        let fps = 60;
+
+        function animate(currentTime) {
+            // Calculate FPS
+            if (lastTime) {
+                const delta = currentTime - lastTime;
+                fps = Math.round(1000 / delta);
+                document.getElementById('fpsCounter').textContent = fps + ' FPS';
+            }
+            lastTime = currentTime;
+
+            // Update angle
+            if (state.isPlaying) {
+                const planet = PLANETS[state.currentPlanet];
+                const v = calculateVelocity(planet, state.altitude);
+                const r = planet.radius + state.altitude;
+                const omega = v / r;
+                state.angle += omega * 0.016 * state.simulationSpeed; // ~60fps
+            }
+
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // ==================== EVENT HANDLERS ====================
+        
+        // Play/Pause
+        document.getElementById('playPauseBtn').addEventListener('click', function() {
+            state.isPlaying = !state.isPlaying;
+            updatePlayButton();
+        });
+
+        function updatePlayButton() {
+            const btn = document.getElementById('playPauseBtn');
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+            const dot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            if (state.isPlaying) {
+                icon.textContent = '⏸️';
+                text.textContent = 'Pauza';
+                btn.className = 'btn-primary';
+                dot.className = 'status-dot';
+                statusText.textContent = 'Harakatlanmoqda';
+            } else {
+                icon.textContent = '▶️';
+                text.textContent = 'Davom';
+                btn.className = 'btn-success';
+                dot.className = 'status-dot paused';
+                statusText.textContent = 'Pauza';
+            }
+        }
+
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            state.angle = 0;
+            state.altitude = 0;
+            state.trailPoints = [];
+            document.getElementById('altitudeSlider').value = 0;
+            document.getElementById('altitudeValue').textContent = '0 km';
+            updateAllData();
+        });
+
+        // Step forward
+        document.getElementById('stepBtn').addEventListener('click', function() {
+            const planet = PLANETS[state.currentPlanet];
+            const v = calculateVelocity(planet, state.altitude);
+            const r = planet.radius + state.altitude;
+            const omega = v / r;
+            state.angle += omega * 0.1;
+            draw();
+        });
+
+        // Screenshot
+        document.getElementById('screenshotBtn').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = `orbital_simulation_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Export data
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const planet = PLANETS[state.currentPlanet];
+            const v = calculateVelocity(planet, state.altitude);
+            const r = planet.radius + state.altitude;
+            const T = calculatePeriod(v, r);
+            const Fc = calculateCentripetalForce(state.satelliteMass, v, r);
+            const Fg = calculateGravityForce(planet.mass, state.satelliteMass, r);
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                planet: {
+                    name: planet.name,
+                    mass: planet.mass,
+                    radius: planet.radius
+                },
+                satellite: {
+                    mass: state.satelliteMass,
+                    altitude: state.altitude
+                },
+                orbital: {
+                    velocity: v,
+                    period: T,
+                    radius: r,
+                    centripetalForce: Fc,
+                    gravityForce: Fg
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `orbital_data_${Date.now()}.json`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Speed slider
+        document.getElementById('speedSlider').addEventListener('input', function() {
+            state.simulationSpeed = parseFloat(this.value);
+            document.getElementById('speedValue').textContent = state.simulationSpeed.toFixed(1) + 'x';
+        });
+
+        // Altitude slider
+        document.getElementById('altitudeSlider').addEventListener('input', function() {
+            state.altitude = parseFloat(this.value) * 1000; // Convert to meters
+            document.getElementById('altitudeValue').textContent = this.value + ' km';
+            state.trailPoints = [];
+            updateAllData();
+        });
+
+        // Mass slider
+        document.getElementById('massSlider').addEventListener('input', function() {
+            state.satelliteMass = parseFloat(this.value);
+            document.getElementById('massValue').textContent = this.value + ' kg';
+            updateAllData();
+        });
+
+        // ==================== PRESETS ====================
+        window.loadPreset = function(preset) {
+            state.currentPlanet = 'earth';
+            
+            switch(preset) {
+                case 'iss':
+                    state.altitude = 408000; // 408 km
+                    break;
+                case 'gps':
+                    state.altitude = 20200000; // 20,200 km
+                    break;
+                case 'geo':
+                    state.altitude = 35786000; // 35,786 km
+                    break;
+                case 'hubble':
+                    state.altitude = 540000; // 540 km
+                    break;
+            }
+
+            document.getElementById('altitudeSlider').value = state.altitude / 1000;
+            document.getElementById('altitudeValue').textContent = (state.altitude / 1000).toFixed(0) + ' km';
+            state.trailPoints = [];
+            selectPlanet('earth');
+        };
+
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', function(e) {
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    e.preventDefault();
+                    document.getElementById('playPauseBtn').click();
+                    break;
+                case 'r':
+                    document.getElementById('resetBtn').click();
+                    break;
+                case 's':
+                    document.getElementById('stepBtn').click();
+                    break;
+                case 'arrowup':
+                    e.preventDefault();
+                    adjustAltitude(100);
+                    break;
+                case 'arrowdown':
+                    e.preventDefault();
+                    adjustAltitude(-100);
+                    break;
+                case '+':
+                case '=':
+                    adjustSpeed(0.1);
+                    break;
+                case '-':
+                case '_':
+                    adjustSpeed(-0.1);
+                    break;
+                case '1': selectPlanet('earth'); break;
+                case '2': selectPlanet('moon'); break;
+                case '3': selectPlanet('mars'); break;
+                case '4': selectPlanet('jupiter'); break;
+                case '5': selectPlanet('venus'); break;
+                case '6': selectPlanet('mercury'); break;
+            }
+        });
+
+        function adjustAltitude(delta) {
+            const slider = document.getElementById('altitudeSlider');
+            const newVal = Math.max(0, Math.min(5000, parseFloat(slider.value) + delta));
+            slider.value = newVal;
+            slider.dispatchEvent(new Event('input'));
+        }
+
+        function adjustSpeed(delta) {
+            const slider = document.getElementById('speedSlider');
+            const newVal = Math.max(0.1, Math.min(5, parseFloat(slider.value) + delta));
+            slider.value = newVal;
+            slider.dispatchEvent(new Event('input'));
+        }
+
+        // ==================== TOUCH SUPPORT ====================
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const deltaX = touchX - touchStartX;
+            
+            if (Math.abs(deltaX) > 3) {
+                state.angle += deltaX * 0.01;
+                touchStartX = touchX;
+            }
+        }, { passive: false });
+
+        // ==================== INITIALIZATION ====================
+        renderPlanetGrid();
+        updateAllData();
+        animate(0);
+
+        // Log initialization
+        console.log('🚀 Birinchi Kosmik Tezlik Simulyatsiyasi yuklandi!');
+        console.log('📊 6 ta planeta, to\'liq fizik hisoblashlar');
+        console.log('⌨️ Klaviatura qisqa yo\'llari: Space, R, S, ↑↓, +-, 1-6');
+    </script>
+</body>
+</html>
