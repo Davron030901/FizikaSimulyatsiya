@@ -1,125 +1,374 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kinematika Harakatlari Simulyatsiyasi</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:10px;color:#fff}.container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:20px;padding:20px;box-shadow:0 8px 32px rgba(31,38,135,.37);border:1px solid rgba(255,255,255,.18)}h1{text-align:center;margin-bottom:20px;font-size:clamp(1.5rem,4vw,2.5rem);text-shadow:2px 2px 4px rgba(0,0,0,.3)}.simulation-tabs{display:flex;justify-content:center;margin-bottom:20px;gap:5px;flex-wrap:wrap}.tab-button{padding:10px 16px;background:rgba(255,255,255,.2);border:none;border-radius:25px;color:#fff;cursor:pointer;font-size:clamp(12px,3vw,16px);transition:all .3s ease;backdrop-filter:blur(5px);margin:2px}.tab-button:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}.tab-button.active{background:rgba(255,255,255,.4);transform:scale(1.05)}.simulation-area{display:none;animation:fadeIn .5s ease-in}.simulation-area.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.canvas-container{display:flex;justify-content:center;margin-bottom:20px}canvas{background:rgba(0,0,0,.3);border-radius:15px;border:2px solid rgba(255,255,255,.2);box-shadow:0 4px 15px rgba(0,0,0,.2);max-width:100%;height:auto}@media (max-width:768px){canvas{width:100%!important;height:250px!important}}.controls{background:rgba(255,255,255,.1);padding:15px;border-radius:15px;margin-bottom:20px}.control-group{margin-bottom:15px}label{display:block;margin-bottom:8px;font-weight:700;font-size:clamp(12px,3vw,16px)}input[type=range]{width:100%;margin-bottom:10px;accent-color:#667eea;height:30px}input[type=range]::-webkit-slider-thumb{width:20px;height:20px;border-radius:50%;background:#667eea;cursor:pointer;-webkit-appearance:none;appearance:none}input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#667eea;cursor:pointer;border:none}.value-display{font-size:clamp(12px,3vw,14px);color:#e0e0e0;margin-bottom:10px;text-align:center;font-weight:700}.button-container{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}button{padding:12px 20px;background:linear-gradient(45deg,#667eea,#764ba2);border:none;border-radius:25px;color:#fff;cursor:pointer;font-size:clamp(12px,3vw,16px);margin:5px;transition:all .3s ease;box-shadow:0 4px 15px rgba(0,0,0,.2);min-width:120px;touch-action:manipulation}button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}button:active{transform:translateY(0)}.info-panel{background:rgba(255,255,255,.1);padding:15px;border-radius:15px;margin-top:20px}.info-panel h3{font-size:clamp(14px,4vw,18px);margin-bottom:10px}.formula{background:rgba(0,0,0,.3);padding:10px;border-radius:10px;margin:10px 0;font-family:'Courier New',monospace;font-size:clamp(11px,2.5vw,14px);overflow-x:auto}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:15px}@media (max-width:480px){.stats{grid-template-columns:repeat(2,1fr);gap:8px}}.stat-item{background:rgba(255,255,255,.1);padding:8px;border-radius:10px;text-align:center}.stat-item div:first-child{font-size:clamp(10px,2.5vw,12px);margin-bottom:5px}.stat-value{font-size:clamp(14px,4vw,1.5em);font-weight:700;color:#ffd700}@media (max-width:768px){.container{padding:15px;margin:5px;border-radius:15px}.controls{padding:12px}.control-group{margin-bottom:20px}.simulation-tabs{gap:8px}.tab-button{padding:12px 16px;font-size:14px}}@media (max-width:480px){body{padding:5px}.container{padding:10px}.tab-button{padding:10px 12px;font-size:12px}button{min-width:100px;padding:10px 16px}}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 Kinematika Harakatlari Simulyatsiyasi</h1>
-        <div class="simulation-tabs">
-            <button class="tab-button active" onclick="showTab('freefall')">Erkin Tushish</button>
-            <button class="tab-button" onclick="showTab('projectile')">Parabola Harakat</button>
-            <button class="tab-button" onclick="showTab('circular')">Aylana Harakat</button>
-        </div>
-        <div id="freefall" class="simulation-area active">
-            <div class="canvas-container"><canvas id="freefallCanvas" width="600" height="400"></canvas></div>
-            <div class="controls">
-                <div class="control-group">
-                    <label>Boshlang'ich tezlik (m/s):</label>
-                    <input type="range" id="freefallV0" min="0" max="50" value="0" oninput="updateFreefallDisplay()">
-                    <div class="value-display" id="freefallV0Display">0 m/s</div>
-                </div>
-                <div class="control-group">
-                    <label>Erkin tushish tezlanishi (m/s²):</label>
-                    <input type="range" id="freefallG" min="1" max="20" value="9.8" step="0.1" oninput="updateFreefallDisplay()">
-                    <div class="value-display" id="freefallGDisplay">9.8 m/s²</div>
-                </div>
-                <div class="control-group">
-                    <label>Boshlang'ich balandlik (m):</label>
-                    <input type="range" id="freefallH" min="10" max="200" value="100" oninput="updateFreefallDisplay()">
-                    <div class="value-display" id="freefallHDisplay">100 m</div>
-                </div>
-                <div class="button-container">
-                    <button onclick="startFreefall()">🚀 Boshlash</button>
-                    <button onclick="resetFreefall()">🔄 Qayta boshlash</button>
-                </div>
-            </div>
-            <div class="info-panel">
-                <h3>📐 Erkin Tushish Formulalari:</h3>
-                <div class="formula">v = v₀ + gt<br>s = v₀t + ½gt²<br>v² = v₀² + 2gs</div>
-                <div class="stats">
-                    <div class="stat-item"><div>Vaqt</div><div class="stat-value" id="freefallTime">0.0 s</div></div>
-                    <div class="stat-item"><div>Tezlik</div><div class="stat-value" id="freefallVelocity">0.0 m/s</div></div>
-                    <div class="stat-item"><div>Masofa</div><div class="stat-value" id="freefallDistance">0.0 m</div></div>
-                </div>
-            </div>
-        </div>
-        <div id="projectile" class="simulation-area">
-            <div class="canvas-container"><canvas id="projectileCanvas" width="600" height="400"></canvas></div>
-            <div class="controls">
-                <div class="control-group">
-                    <label>Boshlang'ich tezlik (m/s):</label>
-                    <input type="range" id="projectileV0" min="10" max="100" value="50" oninput="updateProjectileDisplay()">
-                    <div class="value-display" id="projectileV0Display">50 m/s</div>
-                </div>
-                <div class="control-group">
-                    <label>Otish burchagi (°):</label>
-                    <input type="range" id="projectileAngle" min="0" max="90" value="45" oninput="updateProjectileDisplay()">
-                    <div class="value-display" id="projectileAngleDisplay">45°</div>
-                </div>
-                <div class="control-group">
-                    <label>Tortishish kuchi (m/s²):</label>
-                    <input type="range" id="projectileG" min="1" max="20" value="9.8" step="0.1" oninput="updateProjectileDisplay()">
-                    <div class="value-display" id="projectileGDisplay">9.8 m/s²</div>
-                </div>
-                <div class="button-container">
-                    <button onclick="startProjectile()">🎯 Otish</button>
-                    <button onclick="resetProjectile()">🔄 Qayta boshlash</button>
-                </div>
-            </div>
-            <div class="info-panel">
-                <h3>📐 Parabola Harakat Formulalari:</h3>
-                <div class="formula">x = v₀ cos(θ) × t<br>y = v₀ sin(θ) × t - ½gt²<br>Maksimal balandlik: H = v₀²sin²(θ) / 2g<br>Masofasi: R = v₀²sin(2θ) / g</div>
-                <div class="stats">
-                    <div class="stat-item"><div>Vaqt</div><div class="stat-value" id="projectileTime">0.0 s</div></div>
-                    <div class="stat-item"><div>Masofasi</div><div class="stat-value" id="projectileRange">0.0 m</div></div>
-                    <div class="stat-item"><div>Maks. balandlik</div><div class="stat-value" id="projectileMaxHeight">0.0 m</div></div>
-                </div>
-            </div>
-        </div>
-        <div id="circular" class="simulation-area">
-            <div class="canvas-container"><canvas id="circularCanvas" width="600" height="400"></canvas></div>
-            <div class="controls">
-                <div class="control-group">
-                    <label>Radius (m):</label>
-                    <input type="range" id="circularRadius" min="50" max="150" value="100" oninput="updateCircularDisplay()">
-                    <div class="value-display" id="circularRadiusDisplay">100 m</div>
-                </div>
-                <div class="control-group">
-                    <label>Burchak tezligi (rad/s):</label>
-                    <input type="range" id="circularOmega" min="0.1" max="5" value="1" step="0.1" oninput="updateCircularDisplay()">
-                    <div class="value-display" id="circularOmegaDisplay">1.0 rad/s</div>
-                </div>
-                <div class="control-group">
-                    <label>Massa (kg):</label>
-                    <input type="range" id="circularMass" min="1" max="20" value="5" oninput="updateCircularDisplay()">
-                    <div class="value-display" id="circularMassDisplay">5 kg</div>
-                </div>
-                <div class="button-container">
-                    <button onclick="startCircular()">🌀 Boshlash</button>
-                    <button onclick="stopCircular()">⏹️ To'xtatish</button>
-                    <button onclick="resetCircular()">🔄 Qayta boshlash</button>
-                </div>
-            </div>
-            <div class="info-panel">
-                <h3>📐 Aylana Harakat Formulalari:</h3>
-                <div class="formula">v = ωr (chiziqli tezlik)<br>a = ω²r = v²/r (markazga intiluvchan tezlanish)<br>F = ma = mω²r (markazga intiluvchan kuch)<br>T = 2π/ω (period)</div>
-                <div class="stats">
-                    <div class="stat-item"><div>Chiziqli tezlik</div><div class="stat-value" id="circularVelocity">0.0 m/s</div></div>
-                    <div class="stat-item"><div>Tezlanish</div><div class="stat-value" id="circularAcceleration">0.0 m/s²</div></div>
-                    <div class="stat-item"><div>Markaziy kuch</div><div class="stat-value" id="circularForce">0.0 N</div></div>
-                    <div class="stat-item"><div>Period</div><div class="stat-value" id="circularPeriod">0.0 s</div></div>
-                </div>
-            </div>
-        </div>
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  .wrap{font-family:var(--font-sans);padding:1rem 0;width:100%}
+  .tabs{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+  .tab{padding:8px 18px;border:0.5px solid var(--color-border-secondary);border-radius:20px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;font-size:14px;font-weight:400;transition:all .2s}
+  .tab.active{background:var(--color-background-tertiary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+  .sim{display:none}.sim.active{display:block}
+  canvas{width:100%;height:240px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);display:block;margin-bottom:1.25rem}
+  .controls{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .cg{margin-bottom:1rem}
+  .cg:last-of-type{margin-bottom:0}
+  .clabel{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .clabel span:first-child{font-size:13px;color:var(--color-text-secondary)}
+  .clabel span:last-child{font-size:13px;font-weight:500;color:var(--color-text-primary);min-width:70px;text-align:right}
+  input[type=range]{width:100%;display:block}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+  button{padding:8px 18px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;font-size:13px;font-weight:400;transition:all .2s}
+  button:hover{background:var(--color-background-secondary)}
+  button:active{transform:scale(0.98)}
+  .info{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .formula{font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:1.8;margin-top:.5rem}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:1rem}
+  .stat{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+  .stat-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+  .stat-val{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+</style>
+<div class="wrap" role="main">
+  <h2 class="sr-only">Kinematics Simulation — Free Fall, Projectile, and Circular Motion</h2>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ff',this)">Erkin Tushish</button>
+    <button class="tab" onclick="showTab('pr',this)">Parabola Harakat</button>
+    <button class="tab" onclick="showTab('ci',this)">Aylana Harakat</button>
+  </div>
+
+  <!-- FREE FALL -->
+  <div id="ff" class="sim active">
+    <canvas id="ffC"></canvas>
+    <div class="controls">
+      <div class="cg">
+        <div class="clabel"><span>Boshlang'ich tezlik</span><span id="ffV0d">0 m/s</span></div>
+        <input type="range" id="ffV0" min="0" max="50" value="0" step="1" oninput="syncD('ffV0','ffV0d','m/s');ffReset()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Tezlanish (g)</span><span id="ffGd">9.8 m/s²</span></div>
+        <input type="range" id="ffG" min="1" max="20" value="9.8" step="0.1" oninput="syncD('ffG','ffGd','m/s²');ffReset()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Boshlang'ich balandlik</span><span id="ffHd">100 m</span></div>
+        <input type="range" id="ffH" min="10" max="200" value="100" step="1" oninput="syncD('ffH','ffHd','m');ffReset()">
+      </div>
+      <div class="btns">
+        <button onclick="ffStart()"><i class="ti ti-player-play" aria-hidden="true"></i> Boshlash</button>
+        <button onclick="ffReset()"><i class="ti ti-refresh" aria-hidden="true"></i> Qayta</button>
+      </div>
     </div>
-    <script>
-        let freefallAnimation,projectileAnimation,circularAnimation,freefallCtx,projectileCtx,circularCtx;function initializeCanvases(){document.querySelectorAll('canvas').forEach(c=>{if(window.innerWidth<=768){c.width=Math.min(window.innerWidth-40,500);c.height=250}else{c.width=600;c.height=400}});freefallCtx=document.getElementById('freefallCanvas').getContext('2d');projectileCtx=document.getElementById('projectileCanvas').getContext('2d');circularCtx=document.getElementById('circularCanvas').getContext('2d')}window.addEventListener('resize',()=>{clearTimeout(window.resizeTimeout);window.resizeTimeout=setTimeout(()=>{initializeCanvases();resetFreefall();resetProjectile();resetCircular()},100)});function showTab(t){document.querySelectorAll('.simulation-area').forEach(a=>a.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));document.getElementById(t).classList.add('active');event.target.classList.add('active');if(freefallAnimation)clearInterval(freefallAnimation);if(projectileAnimation)clearInterval(projectileAnimation);if(circularAnimation)clearInterval(circularAnimation)}function updateFreefallDisplay(){const v=document.getElementById('freefallV0').value,g=document.getElementById('freefallG').value,h=document.getElementById('freefallH').value;document.getElementById('freefallV0Display').textContent=v+' m/s';document.getElementById('freefallGDisplay').textContent=g+' m/s²';document.getElementById('freefallHDisplay').textContent=h+' m'}function startFreefall(){resetFreefall();const v0=parseFloat(document.getElementById('freefallV0').value),g=parseFloat(document.getElementById('freefallG').value),h=parseFloat(document.getElementById('freefallH').value);let t=0;const dt=.02,canvas=document.getElementById('freefallCanvas'),scale=1.2;freefallAnimation=setInterval(()=>{freefallCtx.clearRect(0,0,canvas.width,canvas.height);const y=v0*t+.5*g*t*t,v=v0+g*t;freefallCtx.fillStyle='#8B7355';freefallCtx.fillRect(0,canvas.height-20,canvas.width,20);const startY=30,objY=startY+y*scale,centerX=canvas.width/2;if(objY>=canvas.height-30){freefallCtx.fillStyle='#FF6B6B';freefallCtx.beginPath();freefallCtx.arc(centerX,canvas.height-30,8,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FF6B6B';freefallCtx.lineWidth=2;for(let i=0;i<8;i++){const a=i*Math.PI/4;freefallCtx.beginPath();freefallCtx.moveTo(centerX,canvas.height-30);freefallCtx.lineTo(centerX+Math.cos(a)*15,canvas.height-30+Math.sin(a)*15);freefallCtx.stroke()}clearInterval(freefallAnimation)}else{freefallCtx.fillStyle='#4ECDC4';freefallCtx.beginPath();freefallCtx.arc(centerX,objY,8,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FFD93D';freefallCtx.lineWidth=2;freefallCtx.beginPath();freefallCtx.moveTo(centerX,objY);freefallCtx.lineTo(centerX,objY+Math.min(v*2,40));freefallCtx.stroke();const arrowY=objY+Math.min(v*2,40);freefallCtx.beginPath();freefallCtx.moveTo(centerX,arrowY);freefallCtx.lineTo(centerX-3,arrowY-5);freefallCtx.moveTo(centerX,arrowY);freefallCtx.lineTo(centerX+3,arrowY-5);freefallCtx.stroke()}freefallCtx.strokeStyle='#FFFFFF';freefallCtx.lineWidth=1;freefallCtx.setLineDash([3,3]);freefallCtx.beginPath();freefallCtx.moveTo(30,startY);freefallCtx.lineTo(30,canvas.height-30);freefallCtx.stroke();freefallCtx.setLineDash([]);freefallCtx.fillStyle='#FFFFFF';freefallCtx.font=window.innerWidth<=768?'10px Arial':'12px Arial';freefallCtx.fillText(h+'m',5,canvas.height/2);document.getElementById('freefallTime').textContent=t.toFixed(2)+' s';document.getElementById('freefallVelocity').textContent=v.toFixed(1)+' m/s';document.getElementById('freefallDistance').textContent=y.toFixed(1)+' m';t+=dt},20)}function resetFreefall(){if(freefallAnimation)clearInterval(freefallAnimation);freefallCtx.clearRect(0,0,600,400);const h=parseFloat(document.getElementById('freefallH').value);freefallCtx.fillStyle='#8B7355';freefallCtx.fillRect(0,380,600,20);freefallCtx.fillStyle='#4ECDC4';freefallCtx.beginPath();freefallCtx.arc(300,50,10,0,2*Math.PI);freefallCtx.fill();freefallCtx.strokeStyle='#FFFFFF';freefallCtx.lineWidth=1;freefallCtx.setLineDash([5,5]);freefallCtx.beginPath();freefallCtx.moveTo(50,50);freefallCtx.lineTo(50,370);freefallCtx.stroke();freefallCtx.setLineDash([]);freefallCtx.fillStyle='#FFFFFF';freefallCtx.font='12px Arial';freefallCtx.fillText(h+'m',10,200);document.getElementById('freefallTime').textContent='0.0 s';document.getElementById('freefallVelocity').textContent='0.0 m/s';document.getElementById('freefallDistance').textContent='0.0 m'}function updateProjectileDisplay(){const v=document.getElementById('projectileV0').value,a=document.getElementById('projectileAngle').value,g=document.getElementById('projectileG').value;document.getElementById('projectileV0Display').textContent=v+' m/s';document.getElementById('projectileAngleDisplay').textContent=a+'°';document.getElementById('projectileGDisplay').textContent=g+' m/s²';const ar=a*Math.PI/180,mh=v*v*Math.sin(ar)*Math.sin(ar)/(2*g),r=v*v*Math.sin(2*ar)/g;document.getElementById('projectileMaxHeight').textContent=mh.toFixed(1)+' m';document.getElementById('projectileRange').textContent=r.toFixed(1)+' m'}function startProjectile(){resetProjectile();const v0=parseFloat(document.getElementById('projectileV0').value),a=parseFloat(document.getElementById('projectileAngle').value)*Math.PI/180,g=parseFloat(document.getElementById('projectileG').value),v0x=v0*Math.cos(a),v0y=v0*Math.sin(a);let t=0;const dt=.02,canvas=document.getElementById('projectileCanvas'),scale=2,trail=[];projectileAnimation=setInterval(()=>{projectileCtx.clearRect(0,0,canvas.width,canvas.height);const x=v0x*t,y=v0y*t-.5*g*t*t;projectileCtx.fillStyle='#8B7355';projectileCtx.fillRect(0,canvas.height-20,canvas.width,20);trail.push({x:x*scale+50,y:canvas.height-20-y*scale});if(trail.length>100)trail.shift();projectileCtx.strokeStyle='rgba(255, 217, 61, 0.5)';projectileCtx.lineWidth=2;projectileCtx.beginPath();for(let i=0;i<trail.length-1;i++){projectileCtx.moveTo(trail[i].x,trail[i].y);projectileCtx.lineTo(trail[i+1].x,trail[i+1].y)}projectileCtx.stroke();if(y<=0&&t>0){projectileCtx.fillStyle='#FF6B6B';projectileCtx.beginPath();projectileCtx.arc(x*scale+50,canvas.height-20,8,0,2*Math.PI);projectileCtx.fill();clearInterval(projectileAnimation)}else{projectileCtx.fillStyle='#4ECDC4';projectileCtx.beginPath();projectileCtx.arc(x*scale+50,canvas.height-20-y*scale,8,0,2*Math.PI);projectileCtx.fill()}document.getElementById('projectileTime').textContent=t.toFixed(1)+' s';t+=dt},20)}function resetProjectile(){if(projectileAnimation)clearInterval(projectileAnimation);const canvas=document.getElementById('projectileCanvas');projectileCtx.clearRect(0,0,canvas.width,canvas.height);projectileCtx.fillStyle='#8B7355';projectileCtx.fillRect(0,canvas.height-20,canvas.width,20);projectileCtx.fillStyle='#4ECDC4';projectileCtx.beginPath();projectileCtx.arc(50,canvas.height-20,8,0,2*Math.PI);projectileCtx.fill();document.getElementById('projectileTime').textContent='0.0 s'}function updateCircularDisplay(){const r=document.getElementById('circularRadius').value,o=document.getElementById('circularOmega').value,m=document.getElementById('circularMass').value;document.getElementById('circularRadiusDisplay').textContent=r+' m';document.getElementById('circularOmegaDisplay').textContent=o+' rad/s';document.getElementById('circularMassDisplay').textContent=m+' kg';const v=o*r,a=o*o*r,f=m*a,p=2*Math.PI/o;document.getElementById('circularVelocity').textContent=v.toFixed(1)+' m/s';document.getElementById('circularAcceleration').textContent=a.toFixed(1)+' m/s²';document.getElementById('circularForce').textContent=f.toFixed(1)+' N';document.getElementById('circularPeriod').textContent=p.toFixed(1)+' s'}function startCircular(){const r=parseFloat(document.getElementById('circularRadius').value),o=parseFloat(document.getElementById('circularOmega').value);let angle=0;const dt=.02,canvas=document.getElementById('circularCanvas'),cx=canvas.width/2,cy=canvas.height/2,s=1;circularAnimation=setInterval(()=>{circularCtx.clearRect(0,0,canvas.width,canvas.height);circularCtx.fillStyle='#FFD93D';circularCtx.beginPath();circularCtx.arc(cx,cy,5,0,2*Math.PI);circularCtx.fill();circularCtx.strokeStyle='rgba(255, 255, 255, 0.3)';circularCtx.lineWidth=2;circularCtx.beginPath();circularCtx.arc(cx,cy,r*s,0,2*Math.PI);circularCtx.stroke();const x=cx+r*s*Math.cos(angle),y=cy+r*s*Math.sin(angle);circularCtx.fillStyle='#4ECDC4';circularCtx.beginPath();circularCtx.arc(x,y,10,0,2*Math.PI);circularCtx.fill();const vx=-o*r*s*Math.sin(angle),vy=o*r*s*Math.cos(angle);circularCtx.strokeStyle='#FFD93D';circularCtx.lineWidth=3;circularCtx.beginPath();circularCtx.moveTo(x,y);circularCtx.lineTo(x+vx*.1,y+vy*.1);circularCtx.stroke();const ax=(cx-x)*.1,ay=(cy-y)*.1;circularCtx.strokeStyle='#FF6B6B';circularCtx.lineWidth=3;circularCtx.beginPath();circularCtx.moveTo(x,y);circularCtx.lineTo(x+ax,y+ay);circularCtx.stroke();angle+=o*dt},20)}function stopCircular(){if(circularAnimation)clearInterval(circularAnimation)}function resetCircular(){if(circularAnimation)clearInterval(circularAnimation);const canvas=document.getElementById('circularCanvas'),r=parseFloat(document.getElementById('circularRadius').value),cx=canvas.width/2,cy=canvas.height/2,s=1;circularCtx.clearRect(0,0,canvas.width,canvas.height);circularCtx.fillStyle='#FFD93D';circularCtx.beginPath();circularCtx.arc(cx,cy,5,0,2*Math.PI);circularCtx.fill();circularCtx.strokeStyle='rgba(255, 255, 255, 0.3)';circularCtx.lineWidth=2;circularCtx.beginPath();circularCtx.arc(cx,cy,r*s,0,2*Math.PI);circularCtx.stroke();circularCtx.fillStyle='#4ECDC4';circularCtx.beginPath();circularCtx.arc(cx+r*s,cy,10,0,2*Math.PI);circularCtx.fill()}document.addEventListener('DOMContentLoaded',function(){initializeCanvases();updateFreefallDisplay();updateProjectileDisplay();updateCircularDisplay();resetFreefall();resetProjectile();resetCircular()});
-    </script>
-</body>
-</html>
+    <div class="info">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Formulalar</div>
+      <div class="formula">v = v₀ + gt<br>s = v₀t + ½gt²<br>v² = v₀² + 2gs</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Vaqt</div><div class="stat-val" id="ffT">0.0 s</div></div>
+        <div class="stat"><div class="stat-label">Tezlik</div><div class="stat-val" id="ffV">0.0 m/s</div></div>
+        <div class="stat"><div class="stat-label">Masofa</div><div class="stat-val" id="ffD">0.0 m</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTILE -->
+  <div id="pr" class="sim">
+    <canvas id="prC"></canvas>
+    <div class="controls">
+      <div class="cg">
+        <div class="clabel"><span>Boshlang'ich tezlik</span><span id="prV0d">50 m/s</span></div>
+        <input type="range" id="prV0" min="10" max="100" value="50" step="1" oninput="syncD('prV0','prV0d','m/s');prCalc()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Burchak</span><span id="prAd">45°</span></div>
+        <input type="range" id="prA" min="0" max="90" value="45" step="1" oninput="syncD('prA','prAd','°');prCalc()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Tortishish kuchi</span><span id="prGd">9.8 m/s²</span></div>
+        <input type="range" id="prG" min="1" max="20" value="9.8" step="0.1" oninput="syncD('prG','prGd','m/s²');prCalc()">
+      </div>
+      <div class="btns">
+        <button onclick="prStart()"><i class="ti ti-player-play" aria-hidden="true"></i> Otish</button>
+        <button onclick="prReset()"><i class="ti ti-refresh" aria-hidden="true"></i> Qayta</button>
+      </div>
+    </div>
+    <div class="info">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Formulalar</div>
+      <div class="formula">x = v₀cos(θ)·t<br>y = v₀sin(θ)·t − ½gt²<br>H = v₀²sin²(θ)/2g<br>R = v₀²sin(2θ)/g</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Vaqt</div><div class="stat-val" id="prT">0.0 s</div></div>
+        <div class="stat"><div class="stat-label">Masofasi</div><div class="stat-val" id="prR">0 m</div></div>
+        <div class="stat"><div class="stat-label">Maks. balandlik</div><div class="stat-val" id="prH">0 m</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CIRCULAR -->
+  <div id="ci" class="sim">
+    <canvas id="ciC"></canvas>
+    <div class="controls">
+      <div class="cg">
+        <div class="clabel"><span>Radius</span><span id="ciRd">100 m</span></div>
+        <input type="range" id="ciR" min="30" max="110" value="80" step="1" oninput="syncD('ciR','ciRd','m');ciCalc()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Burchak tezligi (ω)</span><span id="ciOd">1.0 rad/s</span></div>
+        <input type="range" id="ciO" min="0.1" max="5" value="1" step="0.1" oninput="syncD('ciO','ciOd','rad/s');ciCalc()">
+      </div>
+      <div class="cg">
+        <div class="clabel"><span>Massa</span><span id="ciMd">5 kg</span></div>
+        <input type="range" id="ciM" min="1" max="20" value="5" step="1" oninput="syncD('ciM','ciMd','kg');ciCalc()">
+      </div>
+      <div class="btns">
+        <button onclick="ciStart()"><i class="ti ti-player-play" aria-hidden="true"></i> Boshlash</button>
+        <button onclick="ciStop()"><i class="ti ti-player-pause" aria-hidden="true"></i> To'xtat</button>
+        <button onclick="ciReset()"><i class="ti ti-refresh" aria-hidden="true"></i> Qayta</button>
+      </div>
+    </div>
+    <div class="info">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Formulalar</div>
+      <div class="formula">v = ωr<br>a = ω²r = v²/r<br>F = mω²r<br>T = 2π/ω</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Tezlik</div><div class="stat-val" id="ciV">0 m/s</div></div>
+        <div class="stat"><div class="stat-label">Tezlanish</div><div class="stat-val" id="ciA">0 m/s²</div></div>
+        <div class="stat"><div class="stat-label">Markaziy kuch</div><div class="stat-val" id="ciF">0 N</div></div>
+        <div class="stat"><div class="stat-label">Period</div><div class="stat-val" id="ciP">0 s</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  let ffAnim=null,prAnim=null,ciAnim=null;
+  let ffCtx,prCtx,ciCtx;
+  const isDark=()=>document.documentElement.classList.contains('dark')||window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const colors=()=>isDark()?{bg:'#1a1a1a',ground:'#3a3a3a',obj:'#5DCAA5',trail:'rgba(90,190,160,0.4)',arrow:'#EF9F27',center:'#FAC775',acc:'#F09595',text:'#aaa'}:{bg:'#f4f4f2',ground:'#d3d1c7',obj:'#1D9E75',trail:'rgba(29,158,117,0.3)',arrow:'#BA7517',center:'#854F0B',acc:'#E24B4A',text:'#888'};
+
+  function getC(id){
+    const canvas=document.getElementById(id);
+    const dpr=window.devicePixelRatio||1;
+    const rect=canvas.getBoundingClientRect();
+    const W=rect.width||canvas.offsetWidth||500;
+    const H=240;
+    canvas.width=W*dpr;
+    canvas.height=H*dpr;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(dpr,dpr);
+    ctx._W=W;ctx._H=H;
+    return ctx;
+  }
+
+  function syncD(inp,disp,unit){
+    const v=parseFloat(document.getElementById(inp).value);
+    document.getElementById(disp).textContent=v+' '+unit;
+  }
+
+  function showTab(id,el){
+    document.querySelectorAll('.sim').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+    if(ffAnim){clearInterval(ffAnim);ffAnim=null}
+    if(prAnim){clearInterval(prAnim);prAnim=null}
+    if(ciAnim){clearInterval(ciAnim);ciAnim=null}
+    setTimeout(()=>{initAll()},50);
+  }
+
+  function initAll(){
+    ffCtx=getC('ffC');prCtx=getC('prC');ciCtx=getC('ciC');
+    ffDraw();prDraw();ciDraw();ciCalc();prCalc();
+  }
+
+  // FREE FALL
+  function ffDraw(objY,trail){
+    const ctx=ffCtx,W=ctx._W,H=ctx._H,c=colors();
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=c.ground;ctx.fillRect(0,H-22,W,22);
+    ctx.strokeStyle=c.text;ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(22,18);ctx.lineTo(22,H-22);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=c.text;ctx.font='11px sans-serif';
+    const h=parseFloat(document.getElementById('ffH').value);
+    ctx.fillText(h+'m',4,H/2);
+    const py=objY!==undefined?objY:18;
+    if(trail&&trail.length>1){
+      ctx.strokeStyle=c.trail;ctx.lineWidth=2;ctx.beginPath();
+      trail.forEach((p,i)=>{i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)});
+      ctx.stroke();
+    }
+    ctx.fillStyle=c.obj;ctx.beginPath();ctx.arc(W/2,py,9,0,2*Math.PI);ctx.fill();
+  }
+
+  function ffStart(){
+    if(ffAnim){clearInterval(ffAnim);ffAnim=null}
+    ffCtx=getC('ffC');
+    const v0=parseFloat(document.getElementById('ffV0').value);
+    const g=parseFloat(document.getElementById('ffG').value);
+    const h=parseFloat(document.getElementById('ffH').value);
+    const H=ffCtx._H,W=ffCtx._W;
+    const startY=18,groundY=H-22;
+    const totalPx=groundY-startY;
+    const scale=totalPx/h;
+    let t=0,trail=[];
+    ffAnim=setInterval(()=>{
+      const s=v0*t+0.5*g*t*t;
+      const v=v0+g*t;
+      const py=startY+s*scale;
+      trail.push({x:W/2,y:Math.min(py,groundY)});
+      if(trail.length>80)trail.shift();
+      if(py>=groundY){
+        ffDraw(groundY,trail);
+        clearInterval(ffAnim);ffAnim=null;
+        const tFinal=(-v0+Math.sqrt(v0*v0+2*g*h))/g;
+        document.getElementById('ffT').textContent=tFinal.toFixed(2)+' s';
+        document.getElementById('ffV').textContent=(v0+g*tFinal).toFixed(1)+' m/s';
+        document.getElementById('ffD').textContent=h+' m';
+        return;
+      }
+      ffDraw(py,trail);
+      document.getElementById('ffT').textContent=t.toFixed(2)+' s';
+      document.getElementById('ffV').textContent=v.toFixed(1)+' m/s';
+      document.getElementById('ffD').textContent=s.toFixed(1)+' m';
+      t+=0.02;
+    },20);
+  }
+
+  function ffReset(){
+    if(ffAnim){clearInterval(ffAnim);ffAnim=null}
+    ffCtx=getC('ffC');ffDraw();
+    document.getElementById('ffT').textContent='0.0 s';
+    document.getElementById('ffV').textContent='0.0 m/s';
+    document.getElementById('ffD').textContent='0.0 m';
+  }
+
+  // PROJECTILE
+  function prCalc(){
+    const v0=parseFloat(document.getElementById('prV0').value);
+    const a=parseFloat(document.getElementById('prA').value)*Math.PI/180;
+    const g=parseFloat(document.getElementById('prG').value);
+    const H=v0*v0*Math.sin(a)*Math.sin(a)/(2*g);
+    const R=v0*v0*Math.sin(2*a)/g;
+    document.getElementById('prH').textContent=H.toFixed(1)+' m';
+    document.getElementById('prR').textContent=R.toFixed(1)+' m';
+  }
+
+  function prDraw(pts){
+    const ctx=prCtx,W=ctx._W,H=ctx._H,c=colors();
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=c.ground;ctx.fillRect(0,H-22,W,22);
+    if(pts&&pts.length>1){
+      ctx.strokeStyle=c.trail;ctx.lineWidth=2;ctx.beginPath();
+      pts.forEach((p,i)=>{i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)});
+      ctx.stroke();
+    }
+    ctx.fillStyle=c.obj;ctx.beginPath();
+    const lx=pts?pts[pts.length-1].x:32;
+    const ly=pts?pts[pts.length-1].y:H-22;
+    ctx.arc(lx,ly,9,0,2*Math.PI);ctx.fill();
+  }
+
+  function prStart(){
+    if(prAnim){clearInterval(prAnim);prAnim=null}
+    prCtx=getC('prC');
+    const v0=parseFloat(document.getElementById('prV0').value);
+    const ang=parseFloat(document.getElementById('prA').value)*Math.PI/180;
+    const g=parseFloat(document.getElementById('prG').value);
+    const v0x=v0*Math.cos(ang),v0y=v0*Math.sin(ang);
+    const W=prCtx._W,H=prCtx._H;
+    const groundY=H-22,startX=32,startY=groundY;
+    const R=v0*v0*Math.sin(2*ang)/g;
+    const maxH=v0y*v0y/(2*g);
+    const scaleX=(W-64)/Math.max(R,1);
+    const scaleY=(groundY-24)/Math.max(maxH,1);
+    const scale=Math.min(scaleX,scaleY)*0.9;
+    let t=0,pts=[];
+    prAnim=setInterval(()=>{
+      const x=v0x*t,y=v0y*t-0.5*g*t*t;
+      const px=startX+x*scale,py=startY-y*scale;
+      pts.push({x:px,y:py});
+      if(pts.length>120)pts.shift();
+      if(y<=-0.01&&t>0.1){
+        prDraw(pts);clearInterval(prAnim);prAnim=null;
+        return;
+      }
+      prDraw(pts);
+      document.getElementById('prT').textContent=t.toFixed(1)+' s';
+      t+=0.02;
+    },20);
+  }
+
+  function prReset(){
+    if(prAnim){clearInterval(prAnim);prAnim=null}
+    prCtx=getC('prC');prDraw();
+    document.getElementById('prT').textContent='0.0 s';
+    prCalc();
+  }
+
+  // CIRCULAR
+  function ciCalc(){
+    const r=parseFloat(document.getElementById('ciR').value);
+    const o=parseFloat(document.getElementById('ciO').value);
+    const m=parseFloat(document.getElementById('ciM').value);
+    const v=o*r,a=o*o*r,f=m*a,p=2*Math.PI/o;
+    document.getElementById('ciV').textContent=v.toFixed(1)+' m/s';
+    document.getElementById('ciA').textContent=a.toFixed(1)+' m/s²';
+    document.getElementById('ciF').textContent=f.toFixed(1)+' N';
+    document.getElementById('ciP').textContent=p.toFixed(1)+' s';
+  }
+
+  function ciDraw(angle){
+    const ctx=ciCtx,W=ctx._W,H=ctx._H,c=colors();
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2;
+    const r=parseFloat(document.getElementById('ciR').value);
+    const o=parseFloat(document.getElementById('ciO').value);
+    const maxR=Math.min(W,H)/2-16;
+    const sc=maxR/110;
+    const dr=r*sc;
+    ctx.strokeStyle=c.text;ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.arc(cx,cy,dr,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=c.center;ctx.beginPath();ctx.arc(cx,cy,5,0,2*Math.PI);ctx.fill();
+    const ag=angle||0;
+    const ox=cx+dr*Math.cos(ag),oy=cy+dr*Math.sin(ag);
+    ctx.strokeStyle=c.text;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ox,oy);ctx.stroke();
+    const vx=-o*dr*Math.sin(ag)*0.12,vy=o*dr*Math.cos(ag)*0.12;
+    drawArrow(ctx,ox,oy,ox+vx,oy+vy,c.arrow);
+    const axv=(cx-ox)*0.18,ayv=(cy-oy)*0.18;
+    drawArrow(ctx,ox,oy,ox+axv,oy+ayv,c.acc);
+    ctx.fillStyle=c.obj;ctx.beginPath();ctx.arc(ox,oy,10,0,2*Math.PI);ctx.fill();
+    ctx.fillStyle=c.text;ctx.font='11px sans-serif';
+    ctx.fillText('v',ox+vx+4,oy+vy-4);
+    ctx.fillText('a',ox+axv+4,oy+ayv-4);
+  }
+
+  function drawArrow(ctx,x1,y1,x2,y2,color){
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+    if(len<4)return;
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.fillStyle=color;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    const ang=Math.atan2(dy,dx);
+    ctx.beginPath();ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-8*Math.cos(ang-0.4),y2-8*Math.sin(ang-0.4));
+    ctx.lineTo(x2-8*Math.cos(ang+0.4),y2-8*Math.sin(ang+0.4));
+    ctx.closePath();ctx.fill();
+  }
+
+  function ciStart(){
+    if(ciAnim){clearInterval(ciAnim);ciAnim=null}
+    ciCtx=getC('ciC');
+    const o=parseFloat(document.getElementById('ciO').value);
+    let angle=0;
+    ciAnim=setInterval(()=>{ciDraw(angle);angle+=o*0.02;},20);
+  }
+
+  function ciStop(){if(ciAnim){clearInterval(ciAnim);ciAnim=null}}
+
+  function ciReset(){
+    ciStop();ciCtx=getC('ciC');ciDraw(0);ciCalc();
+  }
+
+  window.addEventListener('resize',()=>{
+    clearTimeout(window._rt);
+    window._rt=setTimeout(()=>initAll(),120);
+  });
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(()=>{initAll();},80);
+  });
+
+  setTimeout(()=>{
+    try{initAll();}catch(e){}
+  },200);
+</script>
