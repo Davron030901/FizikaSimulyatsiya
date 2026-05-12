@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Qochish Tezligi Simulyatsiyasi</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #020b18;
+    --surface: #061525;
+    --surface2: #0a1f35;
+    --border: #0d3a5c;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #39ff14;
+    --accent4: #ff0080;
+    --text: #c8e8ff;
+    --text-dim: #4a7a9b;
+    --glow: 0 0 20px rgba(0,212,255,0.4);
+    --glow2: 0 0 20px rgba(255,107,53,0.4);
+    --font-display: 'Orbitron', monospace;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Exo 2', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,50,100,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,100,80,0.08) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .stars {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur, 3s) infinite var(--delay, 0s);
+    opacity: var(--op, 0.5);
+  }
+
+  @keyframes twinkle {
+    0%,100% { opacity: var(--op, 0.5); transform: scale(1); }
+    50% { opacity: 0.1; transform: scale(0.5); }
+  }
+
+  header {
+    position: relative; z-index: 10;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(2,11,24,0.95) 0%, rgba(6,21,37,0.9) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+
+  .title-block { flex: 1; min-width: 200px; }
+
+  .chapter-tag {
+    font-family: var(--font-mono);
+    font-size: 10px; color: var(--accent);
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(16px, 3vw, 24px);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, #7fffd4 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+    line-height: 1.2;
+  }
+
+  .formula-badge {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: clamp(12px, 2vw, 15px);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .main-layout {
+    position: relative; z-index: 5;
+    max-width: 1400px; margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .main-layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .panel-header::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* CONTROLS PANEL */
+  .controls-panel { grid-row: 1 / 3; }
+
+  @media (max-width: 900px) { .controls-panel { grid-row: auto; } }
+
+  .controls-body { padding: 16px; }
+
+  .planet-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 500px) {
+    .planet-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .planet-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+  }
+
+  .planet-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.08); }
+  .planet-btn.active {
+    border-color: var(--accent); background: rgba(0,212,255,0.15);
+    box-shadow: 0 0 12px rgba(0,212,255,0.2);
+  }
+
+  .planet-emoji { font-size: 20px; display: block; margin-bottom: 2px; }
+  .planet-name { font-size: 9px; color: var(--text-dim); font-family: var(--font-mono); }
+
+  .ctrl-group { margin-bottom: 18px; }
+
+  .ctrl-label {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .ctrl-name {
+    font-size: 11px; color: var(--text-dim);
+    font-family: var(--font-mono); letter-spacing: 1px;
+  }
+
+  .ctrl-value {
+    font-size: 13px; font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%; height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+    border: 1px solid var(--border);
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0,212,255,0.6);
+    transition: transform 0.15s;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .velocity-display {
+    margin-top: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .vel-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(13,58,92,0.5);
+    font-size: 12px;
+  }
+
+  .vel-row:last-child { border-bottom: none; }
+  .vel-label { font-family: var(--font-mono); color: var(--text-dim); }
+
+  .vel-val {
+    font-family: var(--font-mono); font-weight: 600;
+    font-size: 14px;
+  }
+
+  .vel-escape { color: var(--accent3); }
+  .vel-current { color: var(--accent2); }
+  .vel-orbital { color: var(--accent); }
+
+  .status-indicator {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.4s;
+  }
+
+  .status-escape { background: rgba(57,255,20,0.12); border: 1px solid rgba(57,255,20,0.4); color: var(--accent3); }
+  .status-orbit { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.4); color: var(--accent); }
+  .status-fall { background: rgba(255,0,128,0.12); border: 1px solid rgba(255,0,128,0.4); color: var(--accent4); }
+
+  .playback-bar {
+    display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1; min-width: 60px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.1); color: var(--accent); }
+  .btn.primary { border-color: var(--accent); background: rgba(0,212,255,0.15); color: var(--accent); }
+  .btn.danger { border-color: var(--accent4); background: rgba(255,0,128,0.08); color: var(--accent4); }
+
+  .speed-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 12px;
+  }
+
+  .speed-label { font-size: 10px; color: var(--text-dim); font-family: var(--font-mono); white-space: nowrap; }
+
+  /* SIMULATION CANVAS */
+  .sim-panel { min-height: 400px; }
+
+  .canvas-wrap {
+    position: relative;
+    background: radial-gradient(ellipse at center, #020d1a 0%, var(--bg) 100%);
+  }
+
+  #simCanvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+  }
+
+  /* ENERGY CHART */
+  .chart-panel { }
+
+  #energyCanvas {
+    display: block;
+    width: 100%;
+  }
+
+  /* INFO TABS */
+  .info-panel { }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-content { display: none; padding: 16px; }
+  .tab-content.active { display: block; }
+
+  .theory-text {
+    font-size: 13px; line-height: 1.7;
+    color: var(--text);
+  }
+
+  .theory-text p { margin-bottom: 12px; }
+
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .formula-box .desc {
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 6px;
+    font-family: var(--font-body);
+  }
+
+  .planet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+
+  .planet-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .planet-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(13,58,92,0.4);
+    color: var(--text);
+  }
+
+  .planet-table tr:hover td { background: rgba(0,212,255,0.04); }
+
+  /* ENERGY BARS */
+  .energy-bars { padding: 16px; }
+
+  .e-bar-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+
+  .e-bar-label {
+    width: 60px; font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .e-bar-track {
+    flex: 1; height: 18px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .e-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.1s;
+    position: relative;
+  }
+
+  .e-bar-kinetic .e-bar-fill { background: linear-gradient(90deg, #ff6b35, #ff9500); }
+  .e-bar-potential .e-bar-fill { background: linear-gradient(90deg, #0080ff, #00d4ff); }
+  .e-bar-total .e-bar-fill { background: linear-gradient(90deg, #39ff14, #00ff88); }
+
+  .e-bar-val {
+    width: 90px; font-size: 11px;
+    font-family: var(--font-mono);
+    text-align: right; flex-shrink: 0;
+  }
+
+  .tooltip {
+    position: fixed;
+    background: rgba(6,21,37,0.95);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text);
+    pointer-events: none;
+    z-index: 100;
+    display: none;
+    box-shadow: var(--glow);
+  }
+
+  .angle-display {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    background: rgba(2,11,24,0.85);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .ratio-meter {
+    margin-top: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .ratio-label {
+    font-size: 10px; color: var(--text-dim);
+    font-family: var(--font-mono); letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .ratio-bar-wrap {
+    height: 24px; background: var(--bg);
+    border-radius: 4px; overflow: hidden;
+    position: relative; border: 1px solid var(--border);
+  }
+
+  .ratio-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent3));
+    transition: width 0.15s;
+    position: relative;
+  }
+
+  .ratio-bar-mark {
+    position: absolute; top: 0; bottom: 0;
+    width: 2px; background: white;
+    opacity: 0.6;
+  }
+
+  .ratio-val {
+    font-family: var(--font-mono); font-size: 13px;
+    font-weight: 600; text-align: center; margin-top: 6px;
+  }
+
+  @media (max-width: 600px) {
+    .tabs { overflow-x: auto; }
+    .tab-btn { white-space: nowrap; }
+    .planet-table { font-size: 10px; }
+    .planet-table th, .planet-table td { padding: 6px; }
+  }
+
+  .export-row {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+
+  .help-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px;
+    background: rgba(0,212,255,0.15);
+    border: 1px solid rgba(0,212,255,0.4);
+    border-radius: 50%;
+    font-size: 9px; color: var(--accent);
+    cursor: help;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="starsContainer"></div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="title-block">
+      <div class="chapter-tag">§ 7.5 — Mexanika</div>
+      <h1>Ikkinchi Kosmik Tezlik</h1>
+    </div>
+    <div class="formula-badge">v = √(2GM/R)</div>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- CONTROLS -->
+  <div class="panel controls-panel">
+    <div class="panel-header">Boshqaruv Paneli</div>
+    <div class="controls-body">
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="ctrl-name">SAYYORA TANLASH</span>
+        </div>
+        <div class="planet-grid" id="planetGrid"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="ctrl-name">MASSA (M) <span class="help-icon" title="Sayyora massasi">?</span></span>
+          <span class="ctrl-value" id="massVal">—</span>
+        </div>
+        <input type="range" id="massSlider" min="1e23" max="2e30" step="1e23" value="5.97e24">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="ctrl-name">RADIUS (R) <span class="help-icon" title="Sayyora radiusi">?</span></span>
+          <span class="ctrl-value" id="radiusVal">—</span>
+        </div>
+        <input type="range" id="radiusSlider" min="1e6" max="7e8" step="1e6" value="6.371e6">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="ctrl-name">BOSHLANG'ICH TEZLIK <span class="help-icon" title="Ob'ektning boshlang'ich tezligi">?</span></span>
+          <span class="ctrl-value" id="velVal">—</span>
+        </div>
+        <input type="range" id="velSlider" min="0" max="80000" step="100" value="11200">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="ctrl-name">UCHISH BURCHAGI</span>
+          <span class="ctrl-value" id="angleVal">90°</span>
+        </div>
+        <input type="range" id="angleSlider" min="0" max="90" step="1" value="90">
+      </div>
+
+      <div class="velocity-display">
+        <div class="vel-row">
+          <span class="vel-label">v_qochish</span>
+          <span class="vel-val vel-escape" id="escapeVel">11.2 km/s</span>
+        </div>
+        <div class="vel-row">
+          <span class="vel-label">v_orbital</span>
+          <span class="vel-val vel-orbital" id="orbitalVel">7.9 km/s</span>
+        </div>
+        <div class="vel-row">
+          <span class="vel-label">v_joriy</span>
+          <span class="vel-val vel-current" id="currentVelDisplay">11.2 km/s</span>
+        </div>
+        <div class="vel-row">
+          <span class="vel-label">v/v_qochish</span>
+          <span class="vel-val" id="ratioDisplay">1.00×</span>
+        </div>
+      </div>
+
+      <div class="ratio-meter">
+        <div class="ratio-label">TEZLIK NISBATI</div>
+        <div class="ratio-bar-wrap">
+          <div class="ratio-bar-fill" id="ratioBar" style="width:50%"></div>
+          <div class="ratio-bar-mark" id="escapeMark" style="left:50%"></div>
+        </div>
+        <div class="ratio-val" id="ratioValBig">1.00×</div>
+      </div>
+
+      <div class="status-indicator status-escape" id="statusIndicator">
+        🚀 QOCHISH TEZLIGIGA ERISHILDI
+      </div>
+
+      <div class="playback-bar">
+        <button class="btn primary" id="playBtn">▶ PLAY</button>
+        <button class="btn" id="pauseBtn">⏸ PAUSE</button>
+        <button class="btn danger" id="resetBtn">↺ RESET</button>
+      </div>
+
+      <div class="speed-row">
+        <span class="speed-label">TEZLIK:</span>
+        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1" style="flex:1">
+        <span class="ctrl-value" id="speedVal" style="width:35px;text-align:right">1×</span>
+      </div>
+
+      <div class="export-row">
+        <button class="btn" id="exportBtn" style="font-size:8px">📸 SCREENSHOT</button>
+        <button class="btn" id="csvBtn" style="font-size:8px">📊 EXPORT CSV</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIMULATION -->
+  <div class="panel sim-panel">
+    <div class="panel-header">Orbitalar Simulyatsiyasi</div>
+    <div class="canvas-wrap">
+      <canvas id="simCanvas"></canvas>
+      <div class="angle-display" id="angleDisplay">θ = 90° | t = 0.0s</div>
+    </div>
+  </div>
+
+  <!-- ENERGY CHART -->
+  <div class="panel chart-panel">
+    <div class="panel-header">Energiya Diagrammasi</div>
+    <canvas id="energyCanvas"></canvas>
+    <div class="energy-bars" style="padding-top:0">
+      <div class="e-bar-row e-bar-kinetic">
+        <div class="e-bar-label">Kinetik</div>
+        <div class="e-bar-track"><div class="e-bar-fill" id="keBar" style="width:0%"></div></div>
+        <div class="e-bar-val vel-current" id="keVal">0 J</div>
+      </div>
+      <div class="e-bar-row e-bar-potential">
+        <div class="e-bar-label">Potensial</div>
+        <div class="e-bar-track"><div class="e-bar-fill" id="peBar" style="width:0%"></div></div>
+        <div class="e-bar-val vel-orbital" id="peVal">0 J</div>
+      </div>
+      <div class="e-bar-row e-bar-total">
+        <div class="e-bar-label">Jami (E)</div>
+        <div class="e-bar-track"><div class="e-bar-fill" id="teBar" style="width:0%"></div></div>
+        <div class="e-bar-val vel-escape" id="teVal">0 J</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO PANEL -->
+  <div class="panel info-panel" style="grid-column: 1 / -1;">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('theory',this)">Nazariya</button>
+      <button class="tab-btn" onclick="switchTab('planets',this)">Sayyoralar</button>
+      <button class="tab-btn" onclick="switchTab('formulas',this)">Formulalar</button>
+      <button class="tab-btn" onclick="switchTab('shortcuts',this)">Yorliqlar</button>
+    </div>
+
+    <div class="tab-content active" id="tab-theory">
+      <div class="theory-text">
+        <p><strong style="color:var(--accent)">Ikkinchi kosmik tezlik</strong> — bu ob'ektning sayyora gravitatsion maydonidan butunlay qochib ketishi uchun zarur bo'lgan minimal boshlang'ich tezlik.</p>
+        <div class="formula-box">
+          v_qochish = √(2GM/R)
+          <div class="desc">G = 6.674×10⁻¹¹ N·m²/kg² — gravitatsion doimiy, M — sayyora massasi, R — sayyora radiusi</div>
+        </div>
+        <p>Bu tezlikda ob'ektning <strong style="color:var(--accent2)">kinetik energiyasi</strong> gravitatsion <strong style="color:var(--accent)">potensial energiyasiga</strong> teng bo'lib, jami mexanik energiya nolga teng bo'ladi:</p>
+        <div class="formula-box">
+          E = ½mv² − GMm/R = 0
+          <div class="desc">E = 0 bo'lganda ob'ekt parabolik traektoriya bo'ylab harakat qiladi va cheksizlikda to'xtaydi.</div>
+        </div>
+        <p>Yer uchun v_qochish ≈ 11.2 km/s. Birinchi kosmik tezlik (orbital) esa v_orbital = √(GM/R) ≈ 7.9 km/s.</p>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-planets">
+      <table class="planet-table">
+        <tr><th>Sayyora</th><th>Massa (kg)</th><th>Radius (km)</th><th>v_qochish</th><th>v_orbital</th><th>g (m/s²)</th></tr>
+        <tr><td>☿ Merkuriy</td><td>3.30×10²³</td><td>2,439</td><td>4.25 km/s</td><td>3.01 km/s</td><td>3.7</td></tr>
+        <tr><td>♀ Venera</td><td>4.87×10²⁴</td><td>6,051</td><td>10.36 km/s</td><td>7.33 km/s</td><td>8.9</td></tr>
+        <tr><td>🌍 Yer</td><td>5.97×10²⁴</td><td>6,371</td><td>11.19 km/s</td><td>7.91 km/s</td><td>9.81</td></tr>
+        <tr><td>🌕 Oy</td><td>7.34×10²²</td><td>1,737</td><td>2.38 km/s</td><td>1.68 km/s</td><td>1.62</td></tr>
+        <tr><td>♂ Mars</td><td>6.42×10²³</td><td>3,389</td><td>5.03 km/s</td><td>3.55 km/s</td><td>3.72</td></tr>
+        <tr><td>♃ Yupiter</td><td>1.90×10²⁷</td><td>69,911</td><td>59.5 km/s</td><td>42.1 km/s</td><td>24.8</td></tr>
+        <tr><td>♄ Saturn</td><td>5.68×10²⁶</td><td>58,232</td><td>35.5 km/s</td><td>25.1 km/s</td><td>10.4</td></tr>
+        <tr><td>☀ Quyosh</td><td>1.99×10³⁰</td><td>695,700</td><td>617.5 km/s</td><td>436.7 km/s</td><td>274</td></tr>
+      </table>
+    </div>
+
+    <div class="tab-content" id="tab-formulas">
+      <div class="formula-box">½mv² = GMm/R → v = √(2GM/R)
+        <div class="desc">Energiya saqlanish qonunidan qochish tezligi</div>
+      </div>
+      <div class="formula-box">v_orbital = √(GM/R) = v_qochish/√2
+        <div class="desc">Birinchi kosmik (orbital) tezlik; qochish tezligidan √2 marta kichik</div>
+      </div>
+      <div class="formula-box">g = GM/R² → v = √(2gR)
+        <div class="desc">Erkin tushish tezlanishi orqali ifodalash</div>
+      </div>
+      <div class="formula-box">E_jami = ½mv² − GMm/r
+        <div class="desc">Har qanday r masofada jami mexanik energiya</div>
+      </div>
+      <div class="formula-box">r_Schwarzschild = 2GM/c²
+        <div class="desc">Qora tuynuk: qochish tezligi yorug'lik tezligiga teng bo'lgandagi radius</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-shortcuts">
+      <table class="planet-table">
+        <tr><th>Tugma</th><th>Vazifa</th></tr>
+        <tr><td>Space</td><td>Play/Pause</td></tr>
+        <tr><td>R</td><td>Reset</td></tr>
+        <tr><td>↑ / ↓</td><td>Tezlikni oshirish/kamaytirish (500 m/s)</td></tr>
+        <tr><td>← / →</td><td>Burchakni o'zgartirish (5°)</td></tr>
+        <tr><td>1–8</td><td>Sayyora tanlash</td></tr>
+        <tr><td>E</td><td>Screenshot saqlash</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== STARS =====
+(function(){
+  const c = document.getElementById('starsContainer');
+  for(let i=0;i<120;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.setProperty('--dur', (2+Math.random()*4)+'s');
+    s.style.setProperty('--delay', (Math.random()*4)+'s');
+    s.style.setProperty('--op', (0.2+Math.random()*0.7).toFixed(2));
+    c.appendChild(s);
+  }
+})();
+
+// ===== CONSTANTS & PLANETS =====
+const G = 6.674e-11;
+
+const PLANETS = [
+  { name:'Merkuriy', emoji:'☿', M:3.30e23, R:2.439e6, color:'#b0b0b0' },
+  { name:'Venera',   emoji:'♀', M:4.87e24, R:6.051e6, color:'#ffcc77' },
+  { name:'Yer',      emoji:'🌍', M:5.97e24, R:6.371e6, color:'#3399ff' },
+  { name:'Oy',       emoji:'🌕', M:7.34e22, R:1.737e6, color:'#cccccc' },
+  { name:'Mars',     emoji:'♂', M:6.42e23, R:3.389e6, color:'#ff5533' },
+  { name:'Yupiter',  emoji:'♃', M:1.90e27, R:6.9911e7, color:'#ffaa55' },
+  { name:'Saturn',   emoji:'♄', M:5.68e26, R:5.8232e7, color:'#ffe08a' },
+  { name:'Quyosh',   emoji:'☀', M:1.99e30, R:6.957e8, color:'#ffdd00' },
+];
+
+// ===== STATE =====
+let state = {
+  M: 5.97e24, R: 6.371e6,
+  v0: 11200, angle: 90,
+  simSpeed: 1,
+  running: false,
+  t: 0,
+  trail: [],
+  energyHistory: [],
+  selectedPlanet: 2,
+};
+
+// Physics particle
+let obj = { x:0, y:0, vx:0, vy:0 };
+
+// ===== DOM =====
+const massSlider   = document.getElementById('massSlider');
+const radiusSlider = document.getElementById('radiusSlider');
+const velSlider    = document.getElementById('velSlider');
+const angleSlider  = document.getElementById('angleSlider');
+const speedSlider  = document.getElementById('speedSlider');
+const massVal      = document.getElementById('massVal');
+const radiusVal    = document.getElementById('radiusVal');
+const velVal       = document.getElementById('velVal');
+const angleVal     = document.getElementById('angleVal');
+const speedVal     = document.getElementById('speedVal');
+const escapeVelEl  = document.getElementById('escapeVel');
+const orbitalVelEl = document.getElementById('orbitalVel');
+const currentVelDisplayEl = document.getElementById('currentVelDisplay');
+const ratioDisplay = document.getElementById('ratioDisplay');
+const ratioBar     = document.getElementById('ratioBar');
+const ratioValBig  = document.getElementById('ratioValBig');
+const statusEl     = document.getElementById('statusIndicator');
+const angleDisplayEl = document.getElementById('angleDisplay');
+const playBtn      = document.getElementById('playBtn');
+const pauseBtn     = document.getElementById('pauseBtn');
+const resetBtn     = document.getElementById('resetBtn');
+
+// ===== PLANET BUTTONS =====
+const planetGrid = document.getElementById('planetGrid');
+PLANETS.forEach((p,i) => {
+  const btn = document.createElement('button');
+  btn.className = 'planet-btn' + (i===2?' active':'');
+  btn.innerHTML = `<span class="planet-emoji">${p.emoji}</span><span class="planet-name">${p.name.substring(0,5)}</span>`;
+  btn.addEventListener('click',()=>selectPlanet(i));
+  planetGrid.appendChild(btn);
+});
+
+function selectPlanet(i) {
+  state.selectedPlanet = i;
+  const p = PLANETS[i];
+  state.M = p.M; state.R = p.R;
+  // Clamp mass slider
+  massSlider.min = Math.min(p.M*0.1, 1e23);
+  massSlider.max = Math.max(p.M*3, 2e30);
+  massSlider.value = p.M;
+  radiusSlider.min = p.R*0.3;
+  radiusSlider.max = p.R*3;
+  radiusSlider.value = p.R;
+  // Set v0 to escape velocity
+  const ve = escapeVelocity();
+  state.v0 = Math.round(ve);
+  velSlider.max = ve * 2;
+  velSlider.value = state.v0;
+  document.querySelectorAll('.planet-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  resetSim();
+  updateDisplays();
+}
+
+// ===== PHYSICS =====
+function escapeVelocity() { return Math.sqrt(2*G*state.M/state.R); }
+function orbitalVelocity() { return Math.sqrt(G*state.M/state.R); }
+
+function gravity(x, y) {
+  const r = Math.sqrt(x*x + y*y);
+  if(r < state.R) return {ax:0, ay:0, r};
+  const a = -G*state.M/(r*r);
+  return { ax: a*x/r, ay: a*y/r, r };
+}
+
+function initObject() {
+  const angleRad = state.angle * Math.PI/180;
+  obj.x = state.R;
+  obj.y = 0;
+  obj.vx = -state.v0 * Math.sin(angleRad);
+  obj.vy = state.v0 * Math.cos(angleRad);
+}
+
+// ===== SIMULATION CANVAS =====
+const simCanvas = document.getElementById('simCanvas');
+const simCtx = simCanvas.getContext('2d');
+let simWidth, simHeight;
+
+function resizeSim() {
+  const parent = simCanvas.parentElement;
+  simWidth = parent.clientWidth;
+  simHeight = Math.min(parent.clientWidth * 0.65, 480);
+  simCanvas.width = simWidth;
+  simCanvas.height = simHeight;
+}
+
+// ===== ENERGY CANVAS =====
+const energyCanvas = document.getElementById('energyCanvas');
+const ectx = energyCanvas.getContext('2d');
+
+function resizeEnergy() {
+  const parent = energyCanvas.parentElement;
+  energyCanvas.width = parent.clientWidth;
+  energyCanvas.height = 180;
+}
+
+// ===== SCALE =====
+function getScale() {
+  const viewR = Math.min(simWidth, simHeight) * 0.38;
+  return viewR / (state.R * 4);
+}
+
+// ===== DRAW SIM =====
+function drawSim() {
+  simCtx.clearRect(0, 0, simWidth, simHeight);
+  const cx = simWidth/2, cy = simHeight/2;
+  const scale = getScale();
+
+  // Gravitational field rings
+  const rings = [2,4,8,16];
+  rings.forEach(mult => {
+    const r = state.R * mult * scale;
+    simCtx.beginPath();
+    simCtx.arc(cx, cy, r, 0, Math.PI*2);
+    simCtx.strokeStyle = 'rgba(0,212,255,0.04)';
+    simCtx.lineWidth = 1;
+    simCtx.stroke();
+  });
+
+  // Planet
+  const planetR = Math.max(state.R * scale, 12);
+  const grad = simCtx.createRadialGradient(cx-planetR*0.3, cy-planetR*0.3, 0, cx, cy, planetR);
+  const pc = PLANETS[state.selectedPlanet].color;
+  grad.addColorStop(0, lighten(pc, 60));
+  grad.addColorStop(0.6, pc);
+  grad.addColorStop(1, darken(pc, 50));
+  simCtx.beginPath();
+  simCtx.arc(cx, cy, planetR, 0, Math.PI*2);
+  simCtx.fillStyle = grad;
+  simCtx.fill();
+  // Glow
+  simCtx.beginPath();
+  simCtx.arc(cx, cy, planetR+4, 0, Math.PI*2);
+  simCtx.strokeStyle = pc+'44';
+  simCtx.lineWidth = 8;
+  simCtx.stroke();
+
+  // Trail
+  if(state.trail.length > 1) {
+    for(let i=1; i<state.trail.length; i++) {
+      const p0 = state.trail[i-1], p1 = state.trail[i];
+      const alpha = i/state.trail.length;
+      const ratio = state.trail[i].ratio || 1;
+      let color;
+      if(ratio < 1) color = `rgba(0,212,255,${alpha*0.7})`;
+      else if(ratio < 1.1) color = `rgba(57,255,20,${alpha*0.7})`;
+      else color = `rgba(255,107,53,${alpha*0.8})`;
+      simCtx.beginPath();
+      simCtx.moveTo(cx + p0.x*scale, cy - p0.y*scale);
+      simCtx.lineTo(cx + p1.x*scale, cy - p1.y*scale);
+      simCtx.strokeStyle = color;
+      simCtx.lineWidth = 2;
+      simCtx.stroke();
+    }
+  }
+
+  // Object
+  const ox = cx + obj.x * scale;
+  const oy = cy - obj.y * scale;
+  const r2 = Math.sqrt(obj.x*obj.x+obj.y*obj.y);
+  if(r2 < state.R*50) {
+    simCtx.beginPath();
+    simCtx.arc(ox, oy, 5, 0, Math.PI*2);
+    const ve = escapeVelocity();
+    const curv = Math.sqrt(obj.vx*obj.vx+obj.vy*obj.vy);
+    const ratio = curv/ve;
+    let col = ratio >= 1 ? '#39ff14' : '#ff6b35';
+    simCtx.fillStyle = col;
+    simCtx.fill();
+    simCtx.beginPath();
+    simCtx.arc(ox, oy, 9, 0, Math.PI*2);
+    simCtx.strokeStyle = col+'88';
+    simCtx.lineWidth = 2;
+    simCtx.stroke();
+
+    // Velocity vector
+    const speed = Math.sqrt(obj.vx*obj.vx+obj.vy*obj.vy);
+    if(speed > 0) {
+      const vScale = scale * 1500 / state.v0;
+      const vx2 = ox + obj.vx*vScale;
+      const vy2 = oy - obj.vy*vScale;
+      drawArrow(simCtx, ox, oy, vx2, vy2, '#ff6b35', 2);
+    }
+
+    // Gravity vector (towards planet)
+    const gv = gravity(obj.x, obj.y);
+    const gm = Math.sqrt(gv.ax*gv.ax+gv.ay*gv.ay);
+    if(gm > 0) {
+      const gScale = 2e9;
+      const gx2 = ox + gv.ax*gScale*scale;
+      const gy2 = oy - gv.ay*gScale*scale;
+      drawArrow(simCtx, ox, oy, gx2, gy2, '#00d4ff', 1.5);
+    }
+  }
+
+  // Labels
+  simCtx.font = '11px Share Tech Mono';
+  simCtx.fillStyle = '#4a7a9b';
+  simCtx.textAlign = 'center';
+  simCtx.fillText(PLANETS[state.selectedPlanet].name, cx, cy + planetR + 18);
+
+  // Distance label
+  const dist = (r2/1000).toFixed(0);
+  simCtx.fillStyle = '#2a5a7b';
+  simCtx.fillText('r = '+formatNum(r2/1000)+' km', cx, 18);
+}
+
+function drawArrow(ctx, x1,y1,x2,y2,color,lw) {
+  const angle = Math.atan2(y2-y1,x2-x1);
+  const headLen = 8;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x2,y2);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-headLen*Math.cos(angle-0.4),y2-headLen*Math.sin(angle-0.4));
+  ctx.lineTo(x2-headLen*Math.cos(angle+0.4),y2-headLen*Math.sin(angle+0.4));
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+// ===== DRAW ENERGY CHART =====
+function drawEnergyChart() {
+  const w = energyCanvas.width, h = energyCanvas.height;
+  ectx.clearRect(0,0,w,h);
+
+  const hist = state.energyHistory;
+  if(hist.length < 2) return;
+
+  const pad = { top:16, right:16, bottom:28, left:60 };
+  const cw = w-pad.left-pad.right, ch = h-pad.top-pad.bottom;
+
+  // Find range
+  let minE = Infinity, maxE = -Infinity;
+  hist.forEach(d => {
+    minE = Math.min(minE, d.ke, d.pe, d.te);
+    maxE = Math.max(maxE, d.ke, d.pe, d.te);
+  });
+  const range = Math.max(Math.abs(maxE-minE), 1e10);
+  const eMin = minE - range*0.1;
+  const eMax = maxE + range*0.1;
+
+  function toX(i) { return pad.left + (i/Math.max(hist.length-1,1))*cw; }
+  function toY(e) { return pad.top + (1-(e-eMin)/(eMax-eMin))*ch; }
+
+  // Grid
+  ectx.strokeStyle = 'rgba(13,58,92,0.5)';
+  ectx.lineWidth = 1;
+  for(let i=0;i<=4;i++) {
+    const y = pad.top + i*ch/4;
+    ectx.beginPath(); ectx.moveTo(pad.left,y); ectx.lineTo(pad.left+cw,y); ectx.stroke();
+    const val = eMax - i*(eMax-eMin)/4;
+    ectx.font = '9px Share Tech Mono';
+    ectx.fillStyle = '#2a5a7b';
+    ectx.textAlign = 'right';
+    ectx.fillText(formatE(val), pad.left-4, y+3);
+  }
+
+  // Zero line
+  if(eMin < 0 && eMax > 0) {
+    const y0 = toY(0);
+    ectx.beginPath(); ectx.moveTo(pad.left,y0); ectx.lineTo(pad.left+cw,y0);
+    ectx.strokeStyle = 'rgba(255,255,255,0.15)'; ectx.lineWidth = 1;
+    ectx.setLineDash([4,4]); ectx.stroke(); ectx.setLineDash([]);
+    ectx.font='9px Share Tech Mono'; ectx.fillStyle='#4a7a9b'; ectx.textAlign='right';
+    ectx.fillText('E=0', pad.left-4, y0+3);
+  }
+
+  function drawLine(key, color) {
+    ectx.beginPath();
+    hist.forEach((d,i) => {
+      const x = toX(i), y = toY(d[key]);
+      i===0 ? ectx.moveTo(x,y) : ectx.lineTo(x,y);
+    });
+    ectx.strokeStyle = color; ectx.lineWidth = 2; ectx.stroke();
+  }
+
+  drawLine('pe','#3399ff');
+  drawLine('ke','#ff6b35');
+  drawLine('te','#39ff14');
+
+  // Legend
+  const leg = [{color:'#ff6b35',label:'Kinetik'},{color:'#3399ff',label:'Potensial'},{color:'#39ff14',label:'Jami'}];
+  let lx = pad.left+8;
+  leg.forEach(l => {
+    ectx.beginPath(); ectx.moveTo(lx,12); ectx.lineTo(lx+20,12);
+    ectx.strokeStyle=l.color; ectx.lineWidth=2; ectx.stroke();
+    ectx.font='9px Exo 2'; ectx.fillStyle=l.color; ectx.textAlign='left';
+    ectx.fillText(l.label, lx+24, 15); lx += 80;
+  });
+
+  // X axis label
+  ectx.font='9px Share Tech Mono'; ectx.fillStyle='#2a5a7b'; ectx.textAlign='center';
+  ectx.fillText('Vaqt →', pad.left+cw/2, h-4);
+}
+
+// ===== UPDATE DISPLAYS =====
+function updateDisplays() {
+  const ve = escapeVelocity();
+  const vo = orbitalVelocity();
+  const ratio = state.v0/ve;
+
+  massVal.textContent = formatMass(state.M);
+  radiusVal.textContent = formatDist(state.R);
+  velVal.textContent = (state.v0/1000).toFixed(2)+' km/s';
+  angleVal.textContent = state.angle+'°';
+  speedVal.textContent = state.simSpeed.toFixed(1)+'×';
+  escapeVelEl.textContent = (ve/1000).toFixed(2)+' km/s';
+  orbitalVelEl.textContent = (vo/1000).toFixed(2)+' km/s';
+  currentVelDisplayEl.textContent = (state.v0/1000).toFixed(2)+' km/s';
+  ratioDisplay.textContent = ratio.toFixed(3)+'×';
+  ratioValBig.textContent = ratio.toFixed(3)+'×';
+
+  const pct = Math.min(ratio/2, 1)*100;
+  ratioBar.style.width = pct+'%';
+  ratioBar.style.background = ratio >= 1
+    ? 'linear-gradient(90deg,#39ff14,#00ff88)'
+    : 'linear-gradient(90deg,#ff6b35,#ffcc00)';
+
+  if(ratio >= 1.05) {
+    statusEl.className = 'status-indicator status-escape';
+    statusEl.textContent = '🚀 QOCHISH TEZLIGIDAN OSHDI';
+  } else if(ratio >= 0.95) {
+    statusEl.className = 'status-indicator status-orbit';
+    statusEl.textContent = '🛸 QOCHISH TEZLIGIGA YAQIN';
+  } else if(ratio >= 0.7) {
+    statusEl.className = 'status-indicator status-orbit';
+    statusEl.textContent = '🌀 ELLIPTIK ORBITA';
+  } else {
+    statusEl.className = 'status-indicator status-fall';
+    statusEl.textContent = '💥 SAYYORAGA QAYTADI';
+  }
+
+  // Update live velocity if running
+  const cv = Math.sqrt(obj.vx*obj.vx+obj.vy*obj.vy);
+  angleDisplayEl.textContent = `θ=${state.angle}° | t=${state.t.toFixed(1)}s | v=${(cv/1000).toFixed(2)}km/s`;
+}
+
+function updateEnergyBars() {
+  const r = Math.sqrt(obj.x*obj.x + obj.y*obj.y);
+  const v = Math.sqrt(obj.vx*obj.vx + obj.vy*obj.vy);
+  const m = 1000; // test mass 1000kg
+  const ke = 0.5*m*v*v;
+  const pe = -G*state.M*m/r;
+  const te = ke+pe;
+
+  const maxAbs = Math.max(Math.abs(ke), Math.abs(pe), 1e10);
+  keBar.style.width = Math.min(Math.abs(ke)/maxAbs*100,100)+'%';
+  peBar.style.width = Math.min(Math.abs(pe)/maxAbs*100,100)+'%';
+  teBar.style.width = Math.min(Math.abs(te)/maxAbs*100,100)+'%';
+  keVal.textContent = formatE(ke);
+  peVal.textContent = formatE(pe);
+  teVal.textContent = formatE(te);
+  teVal.style.color = te >= 0 ? '#39ff14' : '#ff6b35';
+}
+
+// ===== SIMULATION LOOP =====
+let lastTime = null;
+let animId = null;
+
+function step(dt) {
+  const steps = 10;
+  const dts = dt/steps;
+  for(let i=0;i<steps;i++) {
+    const g = gravity(obj.x, obj.y);
+    if(g.r < state.R) {
+      // Collision
+      state.running = false;
+      statusEl.className='status-indicator status-fall';
+      statusEl.textContent = '💥 SAYYORAGA YETIB KELDI!';
+      return;
+    }
+    obj.vx += g.ax * dts;
+    obj.vy += g.ay * dts;
+    obj.x += obj.vx * dts;
+    obj.y += obj.vy * dts;
+  }
+  state.t += dt;
+
+  // Record trail
+  const ve = escapeVelocity();
+  const cv = Math.sqrt(obj.vx*obj.vx+obj.vy*obj.vy);
+  state.trail.push({x:obj.x, y:obj.y, ratio:cv/ve});
+  if(state.trail.length > 600) state.trail.shift();
+
+  // Record energy
+  const r = Math.sqrt(obj.x*obj.x+obj.y*obj.y);
+  const m=1000;
+  const ke=0.5*m*(obj.vx*obj.vx+obj.vy*obj.vy);
+  const pe=-G*state.M*m/r;
+  state.energyHistory.push({ke,pe,te:ke+pe});
+  if(state.energyHistory.length > 300) state.energyHistory.shift();
+
+  // Stop if too far
+  if(r > state.R * 200) { state.running = false; }
+}
+
+function loop(ts) {
+  if(!state.running) { lastTime=null; animId=null; return; }
+  if(lastTime===null) { lastTime=ts; animId=requestAnimationFrame(loop); return; }
+  let dt = (ts-lastTime)/1000 * state.simSpeed;
+  lastTime = ts;
+  dt = Math.min(dt, 0.1);
+  step(dt);
+  updateEnergyBars();
+  drawSim();
+  drawEnergyChart();
+  angleDisplayEl.textContent = `θ=${state.angle}° | t=${state.t.toFixed(1)}s`;
+  animId = requestAnimationFrame(loop);
+}
+
+function startSim() {
+  if(!state.running) {
+    state.running = true;
+    lastTime = null;
+    animId = requestAnimationFrame(loop);
+    playBtn.className = 'btn';
+  }
+}
+
+function pauseSim() {
+  state.running = false;
+  if(animId) cancelAnimationFrame(animId);
+  animId = null;
+  playBtn.className = 'btn primary';
+}
+
+function resetSim() {
+  pauseSim();
+  state.t = 0;
+  state.trail = [];
+  state.energyHistory = [];
+  initObject();
+  drawSim();
+  drawEnergyChart();
+  updateEnergyBars();
+  updateDisplays();
+  playBtn.className = 'btn primary';
+}
+
+// ===== EVENTS =====
+massSlider.addEventListener('input',()=>{state.M=parseFloat(massSlider.value);resetSim();updateDisplays();});
+radiusSlider.addEventListener('input',()=>{state.R=parseFloat(radiusSlider.value);resetSim();updateDisplays();});
+velSlider.addEventListener('input',()=>{state.v0=parseFloat(velSlider.value);resetSim();updateDisplays();});
+angleSlider.addEventListener('input',()=>{state.angle=parseInt(angleSlider.value);resetSim();updateDisplays();});
+speedSlider.addEventListener('input',()=>{state.simSpeed=parseFloat(speedSlider.value);speedVal.textContent=state.simSpeed.toFixed(1)+'×';});
+playBtn.addEventListener('click',startSim);
+pauseBtn.addEventListener('click',pauseSim);
+resetBtn.addEventListener('click',resetSim);
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  switch(e.key) {
+    case ' ': e.preventDefault(); state.running?pauseSim():startSim(); break;
+    case 'r': case 'R': resetSim(); break;
+    case 'ArrowUp': state.v0=Math.min(state.v0+500,80000); velSlider.value=state.v0; resetSim(); updateDisplays(); break;
+    case 'ArrowDown': state.v0=Math.max(state.v0-500,0); velSlider.value=state.v0; resetSim(); updateDisplays(); break;
+    case 'ArrowLeft': state.angle=Math.max(state.angle-5,0); angleSlider.value=state.angle; resetSim(); updateDisplays(); break;
+    case 'ArrowRight': state.angle=Math.min(state.angle+5,90); angleSlider.value=state.angle; resetSim(); updateDisplays(); break;
+    case 'e': case 'E': takeScreenshot(); break;
+    default:
+      const n=parseInt(e.key);
+      if(n>=1&&n<=8) selectPlanet(n-1);
+  }
+});
+
+document.getElementById('exportBtn').addEventListener('click',takeScreenshot);
+document.getElementById('csvBtn').addEventListener('click',exportCSV);
+
+// ===== SCREENSHOT =====
+function takeScreenshot() {
+  const link = document.createElement('a');
+  link.download = 'escape_velocity_'+Date.now()+'.png';
+  link.href = simCanvas.toDataURL();
+  link.click();
+}
+
+function exportCSV() {
+  const rows = ['t,KE,PE,TE'];
+  const dt = state.t/state.energyHistory.length;
+  state.energyHistory.forEach((d,i)=>rows.push(`${(i*dt).toFixed(2)},${d.ke.toExponential(4)},${d.pe.toExponential(4)},${d.te.toExponential(4)}`));
+  const blob = new Blob([rows.join('\n')],{type:'text/csv'});
+  const link = document.createElement('a');
+  link.download = 'energy_data.csv';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+}
+
+// ===== TABS =====
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(window.MathJax) MathJax.typesetPromise && MathJax.typesetPromise();
+}
+
+// ===== UTILS =====
+function formatMass(m) {
+  const e = Math.floor(Math.log10(m));
+  const c = (m/Math.pow(10,e)).toFixed(2);
+  return c+'×10^'+e+' kg';
+}
+function formatDist(r) {
+  if(r>=1e6) return (r/1e6).toFixed(3)+' Mm';
+  return (r/1000).toFixed(0)+' km';
+}
+function formatNum(n) {
+  if(n>1e9) return (n/1e9).toFixed(2)+'B';
+  if(n>1e6) return (n/1e6).toFixed(2)+'M';
+  if(n>1e3) return (n/1e3).toFixed(1)+'k';
+  return n.toFixed(0);
+}
+function formatE(e) {
+  const abs = Math.abs(e);
+  if(abs>1e15) return (e/1e15).toFixed(2)+'PJ';
+  if(abs>1e12) return (e/1e12).toFixed(2)+'TJ';
+  if(abs>1e9) return (e/1e9).toFixed(2)+'GJ';
+  if(abs>1e6) return (e/1e6).toFixed(2)+'MJ';
+  return e.toFixed(0)+'J';
+}
+function lighten(hex, amt) {
+  const num = parseInt(hex.slice(1),16);
+  const r=Math.min(255,((num>>16)&255)+amt), g=Math.min(255,((num>>8)&255)+amt), b=Math.min(255,(num&255)+amt);
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function darken(hex, amt) { return lighten(hex,-amt); }
+
+// ===== RESIZE =====
+function handleResize() {
+  resizeSim();
+  resizeEnergy();
+  drawSim();
+  drawEnergyChart();
+}
+
+window.addEventListener('resize', handleResize);
+
+// ===== INIT =====
+handleResize();
+selectPlanet(2);
+resetSim();
+updateDisplays();
+initObject();
+drawSim();
+drawEnergyChart();
+updateEnergyBars();
+</script>
+</body>
+</html>
