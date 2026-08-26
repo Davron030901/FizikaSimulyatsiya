@@ -13,9 +13,11 @@ const envSchema = z.object({
   CORS_EXTRA_ORIGINS: z.string().optional(),
   JWT_SECRET: z.string().min(16).default('dev-only-secret-change-me-please'),
   JWT_EXPIRES_IN: z.string().default('7d'),
-  // Used by `npm run create:admin` to bootstrap the first account.
-  ADMIN_EMAIL: z.string().email().optional(),
-  ADMIN_PASSWORD: z.string().min(8).optional(),
+  // Only used by `npm run create:admin` and the seed. Deliberately unvalidated here:
+  // a weak placeholder must not stop the server from booting. The scripts that
+  // actually consume these values check them and explain what is wrong.
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_PASSWORD: z.string().optional(),
   // Required from FAZA 2 onwards. Prisma reads it directly, but we validate it here
   // so a missing value fails fast with a readable message instead of a Prisma stack trace.
   DATABASE_URL: z
@@ -34,6 +36,27 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+/**
+ * Admin credentials are optional and only meaningful to the bootstrap scripts.
+ * Returns null (with a readable reason) instead of throwing, so a placeholder in
+ * .env never blocks `npm run dev`.
+ */
+export function getAdminCredentials(): { email: string; password: string } | { error: string } {
+  const email = env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    return { error: "ADMIN_EMAIL va ADMIN_PASSWORD .env faylida to'ldirilmagan." };
+  }
+  if (!email.includes('@') || email.length < 5) {
+    return { error: `ADMIN_EMAIL formati noto'g'ri: "${email}"` };
+  }
+  if (password.length < 8) {
+    return { error: 'ADMIN_PASSWORD kamida 8 ta belgidan iborat bo\u2018lishi kerak.' };
+  }
+  return { email, password };
+}
 
 export const IS_PRODUCTION = env.NODE_ENV === 'production';
 export const API_VERSION = '0.6.0';

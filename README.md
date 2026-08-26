@@ -82,6 +82,10 @@ physicslab/
 
 **Talab:** Node.js 20+ (`.nvmrc` bor, `nvm use` ishlatsangiz bo'ladi).
 
+> **Windows'da:** barcha buyruqlar PowerShell'da ishlaydi, lekin ko'p qatorli
+> buyruqlarni `\` bilan ko'chirmang — PowerShell buni tushunmaydi. Quyidagi
+> buyruqlarni bitta qatordan nusxalang.
+
 ```bash
 # 1. Paketlarni o'rnatish (root'dan, ikkala app uchun birdan)
 npm install
@@ -90,12 +94,15 @@ npm install
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
 
-# 3. PostgreSQL tayyorlash (bittasini tanlang)
-#    a) Docker orqali lokal baza:
-docker run --name physicslab-db -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=physicslab -p 5432:5432 -d postgres:16
-#    b) yoki bepul bulutli baza oling (neon.tech / render.com) va
-#       DATABASE_URL ni apps/api/.env ga yozing
+# 3. PostgreSQL tayyorlash — bittasini tanlang
+#
+#    a) Bepul bulutli baza (eng oson, Windows uchun ham):
+#       neon.tech da loyiha oching -> connection string ni nusxalang ->
+#       apps/api/.env dagi DATABASE_URL ga qo'ying.
+#
+#    b) Yoki lokal Docker — BITTA QATORDA (PowerShell qator ko'chirishni
+#       "\" bilan tushunmaydi, shuning uchun ko'chirmang):
+docker run --name physicslab-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=physicslab -p 5432:5432 -d postgres:16
 
 # 4. Sxemani bazaga qo'llash va ma'lumotlarni yuklash
 npm run prisma:migrate -w @physicslab/api   # birinchi marta: nom so'raydi -> "init"
@@ -403,6 +410,9 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 | Build'da `TS7016: Could not find a declaration file for 'express'` | devDependencies o'rnatilmagan | `.npmrc` (`include=dev`) yoki Build Command'ga `--include=dev` |
 | Render Shell'da `npm run seed` → `tsx: not found` | devDependencies o'rnatilmagan | Yuqoridagi bilan bir xil sabab |
 | `TS2307: Cannot find module './xxx.route'` | Fayl ustiga boshqa fayl yozilgan | `npm run verify` — qaysi fayl buzilganini aytadi |
+| `Cannot find module '../config/env'` (lokal `npm run dev`) | Yuqoridagi bilan bir xil sabab | `npm run verify` |
+| `docker: invalid reference format` (PowerShell) | Buyruq `\` bilan ko'chirilgan | Buyruqni bitta qatorga yozing |
+| `P1001: Can't reach database server` | Baza ishga tushmagan yoki `DATABASE_URL` xato | Neon connection string'ini `apps/api/.env` ga qo'ying |
 | Baza to'satdan yo'qoldi | Render Free Postgres 30 kunda o'chadi | Neon'ga o'ting (yuqoriga qarang) |
 | `/api/health` ishlaydi, lekin `/api/sections` 500 | Migratsiya qo'llanmagan | `npm run prisma:deploy -w @physicslab/api` |
 | Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |

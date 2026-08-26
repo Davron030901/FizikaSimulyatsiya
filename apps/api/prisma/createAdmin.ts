@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { createInterface } from 'node:readline/promises';
+import { getAdminCredentials } from '../src/config/env';
 import { hashPassword } from '../src/services/auth.service';
 
 const prisma = new PrismaClient();
@@ -10,9 +11,15 @@ const prisma = new PrismaClient();
  * interactive prompt so credentials never have to be written into a file.
  */
 async function main(): Promise<void> {
-  let email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  let password = process.env.ADMIN_PASSWORD;
+  const fromEnv = getAdminCredentials();
+  let email = 'error' in fromEnv ? undefined : fromEnv.email;
+  let password = 'error' in fromEnv ? undefined : fromEnv.password;
   let name = process.env.ADMIN_NAME?.trim() || 'Administrator';
+
+  if ('error' in fromEnv) {
+    console.log(`\n  ${fromEnv.error}`);
+    console.log('  Qiymatlarni shu yerda kiriting:\n');
+  }
 
   if (!email || !password) {
     const rl = createInterface({ input: process.stdin, output: process.stdout });

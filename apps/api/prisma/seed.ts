@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { getAdminCredentials } from '../src/config/env';
 import { hashPassword } from '../src/services/auth.service';
 import { sections } from './data';
 
@@ -103,17 +104,21 @@ async function main(): Promise<void> {
   console.log('  ---------------------------------------------\n');
 }
 
-/** Optional: creates the first admin when credentials are present in the environment. */
+/**
+ * Optional: creates the first admin when credentials are present.
+ * Never fails the seed — content matters more than the admin account, which can
+ * always be added later with `npm run create:admin`.
+ */
 async function seedAdmin(): Promise<void> {
-  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const password = process.env.ADMIN_PASSWORD;
+  const credentials = getAdminCredentials();
 
-  if (!email || !password) return;
-  if (password.length < 8) {
-    console.warn("\n  ADMIN_PASSWORD juda qisqa (kamida 8 belgi) - admin yaratilmadi.");
+  if ('error' in credentials) {
+    console.log(`\n  Admin yaratilmadi: ${credentials.error}`);
+    console.log('  Keyinroq qo\u2018shish uchun: npm run create:admin');
     return;
   }
 
+  const { email, password } = credentials;
   const existing = await prisma.adminUser.findUnique({ where: { email } });
   if (existing) {
     console.log(`\n  Admin allaqachon mavjud: ${email}`);
