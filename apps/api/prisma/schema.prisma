@@ -1,0 +1,104 @@
+// PhysicsLab UZ - ma'lumotlar sxemasi
+// Hujjat: https://www.prisma.io/docs
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Fizika bo'limi (Kinematika, Dinamika, ...)
+model Section {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  code        String   @unique
+  order       Int      @unique
+  titleUz     String
+  titleEn     String?
+  description String
+  icon        String
+  color       String
+  topics      Topic[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
+
+/// Bo'lim ichidagi kichik mavzu (1.1, 1.2, ...)
+model Topic {
+  id         String      @id @default(cuid())
+  sectionId  String
+  section    Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  slug       String      @unique
+  code       String      @unique
+  order      Int
+  titleUz    String
+  titleEn    String?
+  summary    String
+  /// Markdown formatdagi nazariy tushuntirish
+  theory     String
+  /// [{ latex: "s = v t", label: "Masofa" }]
+  formulas   Json
+  keywords   String[]
+  difficulty Difficulty  @default(ORTA)
+  simulation Simulation?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([sectionId, order])
+  @@index([sectionId, order])
+}
+
+/// Mavzuga biriktirilgan simulyatsiya (har mavzuga bitta)
+model Simulation {
+  id          String    @id @default(cuid())
+  topicId     String    @unique
+  topic       Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  kind        SimKind   @default(DEFAULT)
+  /// kind = HTML bo'lganda to'liq, o'zi yetarli HTML fayl
+  htmlContent String?
+  /// kind = EXTERNAL bo'lganda tashqi manzil (PhET va h.k.)
+  externalUrl String?
+  /// DEFAULT shablon parametrlari: { demoType, accent, formula, paramA, paramB }
+  config      Json?
+  version     Int       @default(1)
+  status      SimStatus @default(PUBLISHED)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([kind, status])
+}
+
+/// Admin panelga kirish uchun foydalanuvchi (FAZA 5)
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Difficulty {
+  OSON
+  ORTA
+  QIYIN
+}
+
+enum SimKind {
+  /// Universal demo shablon (FAZA 3 da generator yozadi)
+  DEFAULT
+  /// Admin joylagan to'liq HTML simulyatsiya
+  HTML
+  /// Tashqi saytdagi simulyatsiya
+  EXTERNAL
+}
+
+enum SimStatus {
+  DRAFT
+  PUBLISHED
+}

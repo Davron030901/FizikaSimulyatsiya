@@ -14,7 +14,7 @@ out/
 .env.local
 .env.*.local
 scripts/
-apps/api/
+
 # logs
 *.log
 npm-debug.log*
