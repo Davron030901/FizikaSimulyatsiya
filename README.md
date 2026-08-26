@@ -120,6 +120,21 @@ Alohida ishga tushirish: `npm run dev:api` yoki `npm run dev:web`.
 | `npm run typecheck` | Ikkala app'da `tsc --noEmit` |
 | `npm run lint` | Frontend eslint |
 
+### `.npmrc` nima uchun kerak
+
+Render (va Heroku kabi platformalar) `NODE_ENV=production` o'rnatadi, npm esa bu
+holatda **devDependencies'ni umuman o'rnatmaydi**. Lekin `typescript` va `@types/*`
+aynan build uchun, `tsx` esa `seed` va `create:admin` uchun kerak. Repodagi
+`.npmrc` (`include=dev`) shu paketlarni majburan yoqadi.
+
+Fayl uch joyda: ildizda, `apps/api/` va `apps/web/` da — chunki Render
+`rootDir: apps/api` ichida `npm install` bajaradi va npm konfiguratsiyani
+joriy papkadan o'qiydi.
+
+> Agar Render'da servisni **qo'lda** yaratgan bo'lsangiz, Build Command'ni
+> `npm install --include=dev && npm run build` ga o'zgartiring. `.npmrc` bo'lsa
+> eski buyruq bilan ham ishlaydi, lekin ikkalasi birga ishonchliroq.
+
 ### Versiyalar haqida
 
 `typescript`, `prisma` va `@prisma/client` **aniq versiya** bilan qotirilgan va
@@ -365,7 +380,9 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 | Simulyatsiya iframe bo'sh | API `/embed` ga yetib bormayapti | `<API>/api/simulations/<slug>/embed` ni to'g'ridan-to'g'ri oching |
 | `/api/health` da `"database": "error"` | Migratsiya o'tmagan | Render Shell: `npx prisma migrate deploy` |
 | `npm install` da Prisma xatosi | Engine yuklab olinmadi (tarmoq) | Tarmoqni tekshiring yoki `npm install --ignore-scripts` + `npx prisma generate` |
-| Build'da `TS5108: moduleResolution ... removed` | TypeScript majori yangilangan | `package-lock.json` commit qilinganini tekshiring — versiyalar qat'iy belgilangan |
+| Build'da `TS5108: moduleResolution ... removed` | Global TypeScript ishlatilgan (devDeps o'rnatilmagan) | `.npmrc` commit qilinganini tekshiring |
+| Build'da `TS7016: Could not find a declaration file for 'express'` | devDependencies o'rnatilmagan | `.npmrc` (`include=dev`) yoki Build Command'ga `--include=dev` |
+| Render Shell'da `npm run seed` → `tsx: not found` | devDependencies o'rnatilmagan | Yuqoridagi bilan bir xil sabab |
 | `/api/health` ishlaydi, lekin `/api/sections` 500 | Migratsiya qo'llanmagan | `npm run prisma:deploy -w @physicslab/api` |
 | Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |
 

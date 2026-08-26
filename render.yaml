@@ -7,7 +7,9 @@ services:
     plan: free
     region: frankfurt
     rootDir: apps/api
-    buildCommand: npm install && npm run build
+    # --include=dev: NODE_ENV=production da npm devDependencies'ni o'tkazib yuboradi,
+    # lekin typescript va @types/* aynan build uchun kerak (.npmrc da ham yozilgan).
+    buildCommand: npm install --include=dev && npm run build
     # migrate deploy har deployda ishlaydi, mavjud migratsiyalarni o'tkazib yuboradi
     # prisma CLI dependencies ichida, shuning uchun npx tarmoqqa chiqmaydi
     startCommand: npm run prisma:deploy && npm run start
