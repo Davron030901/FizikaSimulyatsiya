@@ -120,6 +120,14 @@ Alohida ishga tushirish: `npm run dev:api` yoki `npm run dev:web`.
 | `npm run typecheck` | Ikkala app'da `tsc --noEmit` |
 | `npm run lint` | Frontend eslint |
 
+### Versiyalar haqida
+
+`typescript`, `prisma` va `@prisma/client` **aniq versiya** bilan qotirilgan va
+`package-lock.json` repoda saqlanadi. Sabab: TypeScript 7 `moduleResolution: "node"`
+ni butunlay olib tashladi, ya'ni erkin versiya diapazoni deploy paytida build'ni
+kutilmaganda buzishi mumkin. `prisma` va `@prisma/client` esa bir xil versiyada
+bo'lishi shart.
+
 ### Baza skriptlari (`-w @physicslab/api`)
 
 | Buyruq | Vazifasi |
@@ -306,6 +314,10 @@ git push -u origin main
    npm run seed        # 9 bo'lim + 79 mavzu + admin
    ```
 
+   > Jadvallar `startCommand` ichidagi `prisma migrate deploy` orqali avtomatik
+   > yaratiladi — boshlang'ich migratsiya `apps/api/prisma/migrations/` da commit
+   > qilingan. Seed esa faqat ma'lumot to'ldiradi.
+
 5. Tekshiring: `https://<servis>.onrender.com/api/health` → `"database": "connected"`,
    `"content": { "topics": 79 }`
 
@@ -353,18 +365,36 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 | Simulyatsiya iframe bo'sh | API `/embed` ga yetib bormayapti | `<API>/api/simulations/<slug>/embed` ni to'g'ridan-to'g'ri oching |
 | `/api/health` da `"database": "error"` | Migratsiya o'tmagan | Render Shell: `npx prisma migrate deploy` |
 | `npm install` da Prisma xatosi | Engine yuklab olinmadi (tarmoq) | Tarmoqni tekshiring yoki `npm install --ignore-scripts` + `npx prisma generate` |
+| Build'da `TS5108: moduleResolution ... removed` | TypeScript majori yangilangan | `package-lock.json` commit qilinganini tekshiring — versiyalar qat'iy belgilangan |
+| `/api/health` ishlaydi, lekin `/api/sections` 500 | Migratsiya qo'llanmagan | `npm run prisma:deploy -w @physicslab/api` |
 | Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |
 
 ---
 
-## Sifat tekshiruvi
+## Testlar
+
+Bazasiz ishlaydigan tekshiruvlar (istalgan joyda, CI'da ham):
 
 ```bash
-npm run typecheck                        # ikkala app
-npm run validate:data -w @physicslab/api # 79 mavzu, slug, formula, slider chegaralari
-npm run build:web                        # Next build
-npm run audit                            # a11y + SEO + WCAG kontrast
+npm test              # sxema + seed ma'lumotlari + 79 demo sahifa
+npm run test:schema   # schema.prisma strukturasi (engine talab qilmaydi)
+npm run test:data     # 79 mavzu, slug, formula, slider chegaralari
+npm run test:demos    # 79 ta demo HTML generatsiyasi va tuzilishi
+npm run typecheck     # ikkala app
 ```
+
+Baza va build talab qiladiganlar:
+
+```bash
+DATABASE_URL=... npm run test:migration   # migratsiya sxemaga mos keladimi (psql orqali)
+npm run test:api                          # 51 ta public endpoint tekshiruvi
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run test:admin   # login -> qoralama -> nashr -> reset
+npm run build:web && npm run test:web     # 16 sahifa + 24 mazmun tekshiruvi
+npm run build:web && npm run audit        # a11y + SEO + WCAG kontrast
+```
+
+> `test:admin` ma'lumotni o'zgartiradi, lekin oxirida simulyatsiyani demo holatiga
+> qaytaradi. `TEST_TOPIC_SLUG` bilan boshqa mavzuni tanlash mumkin.
 
 `npm run audit` API va Next serverni ko'tarib, render qilingan HTML'ni tekshiradi:
 sarlavhalar ierarxiyasi, `alt` / `title` / `aria-label` atributlari, meta teglar,

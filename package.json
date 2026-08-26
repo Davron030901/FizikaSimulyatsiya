@@ -20,10 +20,19 @@
     "start:web": "npm run start -w @physicslab/web",
     "typecheck": "npm run typecheck -w @physicslab/api && npm run typecheck -w @physicslab/web",
     "lint": "npm run lint -w @physicslab/web",
-    "audit": "tsx scripts/audit.ts"
+    "audit": "tsx scripts/audit.ts",
+    "test": "npm run test:schema && npm run test:data && npm run test:demos",
+    "test:schema": "tsx scripts/check-schema.ts",
+    "test:data": "npm run validate:data -w @physicslab/api",
+    "test:demos": "tsx scripts/test-demos.ts",
+    "test:api": "tsx scripts/test-api.ts",
+    "test:admin": "tsx scripts/test-admin.ts",
+    "test:migration": "tsx scripts/check-migration.ts",
+    "test:web": "tsx scripts/test-web.ts"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "tsx": "^4.16.2"
+    "tsx": "^4.16.2",
+    "typescript": "5.9.3"
   }
 }

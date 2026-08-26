@@ -9,7 +9,8 @@ services:
     rootDir: apps/api
     buildCommand: npm install && npm run build
     # migrate deploy har deployda ishlaydi, mavjud migratsiyalarni o'tkazib yuboradi
-    startCommand: npx prisma migrate deploy && npm run start
+    # prisma CLI dependencies ichida, shuning uchun npx tarmoqqa chiqmaydi
+    startCommand: npm run prisma:deploy && npm run start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
