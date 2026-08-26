@@ -1,0 +1,38 @@
+# Render deployment konfiguratsiyasi (Blueprint)
+# Dashboard -> New -> Blueprint -> repo tanlang -> shu fayl avtomatik o'qiladi.
+services:
+  - type: web
+    name: physicslab-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: apps/api
+    buildCommand: npm install && npm run build
+    # migrate deploy har deployda ishlaydi, mavjud migratsiyalarni o'tkazib yuboradi
+    startCommand: npx prisma migrate deploy && npm run start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Admin hisobi: Render dashboard'da qo'lda qo'shing (sync: false = maxfiy)
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        value: https://physicslab.vercel.app
+      - key: DATABASE_URL
+        fromDatabase:
+          name: physicslab-db
+          property: connectionString
+
+databases:
+  - name: physicslab-db
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"

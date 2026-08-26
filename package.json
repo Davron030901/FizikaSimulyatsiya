@@ -1,0 +1,29 @@
+{
+  "name": "physicslab",
+  "version": "0.6.0",
+  "private": true,
+  "description": "PhysicsLab UZ - interaktiv fizika simulyatsiyalari platformasi",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev -w @physicslab/api",
+    "dev:web": "npm run dev -w @physicslab/web",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "npm run build -w @physicslab/api",
+    "build:web": "npm run build -w @physicslab/web",
+    "start:api": "npm run start -w @physicslab/api",
+    "start:web": "npm run start -w @physicslab/web",
+    "typecheck": "npm run typecheck -w @physicslab/api && npm run typecheck -w @physicslab/web",
+    "lint": "npm run lint -w @physicslab/web",
+    "audit": "tsx scripts/audit.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "tsx": "^4.16.2"
+  }
+}

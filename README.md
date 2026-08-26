@@ -1,239 +1,414 @@
-# Fizika Simulyatsiyalari Website
+# PhysicsLab UZ
 
-Django-da yaratilgan fizika simulyatsiyalarini ko'rish va o'rganish platformasi. Turli fizika bo'limlari bo'yicha interaktiv simulyatsiyalar.
+O'zbek tilidagi interaktiv fizika simulyatsiyalari platformasi.
+Mexanika bo'yicha **9 ta bo'lim** va **79 ta mavzu** — har biri uchun alohida sahifa va
+alohida simulyatsiya.
 
-## Xususiyatlar
+| Qism | Texnologiya | Deployment |
+|------|-------------|------------|
+| Frontend | Next.js 14 (App Router) + TypeScript + Tailwind | Vercel |
+| Backend | Node 20 + Express + TypeScript | Render |
+| Baza | PostgreSQL + Prisma | Render |
 
-### � Fizika bo'limlari
-- **Kinematika**: Harakat simulyatsiyalari (gorizontal otilgan jism, parabola harakat)
-- **Dinamika**: Kuch va harakat (matematik mayatnik, tebranish)
-- **Termodinamika**: Issiqlik va gaz (ideal gaz molekulalari)
-- **Elektr**: Elektr hodisalari
-- **Optika**: Yorug'lik va optik hodisalar
+---
 
-### 🎯 Asosiy funksiyalar
-- **Interaktiv simulyatsiyalar**: Real vaqtda parametrlarni o'zgartirish
-- **Vizual ko'rsatish**: Canvas yordamida grafik simulyatsiyalar
-- **Matematik hisoblashlar**: Fizika formulalari va natijalar
-- **Oddiy interfeys**: Foydalanuvchi uchun qulay dizayn
-- **Admin panel**: Simulyatsiyalarni boshqarish
+## Loyiha strukturasi
 
-### 🎨 Texnologiyalar
-- **Backend**: Django + Python
-- **Frontend**: HTML5, CSS3, JavaScript (Canvas API)
-- **Template Engine**: Django Templates
-- **Database**: SQLite (development)
-- **Styling**: Bootstrap 5 + Custom CSS
-- **Icons**: Font Awesome
-- **Graphics**: HTML5 Canvas
+```
+physicslab/
+├── apps/
+│   ├── api/                 # Express backend (Render)
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma        # Section / Topic / Simulation / AdminUser
+│   │   │   ├── seed.ts              # idempotent seed (upsert)
+│   │   │   └── data/
+│   │   │       ├── types.ts         # SectionSeed, TopicSeed, SimConfigSeed
+│   │   │       ├── 01-kinematika.ts ... 09-suyuqlik.ts
+│   │   │       ├── index.ts         # 9 bo'lim / 79 mavzu birlashtiriladi
+│   │   │       └── validate.ts      # bazasiz butunlik tekshiruvi
+│   │   ├── src/
+│   │   │   ├── config/env.ts        # zod bilan env validatsiya
+│   │   │   ├── lib/prisma.ts        # PrismaClient singleton
+│   │   │   ├── lib/db.ts            # ulanish holati + kontent statistikasi
+│   │   │   ├── middleware/          # error handler, 404, rate limit, validate
+│   │   │   ├── schemas/             # zod query/param sxemalari
+│   │   │   ├── services/            # section, topic, simulation, stats + mappers
+│   │   │   ├── simulations/         # demo generator (config, styles, script, template)
+│   │   │   ├── routes/              # sections, topics, simulations, search, stats
+│   │   │   ├── types/               # ApiResponse, DTO'lar
+│   │   │   ├── utils/               # AppError, response, html escape
+│   │   │   ├── app.ts               # Express app + middleware
+│   │   │   └── index.ts             # server + graceful shutdown
+│   │   ├── .env.example
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── tsconfig.seed.json
+│   └── web/                 # Next.js frontend (Vercel)
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── page.tsx                    # bosh sahifa
+│       │   │   ├── bolimlar/                   # ro'yxat + [section]
+│       │   │   ├── simulyatsiya/[topic]/       # asosiy sahifa
+│       │   │   ├── qidiruv/ · haqida/
+│       │   │   ├── error.tsx · not-found.tsx
+│       │   │   └── sitemap.ts · robots.ts
+│       │   ├── components/
+│       │   │   ├── layout/          # Header, NavLinks, MobileBottomNav, Footer
+│       │   │   ├── sections/        # SectionCard, SectionIcon
+│       │   │   ├── topics/          # TopicCard, TopicFilters, PrevNextNav
+│       │   │   ├── simulation/      # SimulationFrame (iframe + postMessage)
+│       │   │   ├── theory/          # TheoryTabs, MathJax
+│       │   │   ├── search/          # SearchBar
+│       │   │   ├── system/          # ApiStatus, ApiErrorState
+│       │   │   └── ui/              # Button, Card, Badge, Skeleton, EmptyState
+│       │   ├── lib/                 # api.ts, markdown.tsx, format.ts, useTheme.ts
+│       │   └── types/
+│       ├── .env.example
+│       ├── next.config.mjs
+│       ├── tailwind.config.ts
+│       └── package.json
+├── render.yaml              # Render blueprint
+├── package.json             # npm workspaces + skriptlar
+└── README.md
+```
 
-## O'rnatish va ishga tushirish
+> **Eslatma:** har bir app o'z `node_modules` va o'z `tsconfig` iga ega — shu sabab
+> Render (`rootDir: apps/api`) va Vercel (`Root Directory: apps/web`) hech qanday
+> qo'shimcha sozlamasiz ishlaydi. Root'dagi workspaces faqat lokal qulaylik uchun.
 
-### 1. Repository klonlash
+---
+
+## Lokal ishga tushirish
+
+**Talab:** Node.js 20+ (`.nvmrc` bor, `nvm use` ishlatsangiz bo'ladi).
+
 ```bash
-git clone <repository-url>
-cd App_Simulations
+# 1. Paketlarni o'rnatish (root'dan, ikkala app uchun birdan)
+npm install
+
+# 2. Env fayllarni tayyorlash
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
+
+# 3. PostgreSQL tayyorlash (bittasini tanlang)
+#    a) Docker orqali lokal baza:
+docker run --name physicslab-db -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=physicslab -p 5432:5432 -d postgres:16
+#    b) yoki bepul bulutli baza oling (neon.tech / render.com) va
+#       DATABASE_URL ni apps/api/.env ga yozing
+
+# 4. Sxemani bazaga qo'llash va ma'lumotlarni yuklash
+npm run prisma:migrate -w @physicslab/api   # birinchi marta: nom so'raydi -> "init"
+npm run seed -w @physicslab/api             # 9 bo'lim + 79 mavzu
+
+# 5. Ikkalasini birga ishga tushirish
+npm run dev
 ```
 
-### 2. Virtual environment yaratish
+- Backend → http://localhost:4000/api/health
+- Frontend → http://localhost:3000
+
+Alohida ishga tushirish: `npm run dev:api` yoki `npm run dev:web`.
+
+### Skriptlar (root)
+
+| Buyruq | Vazifasi |
+|--------|----------|
+| `npm run dev` | API + Web birga (concurrently) |
+| `npm run dev:api` / `npm run dev:web` | Bittasini alohida |
+| `npm run build` | Ikkalasini build qilish |
+| `npm run typecheck` | Ikkala app'da `tsc --noEmit` |
+| `npm run lint` | Frontend eslint |
+
+### Baza skriptlari (`-w @physicslab/api`)
+
+| Buyruq | Vazifasi |
+|--------|----------|
+| `npm run create:admin` | Admin hisobini yaratish/yangilash (interaktiv yoki env orqali) |
+| `npm run validate:data` | Seed ma'lumotlarini bazasiz tekshirish (79 mavzu, slug, formula) |
+| `npm run prisma:migrate` | Migratsiya yaratish va qo'llash (dev) |
+| `npm run prisma:deploy` | Mavjud migratsiyalarni qo'llash (prod) |
+| `npm run seed` | Bo'lim va mavzularni yuklash (idempotent) |
+| `npm run prisma:studio` | Bazani brauzerda ko'rish |
+| `npm run db:reset` | Bazani tozalab, qaytadan migratsiya + seed |
+
+---
+
+## Environment o'zgaruvchilari
+
+**`apps/api/.env`**
+
+| Nomi | Majburiy | Izoh |
+|------|----------|------|
+| `NODE_ENV` | yo'q | `development` (default) |
+| `PORT` | yo'q | `4000` (default). Render o'zi beradi |
+| `FRONTEND_URL` | ha (prod) | CORS uchun frontend manzili |
+| `CORS_EXTRA_ORIGINS` | yo'q | Qo'shimcha originlar, vergul bilan |
+| `JWT_SECRET` | ha (prod) | Admin auth uchun, min 16 belgi (`openssl rand -base64 32`) |
+| `JWT_EXPIRES_IN` | yo'q | Token muddati, default `7d` |
+| `ADMIN_EMAIL` | yo'q | `create:admin` va seed uchun |
+| `ADMIN_PASSWORD` | yo'q | Kamida 8 belgi |
+| `DATABASE_URL` | **ha** | PostgreSQL connection string |
+
+**`apps/web/.env.local`**
+
+| Nomi | Izoh |
+|------|------|
+| `NEXT_PUBLIC_API_URL` | Backend manzili |
+| `NEXT_PUBLIC_SITE_URL` | Saytning o'z manzili (SEO uchun) |
+
+Env noto'g'ri bo'lsa API ishga tushmaydi va aniq xato ro'yxatini chiqaradi.
+
+---
+
+## Ma'lumotlar modeli
+
+```
+Section (9 ta)  ──1:N──>  Topic (79 ta)  ──1:1──>  Simulation
+   slug, code,              slug, code, order,        kind: DEFAULT | HTML | EXTERNAL
+   titleUz, color,          titleUz, summary,         htmlContent | externalUrl
+   icon, order              theory (Markdown),        config (demo parametrlari)
+                            formulas (JSON),          status: DRAFT | PUBLISHED
+                            keywords, difficulty
+```
+
+Har bir mavzuga seed vaqtida `kind = DEFAULT` simulyatsiya biriktiriladi va uning
+`config` maydonida demo shablon parametrlari saqlanadi:
+
+```json
+{
+  "demoType": "fluid",
+  "accent": "#0EA5E9",
+  "formula": "P = \\rho g h",
+  "paramA": { "key": "h", "label": "Chuqurlik h", "unit": "m", "min": 0, "max": 50, "step": 0.5, "value": 10 },
+  "paramB": { "key": "rho", "label": "Zichlik ρ", "unit": "kg/m³", "min": 500, "max": 14000, "step": 50, "value": 1000 }
+}
+```
+
+`demoType` bo'limga qarab tanlanadi: `motion`, `wave`, `orbit`, `vector`, `fluid`.
+FAZA 3 dagi HTML generatori aynan shu konfiguratsiyani o'qiydi.
+
+> **Seed xavfsizligi:** seed `upsert` ishlatadi, shuning uchun uni istalgancha marta
+> qayta ishga tushirish mumkin. Admin joylagan simulyatsiyalar (`kind = HTML` yoki
+> `EXTERNAL`) hech qachon qayta yozilmaydi.
+
+---
+
+## API endpointlar (FAZA 3)
+
+| Metod | Yo'l | Tavsif |
+|-------|------|--------|
+| `GET` | `/api` | API haqida ma'lumot va endpointlar ro'yxati |
+| `GET` | `/api/health` | `status`, `version`, `uptimeSeconds`, `database`, `content` |
+| `GET` | `/api/sections` | 9 ta bo'lim + har birida nechta mavzu borligi |
+| `GET` | `/api/sections/:slug` | Bo'lim va uning mavzulari |
+| `GET` | `/api/topics` | `?section=&q=&difficulty=&page=&limit=` — sahifalangan ro'yxat |
+| `GET` | `/api/topics/:slug` | Nazariya, formulalar, oldingi/keyingi mavzu, bog'liq mavzular |
+| `GET` | `/api/simulations/:topicSlug` | Simulyatsiya metadatasi + `embedUrl` |
+| `GET` | `/api/simulations/:topicSlug/embed` | **HTML** — iframe shu manzilni yuklaydi |
+| `GET` | `/api/search?q=` | Sarlavha, tavsif, kod va kalit so'zlar bo'yicha qidiruv |
+| `GET` | `/api/stats` | Bo'lim/mavzu/simulyatsiya sonlari |
+
+### Admin endpointlar (JWT talab qilinadi)
+
+| Metod | Yo'l | Tavsif |
+|-------|------|--------|
+| `POST` | `/api/auth/login` | Email + parol → JWT token |
+| `GET` | `/api/auth/me` | Joriy admin ma'lumoti |
+| `GET` | `/api/admin/topics` | 79 ta mavzu + simulyatsiya holati |
+| `GET` | `/api/admin/simulations/:topicSlug` | HTML kod bilan birga |
+| `PUT` | `/api/admin/simulations/:topicSlug` | Kod/manzil va holatni saqlash |
+| `POST` | `/api/admin/simulations/:topicSlug/reset` | Demo holatiga qaytarish |
+
+### `/embed` qanday ishlaydi
+
+```
+kind = EXTERNAL  ->  302 redirect (externalUrl)
+kind = HTML      ->  bazadagi htmlContent
+kind = DEFAULT   ->  config asosida demo sahifa generatsiya qilinadi
+status = DRAFT   ->  tashqi foydalanuvchiga demo ko'rsatiladi
+                     (?preview=1 bo'lsa admin uchun asl kod)
+```
+
+Query parametrlar: `?theme=light|dark`, `?preview=1`.
+
+Sarlavhalar: `Content-Type: text/html`, `Cache-Control: public, max-age=300`,
+`Content-Security-Policy` (skriptlar faqat jsDelivr va cdnjs dan), `X-Frame-Options`
+ataylab **olib tashlangan** — aks holda iframe ishlamaydi.
+
+### Demo simulyatsiya
+
+Har bir mavzu uchun `config.demoType` ga qarab canvas animatsiyasi chiziladi:
+
+| demoType | Nima chiziladi | Mavzular |
+|----------|----------------|----------|
+| `motion` | Trek bo'ylab harakat + tezlik vektori | 15 |
+| `wave` | Sinusoidal to'lqin + marker | 13 |
+| `orbit` | Aylanma harakat + urinma tezlik | 19 |
+| `vector` | Ikki vektor + natijaviy (parallelogramm) | 20 |
+| `fluid` | Idish, suyuqlik sathi, bosim gradiyenti | 12 |
+
+Har bir sahifada: 2 ta slider + raqamli input + min/o'rta/max presetlari,
+Play/Pauza/Reset, tezlik 0.25×–4×, vaqt bo'yicha jonli grafik, MathJax formulasi,
+klaviatura boshqaruvi (Space, R) va ota-sahifaga `postMessage` orqali balandlik.
+
+> **Muhim:** demo animatsiya parametrlarga javob beradi, lekin bu mavzuning to'liq fizik
+> modeli emas — sahifada shu haqda ochiq yozilgan. To'liq simulyatsiyalar admin panel
+> orqali almashtiriladi (FAZA 5).
+
+Barcha javoblar bir xil formatda:
+
+```json
+{ "success": true, "data": { } }
+{ "success": false, "error": { "code": "NOT_FOUND", "message": "Topilmadi" } }
+```
+
+---
+
+## Deployment
+
+Ketma-ketlik muhim: avval baza, keyin backend, keyin frontend, oxirida CORS.
+
+### 1. Repo'ni GitHub'ga joylang
+
 ```bash
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-source .venv/bin/activate  # Linux/Mac
+git init && git add . && git commit -m "PhysicsLab UZ"
+git remote add origin https://github.com/<siz>/physicslab.git
+git push -u origin main
 ```
 
-### 3. Paketlarni o'rnatish
+### 2. Backend + baza → Render
+
+**Blueprint orqali (tavsiya etiladi):** Render → **New → Blueprint** → repo'ni tanlang.
+`render.yaml` avtomatik o'qiladi va PostgreSQL bilan birga web service yaratadi.
+
+**Qo'lda:**
+
+1. **New → PostgreSQL** (Free) → nom: `physicslab-db`, region: Frankfurt
+2. **New → Web Service** → repo → sozlamalar:
+   - Root Directory: `apps/api`
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npx prisma migrate deploy && npm run start`
+   - Health Check Path: `/api/health`
+3. **Environment** bo'limida:
+
+   | Kalit | Qiymat |
+   |-------|--------|
+   | `NODE_ENV` | `production` |
+   | `DATABASE_URL` | bazadan **Internal Connection String** |
+   | `JWT_SECRET` | `openssl rand -base64 32` natijasi |
+   | `FRONTEND_URL` | Vercel domeni (3-qadamdan keyin qo'shiladi) |
+   | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | admin hisobi uchun |
+
+4. Deploy tugagach **Shell** ni oching va bir marta ishga tushiring:
+
+   ```bash
+   npm run seed        # 9 bo'lim + 79 mavzu + admin
+   ```
+
+5. Tekshiring: `https://<servis>.onrender.com/api/health` → `"database": "connected"`,
+   `"content": { "topics": 79 }`
+
+### 3. Frontend → Vercel
+
+1. **New Project** → repo'ni import qiling
+2. **Root Directory:** `apps/web` (Vercel monorepo'ni o'zi aniqlaydi)
+3. **Environment Variables:**
+
+   | Kalit | Qiymat |
+   |-------|--------|
+   | `NEXT_PUBLIC_API_URL` | `https://<servis>.onrender.com` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://<loyiha>.vercel.app` |
+
+4. Deploy
+
+### 4. CORS ni yoping
+
+Render'ga qaytib, `FRONTEND_URL` ni Vercel domeniga o'zgartiring va servisni qayta
+ishga tushiring. Preview deploylar (`*.vercel.app`) allaqachon regex orqali ruxsat
+etilgan.
+
+### 5. Birinchi simulyatsiyani joylang
+
+`https://<loyiha>.vercel.app/admin/login` → kiring → mavzuni tanlang → HTML kodni
+joylang → **Nashr qilish**.
+
+---
+
+### Bepul tarif haqida
+
+Render Free tier 15 daqiqa harakatsizlikdan keyin uxlaydi. Birinchi so'rov ~30
+soniya oladi — frontend buni biladi va "Server uyg'onmoqda..." xabarini
+ko'rsatadi. Agar bu qabul qilinmasa:
+
+- Render'ni Starter tarifga o'tkazing (uxlamaydi), yoki
+- tashqi cron (masalan cron-job.org) har 10 daqiqada `/api/health` ga so'rov yuborsin
+
+### Muammolarni bartaraf etish
+
+| Belgi | Sabab | Yechim |
+|-------|-------|--------|
+| Sahifada "Ma'lumotlarni yuklab bo'lmadi" | Render uxlagan yoki `NEXT_PUBLIC_API_URL` xato | 30 soniya kuting; Vercel env'ni tekshiring |
+| Brauzer konsolida CORS xatosi | `FRONTEND_URL` Vercel domeniga mos emas | Render env'ni yangilang va qayta deploy qiling |
+| Simulyatsiya iframe bo'sh | API `/embed` ga yetib bormayapti | `<API>/api/simulations/<slug>/embed` ni to'g'ridan-to'g'ri oching |
+| `/api/health` da `"database": "error"` | Migratsiya o'tmagan | Render Shell: `npx prisma migrate deploy` |
+| `npm install` da Prisma xatosi | Engine yuklab olinmadi (tarmoq) | Tarmoqni tekshiring yoki `npm install --ignore-scripts` + `npx prisma generate` |
+| Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |
+
+---
+
+## Sifat tekshiruvi
+
 ```bash
-pip install -r requirements.txt
+npm run typecheck                        # ikkala app
+npm run validate:data -w @physicslab/api # 79 mavzu, slug, formula, slider chegaralari
+npm run build:web                        # Next build
+npm run audit                            # a11y + SEO + WCAG kontrast
 ```
 
-### 5. Namuna simulyatsiyalar yaratish
-```bash
-python manage.py create_sample_data
-```
+`npm run audit` API va Next serverni ko'tarib, render qilingan HTML'ni tekshiradi:
+sarlavhalar ierarxiyasi, `alt` / `title` / `aria-label` atributlari, meta teglar,
+canonical, OG rasmlar, `manifest.webmanifest`, `sitemap.xml`, hamda dizayn
+tokenlarining WCAG kontrast nisbatlari (light va dark uchun alohida).
 
-### 6. Serverni ishga tushirish
-```bash
-python manage.py runserver
-```
+> **Eslatma:** bu Lighthouse emas. Brauzer talab qiladigan ko'rsatkichlar (LCP, CLS,
+> TBT, haqiqiy tap-target o'lchamlari) o'lchanmaydi — ularni deploy qilingandan keyin
+> PageSpeed Insights orqali tekshiring.
 
-Websiteni [http://127.0.0.1:8000](http://127.0.0.1:8000) manzilida ko'rish mumkin.
+---
 
-## Foydalanish
+## SEO va accessibility
 
-### Simulyatsiyalarni ko'rish
-- Bosh sahifada barcha mavjud fizika simulyatsiyalar ko'rsatiladi
-- Har bir simulyatsiya kartasida qisqacha tavsif bor
-- "Ko'rish" tugmasi bilan batafsil ma'lumot olish mumkin
-- "Ishga tushirish" tugmasi bilan simulyatsiyani ishlatish mumkin
+**SEO:**
+- Har bir sahifada `generateMetadata`: title, description, canonical, OpenGraph, Twitter
+- Dinamik OG rasmlar: umumiy (`/opengraph-image`) va har bir mavzu uchun alohida
+  (bo'lim rangi, kodi va nomi bilan)
+- JSON-LD: `WebSite` + `SearchAction` (bosh sahifa), `Course` (bo'lim),
+  `LearningResource` (mavzu), `BreadcrumbList` (bo'lim va mavzu)
+- `sitemap.xml` — 9 bo'lim + 79 mavzu, `robots.txt` — `/admin` yopiq
+- `manifest.webmanifest` + SVG ikonka (telefonga o'rnatish mumkin)
 
-### Admin panel orqali simulyatsiya qo'shish
-1. `/admin/` manziliga kiring
-2. Superuser hisobi bilan kiring
-3. "Simulyatsiyalar" bo'limida "Qo'shish" tugmasini bosing
-4. Kerakli ma'lumotlarni kiriting:
-   - Sarlavha va tavsif
-   - Fizika bo'limi (kinematika, dinamika, va h.k.)
-   - HTML, CSS va JavaScript kodlar
-5. Saqlang
+**Accessibility:**
+- Sarlavhalar ierarxiyasi buzilmaydi — kartalar `headingLevel` propi orqali
+  h2 yoki h3 bo'ladi, nazariya panellarida ko'rinmas h2 bor
+- Tab paneli to'liq WAI-ARIA namunasi bo'yicha: `ArrowLeft/Right`, `Home`, `End`,
+  `roving tabindex`
+- Skip-link, `:focus-visible` ring, `aria-live` filtr natijalari uchun
+- Barcha interaktiv element ≥ 44px (mobil tap-target)
+- `prefers-reduced-motion` hurmat qilinadi
+- WCAG AA kontrast: matn 17:1, ikkilamchi matn 5.9:1 (light) / 7.4:1 (dark)
 
-## Proyekt strukturasi
+**Xavfsizlik sarlavhalari:** `X-Content-Type-Options`, `Referrer-Policy`,
+`Permissions-Policy`, `X-Frame-Options: SAMEORIGIN`, `Strict-Transport-Security`.
+`/admin/*` uchun qo'shimcha `X-Robots-Tag: noindex` va `Cache-Control: no-store`.
 
-```
-App_Simulations/
-├── simulation_website/          # Asosiy Django proyekt
-│   ├── settings.py             # Sozlamalar
-│   ├── urls.py                 # URL marshrutlari
-│   └── wsgi.py                 # WSGI konfiguratsiya
-├── simulations/                # Simulyatsiyalar app
-│   ├── models.py               # Ma'lumotlar modellari
-│   ├── views.py                # Ko'rinishlar
-│   ├── admin.py                # Admin panel
-│   ├── urls.py                 # App URL-lari
-│   └── management/commands/    # Management commandlar
-├── templates/                  # HTML templatelar
-│   ├── base.html               # Asosiy template
-│   └── simulations/            # Simulyatsiya templatelari
-├── requirements.txt            # Python paketlari
-└── manage.py                   # Django management script
-```
+---
 
-## Models (Ma'lumotlar modellari)
+## Bosqichlar
 
-### Simulation
-- `title`: Simulyatsiya sarlavhasi
-- `description`: Tavsif
-- `simulation_type`: Fizika bo'limi (kinematika/dinamika/termodinamika/elektr/optika)
-- `html_code`: HTML kodi
-- `css_code`: CSS kodi
-- `js_code`: JavaScript kodi
-- `created_at`: Yaratilgan vaqt
-
-## Fizika simulyatsiyalari namunalari
-
-### Kinematika
-- **Gorizontal otilgan jism**: Parabola harakat simulyatsiyasi
-- Tezlik, burchak va balandlikni o'zgartirish imkoniyati
-- Real vaqtda fizika hisoblashlar
-
-### Dinamika  
-- **Matematik mayatnik**: Tebranish harakati simulyatsiyasi
-- Uzunlik va boshlang'ich burchakni sozlash
-- Period va chastota hisoblashlar
-
-### Termodinamika
-- **Ideal gaz molekulalari**: Gaz molekulalarining harakati
-- Harorat ta'sirini ko'rsatish
-- Molekular kinetik nazariya
-python manage.py migrate
-```
-
-### 5. Superuser yaratish
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Serverni ishga tushirish
-```bash
-python manage.py runserver
-```
-
-Websiteni [http://127.0.0.1:8000](http://127.0.0.1:8000) manzilida ko'rish mumkin.
-
-## Proyekt strukturasi
-
-```
-App_Simulations/
-├── simulation_website/          # Asosiy Django proyekt
-│   ├── settings.py             # Sozlamalar
-│   ├── urls.py                 # URL marshrutlari
-│   └── wsgi.py                 # WSGI konfiguratsiya
-├── simulations/                # Simulyatsiyalar app
-│   ├── models.py               # Ma'lumotlar modellari
-│   ├── views.py                # Ko'rinishlar
-│   ├── forms.py                # Formalar
-│   ├── admin.py                # Admin panel
-│   └── urls.py                 # App URL-lari
-├── accounts/                   # Foydalanuvchilar app
-│   ├── models.py               # Foydalanuvchi modellari
-│   ├── views.py                # Autentifikatsiya ko'rinishlari
-│   ├── forms.py                # Ro'yxatdan o'tish/kirish formalar
-│   └── urls.py                 # Account URL-lari
-├── templates/                  # HTML templatelar
-│   ├── base.html               # Asosiy template
-│   ├── simulations/            # Simulyatsiya templatelari
-│   └── accounts/               # Account templatelari
-├── static/                     # Static fayllar
-│   ├── css/                    # CSS fayllar
-│   └── js/                     # JavaScript fayllar
-├── media/                      # Yuklangan fayllar
-├── requirements.txt            # Python paketlari
-└── manage.py                   # Django management script
-```
-
-## Foydalanish
-
-### Simulyatsiya yaratish
-1. Websitega kiring yoki ro'yxatdan o'ting
-2. "Yangi yaratish" tugmasini bosing
-3. Simulyatsiya ma'lumotlarini kiriting:
-   - Sarlavha va tavsif
-   - Simulyatsiya turi (HTML, CSS, JavaScript)
-   - Kod yozing (HTML, CSS, JS)
-4. "Saqlash" tugmasini bosing
-
-### Simulyatsiyalarni ko'rish
-- Bosh sahifada barcha ochiq simulyatsiyalar ko'rsatiladi
-- "Ko'rish" tugmasi bilan batafsil ma'lumot olish mumkin
-- "Ishga tushirish" tugmasi bilan simulyatsiyani ishlatish mumkin
-
-### Simulyatsiyalarni boshqarish
-- "Mening simulyatsiyalarim" bo'limida o'z simulyatsiyalaringizni ko'ring
-- Tahrirlash, o'chirish va holat o'zgartirish mumkin
-
-## Models (Ma'lumotlar modellari)
-
-### Simulation
-- `title`: Simulyatsiya sarlavhasi
-- `description`: Tavsif
-- `simulation_type`: Turi (HTML/CSS/JavaScript)
-- `html_code`: HTML kodi
-- `css_code`: CSS kodi
-- `js_code`: JavaScript kodi
-- `created_by`: Yaratuvchi foydalanuvchi
-- `is_public`: Ochiq/yopiq holati
-
-### Comment
-- `simulation`: Simulyatsiya (ForeignKey)
-- `user`: Foydalanuvchi (ForeignKey)
-- `content`: Izoh matni
-- `created_at`: Yaratilgan vaqt
-
-### Like
-- `simulation`: Simulyatsiya (ForeignKey)
-- `user`: Foydalanuvchi (ForeignKey)
-- `created_at`: Yaratilgan vaqt
-
-## Hissa qo'shish
-
-1. Fork qiling
-2. Feature branch yarating (`git checkout -b feature/AmazingFeature`)
-3. O'zgarishlarni commit qiling (`git commit -m 'Add some AmazingFeature'`)
-4. Branch-ni push qiling (`git push origin feature/AmazingFeature`)
-5. Pull Request yarating
-
-## Litsenziya
-
-Bu proyekt MIT litsenziyasi ostida chiqarilgan. Batafsil ma'lumot uchun `LICENSE` faylini ko'ring.
-
-## Muallif
-
-**Simulyatsiyalar Jamoasi** - Eng yaxshi web simulyatsiyalar platformasi
-
-## Qo'llab-quvvatlash
-
-Agar savollaringiz bo'lsa, muammo bilan duch kelsangiz yoki takliflaringiz bo'lsa:
-
-- Issue yarating GitHub-da
-- Email jo'nating: support@simulations.uz
-- Telegram orqali murojaat qiling: @simulations_support
+- [x] **FAZA 1** — Skelet: monorepo, Express + `/api/health`, Next.js + Tailwind, deploy konfiglari
+- [x] **FAZA 2** — Prisma sxema, migratsiya, 9 bo'lim + 79 mavzu seed
+- [x] **FAZA 3** — API: sections, topics, simulations, `/embed`, demo shablon generatori
+- [x] **FAZA 4** — Frontend: bo'limlar, mavzular gridi, simulyatsiya sahifasi, qidiruv
+- [x] **FAZA 5** — Admin panel: JWT auth, HTML editor + preview
+- [x] **FAZA 6** — SEO, accessibility, xavfsizlik sarlavhalari, audit skripti
