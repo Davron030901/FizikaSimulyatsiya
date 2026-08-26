@@ -362,6 +362,25 @@ joylang → **Nashr qilish**.
 
 ---
 
+### To'liq bepul variant (tavsiya etiladi)
+
+| Qism | Xizmat | Cheklov |
+|------|--------|---------|
+| Frontend | **Vercel Hobby** | Bepul, muddatsiz |
+| Backend | **Render Free** | 15 daqiqadan keyin uxlaydi (~50 s sovuq start) |
+| Baza | **Neon Free** | 0.5 GB, muddatsiz |
+
+> **Muhim:** Render'ning bepul PostgreSQL'i **30 kundan keyin o'chiriladi**. Loyihani
+> uzoq muddat bepul ushlab turish uchun bazani [neon.tech](https://neon.tech) da oching
+> (bepul tarif muddatsiz) va `DATABASE_URL` ni Render'ning env'iga qo'ying:
+>
+> ```
+> DATABASE_URL=postgresql://user:parol@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+> ```
+>
+> Neon Frankfurt regionida ochilsa, Render'dagi backend bilan kechikish minimal bo'ladi.
+> Bazani almashtirgach bir marta `npm run prisma:deploy` va `npm run seed` ni ishga tushiring.
+
 ### Bepul tarif haqida
 
 Render Free tier 15 daqiqa harakatsizlikdan keyin uxlaydi. Birinchi so'rov ~30
@@ -383,12 +402,20 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 | Build'da `TS5108: moduleResolution ... removed` | Global TypeScript ishlatilgan (devDeps o'rnatilmagan) | `.npmrc` commit qilinganini tekshiring |
 | Build'da `TS7016: Could not find a declaration file for 'express'` | devDependencies o'rnatilmagan | `.npmrc` (`include=dev`) yoki Build Command'ga `--include=dev` |
 | Render Shell'da `npm run seed` → `tsx: not found` | devDependencies o'rnatilmagan | Yuqoridagi bilan bir xil sabab |
+| `TS2307: Cannot find module './xxx.route'` | Fayl ustiga boshqa fayl yozilgan | `npm run verify` — qaysi fayl buzilganini aytadi |
+| Baza to'satdan yo'qoldi | Render Free Postgres 30 kunda o'chadi | Neon'ga o'ting (yuqoriga qarang) |
 | `/api/health` ishlaydi, lekin `/api/sections` 500 | Migratsiya qo'llanmagan | `npm run prisma:deploy -w @physicslab/api` |
 | Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |
 
 ---
 
 ## Testlar
+
+Fayllar to'g'ri ko'chirilganini tekshirish (birinchi navbatda shuni ishga tushiring):
+
+```bash
+npm run verify        # MANIFEST.sha256 bo'yicha 139 ta faylni solishtiradi
+```
 
 Bazasiz ishlaydigan tekshiruvlar (istalgan joyda, CI'da ham):
 

@@ -28,7 +28,9 @@
     "test:api": "tsx scripts/test-api.ts",
     "test:admin": "tsx scripts/test-admin.ts",
     "test:migration": "tsx scripts/check-migration.ts",
-    "test:web": "tsx scripts/test-web.ts"
+    "test:web": "tsx scripts/test-web.ts",
+    "verify": "tsx scripts/verify-files.ts",
+    "verify:write": "tsx scripts/verify-files.ts --write"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
