@@ -1,3 +1,4 @@
+import { DEMO_TYPES } from '../../src/simulations/demoConfig';
 import { allTopics, sections } from './index';
 
 /**
@@ -5,10 +6,11 @@ import { allTopics, sections } from './index';
  * Bazasiz ishlaydi, shuning uchun CI da ham, seed'dan oldin ham chaqirish mumkin.
  */
 
-const EXPECTED_SECTIONS = 9;
-const EXPECTED_TOPICS = 79;
+const EXPECTED_SECTIONS = 13;
+const EXPECTED_TOPICS = 123;
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const VALID_DEMO_TYPES = ['motion', 'wave', 'orbit', 'vector', 'fluid'];
+// Generator qabul qiladigan ro'yxatning o'zi — takrorlanmaydi.
+const VALID_DEMO_TYPES: readonly string[] = DEMO_TYPES;
 const VALID_DIFFICULTIES = ['OSON', 'ORTA', 'QIYIN'];
 const MIN_THEORY_CHARS = 400;
 

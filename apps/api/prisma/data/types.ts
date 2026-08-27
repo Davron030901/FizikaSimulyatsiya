@@ -1,7 +1,20 @@
 export type Difficulty = 'OSON' | 'ORTA' | 'QIYIN';
 
-/** Demo shablon turi - bo'limga qarab tanlanadi (FAZA 3 da HTML generatori shuni o'qiydi). */
-export type DemoType = 'motion' | 'wave' | 'orbit' | 'vector' | 'fluid';
+/**
+ * Demo shablon turi — bo'limga qarab tanlanadi, HTML generatori shuni o'qiydi.
+ *
+ * Ro'yxat `src/simulations/demoConfig.ts` dagi DEMO_TYPES bilan bir xil bo'lishi
+ * shart. validate.ts ikkalasini solishtiradi va farq bo'lsa xato beradi.
+ */
+export type DemoType =
+  | 'motion'
+  | 'wave'
+  | 'orbit'
+  | 'vector'
+  | 'fluid'
+  | 'particles'
+  | 'field'
+  | 'ray';
 
 export interface FormulaSeed {
   latex: string;

@@ -28,6 +28,10 @@ const config: Config = {
           gravitatsiya: '#6366F1',
           statika: '#78716C',
           suyuqlik: '#0EA5E9',
+          termodinamika: '#F97316',
+          elektr: '#DB2777',
+          optika: '#14B8A6',
+          atom: '#65A30D',
         },
       },
       fontFamily: {

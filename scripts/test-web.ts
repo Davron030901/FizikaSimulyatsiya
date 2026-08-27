@@ -1,5 +1,10 @@
 import { spawn } from 'node:child_process';
+import { allTopics, sections } from '../apps/api/prisma/data';
 import { createApp } from '../apps/api/src/app';
+
+const TOTAL_SECTIONS = sections.length;
+const TOTAL_TOPICS = allTopics.length;
+const SUYUQLIK_TOPICS = sections.find((s) => s.slug === 'suyuqlik-mexanikasi')?.topics.length ?? 0;
 
 /**
  * Frontend sahifalarini uchdan-uchgacha tekshiradi.
@@ -42,7 +47,7 @@ async function main(): Promise<void> {
 
   console.log('\n  === SAHIFALAR ===');
   const home = await page('Bosh sahifa', '/');
-  const sections = await page("Bo'limlar", '/bolimlar');
+  const sectionsHtml = await page("Bo'limlar", '/bolimlar');
   const section = await page("Bo'lim: suyuqlik", '/bolimlar/suyuqlik-mexanikasi');
   await page("Bo'lim: mavjud emas", '/bolimlar/yoq-bolim', 404);
   const topic = await page('Mavzu: 9.2', '/simulyatsiya/gidrostatik-bosim');
@@ -60,11 +65,20 @@ async function main(): Promise<void> {
 
   console.log('\n  === MAZMUN ===');
   const checks: Array<[string, boolean]> = [];
-  checks.push(["bosh: 9 bo'lim havolasi", (home.match(/href="\/bolimlar\//g) ?? []).length >= 9]);
+  checks.push([
+    `bosh: ${TOTAL_SECTIONS} bo'lim havolasi`,
+    (home.match(/href="\/bolimlar\//g) ?? []).length >= TOTAL_SECTIONS,
+  ]);
   checks.push(['bosh: qidiruv formasi', home.includes('role="search"')]);
   checks.push(['bosh: WebSite JSON-LD', home.includes('SearchAction')]);
-  checks.push(["bo'limlar: 9 ta karta", (sections.match(/href="\/bolimlar\//g) ?? []).length === 9]);
-  checks.push(["bo'lim: 12 ta mavzu", (section.match(/href="\/simulyatsiya\//g) ?? []).length === 12]);
+  checks.push([
+    `bo'limlar: ${TOTAL_SECTIONS} ta karta`,
+    (sectionsHtml.match(/href="\/bolimlar\//g) ?? []).length === TOTAL_SECTIONS,
+  ]);
+  checks.push([
+    `bo'lim: ${SUYUQLIK_TOPICS} ta mavzu`,
+    (section.match(/href="\/simulyatsiya\//g) ?? []).length === SUYUQLIK_TOPICS,
+  ]);
   checks.push(["bo'lim: Course JSON-LD", section.includes('"Course"')]);
   checks.push(["bo'lim: rang qollangan", section.includes('#0EA5E9')]);
   checks.push(['mavzu: sarlavha', topic.includes('Gidrostatik bosim')]);
@@ -78,8 +92,14 @@ async function main(): Promise<void> {
   checks.push(['1.1 da keyingi bor', first.includes('Keyingi ·')]);
   checks.push(['qidiruv natija berdi', search.includes('natija') && search.includes('/simulyatsiya/')]);
   checks.push(['bosh qidiruv xabari', empty.includes('Hech narsa topilmadi')]);
-  checks.push(['sitemap 79 mavzu', (sitemap.match(/\/simulyatsiya\//g) ?? []).length === 79]);
-  checks.push(["sitemap 9 bo'lim", (sitemap.match(/\/bolimlar\//g) ?? []).length === 9]);
+  checks.push([
+    `sitemap ${TOTAL_TOPICS} mavzu`,
+    (sitemap.match(/\/simulyatsiya\//g) ?? []).length === TOTAL_TOPICS,
+  ]);
+  checks.push([
+    `sitemap ${TOTAL_SECTIONS} bo'lim`,
+    (sitemap.match(/\/bolimlar\//g) ?? []).length === TOTAL_SECTIONS,
+  ]);
   checks.push(['mobil menyu', home.includes('Mobil menyu')]);
   checks.push(['skip-link', home.includes('Asosiy mazmunga')]);
   checks.push(['lang="uz"', home.includes('lang="uz"')]);

@@ -78,3 +78,51 @@
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
   }
 }
+
+@layer components {
+  /* Fonda suzuvchi fizika belgilari (FloatingSymbols). Butun harakat shu yerda:
+     komponent faqat joylashuv va vaqtni beradi, JS ishlamaydi. */
+  .physics-symbol {
+    position: absolute;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation-name: symbol-float;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes symbol-float {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: var(--symbol-opacity, 0.08);
+  }
+  100% {
+    transform: translate3d(var(--symbol-drift, 0), -60vh, 0) rotate(var(--symbol-spin, 0deg));
+    opacity: 0;
+  }
+}
+
+/* Harakat kamaytirilgan bo'lsa: belgilar qoladi, lekin qimirlamaydi.
+   Global qoida animatsiyani 0.01ms ga tushiradi, bu esa ularni ko'rinmas
+   holatda qotirib qo'yardi — shuning uchun bu yerda aniq qayta yozamiz. */
+@media (prefers-reduced-motion: reduce) {
+  .physics-symbol {
+    animation: none !important;
+    opacity: var(--symbol-opacity, 0.08);
+  }
+}
+
+/* Qorong'i rejimda fon to'q, shuning uchun belgilar biroz yorqinroq bo'lishi kerak. */
+.dark .physics-symbol {
+  opacity: 0;
+  filter: brightness(1.5);
+}

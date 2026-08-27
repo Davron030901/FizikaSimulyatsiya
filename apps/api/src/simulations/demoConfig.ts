@@ -1,6 +1,15 @@
 import { z } from 'zod';
 
-export const DEMO_TYPES = ['motion', 'wave', 'orbit', 'vector', 'fluid'] as const;
+export const DEMO_TYPES = [
+  'motion',
+  'wave',
+  'orbit',
+  'vector',
+  'fluid',
+  'particles',
+  'field',
+  'ray',
+] as const;
 export type DemoType = (typeof DEMO_TYPES)[number];
 
 const paramSchema = z.object({

@@ -1,44 +1,52 @@
-import { createApp } from './app';
-import { allowedOrigins, API_NAME, API_VERSION, env } from './config/env';
-import { disconnectPrisma } from './lib/prisma';
+import { Router } from 'express';
+import { API_NAME, API_VERSION } from '../config/env';
+import { sendOk } from '../utils/response';
+import adminRoute from './admin.route';
+import authRoute from './auth.route';
+import healthRoute from './health.route';
+import searchRoute from './search.route';
+import sectionsRoute from './sections.route';
+import simulationsRoute from './simulations.route';
+import statsRoute from './stats.route';
+import topicsRoute from './topics.route';
 
-const app = createApp();
+const router = Router();
 
-const server = app.listen(env.PORT, () => {
-  console.log('');
-  console.log(`  ${API_NAME} v${API_VERSION}`);
-  console.log(`  Rejim:    ${env.NODE_ENV}`);
-  console.log(`  Manzil:   http://localhost:${env.PORT}`);
-  console.log(`  Health:   http://localhost:${env.PORT}/api/health`);
-  console.log(`  CORS:     ${allowedOrigins.join(', ')}`);
-  console.log('');
-});
-
-/** Render sends SIGTERM on redeploy; finish in-flight requests before exiting. */
-function shutdown(signal: string): void {
-  console.log(`\n[${signal}] Server to'xtatilmoqda...`);
-  server.close(async (error) => {
-    if (error) {
-      console.error('[shutdown] Xatolik:', error);
-      process.exit(1);
-    }
-    await disconnectPrisma();
-    console.log('[shutdown] Server va baza ulanishi toza yopildi.');
-    process.exit(0);
+/** GET /api - small index so the API is self-describing. */
+router.get('/', (_req, res) => {
+  sendOk(res, {
+    name: API_NAME,
+    version: API_VERSION,
+    phase: 'FAZA 5 - admin panel',
+    endpoints: {
+      health: '/api/health',
+      sections: '/api/sections',
+      sectionBySlug: '/api/sections/:slug',
+      topics: '/api/topics?section=&q=&difficulty=&page=&limit=',
+      topicBySlug: '/api/topics/:slug',
+      simulation: '/api/simulations/:topicSlug',
+      simulationEmbed: '/api/simulations/:topicSlug/embed?theme=light|dark',
+      search: '/api/search?q=',
+      stats: '/api/stats',
+    },
+    adminEndpoints: {
+      login: 'POST /api/auth/login',
+      me: 'GET /api/auth/me',
+      topics: 'GET /api/admin/topics',
+      simulation: 'GET /api/admin/simulations/:topicSlug',
+      update: 'PUT /api/admin/simulations/:topicSlug',
+      reset: 'POST /api/admin/simulations/:topicSlug/reset',
+    },
   });
-
-  // Force exit if connections stay open for too long.
-  setTimeout(() => process.exit(1), 10_000).unref();
-}
-
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
-
-process.on('unhandledRejection', (reason) => {
-  console.error('[unhandledRejection]', reason);
 });
 
-process.on('uncaughtException', (error) => {
-  console.error('[uncaughtException]', error);
-  shutdown('uncaughtException');
-});
+router.use('/health', healthRoute);
+router.use('/sections', sectionsRoute);
+router.use('/topics', topicsRoute);
+router.use('/simulations', simulationsRoute);
+router.use('/search', searchRoute);
+router.use('/stats', statsRoute);
+router.use('/auth', authRoute);
+router.use('/admin', adminRoute);
+
+export default router;

@@ -1,4 +1,7 @@
+import { allTopics } from '../apps/api/prisma/data';
 import { createApp } from '../apps/api/src/app';
+
+const TOTAL_TOPICS = allTopics.length;
 
 /**
  * Admin oqimini uchdan-uchgacha tekshiradi: login -> qoralama -> nashr -> reset.
@@ -91,7 +94,7 @@ async function main(): Promise<void> {
   const checks: Array<[string, boolean]> = [];
   checks.push(['login token qaytardi', typeof login.json?.data?.token === 'string']);
   checks.push(['login parol hashini qaytarmadi', !login.text.includes('$2')]);
-  checks.push(['79 ta mavzu jadvalda', topics.json?.data?.length === 79]);
+  checks.push([`${TOTAL_TOPICS} ta mavzu jadvalda`, topics.json?.data?.length === TOTAL_TOPICS]);
   checks.push(['jadvalda kind bor', typeof topics.json?.data?.[0]?.kind === 'string']);
   checks.push(['admin simda config bor', sim.json?.data?.simulation?.config != null]);
   checks.push(['qoralama versiyasi oshdi', draft.json?.data?.version === before + 1]);

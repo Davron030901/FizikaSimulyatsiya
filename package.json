@@ -30,7 +30,10 @@
     "test:migration": "tsx scripts/check-migration.ts",
     "test:web": "tsx scripts/test-web.ts",
     "verify": "tsx scripts/verify-files.ts",
-    "verify:write": "tsx scripts/verify-files.ts --write"
+    "verify:write": "tsx scripts/verify-files.ts --write",
+    "db:check": "tsx scripts/check-content.ts",
+    "db:export-sql": "tsx scripts/export-sql.ts seed.sql",
+    "test:symbols": "tsx scripts/test-symbols.ts"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

@@ -7,6 +7,10 @@ import { tebranish } from './06-tebranish';
 import { gravitatsiya } from './07-gravitatsiya';
 import { statika } from './08-statika';
 import { suyuqlik } from './09-suyuqlik';
+import { termodinamika } from './10-termodinamika';
+import { elektr } from './11-elektr';
+import { optika } from './12-optika';
+import { atomFizikasi } from './13-atom-fizikasi';
 import type { SectionSeed, TopicSeed } from './types';
 
 export const sections: SectionSeed[] = [
@@ -19,6 +23,10 @@ export const sections: SectionSeed[] = [
   gravitatsiya,
   statika,
   suyuqlik,
+  termodinamika,
+  elektr,
+  optika,
+  atomFizikasi,
 ];
 
 /** Barcha mavzular bitta tekis ro'yxatda (bo'lim slug'i bilan birga). */

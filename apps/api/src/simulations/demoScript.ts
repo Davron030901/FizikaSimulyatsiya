@@ -282,12 +282,213 @@ export const DEMO_SCRIPT = String.raw`
     return level * 2 - 1;
   }
 
+
+  // --- Molekulalar qutida (termodinamika) ---
+  // na -> harakat tezligi (temperatura), nb -> zarrachalar soni (zichlik).
+
+  var particles = null;
+
+  function drawParticles(h, na, nb) {
+    var pad = 22;
+    var boxW = W - pad * 2;
+    var boxH = h - pad * 1.6;
+    var top = pad * 0.8;
+    var count = Math.round(8 + nb * 34);
+    var speed = 25 + na * 190;
+    var radius = 3 + nb * 2;
+
+    if (!particles || particles.length !== count) {
+      particles = [];
+      for (var i = 0; i < count; i++) {
+        var angle = (i * 2.39996) % (Math.PI * 2);
+        particles.push({
+          x: pad + radius + ((i * 37) % Math.max(1, boxW - 2 * radius)),
+          y: top + radius + ((i * 61) % Math.max(1, boxH - 2 * radius)),
+          dx: Math.cos(angle),
+          dy: Math.sin(angle)
+        });
+      }
+    }
+
+    ctx.strokeStyle = css('--border');
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(pad, top, boxW, boxH);
+
+    var dt = state.playing ? 0.016 * state.speed : 0;
+    var hits = 0;
+
+    for (var j = 0; j < particles.length; j++) {
+      var p = particles[j];
+      p.x += p.dx * speed * dt;
+      p.y += p.dy * speed * dt;
+
+      if (p.x < pad + radius) { p.x = pad + radius; p.dx = -p.dx; hits++; }
+      if (p.x > pad + boxW - radius) { p.x = pad + boxW - radius; p.dx = -p.dx; hits++; }
+      if (p.y < top + radius) { p.y = top + radius; p.dy = -p.dy; hits++; }
+      if (p.y > top + boxH - radius) { p.y = top + boxH - radius; p.dy = -p.dy; hits++; }
+
+      ctx.fillStyle = CONFIG.accent;
+      ctx.globalAlpha = 0.55 + 0.45 * na;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Devorga urilishlar bosimga mos keladi - shuni grafikka beramiz.
+    return Math.min(hits / 6, 1) * 2 - 1;
+  }
+
+  // --- Elektr maydoni (ikki zaryad) ---
+  // na -> zaryad kattaligi, nb -> zaryadlar orasidagi masofa.
+
+  function drawField(h, na, nb) {
+    var cy = h * 0.5;
+    var gap = W * (0.12 + nb * 0.26);
+    var x1 = W / 2 - gap;
+    var x2 = W / 2 + gap;
+    var q = 0.5 + na * 2.5;
+
+    // Maydon chiziqlari: musbat zaryaddan chiqib, manfiyga kiradi.
+    ctx.strokeStyle = CONFIG.accent;
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = 1.5;
+
+    var lines = 11;
+    for (var i = 0; i < lines; i++) {
+      var start = (i / (lines - 1)) * Math.PI * 2;
+      var px = x1 + Math.cos(start) * 13;
+      var py = cy + Math.sin(start) * 13;
+
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      for (var step = 0; step < 190; step++) {
+        var d1x = px - x1, d1y = py - cy;
+        var d2x = px - x2, d2y = py - cy;
+        var r1 = Math.max(Math.sqrt(d1x * d1x + d1y * d1y), 9);
+        var r2 = Math.max(Math.sqrt(d2x * d2x + d2y * d2y), 9);
+        var ex = (q * d1x) / (r1 * r1 * r1) - (q * d2x) / (r2 * r2 * r2);
+        var ey = (q * d1y) / (r1 * r1 * r1) - (q * d2y) / (r2 * r2 * r2);
+        var len = Math.sqrt(ex * ex + ey * ey);
+        if (len < 1e-9) break;
+        px += (ex / len) * 4;
+        py += (ey / len) * 4;
+        if (px < -20 || px > W + 20 || py < -20 || py > h + 20) break;
+        if (r2 < 12) break;
+        ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // Sinov zaryadi maydon bo'ylab suriladi.
+    var t = (state.t * 0.35) % 1;
+    var tx = x1 + (x2 - x1) * t;
+    var ty = cy - Math.sin(t * Math.PI) * h * 0.18;
+
+    ctx.fillStyle = css('--muted');
+    ctx.beginPath();
+    ctx.arc(tx, ty, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    var charges = [
+      { x: x1, sign: '+', color: '#EF4444' },
+      { x: x2, sign: '\u2212', color: '#3B82F6' }
+    ];
+    for (var c = 0; c < charges.length; c++) {
+      ctx.fillStyle = charges[c].color;
+      ctx.beginPath();
+      ctx.arc(charges[c].x, cy, 11 + na * 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(charges[c].sign, charges[c].x, cy + 1);
+    }
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+
+    return Math.cos(t * Math.PI * 2);
+  }
+
+  // --- Yorug'lik nuri: qaytish va sinish (optika) ---
+  // na -> tushish burchagi, nb -> ikkinchi muhitning sindirish ko'rsatkichi.
+
+  function drawRay(h, na, nb) {
+    var cx = W / 2;
+    var cy = h * 0.5;
+    var reach = Math.min(W, h) * 0.42;
+    var incidence = (5 + na * 80) * Math.PI / 180;
+    var n1 = 1;
+    var n2 = 1 + nb * 1.6;
+
+    // Chegara va normal
+    ctx.strokeStyle = css('--border');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, cy);
+    ctx.lineTo(W, cy);
+    ctx.stroke();
+
+    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - reach);
+    ctx.lineTo(cx, cy + reach);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Pastki muhit zichroq - fon bilan ko'rsatamiz
+    ctx.globalAlpha = 0.08 + nb * 0.12;
+    ctx.fillStyle = CONFIG.accent;
+    ctx.fillRect(0, cy, W, h - cy);
+    ctx.globalAlpha = 1;
+
+    // Tushuvchi nur
+    var sx = cx - Math.sin(incidence) * reach;
+    var sy = cy - Math.cos(incidence) * reach;
+    arrow(sx, sy, cx, cy, CONFIG.accent, 2.5);
+
+    // Qaytgan nur
+    var rx = cx + Math.sin(incidence) * reach;
+    var ry = cy - Math.cos(incidence) * reach;
+    ctx.globalAlpha = 0.5;
+    arrow(cx, cy, rx, ry, CONFIG.accent, 2);
+    ctx.globalAlpha = 1;
+
+    // Singan nur (Snellius). sin(r) > 1 bo'lsa - to'liq ichki qaytish.
+    var sinR = (n1 / n2) * Math.sin(incidence);
+    if (sinR <= 1) {
+      var refraction = Math.asin(sinR);
+      var fx = cx + Math.sin(refraction) * reach;
+      var fy = cy + Math.cos(refraction) * reach;
+      arrow(cx, cy, fx, fy, CONFIG.accent, 2.5);
+    } else {
+      ctx.fillStyle = css('--muted');
+      ctx.font = '12px system-ui, sans-serif';
+      ctx.fillText("to'liq ichki qaytish", 10, cy + 20);
+    }
+
+    // Nur bo'ylab yuguruvchi nuqta
+    var travel = (state.t * 0.6) % 1;
+    ctx.fillStyle = CONFIG.accent;
+    ctx.beginPath();
+    ctx.arc(sx + (cx - sx) * travel, sy + (cy - sy) * travel, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    return Math.sin(incidence) * 2 - 1;
+  }
+
   var RENDERERS = {
     motion: drawMotion,
     wave: drawWave,
     orbit: drawOrbit,
     vector: drawVector,
-    fluid: drawFluid
+    fluid: drawFluid,
+    particles: drawParticles,
+    field: drawField,
+    ray: drawRay
   };
 
   // ---------- strip chart ----------
@@ -415,6 +616,7 @@ export const DEMO_SCRIPT = String.raw`
   function reset() {
     state.t = 0;
     series = [];
+    particles = null;
     draw();
   }
 

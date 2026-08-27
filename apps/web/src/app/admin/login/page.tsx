@@ -1,5 +1,6 @@
 'use client';
 
+import { FloatingSymbols } from '@/components/decor/FloatingSymbols';
 import { Button } from '@/components/ui/Button';
 import { ApiError } from '@/lib/api';
 import { adminLogin, getToken } from '@/lib/adminApi';
@@ -34,6 +35,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="container-page flex min-h-[70vh] items-center justify-center py-10">
+      <FloatingSymbols count={16} seed={771} intensity={0.7} />
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">

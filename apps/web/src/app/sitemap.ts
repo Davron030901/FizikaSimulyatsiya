@@ -6,6 +6,24 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 /** Rendered on request: the API may be unreachable during the build. */
 export const dynamic = 'force-dynamic';
 
+/** API bitta so'rovda ko'pi bilan 100 ta mavzu qaytaradi, shuning uchun sahifalab olamiz. */
+async function fetchAllTopics(): Promise<string[]> {
+  const LIMIT = 100;
+  const slugs: string[] = [];
+  let page = 1;
+
+  for (;;) {
+    const { data, meta } = await api.topics({ page, limit: LIMIT });
+    slugs.push(...data.map((topic) => topic.slug));
+
+    const totalPages = meta?.totalPages ?? 1;
+    if (page >= totalPages || data.length === 0) break;
+    page += 1;
+  }
+
+  return slugs;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: 'weekly', priority: 1 },
@@ -14,7 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [sections, topics] = await Promise.all([api.sections(), api.topics({ limit: 100 })]);
+    const sections = await api.sections();
+    const topics = await fetchAllTopics();
 
     return [
       ...staticRoutes,
@@ -23,8 +42,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       })),
-      ...topics.data.map((topic) => ({
-        url: `${SITE_URL}/simulyatsiya/${topic.slug}`,
+      ...topics.map((slug) => ({
+        url: `${SITE_URL}/simulyatsiya/${slug}`,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
       })),

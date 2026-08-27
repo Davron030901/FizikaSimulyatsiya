@@ -4,10 +4,13 @@ import {
   BatteryCharging,
   CircleDot,
   Droplets,
+  Lightbulb,
   MoveRight,
   Orbit,
+  PlugZap,
   RefreshCw,
   Scale,
+  Thermometer,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
@@ -26,6 +29,10 @@ const ICONS: Record<string, LucideIcon> = {
   orbit: Orbit,
   scale: Scale,
   droplets: Droplets,
+  thermometer: Thermometer,
+  'plug-zap': PlugZap,
+  lightbulb: Lightbulb,
+  atom: Atom,
 };
 
 export function SectionIcon({ name, size = 20 }: { name: string; size?: number }) {

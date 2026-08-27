@@ -1,7 +1,7 @@
 # PhysicsLab UZ
 
 O'zbek tilidagi interaktiv fizika simulyatsiyalari platformasi.
-Mexanika bo'yicha **9 ta bo'lim** va **79 ta mavzu** — har biri uchun alohida sahifa va
+**13 ta bo'lim** va **123 ta mavzu** — har biri uchun alohida sahifa va
 alohida simulyatsiya.
 
 | Qism | Texnologiya | Deployment |
@@ -106,7 +106,7 @@ docker run --name physicslab-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=phy
 
 # 4. Sxemani bazaga qo'llash va ma'lumotlarni yuklash
 npm run prisma:migrate -w @physicslab/api   # birinchi marta: nom so'raydi -> "init"
-npm run seed -w @physicslab/api             # 9 bo'lim + 79 mavzu
+npm run seed -w @physicslab/api             # 13 bo'lim + 123 mavzu
 
 # 5. Ikkalasini birga ishga tushirish
 npm run dev
@@ -188,6 +188,90 @@ bo'lishi shart.
 | `NEXT_PUBLIC_SITE_URL` | Saytning o'z manzili (SEO uchun) |
 
 Env noto'g'ri bo'lsa API ishga tushmaydi va aniq xato ro'yxatini chiqaradi.
+
+---
+
+## Bazani to'ldirish
+
+### 1. Neon'da baza oching
+
+Agar Neon'da boshqa loyihangiz bo'lsa, **yangi loyiha ochish shart emas** — o'sha
+loyiha ichida alohida baza yarating:
+
+> Neon → loyihangiz → **Databases** → **New Database** → nom: `physicslab`
+
+Connection string'ni **Connect** tugmasidan oling va oxiridagi baza nomini
+`physicslab` ga almashtiring:
+
+```
+postgresql://user:parol@ep-xxx.eu-central-1.aws.neon.tech/physicslab?sslmode=require
+```
+
+Uni `apps/api/.env` dagi `DATABASE_URL` ga va Render'ning Environment bo'limiga qo'ying.
+
+### 2. Jadvallarni yarating va to'ldiring
+
+```bash
+npm run prisma:deploy -w @physicslab/api   # jadvallar (migratsiya repoda tayyor)
+npm run seed -w @physicslab/api            # 13 bo'lim + 123 mavzu + 79 simulyatsiya
+npm run db:check                           # hammasi joyidami?
+```
+
+`db:check` shunday hisobot beradi:
+
+```
+  Bo'limlar:        13 / 13
+  Mavzular:         123 / 123
+  Simulyatsiyalar:  123 / 123
+
+  OK   1   Kinematika                    8 mavzu
+  OK   2   Dinamika                      8 mavzu
+  ...
+  OK   9   Suyuqlik mexanikasi          12 mavzu
+  OK   10  Termodinamika                12 mavzu
+  OK   11  Elektr va magnetizm          12 mavzu
+  OK   12  Optika                       10 mavzu
+  OK   13  Atom va yadro fizikasi       10 mavzu
+
+  Demo (avtomatik)           PUBLISHED  123
+```
+
+### Baza qanday to'ldiriladi
+
+Ma'lumot manbayi — `apps/api/prisma/data/` papkasidagi 9 ta TypeScript fayli.
+Har bir mavzu shu yerda to'liq yozilgan: nomi, qisqa tavsifi, nazariyasi
+(Markdown), formulalari (LaTeX), kalit so'zlari, qiyinlik darajasi va demo
+simulyatsiya parametrlari.
+
+```
+prisma/data/01-kinematika.ts     ──┐
+prisma/data/02-dinamika.ts         │
+        ...                        ├──>  seed.ts  ──>  PostgreSQL
+prisma/data/13-atom-fizikasi.ts  ──┘                    Section    (13)
+                                                        Topic      (123)
+                                                        Simulation (123)
+```
+
+Seed har bir mavzuga bitta `Simulation` yozuvi qo'shadi. Uning `kind` maydoni
+`DEFAULT`, `config` maydonida esa demo parametrlari (`demoType`, sliderlar,
+formula) saqlanadi. `/api/simulations/:slug/embed` so'ralganda HTML aynan shu
+config'dan generatsiya qilinadi — ya'ni demolar bazada HTML sifatida emas,
+parametrlar sifatida yotadi.
+
+**Seed xavfsiz:** `upsert` ishlatiladi, shuning uchun uni xohlagancha marta qayta
+ishga tushirish mumkin. Admin panel orqali joylangan haqiqiy simulyatsiyalar
+(`kind = HTML` yoki `EXTERNAL`) hech qachon qayta yozilmaydi.
+
+### Zaxira yo'l: Prisma'siz to'ldirish
+
+Agar tarmoq Prisma engine'larini yuklab olishga ruxsat bermasa:
+
+```bash
+npm run db:export-sql                       # seed.sql yaratadi
+psql "$DATABASE_URL" -f seed.sql            # to'g'ridan-to'g'ri yuklaydi
+```
+
+Bu fayl ham idempotent (`ON CONFLICT`) va admin qo'ygan kodni saqlaydi.
 
 ---
 
@@ -273,10 +357,13 @@ Har bir mavzu uchun `config.demoType` ga qarab canvas animatsiyasi chiziladi:
 | demoType | Nima chiziladi | Mavzular |
 |----------|----------------|----------|
 | `motion` | Trek bo'ylab harakat + tezlik vektori | 15 |
-| `wave` | Sinusoidal to'lqin + marker | 13 |
-| `orbit` | Aylanma harakat + urinma tezlik | 19 |
+| `wave` | Sinusoidal to'lqin + marker | 19 |
+| `orbit` | Aylanma harakat + urinma tezlik | 23 |
 | `vector` | Ikki vektor + natijaviy (parallelogramm) | 20 |
 | `fluid` | Idish, suyuqlik sathi, bosim gradiyenti | 12 |
+| `particles` | Qutidagi molekulalar, devorga urilish | 15 |
+| `field` | Ikki zaryad + maydon chiziqlari + sinov zaryadi | 12 |
+| `ray` | Tushuvchi, qaytgan va singan nur (Snellius) | 7 |
 
 Har bir sahifada: 2 ta slider + raqamli input + min/o'rta/max presetlari,
 Play/Pauza/Reset, tezlik 0.25×–4×, vaqt bo'yicha jonli grafik, MathJax formulasi,
@@ -333,7 +420,7 @@ git push -u origin main
 4. Deploy tugagach **Shell** ni oching va bir marta ishga tushiring:
 
    ```bash
-   npm run seed        # 9 bo'lim + 79 mavzu + admin
+   npm run seed        # 13 bo'lim + 123 mavzu + admin
    ```
 
    > Jadvallar `startCommand` ichidagi `prisma migrate deploy` orqali avtomatik
@@ -424,7 +511,7 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 Fayllar to'g'ri ko'chirilganini tekshirish (birinchi navbatda shuni ishga tushiring):
 
 ```bash
-npm run verify        # MANIFEST.sha256 bo'yicha 139 ta faylni solishtiradi
+npm run verify        # MANIFEST.sha256 bo'yicha barcha faylni solishtiradi
 ```
 
 Bazasiz ishlaydigan tekshiruvlar (istalgan joyda, CI'da ham):
@@ -441,6 +528,7 @@ Baza va build talab qiladiganlar:
 
 ```bash
 DATABASE_URL=... npm run test:migration   # migratsiya sxemaga mos keladimi (psql orqali)
+DATABASE_URL=... npm run db:check          # baza to'liq to'ldirilganmi
 npm run test:api                          # 51 ta public endpoint tekshiruvi
 ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run test:admin   # login -> qoralama -> nashr -> reset
 npm run build:web && npm run test:web     # 16 sahifa + 24 mazmun tekshiruvi
@@ -469,8 +557,23 @@ tokenlarining WCAG kontrast nisbatlari (light va dark uchun alohida).
   (bo'lim rangi, kodi va nomi bilan)
 - JSON-LD: `WebSite` + `SearchAction` (bosh sahifa), `Course` (bo'lim),
   `LearningResource` (mavzu), `BreadcrumbList` (bo'lim va mavzu)
-- `sitemap.xml` — 9 bo'lim + 79 mavzu, `robots.txt` — `/admin` yopiq
+- `sitemap.xml` — 13 bo'lim + 123 mavzu, `robots.txt` — `/admin` yopiq
 - `manifest.webmanifest` + SVG ikonka (telefonga o'rnatish mumkin)
+
+**Fon bezagi.** Bosh sahifa va admin login sahifasida fizika belgilari (`v`, `F`,
+`ω`, `∫`) va qisqa formulalar (`F = ma`, `E = mc²`) sekin suzib yuradi —
+`components/decor/FloatingSymbols.tsx`.
+
+- Server komponenti: brauzerga JS ketmaydi, harakat butunlay CSS `@keyframes`
+- Joylashuv urug'lantirilgan generatordan: SSR va klient bir xil natija beradi,
+  shuning uchun hydration mos kelmasligi va titrash bo'lmaydi
+- `aria-hidden` + `pointer-events-none` + `-z-10`
+- `prefers-reduced-motion` da belgilar qoladi, lekin qimirlamaydi
+- Mavzu sahifalarida ataylab yo'q — o'qishga xalaqit bermasligi uchun
+
+```tsx
+<FloatingSymbols count={16} seed={771} intensity={0.7} />
+```
 
 **Accessibility:**
 - Sarlavhalar ierarxiyasi buzilmaydi — kartalar `headingLevel` propi orqali
@@ -491,7 +594,7 @@ tokenlarining WCAG kontrast nisbatlari (light va dark uchun alohida).
 ## Bosqichlar
 
 - [x] **FAZA 1** — Skelet: monorepo, Express + `/api/health`, Next.js + Tailwind, deploy konfiglari
-- [x] **FAZA 2** — Prisma sxema, migratsiya, 9 bo'lim + 79 mavzu seed
+- [x] **FAZA 2** — Prisma sxema, migratsiya, 13 bo'lim + 123 mavzu seed
 - [x] **FAZA 3** — API: sections, topics, simulations, `/embed`, demo shablon generatori
 - [x] **FAZA 4** — Frontend: bo'limlar, mavzular gridi, simulyatsiya sahifasi, qidiruv
 - [x] **FAZA 5** — Admin panel: JWT auth, HTML editor + preview

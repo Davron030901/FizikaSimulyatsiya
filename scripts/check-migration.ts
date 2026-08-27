@@ -41,7 +41,32 @@ interface Field {
   attributes: string;
 }
 
+let connectionChecked = false;
+
 function query(sql: string): string[][] {
+  try {
+    return runQuery(sql);
+  } catch (error) {
+    if (!connectionChecked) {
+      connectionChecked = true;
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('Connection refused') || message.includes('could not connect')) {
+        console.error('\n  Bazaga ulanib bo\u2018lmadi.');
+        console.error(`  DATABASE_URL: ${String(DATABASE_URL).replace(/:[^:@]*@/, ':****@')}`);
+        console.error('  Baza ishga tushganini va manzil to\u2018g\u2018riligini tekshiring.\n');
+        process.exit(1);
+      }
+      if (message.includes('ENOENT')) {
+        console.error('\n  `psql` topilmadi. PostgreSQL client o\u2018rnating yoki');
+        console.error('  PSQL_BIN=/to\u2018liq/yo\u2018l/psql ko\u2018rsating.\n');
+        process.exit(1);
+      }
+    }
+    throw error;
+  }
+}
+
+function runQuery(sql: string): string[][] {
   const output = execFileSync(PSQL, [DATABASE_URL as string, '-tAF', '\u0001', '-c', sql], {
     encoding: 'utf8',
   });

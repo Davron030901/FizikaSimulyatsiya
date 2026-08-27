@@ -30,3 +30,6 @@ Thumbs.db
 coverage/
 *.tsbuildinfo
 .vercel
+
+# db:export-sql chiqishi
+seed.sql

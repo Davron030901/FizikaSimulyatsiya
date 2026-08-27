@@ -1,5 +1,12 @@
 import { writeFileSync } from 'node:fs';
+import { allTopics, sections } from '../apps/api/prisma/data';
 import { createApp } from '../apps/api/src/app';
+
+// Kutilgan sonlar seed ma'lumotidan hisoblanadi — kontent o'sganda test buzilmaydi.
+const TOTAL_SECTIONS = sections.length;
+const TOTAL_TOPICS = allTopics.length;
+const KINEMATIKA_TOPICS = sections.find((s) => s.slug === 'kinematika')?.topics.length ?? 0;
+const DEFAULT_PAGE_SIZE = 20;
 
 /** Public API endpointlarini uchdan-uchgacha tekshiradi. */
 
@@ -52,10 +59,16 @@ async function main(): Promise<void> {
   const detailData = JSON.parse(detail.body).data;
   const metaData = JSON.parse(meta.body).data;
 
-  checks.push(["9 ta bo'lim", sectionsData.length === 9]);
-  checks.push(['topicCount kinematika = 8', sectionsData[0].topicCount === 8]);
-  checks.push(['jami 79 mavzu', topicsMeta.total === 79]);
-  checks.push(['totalPages = 4', topicsMeta.totalPages === 4]);
+  checks.push([`${TOTAL_SECTIONS} ta bo'lim`, sectionsData.length === TOTAL_SECTIONS]);
+  checks.push([
+    `topicCount kinematika = ${KINEMATIKA_TOPICS}`,
+    sectionsData[0].topicCount === KINEMATIKA_TOPICS,
+  ]);
+  checks.push([`jami ${TOTAL_TOPICS} mavzu`, topicsMeta.total === TOTAL_TOPICS]);
+  checks.push([
+    'sahifalash to\u2018g\u2018ri hisoblanadi',
+    topicsMeta.totalPages === Math.ceil(TOTAL_TOPICS / DEFAULT_PAGE_SIZE),
+  ]);
   checks.push(['filtr 4 ta natija', filteredData.length === 4]);
   checks.push(['filtr faqat gravitatsiya', filteredData.every((t: any) => t.section.slug === 'gravitatsiya')]);
   checks.push(['nazariya matni bor', detailData.theory.length > 400]);
