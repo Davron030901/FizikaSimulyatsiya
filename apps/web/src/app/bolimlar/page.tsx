@@ -1,94 +1,47 @@
-import { SectionIcon } from '@/components/sections/SectionIcon';
-import { TopicFilters } from '@/components/topics/TopicFilters';
-import { api, ApiError } from '@/lib/api';
-import { hexToRgbChannels, plural } from '@/lib/format';
-import { breadcrumbJsonLd, courseJsonLd, JsonLd } from '@/lib/jsonLd';
+import { SectionCard } from '@/components/sections/SectionCard';
+import { ApiErrorState } from '@/components/system/ApiErrorState';
+import { api } from '@/lib/api';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 
-interface Props {
-  params: { section: string };
-}
+export const metadata: Metadata = {
+  title: "Bo'limlar",
+  alternates: { canonical: "/bolimlar" },
+  description: "Mexanika bo'yicha barcha bo'limlar: kinematika, dinamika, energiya va boshqalar.",
+};
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+/**
+ * The API runs as a separate service that may be asleep during a Vercel build,
+ * so this page is rendered per request instead of being prerendered with a
+ * frozen error state. Responses are still cached by the fetch-level revalidate.
+ */
+export const dynamic = 'force-dynamic';
+
+export default async function SectionsPage() {
   try {
-    const section = await api.section(params.section);
-    return {
-      title: section.titleUz,
-      description: section.description,
-      alternates: { canonical: `/bolimlar/${section.slug}` },
-      openGraph: {
-        title: section.titleUz,
-        description: section.description,
-        url: `/bolimlar/${section.slug}`,
-      },
-    };
-  } catch {
-    return { title: "Bo'lim" };
-  }
-}
+    const sections = await api.sections();
+    const totalTopics = sections.reduce((sum, section) => sum + section.topicCount, 0);
 
-export default async function SectionPage({ params }: Props) {
-  let section;
+    return (
+      <div className="container-page py-10">
+        <h1 className="text-2xl font-bold tracking-tight">Bo&apos;limlar</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {sections.length} ta bo&apos;lim, jami {totalTopics} ta mavzu
+        </p>
 
-  try {
-    section = await api.section(params.section);
-  } catch (error) {
-    if (error instanceof ApiError && error.isNotFound) notFound();
-    throw error;
-  }
-
-  const rgb = hexToRgbChannels(section.color);
-
-  const structuredData = [
-    courseJsonLd({
-      name: section.titleUz,
-      description: section.description,
-      slug: section.slug,
-      topicCount: section.topicCount,
-    }),
-    breadcrumbJsonLd([
-      { name: 'Bosh sahifa', path: '/' },
-      { name: "Bo'limlar", path: '/bolimlar' },
-      { name: section.titleUz, path: `/bolimlar/${section.slug}` },
-    ]),
-  ];
-
-  return (
-    <div className="container-page py-8">
-      <JsonLd data={structuredData} />
-
-      <nav aria-label="Yo'l" className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/bolimlar" className="transition-colors hover:text-foreground">
-          Bo&apos;limlar
-        </Link>
-        <ChevronRight size={14} aria-hidden="true" />
-        <span className="text-foreground">{section.titleUz}</span>
-      </nav>
-
-      <header className="mt-5 flex items-start gap-4">
-        <span
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-          style={{ backgroundColor: `rgb(${rgb} / 0.14)`, color: section.color }}
-        >
-          <SectionIcon name={section.icon} size={24} />
-        </span>
-        <div className="min-w-0">
-          <span className="font-mono text-xs text-muted-foreground">
-            {section.code}-bo&apos;lim · {plural(section.topicCount, 'mavzu')}
-          </span>
-          <h1 className="mt-0.5 text-2xl font-bold tracking-tight">{section.titleUz}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            {section.description}
-          </p>
-        </div>
-      </header>
-
-      <div className="mt-8">
-        <TopicFilters topics={section.topics} accent={section.color} />
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sections.map((section) => (
+            <li key={section.slug}>
+              <SectionCard section={section} headingLevel={2} />
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
-  );
+    );
+  } catch {
+    return (
+      <div className="container-page py-10">
+        <ApiErrorState />
+      </div>
+    );
+  }
 }
