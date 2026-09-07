@@ -7,7 +7,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Ilova ishlash vaqtidagi so'rovlar. Supabase'da bu transaction pooler
+  // (port 6543, ?pgbouncer=true) bo'lishi kerak.
   url      = env("DATABASE_URL")
+  // Migratsiyalar uchun. PgBouncer transaction rejimi prepared statement'ni
+  // qo'llab-quvvatlamaydi, shuning uchun migrate uchun alohida, poolersiz
+  // ulanish kerak (Supabase'da session pooler, port 5432).
+  // Neon yoki oddiy PostgreSQL'da ikkalasi bir xil bo'lishi mumkin.
+  directUrl = env("DIRECT_URL")
 }
 
 /// Fizika bo'limi (Kinematika, Dinamika, ...)

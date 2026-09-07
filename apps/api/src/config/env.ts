@@ -23,6 +23,9 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .min(1, "DATABASE_URL majburiy. apps/api/.env faylini to'ldiring."),
+  // Migratsiyalar uchun poolersiz ulanish. Berilmasa DATABASE_URL ishlatiladi —
+  // Neon va oddiy PostgreSQL'da shu yetarli, Supabase'da esa alohida kerak.
+  DIRECT_URL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

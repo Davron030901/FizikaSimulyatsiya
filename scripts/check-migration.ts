@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { maskUrl, resolvePsqlUrl } from './lib/psqlUrl';
 import { readFileSync } from 'node:fs';
 
 /**
@@ -13,10 +14,11 @@ import { readFileSync } from 'node:fs';
 
 const SCHEMA_PATH = 'apps/api/prisma/schema.prisma';
 const PSQL = process.env.PSQL_BIN ?? 'psql';
-const DATABASE_URL = process.env.DATABASE_URL;
+// DIRECT_URL bo'lsa o'sha, bo'lmasa DATABASE_URL. Prisma'ga xos parametrlar olinadi.
+const DATABASE_URL = resolvePsqlUrl();
 
 if (!DATABASE_URL) {
-  console.error('\n  DATABASE_URL kerak.\n');
+  console.error('\n  DATABASE_URL (yoki DIRECT_URL) kerak.\n');
   process.exit(1);
 }
 
@@ -52,7 +54,7 @@ function query(sql: string): string[][] {
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes('Connection refused') || message.includes('could not connect')) {
         console.error('\n  Bazaga ulanib bo\u2018lmadi.');
-        console.error(`  DATABASE_URL: ${String(DATABASE_URL).replace(/:[^:@]*@/, ':****@')}`);
+        console.error(`  Manzil: ${maskUrl(String(DATABASE_URL))}`);
         console.error('  Baza ishga tushganini va manzil to\u2018g\u2018riligini tekshiring.\n');
         process.exit(1);
       }

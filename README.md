@@ -178,7 +178,8 @@ bo'lishi shart.
 | `JWT_EXPIRES_IN` | yo'q | Token muddati, default `7d` |
 | `ADMIN_EMAIL` | yo'q | `create:admin` va seed uchun |
 | `ADMIN_PASSWORD` | yo'q | Kamida 8 belgi |
-| `DATABASE_URL` | **ha** | PostgreSQL connection string |
+| `DATABASE_URL` | **ha** | Ilova so'rovlari uchun (Supabase: port 6543) |
+| `DIRECT_URL` | migratsiya uchun | Poolersiz ulanish (Supabase: port 5432) |
 
 **`apps/web/.env.local`**
 
@@ -193,21 +194,81 @@ Env noto'g'ri bo'lsa API ishga tushmaydi va aniq xato ro'yxatini chiqaradi.
 
 ## Bazani to'ldirish
 
-### 1. Neon'da baza oching
+### 1. Supabase'da baza oching
 
-Agar Neon'da boshqa loyihangiz bo'lsa, **yangi loyiha ochish shart emas** — o'sha
-loyiha ichida alohida baza yarating:
+Supabase bepul tarifida **2 ta faol loyiha** bo'lishi mumkin. PhysicsLab uchun
+alohida loyiha oching — boshqa loyihangiz bilan aralashtirmang.
 
-> Neon → loyihangiz → **Databases** → **New Database** → nom: `physicslab`
+1. [supabase.com](https://supabase.com) → **New project**
+2. Nom: `physicslab`, region: **Frankfurt (eu-central-1)** — Render ham shu yerda
+3. **Database Password** ni o'ylab toping va saqlab qo'ying (keyin ko'rsatilmaydi)
+4. Loyiha tayyor bo'lgach: yuqoridagi **Connect** tugmasi → **ORM** →
+   **Prisma**
 
-Connection string'ni **Connect** tugmasidan oling va oxiridagi baza nomini
-`physicslab` ga almashtiring:
+Supabase sizga aynan ikkita satr beradi:
 
+```env
+DATABASE_URL="postgresql://postgres.abcdefgh:PAROL@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres.abcdefgh:PAROL@aws-0-eu-central-1.pooler.supabase.com:5432/postgres"
 ```
-postgresql://user:parol@ep-xxx.eu-central-1.aws.neon.tech/physicslab?sslmode=require
+
+**Nega ikkita?** Supabase uchta xil ulanish beradi va ular almashtirib
+bo'lmaydi:
+
+| Port | Nomi | Nima uchun |
+|------|------|------------|
+| `6543` | Transaction pooler | Ilova so'rovlari — `DATABASE_URL` |
+| `5432` | Session pooler | Migratsiyalar — `DIRECT_URL` |
+| `5432` | Direct connection (`db.xxx.supabase.co`) | Faqat IPv6 — Render'da **ishlamaydi** |
+
+Eng ko'p uchraydigan xato — migratsiyani 6543 porti orqali bajarishga urinish.
+PgBouncer transaction rejimi prepared statement'ni qo'llab-quvvatlamaydi,
+Prisma Migrate esa aynan shunga tayanadi.
+
+**Uchta tuzoq:**
+
+- Supabase ba'zan `postgresql+asyncpg://` ko'rinishidagi satr ham ko'rsatadi —
+  u SQLAlchemy uchun. Prisma'ga oddiy `postgresql://` kerak.
+- Parolda `@`, `#`, `/` kabi belgilar bo'lsa, ularni URL-kodlang
+  (`@` → `%40`, `#` → `%23`).
+- Bepul loyiha **7 kun harakatsizlikdan keyin to'xtatiladi**. Ma'lumot
+  yo'qolmaydi, lekin dashboard'dan qo'lda tiklash kerak bo'ladi. Saytingizga
+  haftada bir necha marta kirilsa, bu muammo bo'lmaydi.
+
+Ikkala satrni `apps/api/.env` ga va Render'ning Environment bo'limiga qo'ying.
+
+### Xavfsizlik: Supabase jadvallarni ochiq tarqatadi
+
+Bu muhim. Supabase `public` sxemadagi **har qanday** jadvalni avtomatik ravishda
+Data API orqali ochadi. Prisma yaratgan jadvallarda Row Level Security o'chiq
+bo'ladi — ya'ni loyihaning ochiq `anon` kaliti bilan istalgan odam
+`AdminUser` jadvalidan parol hashlarini o'qib olishi mumkin edi.
+
+Shuning uchun loyihada `20260102000000_enable_rls` migratsiyasi bor: u to'rtala
+jadvalga RLS yoqadi va `anon` hamda `authenticated` rollaridan ruxsatni
+olib tashlaydi. Ilova jadval egasi (`postgres`) sifatida ulangani uchun
+RLS'ni chetlab o'tadi va hech narsa buzilmaydi.
+
+Migratsiya Supabase'dan tashqarida ham xavfsiz: `anon` roli mavjud bo'lmasa,
+REVOKE qismi o'tkazib yuboriladi.
+
+Tekshirish uchun Supabase SQL Editor'da:
+
+```sql
+select tablename, rowsecurity from pg_tables where schemaname = 'public';
 ```
 
-Uni `apps/api/.env` dagi `DATABASE_URL` ga va Render'ning Environment bo'limiga qo'ying.
+To'rtala jadvalda `rowsecurity = true` bo'lishi kerak.
+
+### Muqobil: Neon
+
+Neon'da pauza yo'q, lekin pooler ham talab qilinmaydi — `DATABASE_URL` va
+`DIRECT_URL` bir xil bo'lishi mumkin:
+
+```env
+DATABASE_URL="postgresql://user:parol@ep-xxx.eu-central-1.aws.neon.tech/physicslab?sslmode=require"
+DIRECT_URL="postgresql://user:parol@ep-xxx.eu-central-1.aws.neon.tech/physicslab?sslmode=require"
+```
 
 ### 2. Jadvallarni yarating va to'ldiring
 
@@ -462,7 +523,8 @@ joylang → **Nashr qilish**.
 |------|--------|---------|
 | Frontend | **Vercel Hobby** | Bepul, muddatsiz |
 | Backend | **Render Free** | 15 daqiqadan keyin uxlaydi (~50 s sovuq start) |
-| Baza | **Neon Free** | 0.5 GB, muddatsiz |
+| Baza | **Supabase Free** | 500 MB, 7 kun harakatsizlikda pauza |
+| Baza (muqobil) | **Neon Free** | 0.5 GB, pauzasiz |
 
 > **Muhim:** Render'ning bepul PostgreSQL'i **30 kundan keyin o'chiriladi**. Loyihani
 > uzoq muddat bepul ushlab turish uchun bazani [neon.tech](https://neon.tech) da oching
@@ -500,7 +562,11 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 | `Cannot find module '../config/env'` (lokal `npm run dev`) | Yuqoridagi bilan bir xil sabab | `npm run verify` |
 | `docker: invalid reference format` (PowerShell) | Buyruq `\` bilan ko'chirilgan | Buyruqni bitta qatorga yozing |
 | `P1001: Can't reach database server` | Baza ishga tushmagan yoki `DATABASE_URL` xato | Neon connection string'ini `apps/api/.env` ga qo'ying |
-| Baza to'satdan yo'qoldi | Render Free Postgres 30 kunda o'chadi | Neon'ga o'ting (yuqoriga qarang) |
+| Baza to'satdan yo'qoldi | Render Free Postgres 30 kunda o'chadi | Supabase yoki Neon'ga o'ting |
+| Supabase: `prepared statement ... already exists` | Migratsiya 6543 porti orqali ketyapti | `DIRECT_URL` ni 5432 portiga qo'ying |
+| Supabase: `P1001 Can't reach database` | `db.xxx.supabase.co` faqat IPv6 | Pooler manzilini ishlating (`pooler.supabase.com`) |
+| Supabase: loyiha `Paused` | 7 kun harakatsizlik | Dashboard → **Restore project** |
+| `psql: invalid URI query parameter: "pgbouncer"` | psql Prisma parametrlarini tanimaydi | Skriptlar buni o'zi tozalaydi — `DIRECT_URL` qo'yilganini tekshiring |
 | `/api/health` ishlaydi, lekin `/api/sections` 500 | Migratsiya qo'llanmagan | `npm run prisma:deploy -w @physicslab/api` |
 | Admin panelga kira olmayapman | Hisob yaratilmagan | Render Shell: `npm run create:admin` |
 
@@ -508,7 +574,29 @@ ko'rsatadi. Agar bu qabul qilinmasa:
 
 ## Testlar
 
-Fayllar to'g'ri ko'chirilganini tekshirish (birinchi navbatda shuni ishga tushiring):
+### Arxivni to'g'ri chiqarish (Windows)
+
+Fayllarni **birma-bir ko'chirmang**. Windows bir xil nomli fayllarni
+(`page.tsx`, `index.ts`) ustma-ust yozib yuborishi mumkin — natijada kod
+sintaktik jihatdan to'g'ri, lekin butunlay boshqa faylning mazmuni bo'lib qoladi.
+Bunday xato faqat build paytida, tushunarsiz `TS2307` xatolari bilan chiqadi.
+
+To'g'ri yo'l — eski kodni o'chirib, arxivni butunlay qayta chiqarish:
+
+```powershell
+# Repo papkasida turib:
+Remove-Item -Recurse -Force apps, scripts
+Expand-Archive -Path physicslab-v2.0.zip -DestinationPath temp -Force
+Copy-Item -Recurse -Force temp\physicslab\* .
+Remove-Item -Recurse -Force temp
+npm run verify
+```
+
+`git status` bilan nima o'zgarganini ko'ring, so'ng commit qiling.
+
+---
+
+Fayllar to'g'ri ko'chirilganini tekshirish (**commit qilishdan oldin** shuni ishga tushiring):
 
 ```bash
 npm run verify        # MANIFEST.sha256 bo'yicha barcha faylni solishtiradi
