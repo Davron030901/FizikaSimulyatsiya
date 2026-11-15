@@ -188,4 +188,3 @@ apps/web/src/components/studio/physics.test.mjs
 apps/web/src/components/studio/physics.ts
 apps/web/src/components/studio/PhysicsStudio.tsx
 apps/web/src/components/studio/studio.css
-tools/build-labs.mjs
