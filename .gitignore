@@ -184,4 +184,3 @@ apps/web/src/app/page.tsx
 apps/web/src/app/qidiruv/page.tsx
 apps/web/src/app/simulyatsiya/[topic]/page.tsx
 apps/web/src/components/studio/ExperimentGraph.tsx
-apps/web/src/components/studio/physics.test.mjs
