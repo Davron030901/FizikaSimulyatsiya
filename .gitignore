@@ -181,5 +181,4 @@ apps/web/public/laboratoriya/zichlik.html
 apps/web/src/app/bolimlar/[section]/page.tsx
 apps/web/src/app/bolimlar/page.tsx
 apps/web/src/app/page.tsx
-apps/web/src/app/qidiruv/page.tsx
 apps/web/src/app/simulyatsiya/[topic]/page.tsx
