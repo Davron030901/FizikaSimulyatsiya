@@ -180,4 +180,3 @@ apps/web/public/laboratoriya/yoruglik-polarizatsiyasi.html
 apps/web/public/laboratoriya/zichlik.html
 apps/web/src/app/bolimlar/[section]/page.tsx
 apps/web/src/app/bolimlar/page.tsx
-apps/web/src/app/page.tsx
